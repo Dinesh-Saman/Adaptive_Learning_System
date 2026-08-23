@@ -1,0 +1,41 @@
+# ==========================================
+# Root .gitignore for Kids Learning Platform
+# ==========================================
+
+# Dependencies
+**/node_modules/
+.pnp/
+.pnp.js
+
+# Production / Build Output
+**/dist/
+**/build/
+**/dist-ssr/
+
+# Environment Variables & Secrets
+**/.env
+**/.env.*
+!**/.env.example
+
+# Python Caches & Virtual Environments
+**/__pycache__/
+**/*.py[cod]
+**/venv/
+**/.venv/
+**/env/
+
+# Debug and Temporary Artifacts
+**/debug_*.png
+**/debug_*.jpg
+**/debug_*.jpeg
+**/test_doc.pdf
+**/logs/
+**/*.log
+**/.DS_Store
+Thumbs.db
+
+# IDE & OS Metadata
+.vscode/
+.idea/
+*.swp
+*.swo

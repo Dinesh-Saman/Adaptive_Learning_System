@@ -1,0 +1,63 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment files & API keys
+.env
+.env.*
+!.env.example
+
+# Debugging outputs and temporary test artifacts
+debug_*.png
+debug_*.jpg
+debug_*.jpeg
+*.pdf
+test_doc.*
+test_output/
+temp/
+tmp/
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Model checkpoints & large weights (if any generated dynamically)
+*.h5
+*.tflite
+*.onnx
+*.pt
+*.pth
+*.pkl
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Editor & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

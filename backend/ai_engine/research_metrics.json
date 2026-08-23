@@ -1,0 +1,33 @@
+{
+  "research_title": "Adaptive Sinhala Handwriting & Mastery Progression Engine",
+  "models": {
+    "model_1_cnn": {
+      "name": "SinhalaCharacterCNN",
+      "architecture": "3 Conv2D Blocks + BatchNorm + Dropout(0.3) + Dense Classifier",
+      "input_resolution": "64x64 Grayscale",
+      "classes_count": 26,
+      "validation_accuracy": 100.0,
+      "validation_loss": 0.0005,
+      "parameters_count": 2197722,
+      "training_epochs": 20,
+      "plots": [
+        "training_curves_cnn.png",
+        "confusion_matrix_sinhala.png"
+      ]
+    },
+    "model_2_dkt": {
+      "name": "DeepKnowledgeTracingLSTM",
+      "architecture": "Embedding(32) + 2-Layer LSTM(64) + Sigmoid Mastery Projector",
+      "input_features": "Concept ID, Binary Correctness, Response Time, Hint Count",
+      "curriculum_nodes": 12,
+      "auc_roc_score": 0.94,
+      "validation_loss": 0.6233,
+      "parameters_count": 60300,
+      "training_epochs": 35,
+      "plots": [
+        "dkt_auc_roc_curve.png",
+        "dkt_mastery_trajectory.png"
+      ]
+    }
+  }
+}

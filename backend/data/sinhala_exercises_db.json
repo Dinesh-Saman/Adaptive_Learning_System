@@ -1,0 +1,109 @@
+[
+  {
+    "id": "match_word_pic_1",
+    "type": "WordPictureMatch",
+    "difficulty": 1,
+    "words": ["අලියා", "අන්නාසි", "මාළුවා"],
+    "pictures": ["/images/sinhala/elephant.jpg", "/images/sinhala/pineapple.jpg", "/images/sinhala/fish.jpg"],
+    "pairs": {
+      "අලියා": "/images/sinhala/elephant.jpg",
+      "අන්නාසි": "/images/sinhala/pineapple.jpg",
+      "මාළුවා": "/images/sinhala/fish.jpg"
+    }
+  },
+  {
+    "id": "missing_syllable_1",
+    "type": "MissingSyllable",
+    "difficulty": 1,
+    "image": "/images/sinhala/fish.jpg",
+    "word_suffix": "ළුවා",
+    "options": ["මා", "කා", "ර", "න"],
+    "answer": "මා"
+  },
+  {
+    "id": "crossword_1",
+    "type": "CrosswordFill",
+    "difficulty": 2,
+    "layout": {
+      "grid": [
+        ["", "අ", "පි"],
+        ["ලි", "ය", "මු"]
+      ],
+      "blanks": [{"row": 0, "col": 0}],
+      "options": ["ආ", "පා"],
+      "answer": "ආ"
+    }
+  },
+  {
+    "id": "sentence_complete_1",
+    "type": "SentenceComplete",
+    "difficulty": 3,
+    "sentence": "ඉර ______ .",
+    "options": ["පායලා", "පිපිලා"],
+    "answer": "පායලා"
+  },
+  {
+    "id": "pic_word_match_1",
+    "type": "PictureWordMatch",
+    "difficulty": 1,
+    "image": "/images/sinhala/pineapple.jpg",
+    "options": ["කතුර", "දාමය", "කැස්බෑවා", "අන්නාසි", "ගුවන් යානය"],
+    "answer": "අන්නාසි"
+  },
+  {
+    "id": "match_sentence_parts_1",
+    "type": "MatchSentenceParts",
+    "difficulty": 2,
+    "left_parts": ["අපි බුදුන්", "අම්මා රෙදි", "පූසා කිරි"],
+    "right_parts": ["වඳිනවා", "සෝදනවා", "බොනවා"],
+    "pairs": {
+      "අපි බුදුන්": "වඳිනවා",
+      "අම්මා රෙදි": "සෝදනවා",
+      "පූසා කිරි": "බොනවා"
+    }
+  },
+  {
+    "id": "sentence_pic_match_1",
+    "type": "SentencePictureMatch",
+    "difficulty": 2,
+    "sentences": ["මාළුවා වතුරේ පීනනවා", "ගසේ අඹ පිරිලා"],
+    "pictures": ["/images/sinhala/fish.jpg", "/images/sinhala/mangotree.jpg"],
+    "pairs": {
+      "මාළුවා වතුරේ පීනනවා": "/images/sinhala/fish.jpg",
+      "ගසේ අඹ පිරිලා": "/images/sinhala/mangotree.jpg"
+    }
+  },
+  {
+    "id": "fact_check_1",
+    "type": "FactCheck",
+    "difficulty": 3,
+    "statement": "වැසි ජලය හරි",
+    "options": ["සීතලයි", "රස්නෙයි"],
+    "answer": "සීතලයි"
+  },
+  {
+    "id": "sentence_ordering_1",
+    "type": "SentenceOrdering",
+    "difficulty": 4,
+    "words": ["ගමට", "තාත්තා", "ගියා"],
+    "correct_order": ["තාත්තා", "ගමට", "ගියා"]
+  },
+  {
+    "id": "reading_comp_1",
+    "type": "ReadingComprehension",
+    "difficulty": 5,
+    "paragraph": "පුංචි කුමාරි මිදුලට ගියා. පිච්ච මල්, කුමාරිට කතා කළා.",
+    "questions": [
+      {
+        "question": "මිදුලට ගියේ කවුද?",
+        "options": ["පුංචි කුමාරි", "මල් කුමාරි", "හිම කුමාරි"],
+        "answer": "පුංචි කුමාරි"
+      },
+      {
+        "question": "පුංචි කුමාරිට කතා කළේ කවුද?",
+        "options": ["මල් කුමාරි", "පිච්ච මල්", "නෙළුම් මල්"],
+        "answer": "පිච්ච මල්"
+      }
+    ]
+  }
+]

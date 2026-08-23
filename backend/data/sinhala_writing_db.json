@@ -1,0 +1,163 @@
+[
+  {
+    "grade": 2, "level": 1, "topic": "emotions", "topicSinhala": "හැඟීම්",
+    "word": "සතුට", "meaning": "happiness", "emoji": "😊",
+    "characters": ["ස", "තු", "ට"],
+    "mcqOptions": ["සතුට", "අසතුට", "සතුන්", "සතුටු"], "correctIndex": 0,
+    "sentence": "මට ____ දැනෙනවා.", "imagePrompt": "happy child smiling"
+  },
+  {
+    "grade": 2, "level": 1, "topic": "emotions", "topicSinhala": "හැඟීම්",
+    "word": "දුක", "meaning": "sadness", "emoji": "😢",
+    "characters": ["දු", "ක"],
+    "mcqOptions": ["දුක", "සුඛ", "දිය", "දොඩ"], "correctIndex": 0,
+    "sentence": "ළමයාට ____ දැනෙනවා.", "imagePrompt": "sad child"
+  },
+  {
+    "grade": 2, "level": 1, "topic": "family", "topicSinhala": "පවුල",
+    "word": "අම්මා", "meaning": "mother", "emoji": "👩",
+    "characters": ["අ", "ම්", "මා"],
+    "mcqOptions": ["අම්මා", "අක්කා", "නංගි", "අත්ත"], "correctIndex": 0,
+    "sentence": "මගේ ____ ලස්සනයි.", "imagePrompt": "mother"
+  },
+  {
+    "grade": 2, "level": 1, "topic": "family", "topicSinhala": "පවුල",
+    "word": "තාත්තා", "meaning": "father", "emoji": "👨",
+    "characters": ["තා", "ත්", "තා"],
+    "mcqOptions": ["තාත්තා", "මල්ලි", "සීයා", "නාත්තා"], "correctIndex": 0,
+    "sentence": "මගේ ____ ගෙදර ඇවිත්.", "imagePrompt": "father"
+  },
+  {
+    "grade": 2, "level": 1, "topic": "animals", "topicSinhala": "සතුන්",
+    "word": "කුකුළා", "meaning": "rooster", "emoji": "🐓",
+    "characters": ["කු", "කු", "ළා"],
+    "mcqOptions": ["කුකුළා", "කෙකා", "කෝකිලා", "කතා"], "correctIndex": 0,
+    "sentence": "____ හඬ ගාලා.", "imagePrompt": "rooster"
+  },
+  {
+    "grade": 2, "level": 1, "topic": "animals", "topicSinhala": "සතුන්",
+    "word": "බළලා", "meaning": "cat", "emoji": "🐱",
+    "characters": ["බ", "ළ", "ලා"],
+    "mcqOptions": ["බළලා", "බකමූණා", "බලු", "බළල"], "correctIndex": 0,
+    "sentence": "____ කිරි බොනවා.", "imagePrompt": "cat"
+  },
+  {
+    "grade": 2, "level": 2, "topic": "nature", "topicSinhala": "ස්වභාවය",
+    "word": "ගස", "meaning": "tree", "emoji": "🌳",
+    "characters": ["ග", "ස"],
+    "mcqOptions": ["ගස", "ගැස", "ගසා", "ගෙස"], "correctIndex": 0,
+    "sentence": "ලොකු ____ ගෙදර ළඟ.", "imagePrompt": "tree"
+  },
+  {
+    "grade": 2, "level": 2, "topic": "nature", "topicSinhala": "ස්වභාවය",
+    "word": "මල", "meaning": "flower", "emoji": "🌸",
+    "characters": ["ම", "ල"],
+    "mcqOptions": ["මල", "මළ", "මලා", "මෙල"], "correctIndex": 0,
+    "sentence": "ලස්සන ____ පිපිලා.", "imagePrompt": "flower"
+  },
+  {
+    "grade": 2, "level": 2, "topic": "food", "topicSinhala": "ආහාර",
+    "word": "බත", "meaning": "rice", "emoji": "🍚",
+    "characters": ["බ", "ත"],
+    "mcqOptions": ["බත", "පත", "බිත", "බතු"], "correctIndex": 0,
+    "sentence": "අම්මා ____ උයනවා.", "imagePrompt": "rice food"
+  },
+  {
+    "grade": 2, "level": 2, "topic": "food", "topicSinhala": "ආහාර",
+    "word": "පාන්", "meaning": "bread", "emoji": "🍞",
+    "characters": ["පා", "න්"],
+    "mcqOptions": ["පාන්", "පාල", "නාන්", "පාලු"], "correctIndex": 0,
+    "sentence": "මම ____ කනවා.", "imagePrompt": "bread"
+  },
+  {
+    "grade": 3, "level": 1, "topic": "school", "topicSinhala": "පාසල",
+    "word": "පොත", "meaning": "book", "emoji": "📚",
+    "characters": ["පො", "ත"],
+    "mcqOptions": ["පොත", "පොදු", "පොති", "පෙත"], "correctIndex": 0,
+    "sentence": "ළමයා ____ කියවනවා.", "imagePrompt": "book"
+  },
+  {
+    "grade": 3, "level": 1, "topic": "school", "topicSinhala": "පාසල",
+    "word": "පෑන", "meaning": "pen", "emoji": "✏️",
+    "characters": ["පෑ", "න"],
+    "mcqOptions": ["පෑන", "පෙන", "ෙපෑ", "පෑනා"], "correctIndex": 0,
+    "sentence": "ළමයා ____ ගෙදර ගෙනාවා.", "imagePrompt": "pen pencil"
+  },
+  {
+    "grade": 3, "level": 1, "topic": "colors", "topicSinhala": "වර්ණ",
+    "word": "රතු", "meaning": "red", "emoji": "🔴",
+    "characters": ["ර", "තු"],
+    "mcqOptions": ["රතු", "රතො", "රතා", "රිතු"], "correctIndex": 0,
+    "sentence": "රෝස ____ ය.", "imagePrompt": "red color"
+  },
+  {
+    "grade": 3, "level": 1, "topic": "colors", "topicSinhala": "වර්ණ",
+    "word": "නිල්", "meaning": "blue", "emoji": "🔵",
+    "characters": ["නි", "ල්"],
+    "mcqOptions": ["නිල්", "නිළ", "නිලු", "නිළු"], "correctIndex": 0,
+    "sentence": "අහස ____ ය.", "imagePrompt": "blue sky"
+  },
+  {
+    "grade": 3, "level": 2, "topic": "actions", "topicSinhala": "ක්‍රියා",
+    "word": "ඇවිදිනවා", "meaning": "walking", "emoji": "🚶",
+    "characters": ["ඇ", "වි", "දි", "නවා"],
+    "mcqOptions": ["ඇවිදිනවා", "ඇවිදිය", "ඇවිදීම", "ඇවිදනවා"], "correctIndex": 0,
+    "sentence": "ළමයා ____ .", "imagePrompt": "child walking"
+  },
+  {
+    "grade": 3, "level": 2, "topic": "actions", "topicSinhala": "ක්‍රියා",
+    "word": "කනවා", "meaning": "eating", "emoji": "🍽️",
+    "characters": ["ක", "න", "වා"],
+    "mcqOptions": ["කනවා", "කානවා", "කිනවා", "කනා"], "correctIndex": 0,
+    "sentence": "දරුවා බත් ____.", "imagePrompt": "child eating"
+  },
+  {
+    "grade": 4, "level": 1, "topic": "virtues", "topicSinhala": "ගුණ",
+    "word": "ආදරය", "meaning": "love", "emoji": "❤️",
+    "characters": ["ආ", "ද", "ර", "ය"],
+    "mcqOptions": ["ආදරය", "ආදර", "ආදරව", "ආදරා"], "correctIndex": 0,
+    "sentence": "අම්මාට ____ දෙනවා.", "imagePrompt": "love heart"
+  },
+  {
+    "grade": 4, "level": 1, "topic": "virtues", "topicSinhala": "ගුණ",
+    "word": "ගෞරවය", "meaning": "respect", "emoji": "🙏",
+    "characters": ["ගෞ", "ර", "ව", "ය"],
+    "mcqOptions": ["ගෞරවය", "ගෞරව", "ගෞරවා", "ගොරව"], "correctIndex": 0,
+    "sentence": "ගුරුවරයාට ____ දිය යුතුයි.", "imagePrompt": "respect teacher"
+  },
+  {
+    "grade": 4, "level": 1, "topic": "places", "topicSinhala": "ස්ථාන",
+    "word": "පාසල", "meaning": "school", "emoji": "🏫",
+    "characters": ["පා", "ස", "ල"],
+    "mcqOptions": ["පාසල", "පාසල්", "පාසලා", "පාසල"], "correctIndex": 0,
+    "sentence": "දරුවා ____ යයි.", "imagePrompt": "school building"
+  },
+  {
+    "grade": 4, "level": 2, "topic": "body", "topicSinhala": "ශරීරය",
+    "word": "ඇස", "meaning": "eye", "emoji": "👁️",
+    "characters": ["ඇ", "ස"],
+    "mcqOptions": ["ඇස", "ඇස්", "ඇසු", "ඇසා"], "correctIndex": 0,
+    "sentence": "ලස්සන ____ක් .", "imagePrompt": "eye"
+  },
+  {
+    "grade": 5, "level": 1, "topic": "environment", "topicSinhala": "පරිසරය",
+    "word": "ගංගාව", "meaning": "river", "emoji": "🌊",
+    "characters": ["ගං", "ගා", "ව"],
+    "mcqOptions": ["ගංගාව", "ගන්ගාව", "ගාංගාව", "ගංගා"], "correctIndex": 0,
+    "sentence": "ලොකු ____ ගලා යයි.", "imagePrompt": "river"
+  },
+  {
+    "grade": 5, "level": 1, "topic": "environment", "topicSinhala": "පරිසරය",
+    "word": "කඳු", "meaning": "mountains", "emoji": "⛰️",
+    "characters": ["ක", "ඳු"],
+    "mcqOptions": ["කඳු", "කඩු", "ගඳු", "කළු"], "correctIndex": 0,
+    "sentence": "ලංකාවේ ලස්සන ____ .", "imagePrompt": "mountains"
+  },
+  {
+    "grade": 5, "level": 2, "topic": "values", "topicSinhala": "වටිනාකම්",
+    "word": "ශ්‍රමය", "meaning": "hard work", "emoji": "💪",
+    "characters": ["ශ්‍ර", "ම", "ය"],
+    "mcqOptions": ["ශ්‍රමය", "ශ්‍රම", "ස්‍රමය", "ශ‍්‍රමය"], "correctIndex": 0,
+    "sentence": "____ නිදන් ගෙදරක් නෑ.", "imagePrompt": "hard work"
+  }
+]
