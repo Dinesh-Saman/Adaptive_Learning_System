@@ -12,10 +12,10 @@ const GRADE4_L1_ACT2_QUESTIONS = [
     hintExplanation: '💡 අඹ, කොස්, කෙසෙල් පලතුරු වන අතර, බස් රථය වාහනයකි.',
     voicePrompt: 'කණ්ඩායමට නොගැළපෙන අයත් නොවන වචනය තෝරන්න.',
     options: [
-      { id: 'opt_1_1', text: 'අඹ', emoji: '🥭', isOdd: false, label: 'පලතුරක්' },
-      { id: 'opt_1_2', text: 'කොස්', emoji: '🍈', isOdd: false, label: 'පලතුරක්' },
-      { id: 'opt_1_3', text: 'බස් රථය', emoji: '🚌', isOdd: true, label: 'වාහනයක්' },
-      { id: 'opt_1_4', text: 'කෙසෙල්', emoji: '🍌', isOdd: false, label: 'පලතුරක්' },
+      { id: 'opt_1_1', text: 'අඹ', emoji: '🥭', image: '/images/sinhala/g4_l1_act2_mango.png', isOdd: false, label: 'පලතුරක්' },
+      { id: 'opt_1_2', text: 'කොස්', emoji: '🍈', image: '/images/sinhala/g4_l1_act2_jackfruit.png', isOdd: false, label: 'පලතුරක්' },
+      { id: 'opt_1_3', text: 'බස් රථය', emoji: '🚌', image: '/images/sinhala/g4_l1_act2_bus.png', isOdd: true, label: 'වාහනයක්' },
+      { id: 'opt_1_4', text: 'කෙසෙල්', emoji: '🍌', image: '/images/sinhala/g4_l1_act2_banana.png', isOdd: false, label: 'පලතුරක්' },
     ]
   },
   {
@@ -27,10 +27,10 @@ const GRADE4_L1_ACT2_QUESTIONS = [
     hintExplanation: '💡 ගුරුවරයා, වෛද්‍යවරයා, ගොවියා පුද්ගල නාම වන අතර, පොත ද්‍රව්‍යයකි.',
     voicePrompt: 'කණ්ඩායමට නොගැළපෙන අයත් නොවන වචනය තෝරන්න.',
     options: [
-      { id: 'opt_2_1', text: 'ගුරුවරයා', emoji: '👨‍🏫', isOdd: false, label: 'පුද්ගලයෙක්' },
-      { id: 'opt_2_2', text: 'වෛද්‍යවරයා', emoji: '👨‍⚕️', isOdd: false, label: 'පුද්ගලයෙක්' },
-      { id: 'opt_2_3', text: 'පොත', emoji: '📘', isOdd: true, label: 'ද්‍රව්‍යයක්' },
-      { id: 'opt_2_4', text: 'ගොවියා', emoji: '👨‍🌾', isOdd: false, label: 'පුද්ගලයෙක්' },
+      { id: 'opt_2_1', text: 'ගුරුවරයා', emoji: '👨‍🏫', image: '/images/sinhala/g4_l1_act2_teacher.png', isOdd: false, label: 'පුද්ගලයෙක්' },
+      { id: 'opt_2_2', text: 'වෛද්‍යවරයා', emoji: '👨‍⚕️', image: '/images/sinhala/g4_l1_act2_doctor.png', isOdd: false, label: 'පුද්ගලයෙක්' },
+      { id: 'opt_2_3', text: 'පොත', emoji: '📘', image: '/images/sinhala/g4_l1_act2_book.png', isOdd: true, label: 'ද්‍රව්‍යයක්' },
+      { id: 'opt_2_4', text: 'ගොවියා', emoji: '👨‍🌾', image: '/images/sinhala/g4_l1_act2_farmer.png', isOdd: false, label: 'පුද්ගලයෙක්' },
     ]
   },
   {
@@ -42,10 +42,10 @@ const GRADE4_L1_ACT2_QUESTIONS = [
     hintExplanation: '💡 පොත, පැන්සල, මකනය පාසල් උපකරණ වන අතර, කුකුළා සතෙකි.',
     voicePrompt: 'කණ්ඩායමට නොගැළපෙන අයත් නොවන වචනය තෝරන්න.',
     options: [
-      { id: 'opt_3_1', text: 'පොත', emoji: '📘', isOdd: false, label: 'උපකරණයක්' },
-      { id: 'opt_3_2', text: 'කුකුළා', emoji: '🐓', isOdd: true, label: 'සතෙක්' },
-      { id: 'opt_3_3', text: 'පැන්සල', emoji: '✏️', isOdd: false, label: 'උපකරණයක්' },
-      { id: 'opt_3_4', text: 'මකනය', emoji: '🧼', isOdd: false, label: 'උපකරණයක්' },
+      { id: 'opt_3_1', text: 'පොත', emoji: '📘', image: '/images/sinhala/g4_l1_act2_book.png', isOdd: false, label: 'උපකරණයක්' },
+      { id: 'opt_3_2', text: 'කුකුළා', emoji: '🐓', image: '/images/sinhala/g4_l1_act2_rooster.png', isOdd: true, label: 'සතෙක්' },
+      { id: 'opt_3_3', text: 'පැන්සල', emoji: '✏️', image: '/images/sinhala/g4_l1_act2_pencil.png', isOdd: false, label: 'උපකරණයක්' },
+      { id: 'opt_3_4', text: 'මකනය', emoji: '🧼', image: '/images/sinhala/g4_l1_act2_eraser.png', isOdd: false, label: 'උපකරණයක්' },
     ]
   },
   {
@@ -57,10 +57,10 @@ const GRADE4_L1_ACT2_QUESTIONS = [
     hintExplanation: '💡 සඳ, තරුව, සූර්යයා අහසේ වස්තූන් වන අතර, කඩදාසිය ද්‍රව්‍යයකි.',
     voicePrompt: 'කණ්ඩායමට නොගැළපෙන අයත් නොවන වචනය තෝරන්න.',
     options: [
-      { id: 'opt_4_1', text: 'කඩදාසිය', emoji: '📄', isOdd: true, label: 'ද්‍රව්‍යයක්' },
-      { id: 'opt_4_2', text: 'සඳ', emoji: '🌕', isOdd: false, label: 'අහසේ වස්තුවක්' },
-      { id: 'opt_4_3', text: 'තරුව', emoji: '⭐', isOdd: false, label: 'අහසේ වස්තුවක්' },
-      { id: 'opt_4_4', text: 'සූර්යයා', emoji: '☀️', isOdd: false, label: 'අහසේ වස්තුවක්' },
+      { id: 'opt_4_1', text: 'කඩදාසිය', emoji: '📄', image: '/images/sinhala/g4_l1_act2_paper.png', isOdd: true, label: 'ද්‍රව්‍යයක්' },
+      { id: 'opt_4_2', text: 'සඳ', emoji: '🌕', image: '/images/sinhala/g4_l1_act2_moon.png', isOdd: false, label: 'අහසේ වස්තුවක්' },
+      { id: 'opt_4_3', text: 'තරුව', emoji: '⭐', image: '/images/sinhala/g4_l1_act2_star.png', isOdd: false, label: 'අහසේ වස්තුවක්' },
+      { id: 'opt_4_4', text: 'සූර්යයා', emoji: '☀️', image: '/images/sinhala/g4_l1_act2_sun.png', isOdd: false, label: 'අහසේ වස්තුවක්' },
     ]
   },
   {
@@ -72,10 +72,10 @@ const GRADE4_L1_ACT2_QUESTIONS = [
     hintExplanation: '💡 කිරි, තේ, ජලය දියර පාන වර්ග වන අතර, ගල ඝන ද්‍රව්‍යයකි.',
     voicePrompt: 'කණ්ඩායමට නොගැළපෙන අයත් නොවන වචනය තෝරන්න.',
     options: [
-      { id: 'opt_5_1', text: 'කිරි', emoji: '🥛', isOdd: false, label: 'දියරයක්' },
-      { id: 'opt_5_2', text: 'තේ', emoji: '☕', isOdd: false, label: 'දියරයක්' },
-      { id: 'opt_5_3', text: 'ජලය', emoji: '💧', isOdd: false, label: 'දියරයක්' },
-      { id: 'opt_5_4', text: 'ගල', emoji: '🪨', isOdd: true, label: 'ඝන ද්‍රව්‍යයක්' },
+      { id: 'opt_5_1', text: 'කිරි', emoji: '🥛', image: '/images/sinhala/g4_l1_act2_milk.png', isOdd: false, label: 'දියරයක්' },
+      { id: 'opt_5_2', text: 'තේ', emoji: '☕', image: '/images/sinhala/g4_l1_act2_tea.png', isOdd: false, label: 'දියරයක්' },
+      { id: 'opt_5_3', text: 'ජලය', emoji: '💧', image: '/images/sinhala/g4_l1_act2_water.png', isOdd: false, label: 'දියරයක්' },
+      { id: 'opt_5_4', text: 'ගල', emoji: '🪨', image: '/images/sinhala/g4_l1_act2_stone.png', isOdd: true, label: 'ඝන ද්‍රව්‍යයක්' },
     ]
   }
 ];
@@ -874,9 +874,19 @@ export default function SinhalaGrade4Level1Act2({ onExit }) {
                     isConfirmed ? 'cursor-default pointer-events-none' : 'cursor-pointer hover:-translate-y-1 active:scale-95'
                   }`}
                 >
-                  <div className="text-5xl sm:text-6xl drop-shadow-md my-2 group-hover:scale-110 transition-transform pointer-events-none">
-                    {opt.emoji}
-                  </div>
+                  {opt.image ? (
+                    <div className="h-20 sm:h-24 w-full flex items-center justify-center my-1 pointer-events-none">
+                      <img
+                        src={opt.image}
+                        alt={opt.text}
+                        className="max-h-full max-w-full object-contain drop-shadow-md transition-transform duration-300 pointer-events-none"
+                      />
+                    </div>
+                  ) : (
+                    <div className="text-5xl sm:text-6xl drop-shadow-md my-2 group-hover:scale-110 transition-transform pointer-events-none">
+                      {opt.emoji}
+                    </div>
+                  )}
 
                   <div className={`w-full text-center py-2 px-1 rounded-xl font-black text-base sm:text-lg border shadow-xs pointer-events-none ${
                     isSelected
