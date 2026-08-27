@@ -1,9 +1,10 @@
-﻿export const STORIES = [
+export const STORIES = [
   {
     id: "lion_mouse",
     title: "සිංහයා සහ මීයා",
     englishTitle: "The Lion and the Mouse",
     emoji: "🦁🐭",
+    image: "/images/stories/lion_mouse.jpg",
     expectedElements: ['lion', 'mouse'],
     paragraphs: [
       "එක් දිනක් විශාල වනාන්තරයක බලවත් සිංහයෙකු ජීවත් විය. වනාන්තරයේ සිටි අනෙක් සියලුම සතුන් සිංහයාට බිය වූහ. ඔහුගේ ශක්තිය සහ බලය නිසා කිසිම සතෙකු ඔහුට ළං වීමට පවා නිර්භීත නොවීය.",

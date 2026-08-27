@@ -144,9 +144,21 @@ const StoryDrawingModule = ({ onExit }) => {
                 <div 
                   key={story.id}
                   onClick={() => setActiveStory(story)}
-                  className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 hover:border-orange-300 hover:shadow-md cursor-pointer transition-all transform hover:-translate-y-1 flex flex-col items-center text-center"
+                  className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:border-orange-300 hover:shadow-lg cursor-pointer transition-all transform hover:-translate-y-1 flex flex-col items-center text-center group"
                 >
-                  <div className="text-6xl mb-4">{story.emoji}</div>
+                  {story.image ? (
+                    <div className="w-full h-52 mb-5 rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 shadow-sm flex items-center justify-center">
+                      <img 
+                        src={story.image} 
+                        alt={story.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-52 mb-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-100 border border-orange-100 flex items-center justify-center text-6xl shadow-inner">
+                      {story.emoji}
+                    </div>
+                  )}
                   <h3 className="text-2xl font-bold text-slate-800 font-sinhala mb-2">{story.title}</h3>
                   <p className="text-slate-500 font-medium">{story.englishTitle}</p>
                 </div>
@@ -158,7 +170,15 @@ const StoryDrawingModule = ({ onExit }) => {
               <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 flex flex-col">
                 <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                   <div className="flex items-center gap-3">
-                    <span className="text-3xl">{activeStory.emoji}</span>
+                    {activeStory.image ? (
+                      <img 
+                        src={activeStory.image} 
+                        alt={activeStory.title} 
+                        className="w-12 h-12 rounded-2xl object-cover border border-slate-200 shadow-sm" 
+                      />
+                    ) : (
+                      <span className="text-3xl">{activeStory.emoji}</span>
+                    )}
                     <h2 className="text-2xl font-bold text-slate-800 font-sinhala">{activeStory.title}</h2>
                   </div>
                   <button 
