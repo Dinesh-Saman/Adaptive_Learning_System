@@ -105,6 +105,7 @@ export const STORIES = [
     title: "වඳුරා සහ කිඹුලා",
     englishTitle: "The Monkey and the Crocodile",
     emoji: "🐒🐊",
+    image: "/images/stories/monkey_crocodile.jpg",
     expectedElements: ['monkey', 'crocodile'],
     paragraphs: [
       "එක් සුන්දර වනාන්තරයක විශාල ගඟක් අසල සශ්‍රීක ගසක වඳුරෙකු ජීවත් විය. එම ගසේ රසවත් පලතුරු බොහෝ තිබූ නිසා වඳුරා සතුටින් දින ගත කළේය.",
@@ -139,6 +140,7 @@ export const STORIES = [
     title: "සිංහයා, හිවලා සහ මුවන්",
     englishTitle: "The Lion, the Fox, and the Deer",
     emoji: "🦁🦊🦌",
+    image: "/images/stories/lion_fox_deer.jpg",
     expectedElements: ['lion', 'fox', 'deer'],
     paragraphs: [
       "එක් විශාල වනාන්තරයක බලවත් සිංහයෙකු ජීවත් විය. ඔහු වනාන්තරයේ රජු ලෙස සැලකුණු අතර, අනෙක් සතුන් බොහෝ දෙනෙක් ඔහුට බියෙන් ජීවත් වූහ.",
@@ -171,6 +173,7 @@ export const STORIES = [
     title: "කුකුළා සහ මැණික",
     englishTitle: "The Rooster and the Jewel",
     emoji: "🐓💎",
+    image: "/images/stories/rooster_jewel.jpg",
     expectedElements: ['rooster', 'jewel', 'farmer'],
     paragraphs: [
       "එක් සුන්දර උදෑසනක, ගොවිපළක ජීවත් වූ කුකුළෙකු ආහාර සොයමින් එළිමහනේ ඇවිදිමින් සිටියේය. ඔහු පස පෙරළමින් කුඩා කෘමීන් සහ ධාන්‍ය සොයමින් සිටියේය.",
@@ -193,6 +196,7 @@ export const STORIES = [
     title: "බකමූණා සහ කුඩා කුරුල්ලා",
     englishTitle: "The Owl and the Little Bird",
     emoji: "🦉🐦",
+    image: "/images/stories/owl_bird.jpg",
     expectedElements: ['owl', 'bird'],
     paragraphs: [
       "එක් ඝන වනාන්තරයක විශාල ගසක කුඩා කුරුල්ලෙකු තම මව සමඟ කූඩුවක ජීවත් විය. කුඩා කුරුල්ලා ඉතා කුතුහලයෙන් පිරුණු කෙනෙකි. අලුත් දේවල් සොයා බැලීමටත්, වනාන්තරයේ විවිධ ස්ථානවලට පියාඹා යාමටත් ඔහු බොහෝ කැමති විය.",
