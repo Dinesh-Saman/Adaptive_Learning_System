@@ -13,8 +13,6 @@
 **/dist-ssr/
 
 # Environment Variables & Secrets
-**/.env
-**/.env.*
 !**/.env.example
 
 # Python Caches & Virtual Environments
@@ -39,7 +37,7 @@
 Thumbs.db
 
 # IDE & OS Metadata
-.vscode/
 .idea/
 *.swp
 *.swo
+config.bat
