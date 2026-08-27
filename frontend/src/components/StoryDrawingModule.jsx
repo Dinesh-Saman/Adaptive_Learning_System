@@ -119,11 +119,17 @@ const StoryDrawingModule = ({ onExit }) => {
   };
 
   return (
-    <div className="flex-grow bg-slate-50 w-full min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div 
+      className="flex-grow w-full min-h-screen py-12 bg-cover bg-center bg-fixed relative"
+      style={{ backgroundImage: `url('/images/story_bg.jpg')` }}
+    >
+      {/* Subtle overlay for contrast */}
+      <div className="absolute inset-0 bg-slate-900/25 backdrop-blur-[1px]"></div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <header className="mb-12 flex justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+        <header className="mb-12 flex justify-between items-center bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-md border border-white/60">
           <button 
             onClick={handleBack}
             className="text-sm font-bold text-orange-700 hover:text-white hover:bg-orange-600 bg-orange-50 border border-orange-200 px-5 py-2.5 rounded-2xl transition-all flex items-center gap-2 shadow-sm font-sinhala"
@@ -131,8 +137,8 @@ const StoryDrawingModule = ({ onExit }) => {
             <span>⬅</span> ආපසු (Back)
           </button>
           <div className="text-center">
-            <h1 className="text-3xl font-black text-slate-800 mb-1 font-sinhala">කතන්දර චිත්‍ර (Story Drawing)</h1>
-            <p className="text-slate-500 font-medium text-sm font-sinhala">කතාව කියවා ඔබ සිතින් මවාගන්නා දේ අඳින්න! (Read the story and draw what you imagine!)</p>
+            <h1 className="text-3xl font-black text-slate-800 mb-1 font-sinhala drop-shadow-sm">කතන්දර චිත්‍ර (Story Drawing)</h1>
+            <p className="text-slate-600 font-bold text-sm font-sinhala">කතාව කියවා ඔබ සිතින් මවාගන්නා දේ අඳින්න! (Read the story and draw what you imagine!)</p>
           </div>
           <div className="w-24"></div>
         </header>
@@ -144,7 +150,7 @@ const StoryDrawingModule = ({ onExit }) => {
                 <div 
                   key={story.id}
                   onClick={() => setActiveStory(story)}
-                  className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 hover:border-orange-300 hover:shadow-xl cursor-pointer transition-all transform hover:-translate-y-1.5 flex flex-col items-center text-center group"
+                  className="bg-white/95 backdrop-blur-md rounded-3xl p-4 shadow-md border border-white/80 hover:border-orange-400 hover:shadow-2xl cursor-pointer transition-all transform hover:-translate-y-2 flex flex-col items-center text-center group"
                 >
                   {story.image ? (
                     <div className="w-full h-64 sm:h-72 mb-4 rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 shadow-sm flex items-center justify-center">
