@@ -126,13 +126,13 @@ const StoryDrawingModule = ({ onExit }) => {
         <header className="mb-12 flex justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
           <button 
             onClick={handleBack}
-            className="text-sm font-bold text-orange-700 hover:text-white hover:bg-orange-600 bg-orange-50 border border-orange-200 px-5 py-2.5 rounded-2xl transition-all flex items-center gap-2 shadow-sm"
+            className="text-sm font-bold text-orange-700 hover:text-white hover:bg-orange-600 bg-orange-50 border border-orange-200 px-5 py-2.5 rounded-2xl transition-all flex items-center gap-2 shadow-sm font-sinhala"
           >
-            <span>⬅</span> Back
+            <span>⬅</span> ආපසු (Back)
           </button>
           <div className="text-center">
             <h1 className="text-3xl font-black text-slate-800 mb-1 font-sinhala">කතන්දර චිත්‍ර (Story Drawing)</h1>
-            <p className="text-slate-500 font-medium text-sm">Read the story and draw what you imagine!</p>
+            <p className="text-slate-500 font-medium text-sm font-sinhala">කතාව කියවා ඔබ සිතින් මවාගන්නා දේ අඳින්න! (Read the story and draw what you imagine!)</p>
           </div>
           <div className="w-24"></div>
         </header>
@@ -183,9 +183,9 @@ const StoryDrawingModule = ({ onExit }) => {
                   </div>
                   <button 
                     onClick={() => { setActiveStory(null); setSelectedImage(null); setEvaluationResult(null); }}
-                    className="text-sm font-bold text-slate-600 hover:text-slate-900 bg-slate-100 px-4 py-2 rounded-xl transition-all"
+                    className="text-sm font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl transition-all font-sinhala"
                   >
-                    Change Story
+                    කතාව වෙනස් කරන්න (Change Story)
                   </button>
                 </div>
                 
