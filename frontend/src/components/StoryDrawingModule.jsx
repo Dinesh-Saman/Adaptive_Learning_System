@@ -120,7 +120,7 @@ const StoryDrawingModule = ({ onExit }) => {
 
   return (
     <div className="flex-grow bg-slate-50 w-full min-h-screen py-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <header className="mb-12 flex justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
@@ -137,17 +137,17 @@ const StoryDrawingModule = ({ onExit }) => {
           <div className="w-24"></div>
         </header>
 
-        {/* If no story is selected, show the story list */}
+        {/* If no story is selected, show the story list (4 per row, total 2 rows) */}
           {!activeStory ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {STORIES.map(story => (
                 <div 
                   key={story.id}
                   onClick={() => setActiveStory(story)}
-                  className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:border-orange-300 hover:shadow-lg cursor-pointer transition-all transform hover:-translate-y-1 flex flex-col items-center text-center group"
+                  className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 hover:border-orange-300 hover:shadow-xl cursor-pointer transition-all transform hover:-translate-y-1.5 flex flex-col items-center text-center group"
                 >
                   {story.image ? (
-                    <div className="w-full h-80 sm:h-96 mb-5 rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 shadow-sm flex items-center justify-center">
+                    <div className="w-full h-64 sm:h-72 mb-4 rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 shadow-sm flex items-center justify-center">
                       <img 
                         src={story.image} 
                         alt={story.title} 
@@ -155,12 +155,12 @@ const StoryDrawingModule = ({ onExit }) => {
                       />
                     </div>
                   ) : (
-                    <div className="w-full h-80 sm:h-96 mb-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-100 border border-orange-100 flex items-center justify-center text-6xl shadow-inner">
+                    <div className="w-full h-64 sm:h-72 mb-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-100 border border-orange-100 flex items-center justify-center text-5xl shadow-inner">
                       {story.emoji}
                     </div>
                   )}
-                  <h3 className="text-2xl font-bold text-slate-800 font-sinhala mb-2">{story.title}</h3>
-                  <p className="text-slate-500 font-medium">{story.englishTitle}</p>
+                  <h3 className="text-lg font-bold text-slate-800 font-sinhala mb-1 leading-snug">{story.title}</h3>
+                  <p className="text-slate-500 font-medium text-xs">{story.englishTitle}</p>
                 </div>
               ))}
             </div>
