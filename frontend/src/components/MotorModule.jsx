@@ -2,6 +2,41 @@ import React, { useState, useRef, useEffect } from 'react';
 
 const TRACING_TASKS = [
   {
+    id: 'ws1',
+    title: 'රටා පුහුණුව 1 (Patterns)',
+    icon: '〰️',
+    imageSrc: '/assets/worksheets/ws1.png',
+    isSplit: false
+  },
+  {
+    id: 'ws2',
+    title: 'රටා පුහුණුව 2 (Bugs)',
+    icon: '🐞',
+    imageSrc: '/assets/worksheets/ws2.png',
+    isSplit: false
+  },
+  {
+    id: 'ws3',
+    title: 'සමනල මාවත (Butterfly)',
+    icon: '🦋',
+    imageSrc: '/assets/worksheets/ws3.png',
+    isSplit: false
+  },
+  {
+    id: 'ws4',
+    title: 'හැඩතල (Shapes)',
+    icon: '🔺',
+    imageSrc: '/assets/worksheets/ws4.png',
+    isSplit: false
+  },
+  {
+    id: 'ws5',
+    title: 'සත්තු මාවත (Animals)',
+    icon: '🐘',
+    imageSrc: '/assets/worksheets/ws5.png',
+    isSplit: false
+  },
+  {
     id: 'mango',
     title: 'අඹ (Mango)',
     icon: '🥭',
@@ -42,10 +77,9 @@ export default function MotorModule({ onExit }) {
   const [stats, setStats] = useState({ accuracy: 0, completion: 0, overall: 0 });
   const [showConfetti, setShowConfetti] = useState(false);
   const [resultImageSrc, setResultImageSrc] = useState(null);
-  const [currentColor, setCurrentColor] = useState('#000000'); // Default black
+  const [currentColor, setCurrentColor] = useState('#000000');
   const [isEraser, setIsEraser] = useState(false);
 
-  // Undo support
   const [history, setHistory] = useState([]);
   const [historyStep, setHistoryStep] = useState(-1);
 
@@ -119,28 +153,35 @@ export default function MotorModule({ onExit }) {
   };
 
   const setupCanvas = (img) => {
-    const margin = 0; 
-    const halfWidth = Math.floor(img.width / 2);
-    const targetWidth = halfWidth - (margin * 2);
-    const targetHeight = img.height - (margin * 2);
+    let targetWidth, targetHeight, sourceXTruth, sourceXBg;
     
-    // Left half = dotted background
+    if (selectedTask.isSplit !== false) {
+      const halfWidth = Math.floor(img.width / 2);
+      targetWidth = halfWidth;
+      targetHeight = img.height;
+      sourceXBg = 0;
+      sourceXTruth = halfWidth;
+    } else {
+      targetWidth = img.width;
+      targetHeight = img.height;
+      sourceXBg = 0;
+      sourceXTruth = 0;
+    }
+    
     const bgCvs = document.createElement('canvas');
     bgCvs.width = targetWidth;
     bgCvs.height = targetHeight;
     const bgCtx = bgCvs.getContext('2d');
-    bgCtx.drawImage(img, margin, margin, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight);
+    bgCtx.drawImage(img, sourceXBg, 0, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight);
     backgroundCanvasRef.current = bgCvs;
 
-    // Right half = solid truth
     const truthCvs = document.createElement('canvas');
     truthCvs.width = targetWidth;
     truthCvs.height = targetHeight;
     const truthCtx = truthCvs.getContext('2d');
-    truthCtx.drawImage(img, halfWidth + margin, margin, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight);
+    truthCtx.drawImage(img, sourceXTruth, 0, targetWidth, targetHeight, 0, 0, targetWidth, targetHeight);
     truthCanvasRef.current = truthCvs;
 
-    // Drawing Canvas
     const canvas = canvasRef.current;
     canvas.width = targetWidth;
     canvas.height = targetHeight;
@@ -229,7 +270,6 @@ export default function MotorModule({ onExit }) {
     const w = canvas.width;
     const h = canvas.height;
     
-    // Temporarily reset composite operation to read data properly
     const oldComposite = ctx.globalCompositeOperation;
     ctx.globalCompositeOperation = 'source-over';
     
@@ -243,11 +283,13 @@ export default function MotorModule({ onExit }) {
     let drawnOnTarget = 0;
     let drawnOffTarget = 0;
     
-    // We dilate the truth mask slightly for forgiveness (4 pixels is strictly enough to bridge dotted gaps)
-    const tolerance = 4; // pixels
+    // Extremely strict tolerance for high accuracy detection
+    const tolerance = selectedTask.isSplit === false ? 3 : 2;
+    const tolSq = tolerance * tolerance;
     
-    // Create a boolean mask of where the truth is black/grey
     const isTarget = new Uint8Array(w * h);
+    const targetHit = new Uint8Array(w * h);
+    
     for (let i = 0; i < w * h; i++) {
        const r = truthData[i*4];
        const g = truthData[i*4+1];
@@ -258,16 +300,12 @@ export default function MotorModule({ onExit }) {
        }
     }
     
-    // Now evaluate user drawing
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
         const i = y * w + x;
         const a = userData[i*4 + 3];
-        if (a > 10) { // User drew here
-           // Check if within tolerance of a target pixel
+        if (a > 10) { 
            let matched = false;
-           
-           // Fast box check
            const minX = Math.max(0, x - tolerance);
            const maxX = Math.min(w - 1, x + tolerance);
            const minY = Math.max(0, y - tolerance);
@@ -275,12 +313,12 @@ export default function MotorModule({ onExit }) {
            
            for(let ty = minY; ty <= maxY; ty++){
              for(let tx = minX; tx <= maxX; tx++){
-               if(isTarget[ty * w + tx] === 1) {
+               const distSq = (tx - x)*(tx - x) + (ty - y)*(ty - y);
+               if(distSq <= tolSq && isTarget[ty * w + tx] === 1) {
+                 targetHit[ty * w + tx] = 1;
                  matched = true;
-                 break;
                }
              }
-             if(matched) break;
            }
            
            if (matched) drawnOnTarget++;
@@ -295,15 +333,21 @@ export default function MotorModule({ onExit }) {
       return;
     }
     
-    // Very rough heuristic for completion. User line is 12px thick, expected is maybe 5px.
-    // So if user traces perfectly, drawnOnTarget will be ~2x totalExpectedPixels.
-    let completion = (drawnOnTarget / (totalExpectedPixels * 1.5)) * 100;
+    let hitPixels = 0;
+    for (let i = 0; i < w * h; i++) {
+      if (targetHit[i] === 1) hitPixels++;
+    }
+    
+    let targetMultiplier = selectedTask.isSplit === false ? 0.30 : 0.90;
+    let completion = (hitPixels / (totalExpectedPixels * targetMultiplier)) * 100;
     completion = Math.min(100, Math.round(completion));
     
-    let accuracy = (drawnOnTarget / (drawnOnTarget + drawnOffTarget)) * 100;
-    accuracy = Math.min(100, Math.round(accuracy));
+    // Because tolerance is extremely strict (3px), tracing over the white gaps between dots 
+    // will naturally produce some red pixels even on a perfect trace.
+    // We boost the raw accuracy by 15% so a highly accurate trace still yields 100%.
+    let rawAccuracy = (drawnOnTarget / (drawnOnTarget + drawnOffTarget)) * 100;
+    let accuracy = Math.min(100, Math.round(rawAccuracy * 1.15));
     
-    // Overall score combines accuracy and completion
     let overall = Math.round((accuracy * 0.4) + (completion * 0.6));
     
     // Visual feedback: color off-target pixels RED, on-target pixels GREEN

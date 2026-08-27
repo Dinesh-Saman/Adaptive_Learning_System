@@ -1,0 +1,2786 @@
+{
+    "question_pool": [
+        {
+            "id": "q_001",
+            "word": "school",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_002",
+            "word": "spoon",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_003",
+            "word": "station",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_004",
+            "word": "study",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_005",
+            "word": "student",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_006",
+            "word": "star",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_007",
+            "word": "stop",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_008",
+            "word": "street",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_009",
+            "word": "stone",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_010",
+            "word": "smile",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_011",
+            "word": "snake",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_012",
+            "word": "spider",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_013",
+            "word": "sport",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_014",
+            "word": "spring",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_015",
+            "word": "store",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_016",
+            "word": "stamp",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_017",
+            "word": "smart",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_018",
+            "word": "small",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_019",
+            "word": "space",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_020",
+            "word": "speech",
+            "category_id": 1,
+            "category_name": "S-Cluster Prosthesis",
+            "target_ipa": "/s.../",
+            "error_ipa": "/\u026as.../"
+        },
+        {
+            "id": "q_021",
+            "word": "very",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_022",
+            "word": "water",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_023",
+            "word": "win",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_024",
+            "word": "view",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_025",
+            "word": "van",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_026",
+            "word": "valley",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_027",
+            "word": "vast",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_028",
+            "word": "village",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_029",
+            "word": "voice",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_030",
+            "word": "visit",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_031",
+            "word": "value",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_032",
+            "word": "vowel",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_033",
+            "word": "vote",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_034",
+            "word": "vegetable",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_035",
+            "word": "vehicle",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_036",
+            "word": "window",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_037",
+            "word": "wait",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_038",
+            "word": "welcome",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_039",
+            "word": "world",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_040",
+            "word": "word",
+            "category_id": 2,
+            "category_name": "V/W Merger",
+            "target_ipa": "/v/",
+            "error_ipa": "/w/"
+        },
+        {
+            "id": "q_041",
+            "word": "three",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_042",
+            "word": "think",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_043",
+            "word": "this",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_044",
+            "word": "that",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_045",
+            "word": "these",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_046",
+            "word": "those",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_047",
+            "word": "thank",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_048",
+            "word": "thing",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_049",
+            "word": "thirsty",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_050",
+            "word": "Thursday",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_051",
+            "word": "thumb",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_052",
+            "word": "thunder",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_053",
+            "word": "thick",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_054",
+            "word": "thin",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_055",
+            "word": "through",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_056",
+            "word": "throw",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_057",
+            "word": "truth",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_058",
+            "word": "bath",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_059",
+            "word": "tooth",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_060",
+            "word": "mouth",
+            "category_id": 3,
+            "category_name": "TH Substitution",
+            "target_ipa": "/\u03b8/",
+            "error_ipa": "/t/ or /d/"
+        },
+        {
+            "id": "q_061",
+            "word": "fan",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_062",
+            "word": "film",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_063",
+            "word": "food",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_064",
+            "word": "phone",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_065",
+            "word": "elephant",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_066",
+            "word": "fish",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_067",
+            "word": "four",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_068",
+            "word": "five",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_069",
+            "word": "family",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_070",
+            "word": "fast",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_071",
+            "word": "first",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_072",
+            "word": "father",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_073",
+            "word": "flower",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_074",
+            "word": "fruit",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_075",
+            "word": "friend",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_076",
+            "word": "fun",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_077",
+            "word": "funny",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_078",
+            "word": "photo",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_079",
+            "word": "dolphin",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_080",
+            "word": "physics",
+            "category_id": 4,
+            "category_name": "F/P Substitution",
+            "target_ipa": "/f/",
+            "error_ipa": "/p/"
+        },
+        {
+            "id": "q_081",
+            "word": "bus",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_082",
+            "word": "milk",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_083",
+            "word": "book",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_084",
+            "word": "good",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_085",
+            "word": "cat",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_086",
+            "word": "dog",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_087",
+            "word": "bed",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_088",
+            "word": "cup",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_089",
+            "word": "car",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_090",
+            "word": "door",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_091",
+            "word": "red",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_092",
+            "word": "pen",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_093",
+            "word": "sun",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_094",
+            "word": "hat",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_095",
+            "word": "pig",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_096",
+            "word": "box",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_097",
+            "word": "bag",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_098",
+            "word": "leg",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_099",
+            "word": "map",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_100",
+            "word": "net",
+            "category_id": 5,
+            "category_name": "Paragoge",
+            "target_ipa": "ending consonant",
+            "error_ipa": "add /\u0259/"
+        },
+        {
+            "id": "q_101",
+            "word": "but",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_102",
+            "word": "good",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_103",
+            "word": "that",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_104",
+            "word": "friend",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_105",
+            "word": "what",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_106",
+            "word": "went",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_107",
+            "word": "told",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_108",
+            "word": "old",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_109",
+            "word": "cold",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_110",
+            "word": "hand",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_111",
+            "word": "band",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_112",
+            "word": "stand",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_113",
+            "word": "end",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_114",
+            "word": "find",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_115",
+            "word": "mind",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_116",
+            "word": "kind",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_117",
+            "word": "child",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_118",
+            "word": "wild",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_119",
+            "word": "build",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_120",
+            "word": "field",
+            "category_id": 6,
+            "category_name": "Final Consonant Weakening",
+            "target_ipa": "ending consonant",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_121",
+            "word": "next",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_122",
+            "word": "friend",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_123",
+            "word": "stamp",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_124",
+            "word": "product",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_125",
+            "word": "text",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_126",
+            "word": "fact",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_127",
+            "word": "act",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_128",
+            "word": "exact",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_129",
+            "word": "direct",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_130",
+            "word": "correct",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_131",
+            "word": "perfect",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_132",
+            "word": "respect",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_133",
+            "word": "project",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_134",
+            "word": "subject",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_135",
+            "word": "object",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_136",
+            "word": "first",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_137",
+            "word": "last",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_138",
+            "word": "past",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_139",
+            "word": "fast",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_140",
+            "word": "best",
+            "category_id": 7,
+            "category_name": "Consonant Cluster Simplification",
+            "target_ipa": "cluster",
+            "error_ipa": "reduced cluster"
+        },
+        {
+            "id": "q_141",
+            "word": "cake",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_142",
+            "word": "boat",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_143",
+            "word": "great",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_144",
+            "word": "note",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_145",
+            "word": "make",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_146",
+            "word": "take",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_147",
+            "word": "late",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_148",
+            "word": "date",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_149",
+            "word": "gate",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_150",
+            "word": "plate",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_151",
+            "word": "wait",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_152",
+            "word": "train",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_153",
+            "word": "rain",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_154",
+            "word": "main",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_155",
+            "word": "pain",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_156",
+            "word": "home",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_157",
+            "word": "hope",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_158",
+            "word": "rope",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_159",
+            "word": "soap",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_160",
+            "word": "road",
+            "category_id": 8,
+            "category_name": "Short/Long Vowel Confusion",
+            "target_ipa": "vowel length",
+            "error_ipa": "wrong length"
+        },
+        {
+            "id": "q_161",
+            "word": "house",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_162",
+            "word": "happy",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_163",
+            "word": "hello",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_164",
+            "word": "hat",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_165",
+            "word": "hand",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_166",
+            "word": "head",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_167",
+            "word": "hair",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_168",
+            "word": "heart",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_169",
+            "word": "horse",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_170",
+            "word": "hotel",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_171",
+            "word": "hospital",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_172",
+            "word": "heavy",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_173",
+            "word": "high",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_174",
+            "word": "hold",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_175",
+            "word": "hope",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_176",
+            "word": "hole",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_177",
+            "word": "half",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_178",
+            "word": "hungry",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_179",
+            "word": "hurry",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_180",
+            "word": "history",
+            "category_id": 9,
+            "category_name": "Initial H Dropping",
+            "target_ipa": "/h/",
+            "error_ipa": "dropped"
+        },
+        {
+            "id": "q_181",
+            "word": "zoo",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_182",
+            "word": "busy",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_183",
+            "word": "please",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_184",
+            "word": "easy",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_185",
+            "word": "zero",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_186",
+            "word": "zebra",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_187",
+            "word": "zone",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_188",
+            "word": "lazy",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_189",
+            "word": "crazy",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_190",
+            "word": "music",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_191",
+            "word": "cousin",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_192",
+            "word": "reason",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_193",
+            "word": "season",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_194",
+            "word": "cheese",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_195",
+            "word": "noise",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_196",
+            "word": "rose",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_197",
+            "word": "nose",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_198",
+            "word": "hose",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_199",
+            "word": "close",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_200",
+            "word": "choose",
+            "category_id": 10,
+            "category_name": "Z/S Confusion",
+            "target_ipa": "/z/",
+            "error_ipa": "/s/"
+        },
+        {
+            "id": "q_201",
+            "word": "hall",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_202",
+            "word": "hot",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_203",
+            "word": "cup",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_204",
+            "word": "bus",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_205",
+            "word": "ball",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_206",
+            "word": "call",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_207",
+            "word": "fall",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_208",
+            "word": "tall",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_209",
+            "word": "wall",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_210",
+            "word": "small",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_211",
+            "word": "walk",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_212",
+            "word": "talk",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_213",
+            "word": "chalk",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_214",
+            "word": "water",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_215",
+            "word": "daughter",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_216",
+            "word": "caught",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_217",
+            "word": "taught",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_218",
+            "word": "bought",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_219",
+            "word": "thought",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_220",
+            "word": "fought",
+            "category_id": 11,
+            "category_name": "Back Vowel Confusion",
+            "target_ipa": "/\u0254\u02d0/",
+            "error_ipa": "/\u0252/"
+        },
+        {
+            "id": "q_221",
+            "word": "computer",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_222",
+            "word": "banana",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_223",
+            "word": "tomorrow",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_224",
+            "word": "potato",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_225",
+            "word": "tomato",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_226",
+            "word": "umbrella",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_227",
+            "word": "important",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_228",
+            "word": "remember",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_229",
+            "word": "September",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_230",
+            "word": "October",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_231",
+            "word": "November",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_232",
+            "word": "December",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_233",
+            "word": "beautiful",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_234",
+            "word": "wonderful",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_235",
+            "word": "animal",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_236",
+            "word": "hospital",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_237",
+            "word": "family",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_238",
+            "word": "library",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_239",
+            "word": "factory",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        },
+        {
+            "id": "q_240",
+            "word": "company",
+            "category_id": 12,
+            "category_name": "Equal Stress / Wrong Rhythm",
+            "target_ipa": "variable stress",
+            "error_ipa": "equal stress"
+        }
+    ],
+    "papers": [
+        {
+            "paper_id": "paper_01",
+            "title": "Pronunciation Test Paper 1",
+            "questions": [
+                {
+                    "id": "q_104",
+                    "word": "friend",
+                    "category_id": 6,
+                    "category_name": "Final Consonant Weakening",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_133",
+                    "word": "project",
+                    "category_id": 7,
+                    "category_name": "Consonant Cluster Simplification",
+                    "target_ipa": "cluster",
+                    "error_ipa": "reduced cluster"
+                },
+                {
+                    "id": "q_182",
+                    "word": "busy",
+                    "category_id": 10,
+                    "category_name": "Z/S Confusion",
+                    "target_ipa": "/z/",
+                    "error_ipa": "/s/"
+                },
+                {
+                    "id": "q_019",
+                    "word": "space",
+                    "category_id": 1,
+                    "category_name": "S-Cluster Prosthesis",
+                    "target_ipa": "/s.../",
+                    "error_ipa": "/\u026as.../"
+                },
+                {
+                    "id": "q_062",
+                    "word": "film",
+                    "category_id": 4,
+                    "category_name": "F/P Substitution",
+                    "target_ipa": "/f/",
+                    "error_ipa": "/p/"
+                },
+                {
+                    "id": "q_038",
+                    "word": "welcome",
+                    "category_id": 2,
+                    "category_name": "V/W Merger",
+                    "target_ipa": "/v/",
+                    "error_ipa": "/w/"
+                },
+                {
+                    "id": "q_161",
+                    "word": "house",
+                    "category_id": 9,
+                    "category_name": "Initial H Dropping",
+                    "target_ipa": "/h/",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_081",
+                    "word": "bus",
+                    "category_id": 5,
+                    "category_name": "Paragoge",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "add /\u0259/"
+                },
+                {
+                    "id": "q_045",
+                    "word": "these",
+                    "category_id": 3,
+                    "category_name": "TH Substitution",
+                    "target_ipa": "/\u03b8/",
+                    "error_ipa": "/t/ or /d/"
+                },
+                {
+                    "id": "q_219",
+                    "word": "thought",
+                    "category_id": 11,
+                    "category_name": "Back Vowel Confusion",
+                    "target_ipa": "/\u0254\u02d0/",
+                    "error_ipa": "/\u0252/"
+                }
+            ]
+        },
+        {
+            "paper_id": "paper_02",
+            "title": "Pronunciation Test Paper 2",
+            "questions": [
+                {
+                    "id": "q_131",
+                    "word": "perfect",
+                    "category_id": 7,
+                    "category_name": "Consonant Cluster Simplification",
+                    "target_ipa": "cluster",
+                    "error_ipa": "reduced cluster"
+                },
+                {
+                    "id": "q_167",
+                    "word": "hair",
+                    "category_id": 9,
+                    "category_name": "Initial H Dropping",
+                    "target_ipa": "/h/",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_233",
+                    "word": "beautiful",
+                    "category_id": 12,
+                    "category_name": "Equal Stress / Wrong Rhythm",
+                    "target_ipa": "variable stress",
+                    "error_ipa": "equal stress"
+                },
+                {
+                    "id": "q_205",
+                    "word": "ball",
+                    "category_id": 11,
+                    "category_name": "Back Vowel Confusion",
+                    "target_ipa": "/\u0254\u02d0/",
+                    "error_ipa": "/\u0252/"
+                },
+                {
+                    "id": "q_077",
+                    "word": "funny",
+                    "category_id": 4,
+                    "category_name": "F/P Substitution",
+                    "target_ipa": "/f/",
+                    "error_ipa": "/p/"
+                },
+                {
+                    "id": "q_147",
+                    "word": "late",
+                    "category_id": 8,
+                    "category_name": "Short/Long Vowel Confusion",
+                    "target_ipa": "vowel length",
+                    "error_ipa": "wrong length"
+                },
+                {
+                    "id": "q_195",
+                    "word": "noise",
+                    "category_id": 10,
+                    "category_name": "Z/S Confusion",
+                    "target_ipa": "/z/",
+                    "error_ipa": "/s/"
+                },
+                {
+                    "id": "q_036",
+                    "word": "window",
+                    "category_id": 2,
+                    "category_name": "V/W Merger",
+                    "target_ipa": "/v/",
+                    "error_ipa": "/w/"
+                },
+                {
+                    "id": "q_019",
+                    "word": "space",
+                    "category_id": 1,
+                    "category_name": "S-Cluster Prosthesis",
+                    "target_ipa": "/s.../",
+                    "error_ipa": "/\u026as.../"
+                },
+                {
+                    "id": "q_109",
+                    "word": "cold",
+                    "category_id": 6,
+                    "category_name": "Final Consonant Weakening",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "dropped"
+                }
+            ]
+        },
+        {
+            "paper_id": "paper_03",
+            "title": "Pronunciation Test Paper 3",
+            "questions": [
+                {
+                    "id": "q_165",
+                    "word": "hand",
+                    "category_id": 9,
+                    "category_name": "Initial H Dropping",
+                    "target_ipa": "/h/",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_068",
+                    "word": "five",
+                    "category_id": 4,
+                    "category_name": "F/P Substitution",
+                    "target_ipa": "/f/",
+                    "error_ipa": "/p/"
+                },
+                {
+                    "id": "q_058",
+                    "word": "bath",
+                    "category_id": 3,
+                    "category_name": "TH Substitution",
+                    "target_ipa": "/\u03b8/",
+                    "error_ipa": "/t/ or /d/"
+                },
+                {
+                    "id": "q_022",
+                    "word": "water",
+                    "category_id": 2,
+                    "category_name": "V/W Merger",
+                    "target_ipa": "/v/",
+                    "error_ipa": "/w/"
+                },
+                {
+                    "id": "q_213",
+                    "word": "chalk",
+                    "category_id": 11,
+                    "category_name": "Back Vowel Confusion",
+                    "target_ipa": "/\u0254\u02d0/",
+                    "error_ipa": "/\u0252/"
+                },
+                {
+                    "id": "q_124",
+                    "word": "product",
+                    "category_id": 7,
+                    "category_name": "Consonant Cluster Simplification",
+                    "target_ipa": "cluster",
+                    "error_ipa": "reduced cluster"
+                },
+                {
+                    "id": "q_087",
+                    "word": "bed",
+                    "category_id": 5,
+                    "category_name": "Paragoge",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "add /\u0259/"
+                },
+                {
+                    "id": "q_142",
+                    "word": "boat",
+                    "category_id": 8,
+                    "category_name": "Short/Long Vowel Confusion",
+                    "target_ipa": "vowel length",
+                    "error_ipa": "wrong length"
+                },
+                {
+                    "id": "q_195",
+                    "word": "noise",
+                    "category_id": 10,
+                    "category_name": "Z/S Confusion",
+                    "target_ipa": "/z/",
+                    "error_ipa": "/s/"
+                },
+                {
+                    "id": "q_003",
+                    "word": "station",
+                    "category_id": 1,
+                    "category_name": "S-Cluster Prosthesis",
+                    "target_ipa": "/s.../",
+                    "error_ipa": "/\u026as.../"
+                }
+            ]
+        },
+        {
+            "paper_id": "paper_04",
+            "title": "Pronunciation Test Paper 4",
+            "questions": [
+                {
+                    "id": "q_155",
+                    "word": "pain",
+                    "category_id": 8,
+                    "category_name": "Short/Long Vowel Confusion",
+                    "target_ipa": "vowel length",
+                    "error_ipa": "wrong length"
+                },
+                {
+                    "id": "q_110",
+                    "word": "hand",
+                    "category_id": 6,
+                    "category_name": "Final Consonant Weakening",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_173",
+                    "word": "high",
+                    "category_id": 9,
+                    "category_name": "Initial H Dropping",
+                    "target_ipa": "/h/",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_090",
+                    "word": "door",
+                    "category_id": 5,
+                    "category_name": "Paragoge",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "add /\u0259/"
+                },
+                {
+                    "id": "q_066",
+                    "word": "fish",
+                    "category_id": 4,
+                    "category_name": "F/P Substitution",
+                    "target_ipa": "/f/",
+                    "error_ipa": "/p/"
+                },
+                {
+                    "id": "q_016",
+                    "word": "stamp",
+                    "category_id": 1,
+                    "category_name": "S-Cluster Prosthesis",
+                    "target_ipa": "/s.../",
+                    "error_ipa": "/\u026as.../"
+                },
+                {
+                    "id": "q_231",
+                    "word": "November",
+                    "category_id": 12,
+                    "category_name": "Equal Stress / Wrong Rhythm",
+                    "target_ipa": "variable stress",
+                    "error_ipa": "equal stress"
+                },
+                {
+                    "id": "q_051",
+                    "word": "thumb",
+                    "category_id": 3,
+                    "category_name": "TH Substitution",
+                    "target_ipa": "/\u03b8/",
+                    "error_ipa": "/t/ or /d/"
+                },
+                {
+                    "id": "q_185",
+                    "word": "zero",
+                    "category_id": 10,
+                    "category_name": "Z/S Confusion",
+                    "target_ipa": "/z/",
+                    "error_ipa": "/s/"
+                },
+                {
+                    "id": "q_203",
+                    "word": "cup",
+                    "category_id": 11,
+                    "category_name": "Back Vowel Confusion",
+                    "target_ipa": "/\u0254\u02d0/",
+                    "error_ipa": "/\u0252/"
+                }
+            ]
+        },
+        {
+            "paper_id": "paper_05",
+            "title": "Pronunciation Test Paper 5",
+            "questions": [
+                {
+                    "id": "q_056",
+                    "word": "throw",
+                    "category_id": 3,
+                    "category_name": "TH Substitution",
+                    "target_ipa": "/\u03b8/",
+                    "error_ipa": "/t/ or /d/"
+                },
+                {
+                    "id": "q_101",
+                    "word": "but",
+                    "category_id": 6,
+                    "category_name": "Final Consonant Weakening",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_171",
+                    "word": "hospital",
+                    "category_id": 9,
+                    "category_name": "Initial H Dropping",
+                    "target_ipa": "/h/",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_206",
+                    "word": "call",
+                    "category_id": 11,
+                    "category_name": "Back Vowel Confusion",
+                    "target_ipa": "/\u0254\u02d0/",
+                    "error_ipa": "/\u0252/"
+                },
+                {
+                    "id": "q_129",
+                    "word": "direct",
+                    "category_id": 7,
+                    "category_name": "Consonant Cluster Simplification",
+                    "target_ipa": "cluster",
+                    "error_ipa": "reduced cluster"
+                },
+                {
+                    "id": "q_154",
+                    "word": "main",
+                    "category_id": 8,
+                    "category_name": "Short/Long Vowel Confusion",
+                    "target_ipa": "vowel length",
+                    "error_ipa": "wrong length"
+                },
+                {
+                    "id": "q_061",
+                    "word": "fan",
+                    "category_id": 4,
+                    "category_name": "F/P Substitution",
+                    "target_ipa": "/f/",
+                    "error_ipa": "/p/"
+                },
+                {
+                    "id": "q_196",
+                    "word": "rose",
+                    "category_id": 10,
+                    "category_name": "Z/S Confusion",
+                    "target_ipa": "/z/",
+                    "error_ipa": "/s/"
+                },
+                {
+                    "id": "q_100",
+                    "word": "net",
+                    "category_id": 5,
+                    "category_name": "Paragoge",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "add /\u0259/"
+                },
+                {
+                    "id": "q_028",
+                    "word": "village",
+                    "category_id": 2,
+                    "category_name": "V/W Merger",
+                    "target_ipa": "/v/",
+                    "error_ipa": "/w/"
+                }
+            ]
+        },
+        {
+            "paper_id": "paper_06",
+            "title": "Pronunciation Test Paper 6",
+            "questions": [
+                {
+                    "id": "q_176",
+                    "word": "hole",
+                    "category_id": 9,
+                    "category_name": "Initial H Dropping",
+                    "target_ipa": "/h/",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_012",
+                    "word": "spider",
+                    "category_id": 1,
+                    "category_name": "S-Cluster Prosthesis",
+                    "target_ipa": "/s.../",
+                    "error_ipa": "/\u026as.../"
+                },
+                {
+                    "id": "q_047",
+                    "word": "thank",
+                    "category_id": 3,
+                    "category_name": "TH Substitution",
+                    "target_ipa": "/\u03b8/",
+                    "error_ipa": "/t/ or /d/"
+                },
+                {
+                    "id": "q_237",
+                    "word": "family",
+                    "category_id": 12,
+                    "category_name": "Equal Stress / Wrong Rhythm",
+                    "target_ipa": "variable stress",
+                    "error_ipa": "equal stress"
+                },
+                {
+                    "id": "q_198",
+                    "word": "hose",
+                    "category_id": 10,
+                    "category_name": "Z/S Confusion",
+                    "target_ipa": "/z/",
+                    "error_ipa": "/s/"
+                },
+                {
+                    "id": "q_108",
+                    "word": "old",
+                    "category_id": 6,
+                    "category_name": "Final Consonant Weakening",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_084",
+                    "word": "good",
+                    "category_id": 5,
+                    "category_name": "Paragoge",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "add /\u0259/"
+                },
+                {
+                    "id": "q_148",
+                    "word": "date",
+                    "category_id": 8,
+                    "category_name": "Short/Long Vowel Confusion",
+                    "target_ipa": "vowel length",
+                    "error_ipa": "wrong length"
+                },
+                {
+                    "id": "q_211",
+                    "word": "walk",
+                    "category_id": 11,
+                    "category_name": "Back Vowel Confusion",
+                    "target_ipa": "/\u0254\u02d0/",
+                    "error_ipa": "/\u0252/"
+                },
+                {
+                    "id": "q_125",
+                    "word": "text",
+                    "category_id": 7,
+                    "category_name": "Consonant Cluster Simplification",
+                    "target_ipa": "cluster",
+                    "error_ipa": "reduced cluster"
+                }
+            ]
+        },
+        {
+            "paper_id": "paper_07",
+            "title": "Pronunciation Test Paper 7",
+            "questions": [
+                {
+                    "id": "q_155",
+                    "word": "pain",
+                    "category_id": 8,
+                    "category_name": "Short/Long Vowel Confusion",
+                    "target_ipa": "vowel length",
+                    "error_ipa": "wrong length"
+                },
+                {
+                    "id": "q_239",
+                    "word": "factory",
+                    "category_id": 12,
+                    "category_name": "Equal Stress / Wrong Rhythm",
+                    "target_ipa": "variable stress",
+                    "error_ipa": "equal stress"
+                },
+                {
+                    "id": "q_045",
+                    "word": "these",
+                    "category_id": 3,
+                    "category_name": "TH Substitution",
+                    "target_ipa": "/\u03b8/",
+                    "error_ipa": "/t/ or /d/"
+                },
+                {
+                    "id": "q_116",
+                    "word": "kind",
+                    "category_id": 6,
+                    "category_name": "Final Consonant Weakening",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_072",
+                    "word": "father",
+                    "category_id": 4,
+                    "category_name": "F/P Substitution",
+                    "target_ipa": "/f/",
+                    "error_ipa": "/p/"
+                },
+                {
+                    "id": "q_001",
+                    "word": "school",
+                    "category_id": 1,
+                    "category_name": "S-Cluster Prosthesis",
+                    "target_ipa": "/s.../",
+                    "error_ipa": "/\u026as.../"
+                },
+                {
+                    "id": "q_137",
+                    "word": "last",
+                    "category_id": 7,
+                    "category_name": "Consonant Cluster Simplification",
+                    "target_ipa": "cluster",
+                    "error_ipa": "reduced cluster"
+                },
+                {
+                    "id": "q_194",
+                    "word": "cheese",
+                    "category_id": 10,
+                    "category_name": "Z/S Confusion",
+                    "target_ipa": "/z/",
+                    "error_ipa": "/s/"
+                },
+                {
+                    "id": "q_203",
+                    "word": "cup",
+                    "category_id": 11,
+                    "category_name": "Back Vowel Confusion",
+                    "target_ipa": "/\u0254\u02d0/",
+                    "error_ipa": "/\u0252/"
+                },
+                {
+                    "id": "q_100",
+                    "word": "net",
+                    "category_id": 5,
+                    "category_name": "Paragoge",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "add /\u0259/"
+                }
+            ]
+        },
+        {
+            "paper_id": "paper_08",
+            "title": "Pronunciation Test Paper 8",
+            "questions": [
+                {
+                    "id": "q_195",
+                    "word": "noise",
+                    "category_id": 10,
+                    "category_name": "Z/S Confusion",
+                    "target_ipa": "/z/",
+                    "error_ipa": "/s/"
+                },
+                {
+                    "id": "q_012",
+                    "word": "spider",
+                    "category_id": 1,
+                    "category_name": "S-Cluster Prosthesis",
+                    "target_ipa": "/s.../",
+                    "error_ipa": "/\u026as.../"
+                },
+                {
+                    "id": "q_030",
+                    "word": "visit",
+                    "category_id": 2,
+                    "category_name": "V/W Merger",
+                    "target_ipa": "/v/",
+                    "error_ipa": "/w/"
+                },
+                {
+                    "id": "q_089",
+                    "word": "car",
+                    "category_id": 5,
+                    "category_name": "Paragoge",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "add /\u0259/"
+                },
+                {
+                    "id": "q_131",
+                    "word": "perfect",
+                    "category_id": 7,
+                    "category_name": "Consonant Cluster Simplification",
+                    "target_ipa": "cluster",
+                    "error_ipa": "reduced cluster"
+                },
+                {
+                    "id": "q_212",
+                    "word": "talk",
+                    "category_id": 11,
+                    "category_name": "Back Vowel Confusion",
+                    "target_ipa": "/\u0254\u02d0/",
+                    "error_ipa": "/\u0252/"
+                },
+                {
+                    "id": "q_054",
+                    "word": "thin",
+                    "category_id": 3,
+                    "category_name": "TH Substitution",
+                    "target_ipa": "/\u03b8/",
+                    "error_ipa": "/t/ or /d/"
+                },
+                {
+                    "id": "q_144",
+                    "word": "note",
+                    "category_id": 8,
+                    "category_name": "Short/Long Vowel Confusion",
+                    "target_ipa": "vowel length",
+                    "error_ipa": "wrong length"
+                },
+                {
+                    "id": "q_115",
+                    "word": "mind",
+                    "category_id": 6,
+                    "category_name": "Final Consonant Weakening",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_228",
+                    "word": "remember",
+                    "category_id": 12,
+                    "category_name": "Equal Stress / Wrong Rhythm",
+                    "target_ipa": "variable stress",
+                    "error_ipa": "equal stress"
+                }
+            ]
+        },
+        {
+            "paper_id": "paper_09",
+            "title": "Pronunciation Test Paper 9",
+            "questions": [
+                {
+                    "id": "q_100",
+                    "word": "net",
+                    "category_id": 5,
+                    "category_name": "Paragoge",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "add /\u0259/"
+                },
+                {
+                    "id": "q_104",
+                    "word": "friend",
+                    "category_id": 6,
+                    "category_name": "Final Consonant Weakening",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_226",
+                    "word": "umbrella",
+                    "category_id": 12,
+                    "category_name": "Equal Stress / Wrong Rhythm",
+                    "target_ipa": "variable stress",
+                    "error_ipa": "equal stress"
+                },
+                {
+                    "id": "q_160",
+                    "word": "road",
+                    "category_id": 8,
+                    "category_name": "Short/Long Vowel Confusion",
+                    "target_ipa": "vowel length",
+                    "error_ipa": "wrong length"
+                },
+                {
+                    "id": "q_013",
+                    "word": "sport",
+                    "category_id": 1,
+                    "category_name": "S-Cluster Prosthesis",
+                    "target_ipa": "/s.../",
+                    "error_ipa": "/\u026as.../"
+                },
+                {
+                    "id": "q_192",
+                    "word": "reason",
+                    "category_id": 10,
+                    "category_name": "Z/S Confusion",
+                    "target_ipa": "/z/",
+                    "error_ipa": "/s/"
+                },
+                {
+                    "id": "q_180",
+                    "word": "history",
+                    "category_id": 9,
+                    "category_name": "Initial H Dropping",
+                    "target_ipa": "/h/",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_064",
+                    "word": "phone",
+                    "category_id": 4,
+                    "category_name": "F/P Substitution",
+                    "target_ipa": "/f/",
+                    "error_ipa": "/p/"
+                },
+                {
+                    "id": "q_029",
+                    "word": "voice",
+                    "category_id": 2,
+                    "category_name": "V/W Merger",
+                    "target_ipa": "/v/",
+                    "error_ipa": "/w/"
+                },
+                {
+                    "id": "q_216",
+                    "word": "caught",
+                    "category_id": 11,
+                    "category_name": "Back Vowel Confusion",
+                    "target_ipa": "/\u0254\u02d0/",
+                    "error_ipa": "/\u0252/"
+                }
+            ]
+        },
+        {
+            "paper_id": "paper_10",
+            "title": "Pronunciation Test Paper 10",
+            "questions": [
+                {
+                    "id": "q_224",
+                    "word": "potato",
+                    "category_id": 12,
+                    "category_name": "Equal Stress / Wrong Rhythm",
+                    "target_ipa": "variable stress",
+                    "error_ipa": "equal stress"
+                },
+                {
+                    "id": "q_111",
+                    "word": "band",
+                    "category_id": 6,
+                    "category_name": "Final Consonant Weakening",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "dropped"
+                },
+                {
+                    "id": "q_001",
+                    "word": "school",
+                    "category_id": 1,
+                    "category_name": "S-Cluster Prosthesis",
+                    "target_ipa": "/s.../",
+                    "error_ipa": "/\u026as.../"
+                },
+                {
+                    "id": "q_100",
+                    "word": "net",
+                    "category_id": 5,
+                    "category_name": "Paragoge",
+                    "target_ipa": "ending consonant",
+                    "error_ipa": "add /\u0259/"
+                },
+                {
+                    "id": "q_212",
+                    "word": "talk",
+                    "category_id": 11,
+                    "category_name": "Back Vowel Confusion",
+                    "target_ipa": "/\u0254\u02d0/",
+                    "error_ipa": "/\u0252/"
+                },
+                {
+                    "id": "q_050",
+                    "word": "Thursday",
+                    "category_id": 3,
+                    "category_name": "TH Substitution",
+                    "target_ipa": "/\u03b8/",
+                    "error_ipa": "/t/ or /d/"
+                },
+                {
+                    "id": "q_075",
+                    "word": "friend",
+                    "category_id": 4,
+                    "category_name": "F/P Substitution",
+                    "target_ipa": "/f/",
+                    "error_ipa": "/p/"
+                },
+                {
+                    "id": "q_194",
+                    "word": "cheese",
+                    "category_id": 10,
+                    "category_name": "Z/S Confusion",
+                    "target_ipa": "/z/",
+                    "error_ipa": "/s/"
+                },
+                {
+                    "id": "q_153",
+                    "word": "rain",
+                    "category_id": 8,
+                    "category_name": "Short/Long Vowel Confusion",
+                    "target_ipa": "vowel length",
+                    "error_ipa": "wrong length"
+                },
+                {
+                    "id": "q_121",
+                    "word": "next",
+                    "category_id": 7,
+                    "category_name": "Consonant Cluster Simplification",
+                    "target_ipa": "cluster",
+                    "error_ipa": "reduced cluster"
+                }
+            ]
+        }
+    ]
+}

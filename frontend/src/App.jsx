@@ -11,6 +11,7 @@ import Services from './pages/Services';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import TeacherDashboard from './pages/TeacherDashboard';
 
 // Modules (We wrap them to pass the onExit prop which redirects to dashboard)
 import MathModule from './components/MathModule';
@@ -18,11 +19,10 @@ import EnglishModule from './components/EnglishModule';
 import SinhalaModule from './components/SinhalaModule';
 import MotorModule from './components/MotorModule';
 import CreativeModule from './components/CreativeModule';
-import SinhalaExercises from './pages/SinhalaExercises';
 import OrigamiModule from './components/OrigamiModule';
 import ColoringModule from './components/ColoringModule';
 import PaperCraftModule from './components/PaperCraftModule';
-import SinhalaWritingModule from './components/SinhalaWritingModule';
+import StoryDrawingModule from './components/StoryDrawingModule';
 import SinhalaGrade2Level1 from './components/SinhalaGrade2Level1';
 import SinhalaGrade2Level1Act2 from './components/SinhalaGrade2Level1Act2';
 import SinhalaGrade2Level1Act3 from './components/SinhalaGrade2Level1Act3';
@@ -70,7 +70,6 @@ import SinhalaGrade4Level4Act1 from './components/SinhalaGrade4Level4Act1';
 import SinhalaGrade4Level4Act2 from './components/SinhalaGrade4Level4Act2';
 import SinhalaGrade4Level4Act3 from './components/SinhalaGrade4Level4Act3';
 import SinhalaGrade4Level4Act4 from './components/SinhalaGrade4Level4Act4';
-import SinhalaAdaptiveWritingModule from './components/SinhalaAdaptiveWritingModule';
 import AIModelResearchPanel from './components/AIModelResearchPanel';
 
 // Module Wrapper Component
@@ -91,18 +90,18 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
           
           {/* Module Routes */}
           <Route path="/module/math" element={<ModuleWrapper Component={MathModule} />} />
           <Route path="/module/english" element={<ModuleWrapper Component={EnglishModule} />} />
           <Route path="/module/sinhala" element={<ModuleWrapper Component={SinhalaModule} />} />
-          <Route path="/module/sinhala/exercises" element={<SinhalaExercises />} />
           <Route path="/module/motor" element={<ModuleWrapper Component={MotorModule} />} />
           <Route path="/module/creative" element={<ModuleWrapper Component={CreativeModule} />} />
           <Route path="/module/origami" element={<ModuleWrapper Component={OrigamiModule} />} />
           <Route path="/module/coloring" element={<ModuleWrapper Component={ColoringModule} />} />
           <Route path="/module/papercraft" element={<ModuleWrapper Component={PaperCraftModule} />} />
-          <Route path="/module/sinhala-writing" element={<ModuleWrapper Component={SinhalaWritingModule} />} />
+          <Route path="/module/storydrawing" element={<ModuleWrapper Component={StoryDrawingModule} />} />
           <Route path="/module/sinhala/grade2" element={<ModuleWrapper Component={SinhalaGrade2Hub} />} />
           <Route path="/module/sinhala/grade2-level1" element={<ModuleWrapper Component={SinhalaGrade2Level1} />} />
           <Route path="/module/sinhala/letter-identification" element={<ModuleWrapper Component={SinhalaGrade2Level1} />} />
@@ -238,8 +237,6 @@ function App() {
           <Route path="/module/sinhala/grade4-level4-act4" element={<ModuleWrapper Component={SinhalaGrade4Level4Act4} />} />
           <Route path="/module/sinhala/grade4-act4-level4" element={<ModuleWrapper Component={SinhalaGrade4Level4Act4} />} />
           <Route path="/module/sinhala/grade4-kimphala-story" element={<ModuleWrapper Component={SinhalaGrade4Level4Act4} />} />
-
-          <Route path="/module/sinhala/adaptive-writing" element={<ModuleWrapper Component={SinhalaAdaptiveWritingModule} />} />
           <Route path="/module/sinhala/ai-research-panel" element={<ModuleWrapper Component={AIModelResearchPanel} />} />
           <Route path="/module/sinhala/research-panel" element={<ModuleWrapper Component={AIModelResearchPanel} />} />
           

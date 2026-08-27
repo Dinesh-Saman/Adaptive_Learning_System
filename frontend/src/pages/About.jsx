@@ -76,14 +76,13 @@ const About = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {researchers.map((researcher) => (
-              <div key={researcher.name} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold mb-4 ${researcher.color} ${researcher.textColor}`}>
-                  {researcher.name[0]}
+            {researchers.map((researcher, index) => (
+              <div key={index} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow flex flex-col h-full">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold mb-4 ${researcher.color} ${researcher.textColor}`}>
+                  0{index + 1}
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-1">{researcher.name}</h3>
-                <p className={`text-sm font-semibold mb-4 ${researcher.textColor}`}>{researcher.role}</p>
-                <p className="text-slate-600 text-sm leading-relaxed">
+                <h3 className="text-lg font-bold text-slate-900 mb-3">{researcher.role}</h3>
+                <p className="text-slate-600 text-sm leading-relaxed flex-grow">
                   {researcher.description}
                 </p>
               </div>

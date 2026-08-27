@@ -3,42 +3,40 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class PronunciationNet(nn.Module):
-    def __init__(self, input_features=40, num_classes=4):
-        """
-        Input: 1D array of MFCC features (length 40)
-        Output: 4 pronunciation classes
-        """
-        super(PronunciationNet, self).__init__()
+    """
+    2D Time-Series Spectrogram Convolutional Neural Network.
+    Processes sequential MFCC acoustic spectrograms (40 frequency bands x 80 time frames)
+    to classify clean speech vs 12 specific MTI accent patterns.
+    """
+    def __init__(self, input_features=40, max_frames=80, num_classes=13):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.pool1 = nn.MaxPool2d(2, 2)
         
-        # A simple 1D Convolutional setup for sequential audio features
-        # We need to reshape the input to (batch, channels, length) during forward pass
-        self.conv1 = nn.Conv1d(in_channels=1, out_channels=16, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv1d(in_channels=16, out_channels=32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.pool2 = nn.MaxPool2d(2, 2)
         
-        # Pooling layer
-        self.pool = nn.MaxPool1d(kernel_size=2)
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        self.pool3 = nn.AdaptiveAvgPool2d((4, 4))
         
-        # Fully connected layers
-        # After 2 max pools of size 2, the length of 40 becomes 10
-        self.fc1 = nn.Linear(32 * 10, 64)
-        self.fc2 = nn.Linear(64, num_classes)
-        
-        self.dropout = nn.Dropout(0.3)
+        self.fc1 = nn.Linear(128 * 4 * 4, 128)
+        self.dropout = nn.Dropout(0.2)
+        self.fc2 = nn.Linear(128, num_classes)
         
     def forward(self, x):
-        # x is (batch, 40) -> reshape to (batch, 1, 40)
-        x = x.unsqueeze(1)
-        
+        if x.dim() == 2:
+            x = x.unsqueeze(1).repeat(1, 1, 80)
+        if x.dim() == 3:
+            x = x.unsqueeze(1)
+            
         x = F.relu(self.conv1(x))
-        x = self.pool(x) # (batch, 16, 20)
-        
+        x = self.pool1(x)
         x = F.relu(self.conv2(x))
-        x = self.pool(x) # (batch, 32, 10)
+        x = self.pool2(x)
+        x = F.relu(self.conv3(x))
+        x = self.pool3(x)
         
-        # Flatten
         x = x.view(x.size(0), -1)
-        
         x = F.relu(self.fc1(x))
         x = self.dropout(x)
-        x = self.fc2(x)
-        return x
+        return self.fc2(x)

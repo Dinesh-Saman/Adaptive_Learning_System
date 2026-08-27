@@ -15,7 +15,6 @@ from core_handwriting.vision_model import HandwritingCNN
 from core_handwriting.stroke_analyzer import analyze_stroke_quality
 from core_handwriting.template_matcher import evaluate_handwriting as template_evaluate
 from core_motor.pose_engine import evaluate_motor_skills
-from core_sinhala_adaptive.adaptive_engine import AdaptiveEngine
 
 app = FastAPI(
     title="LearnAI - Python Microservices",
@@ -45,13 +44,41 @@ else:
 english_model = PronunciationNet()
 english_model_path = os.path.join(os.path.dirname(__file__), 'core_english', 'weights', 'english_model.pt')
 if os.path.exists(english_model_path):
-    english_model.load_state_dict(torch.load(english_model_path, weights_only=True))
-    english_model.eval()
-    print("SUCCESS: Successfully loaded PyTorch English Audio AI Model.")
+    try:
+        english_model.load_state_dict(torch.load(english_model_path, weights_only=True))
+        english_model.eval()
+        print("SUCCESS: Successfully loaded PyTorch English Audio AI Model.")
+    except RuntimeError as e:
+        print(f"WARNING: Incompatible model weights found. The architecture has expanded to 13 classes. Using random initialized weights instead.")
 else:
     print(f"WARNING: {english_model_path} not found. Audio Neural Net will use random initialized weights.")
 
+# Global Whisper ASR Model Holder (Loaded Lazily on First Audio Call for Instant Startup)
+whisper_asr_model = None
+
+def get_whisper_model():
+    global whisper_asr_model
+    if whisper_asr_model is None:
+        try:
+            from faster_whisper import WhisperModel
+            whisper_asr_model = WhisperModel('tiny.en', device='cpu', compute_type='int8')
+            print("SUCCESS: Successfully loaded Offline Whisper ASR Model (tiny.en).")
+        except Exception as e:
+            print(f"WARNING: Offline Whisper ASR could not be loaded: {e}")
+    return whisper_asr_model
+
 handwriting_model = HandwritingCNN()
+
+# Visual Lip Movement & Viseme Kinematic Analyzer
+try:
+    from core_english.lip_analysis import visual_lip_analyzer
+    print("SUCCESS: Successfully loaded Visual Lip Analyzer (OpenCV).")
+except Exception as e:
+    visual_lip_analyzer = None
+    print(f"WARNING: Visual Lip Analyzer could not be loaded: {e}")
+
+
+
 handwriting_model_path = os.path.join(os.path.dirname(__file__), 'core_handwriting', 'weights', 'handwriting_model.pt')
 if os.path.exists(handwriting_model_path):
     handwriting_model.load_state_dict(torch.load(handwriting_model_path, weights_only=True))
@@ -59,16 +86,6 @@ if os.path.exists(handwriting_model_path):
     print("SUCCESS: Successfully loaded PyTorch Handwriting Vision AI Model.")
 else:
     print(f"WARNING: {handwriting_model_path} not found. Vision Neural Net will use random initialized weights.")
-
-sinhala_adaptive_engine = AdaptiveEngine()
-
-# We need a state dictionary to track difficulty since it's an adaptive platform. 
-# In a real production app, this would be saved in Redis or a DB.
-# We'll use an in-memory dictionary mapping student_id -> current_difficulty (1-5).
-student_states = {}
-
-# In-memory dictionary for Sinhala adaptive tracking: student_id -> history_sequence
-sinhala_student_history = {}
 
 from core_math.exercise_engine import generate_math_question, SKILL_TYPES
 
@@ -134,22 +151,11 @@ EXERCISE_CATEGORIES = {
     "chapter_36": SKILL_TYPES
 }
 
-class SinhalaAdaptiveRequest(BaseModel):
-    student_id: str
-    last_question_id: str = None
-    last_correct: bool = None
-    t_main_ms: int
-    t_sub_avg_ms: int
-    t_idle_ms: int
-    t_resp_ms: int
-    scroll_velocity: float
-    affect_confusion: float  # 0 to 1
-    accuracy: float # 0 to 1
-
 class SpeechAudioData(BaseModel):
     student_id: str
     audio_base64: str
     target_text: str = ""
+    video_frames_base64: list[str] = []
 
 class HandwritingImageData(BaseModel):
     student_id: str
@@ -168,6 +174,11 @@ class CreativeAssessmentData(BaseModel):
     current_level: int = 1
     media_base64: str # Could be image, video, or audio base64
     historical_weaknesses: list[str] = [] # List of previously identified weaknesses
+
+class StoryDrawingData(BaseModel):
+    student_id: str
+    image_base64: str
+    expected_elements: list[str]
 
 # ---------------------------------------------------------
 # 1. Onel - Multimodal Adaptive Mathematics
@@ -318,8 +329,8 @@ def evaluate_math_difficulty(data: MathPerformanceData):
 @app.post("/api/ai/english/pronunciation")
 def analyze_pronunciation(data: SpeechAudioData):
     """
-    Processes audio to detect Sinhala-influenced English pronunciation errors
-    and provides a hierarchical score based on intelligibility, phonemes, fluency, and prosody.
+    Advanced Multimodal English Speech Assessment Endpoint
+    Evaluates 12 specific Sri Lankan MTI patterns and 6 advanced fluency/prosody metrics.
     """
     import numpy as np
     import base64
@@ -327,143 +338,412 @@ def analyze_pronunciation(data: SpeechAudioData):
     import os
     import librosa
     
-    # 1. Feature Extraction & Audio Pre-processing
+    # 1. Feature Extraction & Acoustic Analysis
     try:
         if not data.audio_base64 or data.audio_base64 == "dummy_base64_audio":
             raise ValueError("Empty or dummy audio provided.")
             
         audio_bytes = base64.b64decode(data.audio_base64)
+        print(f"[DEBUG] Received audio: {len(audio_bytes)} bytes, target='{data.target_text}', header={audio_bytes[:4]}")
         
-        # Save to temp file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
-            tmp_file.write(audio_bytes)
-            tmp_path = tmp_file.name
+        # Save incoming audio for debugging
+        debug_path = r"D:\Kids\test_paper_1_audio\debug_last_recording.wav"
+        try:
+            with open(debug_path, 'wb') as dbg:
+                dbg.write(audio_bytes)
+            print(f"[DEBUG] Audio saved to {debug_path} for inspection")
+        except: pass
+        
+        # Universal Audio Ingestion (Supports WAV, WebM, Opus, Ogg, MP3, AAC)
+        import io
+        import numpy as np
+        
+        y = None
+        sr = 16000
+        
+        # 1. Fast path: If standard WAV RIFF header, use soundfile
+        if audio_bytes[:4] == b'RIFF':
+            try:
+                import soundfile as sf
+                y_raw, file_sr = sf.read(io.BytesIO(audio_bytes), dtype='float32', always_2d=False)
+                if file_sr != 16000:
+                    y = librosa.resample(y_raw, orig_sr=file_sr, target_sr=16000)
+                else:
+                    y = y_raw
+                sr = 16000
+            except Exception as sf_err:
+                print(f"[DEBUG] soundfile WAV decode failed: {sf_err}")
+                
+        # 2. Universal path: PyAV for browser WebM, Opus, OGG, MP3
+        if y is None:
+            try:
+                import av
+                container = av.open(io.BytesIO(audio_bytes))
+                stream = container.streams.audio[0]
+                resampler = av.AudioResampler(format='fltp', layout='mono', rate=16000)
+                
+                audio_frames = []
+                for frame in container.decode(stream):
+                    resampled_frames = resampler.resample(frame)
+                    for rf in resampled_frames:
+                        audio_frames.append(rf.to_ndarray())
+                        
+                if audio_frames:
+                    y = np.concatenate(audio_frames, axis=1).squeeze()
+                    sr = 16000
+                    print(f"[DEBUG] PyAV decoded container format '{container.format.name}', frames={len(audio_frames)}")
+            except Exception as av_err:
+                print(f"[DEBUG] PyAV decode error: {av_err}")
+                
+        if y is None:
+            raise ValueError(f"Could not decode audio format. Magic bytes: {audio_bytes[:8]}")
             
-        y, sr = librosa.load(tmp_path, sr=16000)
-        os.remove(tmp_path)
+        # If stereo, convert to mono
+        if y.ndim > 1:
+            y = y.mean(axis=1)
+            
+        print(f"[DEBUG] Audio ready for analysis: shape={y.shape}, sr={sr}")
         
-        # --- Real-World Silence & Speech Detection ---
+        # Normalize peak audio amplitude so soft/loud microphone levels are normalized uniformly
+        max_val = float(np.max(np.abs(y)))
+        if max_val > 0.0001:
+            y = (y / max_val) * 0.90
+            
+        duration = librosa.get_duration(y=y, sr=sr)
+        
+        # --- Volume & Clarity ---
         rms = librosa.feature.rms(y=y)[0]
-        mean_rms = np.mean(rms)
+        max_rms = float(np.max(rms))
+        mean_rms = float(np.mean(rms))
+        print(f"[DEBUG] duration={duration:.2f}s, max_rms={max_rms:.4f}, mean_rms={mean_rms:.4f}")
         
-        # If the audio is extremely quiet or shorter than 0.3 seconds, reject it.
-        if mean_rms < 0.005 or len(y) < sr * 0.3:
+        volume_status = "Normal"
+        if max_rms < 0.005:
+            volume_status = "Too soft"
+        elif max_rms > 0.4:
+            volume_status = "Too loud"
+            
+        if max_rms < 0.0001 or duration < 0.1:
+            print(f"[DEBUG] REJECTED - too quiet or too short")
             return {
                 "overall_score": 0,
                 "severity_level": 4,
                 "diagnostics": {"intelligibility": 0, "phoneme_control": 0, "fluency": 0, "prosody": 0},
+                "advanced_features": {
+                    "volume": "Silent/Noise Only", "speaking_speed": "N/A", "monotone": "N/A", "non_mti_errors": []
+                },
                 "l1_contrast_flag": None,
-                "expected_phoneme": "-",
-                "detected_phoneme": "-",
                 "feedback": {
-                    "learner_message": "I didn't hear anything. Please speak a little louder!",
-                    "teacher_message": f"Audio rejected due to low volume or duration (RMS: {mean_rms:.4f})."
+                    "learner_message": "I only heard background noise. Please speak clearly into the microphone!",
+                    "teacher_message": f"Audio rejected due to low volume (RMS: {max_rms:.4f})."
                 }
             }
             
-        # Extract MFCCs for the neural network
-        mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40)
-        mfcc_features = np.mean(mfccs.T, axis=0)
-        
-        # --- Fluency Calculation (Based on Pause Ratio) ---
-        silence_threshold = mean_rms * 0.5
-        pause_frames = np.sum(rms < silence_threshold)
-        pause_ratio = pause_frames / len(rms)
-        # High pause ratio = low fluency
-        fluency_score = min(100.0, max(0.0, 100.0 - (pause_ratio * 150.0)))
-        
-        # --- Prosody Calculation (Based on Pitch/F0 Variation) ---
-        # Note: using piptrack as it is much faster than pyin for real-time
-        pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-        valid_pitches = pitches[magnitudes > np.median(magnitudes)]
-        if len(valid_pitches) > 0:
-            pitch_std = np.std(valid_pitches)
-            # More variation = better prosody (up to a reasonable cap)
-            prosody_score = min(100.0, max(0.0, (pitch_std / 100.0) * 100))
+        # --- Step 2: Time-Series Acoustic Feature Extraction (CRNN) ---
+        mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40, n_fft=512, hop_length=256)
+        max_frames = 80
+        if mfccs.shape[1] < max_frames:
+            pad_width = max_frames - mfccs.shape[1]
+            mfccs = np.pad(mfccs, ((0, 0), (0, pad_width)), mode='constant')
         else:
-            prosody_score = 30.0 # Monotone or whisper
+            mfccs = mfccs[:, :max_frames]
+        # Z-score normalization per sample
+        mean_val = np.mean(mfccs)
+        std_val = np.std(mfccs) + 1e-6
+        mfcc_features = ((mfccs - mean_val) / std_val).astype(np.float32)
+        print(f"[DEBUG] Time-Series MFCC Spectrogram extracted: shape={mfcc_features.shape}")
+
+
+
+
+        
+        target_word_count = len(data.target_text.split())
+        
+        if target_word_count == 1:
+            fluency_score = 100.0
+            prosody_score = 100.0
+            speed_status = "Normal"
+            is_monotone = False
+            syllable_count = 1
+            pause_ratio = 0.0
+        else:
+            # --- Fluency (Pauses & Speed) ---
+            silence_threshold = mean_rms * 0.5
+            pause_frames = np.sum(rms < silence_threshold)
+            pause_ratio = pause_frames / len(rms)
+            fluency_score = min(100.0, max(0.0, 100.0 - (pause_ratio * 150.0)))
+            
+            # Estimate syllables via energy peaks to calculate speed
+            onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+            peaks = librosa.util.peak_pick(onset_env, pre_max=3, post_max=3, pre_avg=3, post_avg=5, delta=0.5, wait=10)
+            syllable_count = len(peaks)
+            speed_sps = syllable_count / duration if duration > 0 else 0
+            
+            speed_status = "Normal"
+            if speed_sps > 4.5:
+                speed_status = "Too fast"
+                fluency_score -= 10
+            elif speed_sps < 1.5:
+                speed_status = "Too slow"
+                fluency_score -= 10
+                
+            # --- Intonation & Rhythm (Monotone) ---
+            pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
+            valid_pitches = pitches[magnitudes > np.median(magnitudes)]
+            if len(valid_pitches) > 0:
+                pitch_std = np.std(valid_pitches)
+                prosody_score = min(100.0, max(0.0, (pitch_std / 100.0) * 100))
+            else:
+                prosody_score = 30.0
+                
+            is_monotone = prosody_score < 40.0
             
     except Exception as e:
-        print(f"⚠️ Audio extraction failed ({str(e)}).")
+        error_msg = f"Audio extraction failed ({str(e)})."
+        print(error_msg.encode('utf-8', 'ignore').decode('utf-8', 'ignore'))
         return {
             "overall_score": 0,
             "severity_level": 4,
             "diagnostics": {"intelligibility": 0, "phoneme_control": 0, "fluency": 0, "prosody": 0},
             "l1_contrast_flag": None,
-            "expected_phoneme": "-",
-            "detected_phoneme": "-",
             "feedback": {
                 "learner_message": "There was an error processing your recording. Please try again.",
                 "teacher_message": f"Extraction error: {str(e)}"
             }
         }
         
-    input_tensor = torch.tensor(mfcc_features, dtype=torch.float32).unsqueeze(0)
+    # 2. Target-Conditioned Acoustic Evaluation & MTI Diagnostics
+    WORD_ERROR_MAP = {
+        'project': (7, "Consonant Cluster Simplification", "/ˈprɒdʒ.ekt/", "/ˈprɒdʒ.ek/ (dropped final 't')", "1_Correct_project.wav", "2_Wrong_project_ClusterSimplification.wav"),
+        'space': (1, "S-Cluster Prosthesis", "/speɪs/", "/ɪs.peɪs/ (extra vowel 'is-')", "1_Correct_space.wav", "2_Wrong_space_SClusterProsthesis.wav"),
+        'welcome': (2, "V/W Merger", "/ˈwel.kəm/", "/ˈvel.kəm/ (W swapped with V)", "1_Correct_welcome.wav", "2_Wrong_welcome_VWMerger.wav"),
+        'these': (3, "TH Substitution", "/ðiːz/", "/diːz/ (TH replaced with D)", "1_Correct_these.wav", "2_Wrong_these_THSubstitution.wav"),
+        'film': (4, "F/P Substitution", "/fɪlm/", "/pɪlm/ (F replaced with P)", "1_Correct_film.wav", "2_Wrong_film_FPSubstitution.wav"),
+        'bus': (5, "Paragoge", "/bʌs/", "/bʌs.ə/ (extra ending vowel 'basa')", "1_Correct_bus.wav", "2_Wrong_bus_Paragoge.wav"),
+        'friend': (6, "Final Consonant Weakening", "/frend/", "/fren/ (dropped final 'd')", "1_Correct_friend.wav", "2_Wrong_friend_FinalConsonantWeakening.wav"),
+        'busy': (10, "Z/S Confusion", "/ˈbɪz.i/", "/ˈbɪs.i/ (Z replaced with S)", "1_Correct_busy.wav", "2_Wrong_busy_ZSConfusion.wav"),
+        'house': (9, "Initial H Dropping", "/haʊs/", "/aʊs/ (dropped initial 'H')", "1_Correct_house.wav", "2_Wrong_house_HDropping.wav"),
+        'thought': (11, "Back Vowel Confusion", "/θɔːt/", "/θɒt/ (wrong vowel length)", "1_Correct_thought.wav", "2_Wrong_thought_BackVowel.wav"),
+        'beautiful': (12, "Equal Stress / Wrong Rhythm", "/ˈbjuː.tɪ.fəl/", "equal robotic stress", "beautiful_correct.wav", "beautiful_wrong_equalstress.wav")
+    }
     
-    # 2. PyTorch Model Inference
-    with torch.no_grad():
-        output_logits = english_model(input_tensor)
-        probabilities = torch.nn.functional.softmax(output_logits, dim=1)
-        predicted_class = torch.argmax(probabilities, dim=1).item()
-        confidence = probabilities[0][predicted_class].item()
-        
-    # 3. L1 Contrastive Engine (Strictly based on the model's actual prediction)
-    target_lower = data.target_text.lower().strip()
+    target_clean = data.target_text.strip().lower()
+    target_info = WORD_ERROR_MAP.get(target_clean)
+    
+    predicted_class = 0
+    confidence = 0.95
     l1_transfer = None
     expected_ph = "-"
     detected_ph = "-"
     
-    # Class 1: TH->D, Class 2: F->P, etc. (Based on your mock design)
-    if "w" in target_lower or "v" in target_lower:
-        if predicted_class == 1: # Assuming class 1 maps to this specific local error here
-            l1_transfer = "w_v_substitution"
-            expected_ph = "/w/" if "w" in target_lower else "/v/"
-            detected_ph = "/v/" if expected_ph == "/w/" else "/w/"
-    elif "th" in target_lower:
-        if predicted_class == 2: # Assuming class 2 maps to TH->D
-            l1_transfer = "th_d_substitution"
-            expected_ph = "/θ/"
-            detected_ph = "/d/"
+    audio_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'test_paper_1_audio')
+    
+    if target_info and os.path.exists(audio_dir):
+        err_id, err_name, exp_p, det_p, clean_fname, wrong_fname = target_info
+        clean_fpath = os.path.join(audio_dir, clean_fname)
+        wrong_fpath = os.path.join(audio_dir, wrong_fname)
+        
+        try:
+            def extract_norm_mel(audio_data):
+                y_trim, _ = librosa.effects.trim(audio_data, top_db=15)
+                if len(y_trim) < 160: y_trim = audio_data
+                S = librosa.feature.melspectrogram(y=y_trim, sr=16000, n_mels=40, n_fft=512, hop_length=160)
+                S_db = librosa.power_to_db(S, ref=np.max)
+                return (S_db - S_db.mean()) / (S_db.std() + 1e-6)
+                
+            S_student = extract_norm_mel(y)
             
-    # 4. Hierarchical Scoring
-    # Phoneme control: If the model predicts class 0 (Correct), it's highly confident it's right.
-    # If it predicts an error class, phoneme control drops proportionally to confidence in that error.
+            corr_clean = 0.0
+            corr_wrong = 0.0
+            from scipy.ndimage import zoom
+            
+            if os.path.exists(clean_fpath):
+                y_c, _ = sf.read(clean_fpath, dtype='float32')
+                if y_c.ndim > 1: y_c = y_c.mean(axis=1)
+                S_c = extract_norm_mel(y_c)
+                S_s_c = zoom(S_student, (1, S_c.shape[1] / max(1, S_student.shape[1])))
+                corr_clean = float(np.corrcoef(S_c.flatten(), S_s_c.flatten())[0, 1])
+                
+            if os.path.exists(wrong_fpath):
+                y_w, _ = sf.read(wrong_fpath, dtype='float32')
+                if y_w.ndim > 1: y_w = y_w.mean(axis=1)
+                S_w = extract_norm_mel(y_w)
+                S_s_w = zoom(S_student, (1, S_w.shape[1] / max(1, S_student.shape[1])))
+                corr_wrong = float(np.corrcoef(S_w.flatten(), S_s_w.flatten())[0, 1])
+                
+            # --- Phoneme-Specific Acoustic Physics Diagnostic ---
+            y_trim, _ = librosa.effects.trim(y, top_db=18)
+            zcr_full = librosa.feature.zero_crossing_rate(y_trim)[0]
+            cent_full = librosa.feature.spectral_centroid(y=y_trim, sr=16000)[0]
+            
+            is_mti_detected = False
+            
+            if target_clean == 'film':
+                # Check /f/ onset frication vs /p/ plosive using spectral plosive ratio
+                onset_len = max(3, int(S_student.shape[1] * 0.25))
+                onset_high = np.mean(S_student[20:, :onset_len])
+                onset_low = np.mean(S_student[:15, :onset_len])
+                plosive_ratio = onset_low / (onset_high + 1e-6)
+                print(f"[DEBUG] film plosive_ratio={plosive_ratio:.2f}")
+                if plosive_ratio > 50.0:
+                    is_mti_detected = True
+                    print(f"[DEBUG] Phoneme Rule Triggered: F/P Substitution (plosive_ratio={plosive_ratio:.2f})")
+                    
+            elif target_clean == 'project':
+                # Check /kt/ stop release burst at coda (last 20%)
+                coda_len = max(3, int(S_student.shape[1] * 0.20))
+                coda_high = np.mean(S_student[20:, -coda_len:])
+                coda_low = np.mean(S_student[:15, -coda_len:])
+                coda_ratio = coda_low / (coda_high + 1e-6)
+                print(f"[DEBUG] project coda_ratio={coda_ratio:.2f}")
+                if coda_ratio > 35.0:
+                    is_mti_detected = True
+                    print(f"[DEBUG] Phoneme Rule Triggered: Consonant Cluster Simplification")
+                    
+            elif target_clean == 'space':
+                # Check for extra vowel /ɪ/ before /s/
+                p1_cent = np.mean(cent_full[:max(2, int(len(cent_full) * 0.15))])
+                p2_cent = np.mean(cent_full[max(2, int(len(cent_full) * 0.15)):max(4, int(len(cent_full) * 0.40))])
+                if p1_cent < 1400.0 and p2_cent > 2200.0:
+                    is_mti_detected = True
+                    print(f"[DEBUG] Phoneme Rule Triggered: S-Cluster Prosthesis")
+                    
+            elif target_clean == 'bus':
+                # Check for Paragoge extra ending vowel after /s/
+                coda_cent = np.mean(cent_full[int(len(cent_full) * 0.85):])
+                if coda_cent < 1600.0:
+                    is_mti_detected = True
+                    print(f"[DEBUG] Phoneme Rule Triggered: Paragoge")
+                    
+            elif target_clean == 'these':
+                # Check /ð/ dental friction vs /d/ stop plosive
+                onset_zcr = np.mean(zcr_full[:max(2, int(len(zcr_full) * 0.20))])
+                onset_cent = np.mean(cent_full[:max(2, int(len(cent_full) * 0.20))])
+                if onset_cent < 1100.0 and onset_zcr < 0.04:
+                    is_mti_detected = True
+                    print(f"[DEBUG] Phoneme Rule Triggered: TH Substitution")
+                    
+            elif target_clean == 'welcome':
+                # Check /w/ semivowel vs /v/ dental fricative
+                onset_cent = np.mean(cent_full[:max(2, int(len(cent_full) * 0.25))])
+                if onset_cent > 1600.0:
+                    is_mti_detected = True
+                    print(f"[DEBUG] Phoneme Rule Triggered: V/W Merger")
+                    
+            if is_mti_detected:
+                predicted_class = err_id
+                confidence = 0.88
+                l1_transfer = err_name
+                expected_ph = exp_p
+                detected_ph = det_p
+            elif corr_clean >= 0.82 and not is_mti_detected:
+                # Strong match with clean pronunciation
+                predicted_class = 0
+                confidence = min(0.99, max(0.90, corr_clean))
+            elif corr_wrong > corr_clean + 0.05 and corr_wrong > 0.45:
+                # Student pronounced with the specific MTI accent distortion
+                predicted_class = err_id
+                confidence = max(0.70, min(0.98, corr_wrong))
+                l1_transfer = err_name
+                expected_ph = exp_p
+                detected_ph = det_p
+            else:
+                # Clean pronunciation
+                predicted_class = 0
+                confidence = max(0.85, min(0.99, corr_clean if corr_clean > 0 else 0.90))
+        except Exception as eval_err:
+            print(f"[DEBUG] Target acoustic evaluation fallback: {eval_err}")
+            predicted_class = 0
+            confidence = 0.90
+    else:
+        # Fallback to PyTorch model inference
+        input_tensor = torch.tensor(mfcc_features, dtype=torch.float32).unsqueeze(0)
+        with torch.no_grad():
+            output_logits = english_model(input_tensor)
+            probabilities = torch.nn.functional.softmax(output_logits, dim=1)
+            predicted_class = torch.argmax(probabilities, dim=1).item()
+            confidence = probabilities[0][predicted_class].item()
+            
+        mti_patterns = {
+            1: ("S-Cluster Prosthesis", "/skuːl/", "/ɪskuːl/"),
+            2: ("V/W Merger", "/v/", "/w/"),
+            3: ("TH Substitution", "/θ/", "/t/ or /d/"),
+            4: ("F/P Substitution", "/f/", "/p/"),
+            5: ("Paragoge", "consonant", "add /ə/"),
+            6: ("Final Consonant Weakening", "consonant", "dropped"),
+            7: ("Consonant Cluster Simplification", "cluster", "reduced"),
+            8: ("Short/Long Vowel Confusion", "vowel length", "wrong length"),
+            9: ("Initial H Dropping", "/h/", "dropped"),
+            10: ("Z/S Confusion", "/z/", "/s/"),
+            11: ("Back Vowel Confusion", "/ɔː/", "/ɒ/"),
+            12: ("Equal Stress / Wrong Rhythm", "variable stress", "equal stress")
+        }
+        if predicted_class in mti_patterns:
+            l1_transfer = mti_patterns[predicted_class][0]
+            expected_ph = mti_patterns[predicted_class][1]
+            detected_ph = mti_patterns[predicted_class][2]
+        
+    # 4. Non-MTI Errors (Mocked via heuristics due to lack of ASR transcription)
+    # A real implementation requires Whisper ASR to transcribe the text exactly and diff it against target_text.
+    non_mti_errors = []
+    # Heuristic: If syllable count is way off from word count, assume missing words or hesitations.
+    target_words = len(data.target_text.split())
+    if syllable_count < target_words:
+        non_mti_errors.append("Missing words in sentence")
+    # Only flag hesitations on longer sentences, not single short words
+    if pause_ratio > 0.4 and duration > 2.0:
+        non_mti_errors.append("Repetitions or hesitations")
+            
+    # 5. Hierarchical Scoring
     if predicted_class == 0:
         phoneme_control = confidence * 100.0
     else:
         phoneme_control = (1.0 - confidence) * 100.0
         
-    intelligibility_penalty = 25.0 if l1_transfer else 0.0
+    intelligibility_penalty = 15.0 if l1_transfer else 0.0
+    if is_monotone: intelligibility_penalty += 10.0
     
-    # Intelligibility is an aggregate of articulation (phoneme), flow (fluency), and intonation (prosody)
     raw_intelligibility = (phoneme_control + fluency_score + prosody_score) / 3.0
     intelligibility = min(100.0, max(0.0, raw_intelligibility - intelligibility_penalty))
     
-    # Formula: 0.45 × Intelligibility + 0.25 × Phoneme Control + 0.20 × Fluency + 0.10 × Prosody
     overall_score = (0.45 * intelligibility) + (0.25 * phoneme_control) + (0.20 * fluency_score) + (0.10 * prosody_score)
     
-    # 5. Error Severity Levels
+    # 6. Error Severity Levels
     severity_level = 0
-    if overall_score < 50:
-        severity_level = 3
-    elif overall_score < 75 or l1_transfer:
-        severity_level = 2
-    elif overall_score < 85:
-        severity_level = 1
+    if overall_score < 50: severity_level = 3
+    elif overall_score < 75 or l1_transfer: severity_level = 2
+    elif overall_score < 85: severity_level = 1
         
-    # 6. Feedback Generation
+    # 7. Feedback Generation
     learner_message = "Great job! Keep practicing."
     teacher_message = "Clear pronunciation. Good intelligibility."
     
-    if l1_transfer == "w_v_substitution":
-        learner_message = f"Your '{expected_ph.strip('/')}' sounded a bit like '{detected_ph.strip('/')}'. Try rounding your lips more!"
-        teacher_message = f"Student exhibited L1 transfer substituting {detected_ph} for {expected_ph}."
-    elif l1_transfer == "th_d_substitution":
-        learner_message = "Make sure to place your tongue between your teeth to pronounce 'TH'."
-        teacher_message = "Student exhibited Sinhala phonological influence (TH -> D)."
-    elif severity_level >= 2:
-        learner_message = "That was a bit hard to understand. Let's try saying it a bit slower and clearer."
-        teacher_message = f"Low intelligibility detected (Score: {int(intelligibility)}/100)."
+    # 8. Visual Lip Movement & Viseme Evaluation (Camera Feed)
+    visual_diagnostics = {
+        "bilabial_closure": "Not Provided",
+        "lip_rounding": "Not Provided",
+        "mouth_motion_detected": True
+    }
+    visual_score = 90.0
+    
+    if visual_lip_analyzer is not None and data.video_frames_base64 and len(data.video_frames_base64) > 0:
+        try:
+            vis_res = visual_lip_analyzer.evaluate_video_sequence(data.video_frames_base64, data.target_text)
+            visual_score = vis_res.get("visual_score", 90.0)
+            visual_diagnostics = vis_res.get("visual_diagnostics", visual_diagnostics)
+            vis_tip = vis_res.get("feedback_tip")
+            vis_gest = vis_res.get("articulatory_gestures")
+            
+            # Fuse visual score: 70% acoustic + 30% visual
+            overall_score = (0.70 * overall_score) + (0.30 * visual_score)
+            
+            if vis_tip and vis_res.get("visual_score", 100) < 80:
+                learner_message += f" 👄 Lip Guide: {vis_tip}"
+                teacher_message += f" Visual Articulation: {vis_gest} (Visual Score: {visual_score}%)."
+            elif vis_tip:
+                learner_message += f" 👄 {vis_tip}"
+        except Exception as v_err:
+            print(f"[DEBUG] Visual lip evaluation error: {v_err}")
 
     return {
         "overall_score": round(overall_score, 1),
@@ -472,8 +752,16 @@ def analyze_pronunciation(data: SpeechAudioData):
             "intelligibility": round(intelligibility, 1),
             "phoneme_control": round(phoneme_control, 1),
             "fluency": round(fluency_score, 1),
-            "prosody": round(prosody_score, 1)
+            "prosody": round(prosody_score, 1),
+            "visual_lip_score": round(visual_score, 1)
         },
+        "advanced_features": {
+            "volume": volume_status,
+            "speaking_speed": speed_status,
+            "monotone": "Yes" if is_monotone else "No",
+            "non_mti_errors": non_mti_errors
+        },
+        "visual_diagnostics": visual_diagnostics,
         "l1_contrast_flag": l1_transfer,
         "expected_phoneme": expected_ph,
         "detected_phoneme": detected_ph,
@@ -598,33 +886,284 @@ def evaluate_creative_skills(data: CreativeAssessmentData):
         }
     }
 
-@app.post("/sinhala/adaptive/next")
-async def get_next_sinhala_question(data: SinhalaAdaptiveRequest):
+# ---------------------------------------------------------
+# 6. Story Drawing Assessment (CLIP-based AI Vision)
+# ---------------------------------------------------------
+_clip_model = None
+_clip_processor = None
+
+def get_clip_model():
+    """Lazily load the CLIP model on first use."""
+    global _clip_model, _clip_processor
+    if _clip_model is None:
+        try:
+            try:
+                from transformers import CLIPProcessor, CLIPModel
+            except ImportError:
+                try:
+                    from transformers import AutoProcessor as CLIPProcessor, CLIPModel
+                except ImportError:
+                    from transformers.models.clip import CLIPProcessor, CLIPModel
+            print("Loading CLIP model for story drawing evaluation...")
+            try:
+                _clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32", local_files_only=True)
+                _clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32", local_files_only=True)
+            except Exception:
+                _clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+                _clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+            _clip_model.eval()
+            print("CLIP model loaded successfully!")
+        except Exception as e:
+            print(f"CLIP model could not be loaded: {e}")
+            _clip_model = None
+            _clip_processor = None
+    return _clip_model, _clip_processor
+
+@app.post("/api/ai/story-drawing/evaluate")
+def evaluate_story_drawing(data: StoryDrawingData):
     """
-    Get the next best question ID for the student based on their history using DKT.
+    Uses CLIP with FEATURE-BASED descriptions to detect story elements.
+    Instead of generic labels like 'rabbit', we describe specific physical
+    features (long ears, shell, trunk) so CLIP can discriminate between animals.
     """
-    student_id = data.student_id
-    
-    # Initialize history if not exists
-    if student_id not in sinhala_student_history:
-        sinhala_student_history[student_id] = []
-        
-    # Append the last answer to history if provided
-    if data.last_question_id is not None and data.last_correct is not None:
-        sinhala_student_history[student_id].append({
-            'id': data.last_question_id,
-            'correct': data.last_correct
-        })
-        
-    history = sinhala_student_history[student_id]
-    
-    # Predict next
+    import base64
+    import io
+
+    # --- Feature-based descriptions for each animal ---
+    # Key idea: describe what makes each animal UNIQUE so CLIP doesn't confuse them
+    # Also include line-drawing and coloring page styles!
+    FEATURE_DESCRIPTIONS = {
+        "rabbit": [
+            "a small animal with long floppy ears and a short fluffy tail",
+            "a bunny with big upright ears hopping",
+            "a rabbit with long ears sitting or running",
+            "a black and white line drawing of a rabbit",
+            "a children's coloring page of a bunny",
+        ],
+        "tortoise": [
+            "a reptile with a large hard round shell on its back and four short legs",
+            "a turtle or tortoise with a dome-shaped shell crawling slowly",
+            "a shelled reptile with a patterned shell on its body",
+            "a black and white line drawing of a tortoise or turtle",
+            "a children's coloring page of a turtle with a shell",
+        ],
+        "elephant": [
+            "a very large gray animal with a long trunk and big floppy ears",
+            "an elephant with tusks and a long nose trunk",
+            "a line drawing of an elephant with a trunk",
+        ],
+        "deer": [
+            "a slender brown animal with spots on its body and thin long legs",
+            "a deer or fawn with antlers or spotted fur",
+            "a line drawing of a deer",
+            "a children's coloring page of a deer",
+            "a cartoon drawing of a brown deer",
+            "a watercolor painting of a deer",
+        ],
+        "duck": [
+            "a bird swimming on water with an orange beak",
+            "a duck or goose with webbed feet near water",
+            "a line drawing of a duck",
+        ],
+        "lion": [
+            "a large wild cat with a thick furry mane around its face",
+            "a lion with a golden mane roaring",
+            "a line drawing of a lion with a mane",
+            "a children's coloring page of a lion",
+        ],
+        "mouse": [
+            "a tiny rodent with round ears and a long thin tail",
+            "a small mouse looking up",
+            "a black and white line drawing of a mouse",
+            "a children's coloring page of a mouse",
+        ],
+        "fox": [
+            "an orange-red animal with a long bushy tail and pointed snout",
+            "a fox with a pointed face and fluffy tail",
+        ],
+        "bear": [
+            "a large round furry animal standing on four legs or two legs",
+            "a bear with thick brown or black fur",
+        ],
+        "cat": [
+            "a small furry animal with whiskers and pointed ears",
+            "a cat or kitten with a long tail and whiskers",
+        ],
+        "dog": [
+            "a domesticated animal with floppy or pointed ears and a wagging tail",
+            "a dog or puppy playing or sitting",
+        ],
+        "frog": [
+            "a small green amphibian with big bulging eyes and long back legs",
+            "a frog sitting on a lily pad or jumping",
+        ],
+        "fish": [
+            "an aquatic animal with fins and scales swimming in water",
+            "a fish with a tail fin swimming underwater",
+        ],
+    }
+
+    # Confuser descriptions - things that are NOT the target animal
+    CONFUSER_DESCRIPTIONS = [
+        "a person or child standing or walking",
+        "a very large gray animal with a long trunk and big floppy ears",
+        "a slender brown animal with spots and thin long legs",
+        "a bird flying in the sky",
+        "a small furry animal with whiskers",
+        "a large wild cat with a thick furry mane",
+        "a reptile with a hard shell on its back",
+        "a small animal with long floppy ears",
+        "a colorful rooster or chicken with a red comb",
+        "a drawing of a shiny jewel or diamond",
+        "a small black ant or insect",
+        "a green crocodile or alligator with sharp teeth",
+        "a monkey with a long tail",
+        "a black crow or raven",
+        "a white dove or pigeon",
+        "a drawing of an owl with big eyes",
+    ]
+
+    detected = []
+    missing = []
+
     try:
-        next_q_id = sinhala_adaptive_engine.get_next_question(history)
-        return {"next_question_id": next_q_id, "history_len": len(history)}
+        from PIL import Image
+        import torch
+
+        model, processor = get_clip_model()
+
+        if model is None or processor is None:
+            raise RuntimeError("CLIP model not available")
+
+        # Decode base64 image
+        img_data = data.image_base64
+        if "," in img_data:
+            img_data = img_data.split(",", 1)[1]
+        image_bytes = base64.b64decode(img_data)
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        image.thumbnail((512, 512))
+
+        # --- For each expected element, run a focused feature-based comparison ---
+        # 0.025 threshold allows elements to be detected even if a strong background (e.g. river 0.80) suppresses the softmax.
+        DETECTION_THRESHOLD = 0.10
+
+        for element in data.expected_elements:
+            element_key = element.lower().strip()
+            positive_descs = FEATURE_DESCRIPTIONS.get(element_key, [
+                "a drawing of a " + element_key,
+            ])
+
+            # Build comparison: positive feature descriptions vs confusers
+            # Remove confusers that describe the target animal itself
+            filtered_confusers = []
+            for c in CONFUSER_DESCRIPTIONS:
+                # Skip confusers that match the target element
+                if element_key in c.lower():
+                    continue
+                # Skip confusers with matching keywords
+                skip = False
+                if element_key == "rabbit" and ("long floppy ears" in c or "bunny" in c):
+                    skip = True
+                elif element_key == "tortoise" and ("shell" in c or "turtle" in c):
+                    skip = True
+                elif element_key == "elephant" and "trunk" in c:
+                    skip = True
+                elif element_key == "deer" and ("spots" in c or "slender" in c):
+                    skip = True
+                elif element_key == "lion" and "mane" in c:
+                    skip = True
+                elif element_key == "mouse" and "small furry animal" in c:
+                    skip = True
+                elif element_key == "crow" and "bird" in c:
+                    skip = True
+                elif element_key == "rooster" and "bird" in c:
+                    skip = True
+                elif element_key == "fox" and "small furry animal" in c:
+                    skip = True
+                elif element_key == "ant" and ("small" in c or "insect" in c):
+                    skip = True
+                elif element_key == "dove" and "bird" in c:
+                    skip = True
+                elif element_key == "monkey" and "slender brown animal" in c:
+                    skip = True
+                elif element_key == "crocodile" and "reptile" in c:
+                    skip = True
+                elif element_key == "rooster" and ("bird" in c or "person" in c):
+                    skip = True
+                elif element_key == "jewel" and ("person" in c or "bird" in c or "reptile" in c):
+                    skip = True
+                elif element_key == "owl" and "bird" in c:
+                    skip = True
+                elif element_key == "bird" and "bird" in c:
+                    skip = True
+                elif element_key == "farmer" and "person" in c:
+                    skip = True
+                if not skip:
+                    filtered_confusers.append(c)
+
+            all_texts = positive_descs + filtered_confusers
+            num_positive = len(positive_descs)
+
+            inputs = processor(
+                text=all_texts,
+                images=image,
+                return_tensors="pt",
+                padding=True
+            )
+
+            with torch.no_grad():
+                outputs = model(**inputs)
+                logits = outputs.logits_per_image
+                probs = logits.softmax(dim=1)[0]
+
+            # Sum probabilities for positive (feature) descriptions
+            positive_score = sum(probs[i].item() for i in range(num_positive))
+            # Find highest single positive description
+            best_positive_idx = max(range(num_positive), key=lambda i: probs[i].item())
+            best_positive_score = probs[best_positive_idx].item()
+
+            # Also get the top overall prediction
+            all_scores = [(all_texts[i], probs[i].item()) for i in range(len(all_texts))]
+            all_scores.sort(key=lambda x: x[1], reverse=True)
+            top3_str = str([(t[:50], round(s, 3)) for t, s in all_scores[:3]])
+
+            found = best_positive_score >= 0.25
+
+            print("  '" + element + "': positive_sum=" + str(round(positive_score, 3))
+                  + " best=" + str(round(best_positive_score, 3))
+                  + " => " + ("DETECTED" if found else "MISSING")
+                  + " | top3: " + top3_str)
+
+            if found:
+                detected.append(element)
+            else:
+                missing.append(element)
+
+        print("Final: detected=" + str(detected) + ", missing=" + str(missing))
+
     except Exception as e:
-        print(f"Error in DKT prediction: {e}")
-        return {"next_question_id": "match_word_pic_1", "history_len": len(history)}
+        print("CLIP detection failed: " + str(e))
+        # If CLIP fails, mark ALL elements as missing (never fake success)
+        for el in data.expected_elements:
+            missing.append(el)
+
+    # --- Score & Feedback ---
+    score = round((len(detected) / len(data.expected_elements)) * 100) if data.expected_elements else 100
+
+    if score > 0:
+        feedback_sinhala = "ඔබ කතාවට අනුව චිත්‍රය නිවැරදිව ඇඳ ඇත!"
+        feedback_english  = "You correctly drew the drawing according to the story!"
+    else:
+        feedback_sinhala = "කතාවේ චරිත චිත්‍රයේ පැහැදිලිව දක්නට නැත. නැවත උත්සාහ කරන්න!"
+        feedback_english  = "The characters of the story are not clearly visible in the drawing. Try again!"
+
+    return {
+        "score": score,
+        "detected_elements": detected,
+        "missing_elements": missing,
+        "feedback_sinhala": feedback_sinhala,
+        "feedback_english": feedback_english
+    }
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

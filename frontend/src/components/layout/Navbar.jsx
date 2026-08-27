@@ -42,12 +42,21 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <Link 
-              to="/login"
-              className="bg-indigo-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              Student Login
-            </Link>
+            {localStorage.getItem('token') ? (
+              <Link 
+                to={localStorage.getItem('role') === 'teacher' ? '/teacher/dashboard' : '/dashboard'}
+                className="bg-indigo-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                Go to Dashboard
+              </Link>
+            ) : (
+              <Link 
+                to="/login"
+                className="bg-indigo-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
+                Portal Login
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -78,13 +87,23 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <Link 
-              to="/login"
-              onClick={() => setIsOpen(false)}
-              className="block mt-4 w-full text-center bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors"
-            >
-              Student Login
-            </Link>
+            {localStorage.getItem('token') ? (
+              <Link 
+                to={localStorage.getItem('role') === 'teacher' ? '/teacher/dashboard' : '/dashboard'}
+                onClick={() => setIsOpen(false)}
+                className="block mt-4 w-full text-center bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors"
+              >
+                Go to Dashboard
+              </Link>
+            ) : (
+              <Link 
+                to="/login"
+                onClick={() => setIsOpen(false)}
+                className="block mt-4 w-full text-center bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors"
+              >
+                Portal Login
+              </Link>
+            )}
           </div>
         </div>
       )}

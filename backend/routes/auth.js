@@ -2,43 +2,197 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
 const Student = require('../models/Student');
+const Teacher = require('../models/Teacher');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key_for_dev';
+const MOCK_DB_PATH = path.join(__dirname, '../data/mock_db.json');
 
-// @route   POST /api/auth/register
-// @desc    Register a new student
-router.post('/register', async (req, res) => {
-  const { name, grade, password } = req.body;
+// Helper to get/set mock DB data
+const getMockDb = () => {
+  try {
+    if (!fs.existsSync(path.dirname(MOCK_DB_PATH))) {
+      fs.mkdirSync(path.dirname(MOCK_DB_PATH), { recursive: true });
+    }
+    if (!fs.existsSync(MOCK_DB_PATH)) {
+      fs.writeFileSync(MOCK_DB_PATH, JSON.stringify({ students: [], teachers: [] }, null, 2));
+    }
+    return JSON.parse(fs.readFileSync(MOCK_DB_PATH, 'utf8'));
+  } catch (err) {
+    console.error("Error reading mock DB:", err);
+    return { students: [], teachers: [] };
+  }
+};
 
-  if (!global.dbConnected) {
-    const token = jwt.sign({ studentId: 'mock-id-123' }, JWT_SECRET, { expiresIn: '10h' });
-    return res.status(201).json({ token, studentId: 'mock-id-123', name: name || 'MockStudent' });
+const saveMockDb = (data) => {
+  try {
+    fs.writeFileSync(MOCK_DB_PATH, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error("Error writing to mock DB:", err);
+  }
+};
+
+// @route   POST /api/auth/forgot-password
+// @desc    Reset password for a student or teacher (works in both Mongo and Mock mode)
+router.post('/forgot-password', async (req, res) => {
+  const { name, role, newPassword } = req.body;
+  const isTeacher = role === 'teacher';
+
+  if (!newPassword || newPassword.trim().length < 4) {
+    return res.status(400).json({ message: 'Password must be at least 4 characters long.' });
   }
 
-  try {
-    // Check if student exists (usually by an ID/Email, but we are using name for this kids app)
-    let student = await Student.findOne({ name });
-    if (student) {
-      return res.status(400).json({ message: 'Student name already exists. Please pick a unique name or add an initial.' });
+  // Fallback Mock DB mode
+  if (!global.dbConnected) {
+    const db = getMockDb();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    if (isTeacher) {
+      const idx = db.teachers.findIndex(t => t.name.toLowerCase() === name.toLowerCase());
+      if (idx === -1) {
+        return res.status(404).json({ message: 'Teacher name not found.' });
+      }
+      db.teachers[idx].password = hashedPassword;
+    } else {
+      const idx = db.students.findIndex(s => s.name.toLowerCase() === name.toLowerCase());
+      if (idx === -1) {
+        return res.status(404).json({ message: 'Student name not found.' });
+      }
+      db.students[idx].password = hashedPassword;
     }
 
+    saveMockDb(db);
+    return res.json({ message: 'Password reset successful. You can now login with your new password.' });
+  }
+
+  // Real MongoDB Mode
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    if (isTeacher) {
+      let teacher = await Teacher.findOne({ name });
+      if (!teacher) {
+        return res.status(404).json({ message: 'Teacher name not found.' });
+      }
+      teacher.password = hashedPassword;
+      await teacher.save();
+    } else {
+      let student = await Student.findOne({ name });
+      if (!student) {
+        return res.status(404).json({ message: 'Student name not found.' });
+      }
+      student.password = hashedPassword;
+      await student.save();
+    }
+
+    res.json({ message: 'Password reset successful. You can now login with your new password.' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   POST /api/auth/register
+// @desc    Register a new student or teacher
+router.post('/register', async (req, res) => {
+  const { name, grade, password, role } = req.body;
+  const isTeacher = role === 'teacher';
+
+  if (!name || !password) {
+    return res.status(400).json({ message: 'Please provide both name and password.' });
+  }
+
+  // Fallback Mock DB mode
+  if (!global.dbConnected) {
+    const db = getMockDb();
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    student = new Student({
-      name,
-      grade,
-      password: hashedPassword
-    });
+    if (isTeacher) {
+      const exists = db.teachers.some(t => t.name.toLowerCase() === name.toLowerCase());
+      if (exists) {
+        return res.status(400).json({ message: 'Teacher name already exists.' });
+      }
+      const newTeacher = {
+        id: 'mock-t-' + Date.now(),
+        name,
+        password: hashedPassword,
+        role: 'teacher'
+      };
+      db.teachers.push(newTeacher);
+      saveMockDb(db);
 
-    await student.save();
+      const token = jwt.sign({ userId: newTeacher.id, role: 'teacher' }, JWT_SECRET, { expiresIn: '10h' });
+      return res.status(201).json({ token, userId: newTeacher.id, name: newTeacher.name, role: 'teacher' });
+    } else {
+      const exists = db.students.some(s => s.name.toLowerCase() === name.toLowerCase());
+      if (exists) {
+        return res.status(400).json({ message: 'Student name already exists. Please pick a unique name.' });
+      }
+      const newStudent = {
+        id: 'mock-s-' + Date.now(),
+        name,
+        grade: grade || 'Grade 1',
+        password: hashedPassword,
+        role: 'student',
+        masteryLevels: { math: 0.5, english: 0.5, sinhala: 0.5, motorSkills: 0.5 }
+      };
+      db.students.push(newStudent);
+      saveMockDb(db);
 
-    // Create JWT
-    const payload = { studentId: student._id };
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '10h' });
+      const token = jwt.sign({ userId: newStudent.id, role: 'student' }, JWT_SECRET, { expiresIn: '10h' });
+      return res.status(201).json({ token, userId: newStudent.id, name: newStudent.name, role: 'student', masteryLevels: newStudent.masteryLevels });
+    }
+  }
 
-    res.status(201).json({ token, studentId: student._id, name: student.name });
+  // Real MongoDB Mode
+  try {
+    if (isTeacher) {
+      let teacher = await Teacher.findOne({ name });
+      if (teacher) {
+        return res.status(400).json({ message: 'Teacher name already exists.' });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      teacher = new Teacher({
+        name,
+        password: hashedPassword
+      });
+
+      await teacher.save();
+
+      const payload = { userId: teacher._id, role: 'teacher' };
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '10h' });
+
+      res.status(201).json({ token, userId: teacher._id, name: teacher.name, role: 'teacher' });
+    } else {
+      let student = await Student.findOne({ name });
+      if (student) {
+        return res.status(400).json({ message: 'Student name already exists. Please pick a unique name or add an initial.' });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      student = new Student({
+        name,
+        grade: grade || 'Grade 1',
+        password: hashedPassword
+      });
+
+      await student.save();
+
+      const payload = { userId: student._id, role: 'student' };
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '10h' });
+
+      res.status(201).json({ token, userId: student._id, name: student.name, role: 'student', masteryLevels: student.masteryLevels });
+    }
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -46,30 +200,80 @@ router.post('/register', async (req, res) => {
 });
 
 // @route   POST /api/auth/login
-// @desc    Authenticate student & get token
+// @desc    Authenticate student or teacher & get token
 router.post('/login', async (req, res) => {
-  const { name, password } = req.body;
+  const { name, password, role } = req.body;
+  const isTeacher = role === 'teacher';
 
-  if (!global.dbConnected) {
-    const token = jwt.sign({ studentId: 'mock-id-123' }, JWT_SECRET, { expiresIn: '10h' });
-    return res.json({ token, studentId: 'mock-id-123', name: name || 'MockStudent', masteryLevels: { math: 0.8, english: 0.6, sinhala: 0.9, motorSkills: 0.4 } });
+  if (!name || !password) {
+    return res.status(400).json({ message: 'Please provide both name and password.' });
   }
 
+  // Fallback Mock DB mode
+  if (!global.dbConnected) {
+    const db = getMockDb();
+    if (isTeacher) {
+      const teacher = db.teachers.find(t => t.name.toLowerCase() === name.toLowerCase());
+      if (!teacher) {
+        return res.status(400).json({ message: 'Invalid Credentials' });
+      }
+
+      const isMatch = await bcrypt.compare(password, teacher.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid Credentials' });
+      }
+
+      const token = jwt.sign({ userId: teacher.id, role: 'teacher' }, JWT_SECRET, { expiresIn: '10h' });
+      return res.json({ token, userId: teacher.id, name: teacher.name, role: 'teacher' });
+    } else {
+      const student = db.students.find(s => s.name.toLowerCase() === name.toLowerCase());
+      if (!student) {
+        return res.status(400).json({ message: 'Invalid Credentials' });
+      }
+
+      const isMatch = await bcrypt.compare(password, student.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid Credentials' });
+      }
+
+      const token = jwt.sign({ userId: student.id, role: 'student' }, JWT_SECRET, { expiresIn: '10h' });
+      return res.json({ token, userId: student.id, name: student.name, role: 'student', masteryLevels: student.masteryLevels });
+    }
+  }
+
+  // Real MongoDB Mode
   try {
-    let student = await Student.findOne({ name });
-    if (!student) {
-      return res.status(400).json({ message: 'Invalid Credentials' });
+    if (isTeacher) {
+      let teacher = await Teacher.findOne({ name });
+      if (!teacher) {
+        return res.status(400).json({ message: 'Invalid Credentials' });
+      }
+
+      const isMatch = await bcrypt.compare(password, teacher.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid Credentials' });
+      }
+
+      const payload = { userId: teacher._id, role: 'teacher' };
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '10h' });
+
+      res.json({ token, userId: teacher._id, name: teacher.name, role: 'teacher' });
+    } else {
+      let student = await Student.findOne({ name });
+      if (!student) {
+        return res.status(400).json({ message: 'Invalid Credentials' });
+      }
+
+      const isMatch = await bcrypt.compare(password, student.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid Credentials' });
+      }
+
+      const payload = { userId: student._id, role: 'student' };
+      const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '10h' });
+
+      res.json({ token, userId: student._id, name: student.name, role: 'student', masteryLevels: student.masteryLevels });
     }
-
-    const isMatch = await bcrypt.compare(password, student.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid Credentials' });
-    }
-
-    const payload = { studentId: student._id };
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '10h' });
-
-    res.json({ token, studentId: student._id, name: student.name, masteryLevels: student.masteryLevels });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -77,16 +281,31 @@ router.post('/login', async (req, res) => {
 });
 
 // @route   GET /api/auth/profile
-// @desc    Get logged in student profile
+// @desc    Get logged in user profile
 router.get('/profile', async (req, res) => {
-  // Simple middleware check inline for brevity
   const token = req.header('x-auth-token');
   if (!token) return res.status(401).json({ message: 'No token, authorization denied' });
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const student = await Student.findById(decoded.studentId).select('-password');
-    res.json(student);
+    if (!global.dbConnected) {
+      const db = getMockDb();
+      if (decoded.role === 'teacher') {
+        const teacher = db.teachers.find(t => t.id === decoded.userId);
+        return res.json({ id: teacher.id, name: teacher.name, role: 'teacher' });
+      } else {
+        const student = db.students.find(s => s.id === decoded.userId);
+        return res.json({ id: student.id, name: student.name, role: 'student', masteryLevels: student.masteryLevels });
+      }
+    }
+
+    if (decoded.role === 'teacher') {
+      const teacher = await Teacher.findById(decoded.userId).select('-password');
+      res.json({ ...teacher.toObject(), role: 'teacher' });
+    } else {
+      const student = await Student.findById(decoded.userId).select('-password');
+      res.json({ ...student.toObject(), role: 'student' });
+    }
   } catch (err) {
     res.status(401).json({ message: 'Token is not valid' });
   }
