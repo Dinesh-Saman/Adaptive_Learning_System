@@ -147,15 +147,15 @@ const StoryDrawingModule = ({ onExit }) => {
                   className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:border-orange-300 hover:shadow-lg cursor-pointer transition-all transform hover:-translate-y-1 flex flex-col items-center text-center group"
                 >
                   {story.image ? (
-                    <div className="w-full h-52 mb-5 rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 shadow-sm flex items-center justify-center">
+                    <div className="w-full h-80 sm:h-96 mb-5 rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 shadow-sm flex items-center justify-center">
                       <img 
                         src={story.image} 
                         alt={story.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300" 
                       />
                     </div>
                   ) : (
-                    <div className="w-full h-52 mb-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-100 border border-orange-100 flex items-center justify-center text-6xl shadow-inner">
+                    <div className="w-full h-80 sm:h-96 mb-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-100 border border-orange-100 flex items-center justify-center text-6xl shadow-inner">
                       {story.emoji}
                     </div>
                   )}
