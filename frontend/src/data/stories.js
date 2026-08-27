@@ -28,6 +28,7 @@ export const STORIES = [
     title: "හාවා සහ ඉබ්බා",
     englishTitle: "The Hare and the Tortoise",
     emoji: "🐰🐢",
+    image: "/images/stories/hare_tortoise.jpg",
     expectedElements: ['rabbit', 'tortoise'],
     paragraphs: [
       "එක් දිනක් සුන්දර වනාන්තරයක හාවෙකු සහ ඉබ්බෙකු අතර අපූරු තරඟයක් පැවැත්වීමට තීරණය විය. හාවා ඉතා වේගයෙන් දුවන්නෙකු වූ අතර, ඔහුගේ වේගය ගැන මහත් ආඩම්බරයෙන් සිටියේය. ඉබ්බා නම් සෙමින් ගමන් කරන සතෙකු වූ නිසා, හාවා සිතුවේ තරඟය ජය ගැනීම ඔහුට ඉතා පහසු දෙයක් බවයි.",
@@ -47,6 +48,7 @@ export const STORIES = [
     title: "කපුටා සහ හිවලා",
     englishTitle: "The Crow and the Fox",
     emoji: "🐦🦊",
+    image: "/images/stories/crow_fox.jpg",
     expectedElements: ['crow', 'fox'],
     paragraphs: [
       "එක් සුන්දර උදෑසනක, වනාන්තරයක් අසල තිබූ විශාල ගසක අත්තක් මත කපුටෙකු වාඩි වී සිටියේය. ඔහුගේ හොටේ රසවත් චීස් කැබැල්ලක් තිබුණි. එය ඔහුට කොහෙන්දෝ ලැබුණු අතර, එය සතුටින් අනුභව කිරීමට සුදුසු ස්ථානයක් සොයමින් සිටියේය.",
@@ -75,6 +77,7 @@ export const STORIES = [
     title: "කුහුඹුවා සහ පරෙවියා",
     englishTitle: "The Ant and the Dove",
     emoji: "🐜🕊️",
+    image: "/images/stories/ant_dove.jpg",
     expectedElements: ['ant', 'dove'],
     paragraphs: [
       "එක් උණුසුම් දිනක, වනාන්තරයක් මැදින් ගලා ගිය කුඩා දිය පහරක් අසල කුඩා කුහුඹුවෙකු ආහාර සොයමින් ඇවිදිමින් සිටියේය. ඔහුට මහත් පිපාසයක් දැනුණු නිසා දිය පහරෙන් වතුර බීමට ඔහු ඉදිරියට ගියේය.",
