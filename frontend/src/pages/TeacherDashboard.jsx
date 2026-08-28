@@ -23,9 +23,8 @@ import {
   Layers, 
   ExternalLink 
 } from 'lucide-react';
-import StudentAnalyticsOverview from '../components/analytics/StudentAnalyticsOverview';
-import CategoryStudentTable from '../components/analytics/CategoryStudentTable';
-import { fetchStudentsAnalyticsFromApi } from '../data/studentAnalyticsData';
+import CategoryStudentTable, { isPreSchoolOrGrade1 } from '../components/analytics/CategoryStudentTable';
+import { fetchStudentsAnalyticsFromApi, CORE_SUBJECTS } from '../data/studentAnalyticsData';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
@@ -69,11 +68,27 @@ const TeacherDashboard = () => {
     : 0;
   const totalExercisesClass = students.reduce((acc, s) => acc + (s.totalExercises || 0), 0);
 
+  // Category enrollment counts
+  const primaryStudents = students.filter(s => !isPreSchoolOrGrade1(s.grade));
+  const preschoolStudents = students.filter(s => isPreSchoolOrGrade1(s.grade));
+
+  const getSubjectClassAverage = (subKey, studentList) => {
+    if (!studentList || studentList.length === 0) return 0;
+    const scores = studentList.map(st => {
+      const items = st.categoryMarks?.[subKey] || [];
+      if (items.length === 0) return 0;
+      const total = items.reduce((acc, curr) => acc + curr.pct, 0);
+      return Math.round(total / items.length);
+    }).filter(s => s > 0);
+    if (scores.length === 0) return 0;
+    return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  };
+
   const sidebarMenuItems = [
     {
       id: 'overview',
       name: 'සමස්ත විශ්ලේෂණය',
-      subtitle: 'Class Overview & Analytics',
+      subtitle: 'Class Overview & Enrollments',
       icon: LayoutDashboard,
       color: 'indigo'
     },
@@ -206,21 +221,17 @@ const TeacherDashboard = () => {
       {/* ── MAIN CONTENT AREA ── */}
       <main className="flex-grow p-6 sm:p-10 max-w-7xl mx-auto overflow-y-auto space-y-8">
         
-        {/* ── TAB 1: OVERVIEW & ANALYTICS WORKSPACE ── */}
+        {/* ── TAB 1: CLASS OVERVIEW & CATEGORY ENROLLMENT SUMMARY (NO INDIVIDUAL DETAILS) ── */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-fade-in">
             {/* Header Banner */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
-                    පන්ති කාමර ප්‍රගති විශ්ලේෂණය (Class Overview & Analytics)
-                  </h1>
-                </div>
-                <p className="text-slate-500 text-sm mt-1">
-                  Multimodal Learning Analytics & Individual Student Diagnostic Reports
-                </p>
-              </div>
+            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
+                පන්ති කාමර සමස්ත විශ්ලේෂණය (Class Overview & Enrollment Diagnostics)
+              </h1>
+              <p className="text-slate-500 text-sm mt-1">
+                Category-wise student enrollment summary and aggregate performance indicators.
+              </p>
             </div>
 
             {/* Class Summary KPI Cards */}
@@ -230,18 +241,28 @@ const TeacherDashboard = () => {
                   👥
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-500 uppercase">Enrolled Students</p>
-                  <h3 className="text-2xl font-black text-slate-900">{students.length} Active</h3>
+                  <p className="text-xs font-bold text-slate-500 uppercase">Total Enrolled</p>
+                  <h3 className="text-2xl font-black text-slate-900">{students.length} Students</h3>
                 </div>
               </div>
 
               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl font-bold">
-                  📈
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl font-bold">
+                  🎒
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-500 uppercase">Class Mastery Avg</p>
-                  <h3 className="text-2xl font-black text-emerald-700">{classAverage}%</h3>
+                  <p className="text-xs font-bold text-slate-500 uppercase">Grade 2, 3, 4</p>
+                  <h3 className="text-2xl font-black text-indigo-700">{primaryStudents.length} Students</h3>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl font-bold">
+                  🎨
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-500 uppercase">Pre-School & Gr 1</p>
+                  <h3 className="text-2xl font-black text-amber-700">{preschoolStudents.length} Students</h3>
                 </div>
               </div>
 
@@ -250,44 +271,171 @@ const TeacherDashboard = () => {
                   ✅
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-500 uppercase">Total Completed Tests</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase">Completed Tests</p>
                   <h3 className="text-2xl font-black text-purple-700">{totalExercisesClass}</h3>
                 </div>
               </div>
+            </div>
 
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl font-bold">
-                  🎯
+            {/* Category Enrollment & Performance Summary Grid */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-indigo-600" /> ප්‍රධාන විෂය කාණ්ඩ අනුව සිසුන් ලියාපදිංචිය (Category Enrollment & Status)
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* 1. Mathematics Hub Overview */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">🧮</span>
+                      <div>
+                        <h3 className="text-lg font-black text-slate-900">1. ගණිතය (Mathematics)</h3>
+                        <p className="text-xs text-slate-500">Grade 2, 3, 4 Primary Math Curriculums</p>
+                      </div>
+                    </div>
+                    <span className="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">
+                      Primary
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 rounded-2xl">
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-500 uppercase">Enrolled Students</p>
+                      <p className="text-xl font-black text-slate-900">{primaryStudents.length} Active</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-500 uppercase">Class Subject Avg</p>
+                      <p className="text-xl font-black text-blue-700">{getSubjectClassAverage('math', primaryStudents)}%</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setActiveTab('math')}
+                    className="w-full py-3 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <span>View Mathematics Students & Diagnostic Charts</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-500 uppercase">Primary Learning Modules</p>
-                  <h3 className="text-2xl font-black text-amber-700">4 Active Hubs</h3>
+
+                {/* 2. Sinhala Language Hub Overview */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">🦁</span>
+                      <div>
+                        <h3 className="text-lg font-black text-slate-900">2. සිංහල භාෂාව (Sinhala)</h3>
+                        <p className="text-xs text-slate-500">Grade 2, 3, 4 5-Paper Adaptive System</p>
+                      </div>
+                    </div>
+                    <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">
+                      Primary
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 rounded-2xl">
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-500 uppercase">Enrolled Students</p>
+                      <p className="text-xl font-black text-slate-900">{primaryStudents.length} Active</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-500 uppercase">Class Subject Avg</p>
+                      <p className="text-xl font-black text-emerald-700">{getSubjectClassAverage('sinhala', primaryStudents)}%</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setActiveTab('sinhala')}
+                    className="w-full py-3 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <span>View Sinhala Students & Diagnostic Charts</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
+
+                {/* 3. English Speech Hub Overview */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">🗣️</span>
+                      <div>
+                        <h3 className="text-lg font-black text-slate-900">3. English Speech & Pronunciation</h3>
+                        <p className="text-xs text-slate-500">Speech Recognition & Fluency Hub</p>
+                      </div>
+                    </div>
+                    <span className="bg-purple-50 text-purple-700 text-xs font-bold px-3 py-1 rounded-full">
+                      Primary
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 rounded-2xl">
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-500 uppercase">Enrolled Students</p>
+                      <p className="text-xl font-black text-slate-900">{primaryStudents.length} Active</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-500 uppercase">Class Subject Avg</p>
+                      <p className="text-xl font-black text-purple-700">{getSubjectClassAverage('english', primaryStudents)}%</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setActiveTab('english')}
+                    className="w-full py-3 bg-purple-50 hover:bg-purple-600 text-purple-700 hover:text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <span>View English Students & Diagnostic Charts</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* 4. Pre-School & Grade 1 Hub Overview */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">🎨</span>
+                      <div>
+                        <h3 className="text-lg font-black text-slate-900">4. Pre-School & Grade 1 (Foundations)</h3>
+                        <p className="text-xs text-slate-500">Fine Motor, Tracing & Digital Crafts</p>
+                      </div>
+                    </div>
+                    <span className="bg-amber-50 text-amber-700 text-xs font-bold px-3 py-1 rounded-full">
+                      Foundations
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 rounded-2xl">
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-500 uppercase">Enrolled Students</p>
+                      <p className="text-xl font-black text-slate-900">{preschoolStudents.length} Active</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-500 uppercase">Class Subject Avg</p>
+                      <p className="text-xl font-black text-amber-700">{getSubjectClassAverage('preschool', preschoolStudents)}%</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setActiveTab('preschool')}
+                    className="w-full py-3 bg-amber-50 hover:bg-amber-600 text-amber-700 hover:text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <span>View Pre-School Students & Diagnostic Charts</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+
               </div>
             </div>
 
-            {/* Individual Student Diagnostics */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100">
-              <div className="mb-6 pb-4 border-b border-slate-100">
-                <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-                  <BarChart3 className="w-6 h-6 text-indigo-600" /> ශිෂ්‍ය තනි පුද්ගල ප්‍රගති විශ්ලේෂණය (Real Student Diagnostics)
-                </h2>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Longitudinal weekly scores, radar competency charts, and AI-recommended remedial actions from MongoDB.
-                </p>
-              </div>
-
-              <StudentAnalyticsOverview isTeacherView={true} />
-            </div>
           </div>
         )}
 
-        {/* ── TAB 2: MATHEMATICS HUB (Tabular Students & Drill-down) ── */}
+        {/* ── TAB 2: MATHEMATICS HUB (Tabular Students & Individual Drill-down) ── */}
         {activeTab === 'math' && (
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
               <div>
-
                 <h1 className="text-3xl font-black mt-2 font-sinhala">1. ගණිතය ශ්‍රේණි කළමනාකරණය (Mathematics Hub)</h1>
                 <p className="text-blue-200 text-sm mt-1">
                   Grade 2, Grade 3, and Grade 4 Primary Mathematics Curriculums & Adaptive Multi-Tier Testing
@@ -352,17 +500,16 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
-            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL */}
+            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL WITH SVG CHARTS */}
             <CategoryStudentTable subjectKey="math" students={students} />
           </div>
         )}
 
-        {/* ── TAB 3: SINHALA LANGUAGE HUB (Tabular Students & Drill-down) ── */}
+        {/* ── TAB 3: SINHALA LANGUAGE HUB (Tabular Students & Individual Drill-down) ── */}
         {activeTab === 'sinhala' && (
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-emerald-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
               <div>
-
                 <h1 className="text-3xl font-black mt-2 font-sinhala">2. සිංහල භාෂා කළමනාකරණය (Sinhala Language Hub)</h1>
                 <p className="text-emerald-200 text-sm mt-1">
                   Grade 2, 3, 4 5-Paper Adaptive Assessment System & Neural Handwriting Recognition AI
@@ -427,17 +574,16 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
-            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL */}
+            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL WITH SVG CHARTS */}
             <CategoryStudentTable subjectKey="sinhala" students={students} />
           </div>
         )}
 
-        {/* ── TAB 4: ENGLISH SPEECH HUB (Tabular Students & Drill-down) ── */}
+        {/* ── TAB 4: ENGLISH SPEECH HUB (Tabular Students & Individual Drill-down) ── */}
         {activeTab === 'english' && (
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
               <div>
-
                 <h1 className="text-3xl font-black mt-2">3. English Speech & Pronunciation Hub</h1>
                 <p className="text-purple-200 text-sm mt-1">
                   Real-time Speech Recognition, Phonetic Accuracy & Intonation Monitoring for Primary ESL
@@ -448,17 +594,16 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
-            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL */}
+            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL WITH SVG CHARTS */}
             <CategoryStudentTable subjectKey="english" students={students} />
           </div>
         )}
 
-        {/* ── TAB 5: PRE-SCHOOL & GRADE 1 HUB (Tabular Students & Drill-down) ── */}
+        {/* ── TAB 5: PRE-SCHOOL & GRADE 1 HUB (Tabular Students & Individual Drill-down) ── */}
         {activeTab === 'preschool' && (
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-amber-900 via-orange-900 to-amber-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
               <div>
-
                 <h1 className="text-3xl font-black mt-2 font-sinhala">4. Pre-School & Grade 1 (පෙර පාසල් හා 1 ශ්‍රේණිය)</h1>
                 <p className="text-amber-200 text-sm mt-1">
                   Fine Motor Coordination, Digital Coloring, Computer Vision Paper Craft & Story Drawing
@@ -469,7 +614,7 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
-            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL */}
+            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL WITH SVG CHARTS */}
             <CategoryStudentTable subjectKey="preschool" students={students} />
           </div>
         )}

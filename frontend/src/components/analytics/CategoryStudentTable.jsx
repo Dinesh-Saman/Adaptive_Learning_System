@@ -38,11 +38,19 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
   const [activeStudentModal, setActiveStudentModal] = useState(null);
   const [studentAttempts, setStudentAttempts] = useState([]);
   const [loadingAttempts, setLoadingAttempts] = useState(false);
+  const [activeChartSubject, setActiveChartSubject] = useState('all');
 
   // Helper to calculate student score in this subject
   const getSubjectScore = (student) => {
     if (!student.categoryMarks || !student.categoryMarks[subjectKey]) return 0;
     const items = student.categoryMarks[subjectKey];
+    const total = items.reduce((acc, curr) => acc + curr.pct, 0);
+    return Math.round(total / items.length);
+  };
+
+  const getSubScoreForModal = (student, subKey) => {
+    if (!student || !student.categoryMarks || !student.categoryMarks[subKey]) return 0;
+    const items = student.categoryMarks[subKey];
     const total = items.reduce((acc, curr) => acc + curr.pct, 0);
     return Math.round(total / items.length);
   };
@@ -55,9 +63,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
     return { label: 'Not Started', color: 'bg-slate-100 text-slate-600 border-slate-200' };
   };
 
-  // Grade-based strict filtering rule:
-  // 1. If subjectKey === 'preschool' -> Only show Pre-School & Grade 1 students
-  // 2. If subjectKey in ['math', 'sinhala', 'english'] -> Only show Grade 2, 3, 4 students
+  // Grade-based strict filtering rule
   const eligibleStudents = students.filter((st) => {
     const isPreSchool = isPreSchoolOrGrade1(st.grade);
     if (subjectKey === 'preschool') {
@@ -84,6 +90,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
   // Load question attempts when a student modal is opened
   const handleOpenStudentModal = async (student) => {
     setActiveStudentModal(student);
+    setActiveChartSubject('all');
     setLoadingAttempts(true);
     try {
       const attempts = await fetchStudentAttemptsFromApi(student.studentId || student.id, subjectKey);
@@ -95,6 +102,70 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
       setLoadingAttempts(false);
     }
   };
+
+  // SVG Chart Calculation for Individual Student in Modal
+  const chartWidth = 600;
+  const chartHeight = 220;
+  const padding = { top: 25, right: 25, bottom: 35, left: 45 };
+  const graphWidth = chartWidth - padding.left - padding.right;
+  const graphHeight = chartHeight - padding.top - padding.bottom;
+
+  const weeklyData = activeStudentModal && activeStudentModal.weeklyProgress && activeStudentModal.weeklyProgress.length > 0 
+    ? activeStudentModal.weeklyProgress 
+    : [
+        { 
+          week: 'Week 1', 
+          math: getSubScoreForModal(activeStudentModal, 'math'), 
+          sinhala: getSubScoreForModal(activeStudentModal, 'sinhala'), 
+          english: getSubScoreForModal(activeStudentModal, 'english'), 
+          preschool: getSubScoreForModal(activeStudentModal, 'preschool'), 
+          average: activeStudentModal?.overallAverage || 0 
+        }
+      ];
+
+  const weeks = weeklyData.map(w => w.week);
+  const getX = (index) => padding.left + (index / Math.max(1, weeks.length - 1)) * graphWidth;
+  const getY = (val) => padding.top + graphHeight - ((Math.max(0, Math.min(100, val))) / 100) * graphHeight;
+
+  const getLinePath = (key) => {
+    return weeklyData
+      .map((item, idx) => `${idx === 0 ? 'M' : 'L'} ${getX(idx)} ${getY(item[key] || 0)}`)
+      .join(' ');
+  };
+
+  const getAreaPath = (key) => {
+    const line = getLinePath(key);
+    const firstX = getX(0);
+    const lastX = getX(weeklyData.length - 1);
+    const bottomY = padding.top + graphHeight;
+    return `${line} L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`;
+  };
+
+  // Radar chart calculations for Individual Student
+  const radarPoints = activeStudentModal ? [
+    { label: 'ගණිතය', val: getSubScoreForModal(activeStudentModal, 'math'), angle: -Math.PI / 2 },
+    { label: 'සිංහල', val: getSubScoreForModal(activeStudentModal, 'sinhala'), angle: 0 },
+    { label: 'English', val: getSubScoreForModal(activeStudentModal, 'english'), angle: Math.PI / 2 },
+    { label: 'Pre-School', val: getSubScoreForModal(activeStudentModal, 'preschool'), angle: Math.PI }
+  ] : [];
+
+  const radarCenter = { x: 130, y: 130 };
+  const radarRadius = 85;
+
+  const getRadarCoords = (angle, value) => {
+    const r = (value / 100) * radarRadius;
+    return {
+      x: radarCenter.x + r * Math.cos(angle),
+      y: radarCenter.y + r * Math.sin(angle)
+    };
+  };
+
+  const radarPolygonPath = radarPoints
+    .map((pt, idx) => {
+      const { x, y } = getRadarCoords(pt.angle, pt.val);
+      return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
+    })
+    .join(' ') + ' Z';
 
   return (
     <div className="space-y-5 w-full">
@@ -164,7 +235,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
         })}
       </div>
 
-      {/* Registered Students Tabular List - Fits in a Single Screen (No Horizontal Overflow) */}
+      {/* Registered Students Tabular List */}
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden w-full">
         {filteredStudents.length === 0 ? (
           <div className="p-10 text-center space-y-3">
@@ -277,10 +348,10 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
         )}
       </div>
 
-      {/* ── INTERACTIVE STUDENT DRILL-DOWN MODAL ── */}
+      {/* ── INDIVIDUAL STUDENT DRILL-DOWN MODAL WITH PROGRESS TREND & MASTERY RADAR ── */}
       {activeStudentModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 space-y-6">
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-5xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 space-y-6">
             
             {/* Modal Top Bar */}
             <div className="flex items-start justify-between pb-4 border-b border-slate-100">
@@ -295,8 +366,8 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
                       {activeStudentModal.grade || (subjectKey === 'preschool' ? 'Pre-School' : 'Grade 4')}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5 font-mono">
-                    MongoDB Student ID: {activeStudentModal.studentId || activeStudentModal.id}
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Individual Student Diagnostic Report & Assessment Performance
                   </p>
                 </div>
               </div>
@@ -309,7 +380,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
               </button>
             </div>
 
-            {/* Subject Performance & Skill Level Overview */}
+            {/* Individual Student KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100">
                 <p className="text-xs font-bold text-indigo-700 uppercase">Subject Mastery Score</p>
@@ -332,8 +403,248 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
                 <h3 className="text-2xl font-black text-amber-900 mt-1">
                   {activeStudentModal.totalExercises || 0}
                 </h3>
-                <p className="text-[11px] text-amber-600 mt-0.5">Recorded question attempts in DB</p>
+                <p className="text-[11px] text-amber-600 mt-0.5">Recorded question attempts</p>
               </div>
+            </div>
+
+            {/* ── CHARTS SECTION: WEEKLY PROGRESS TREND & MASTERY RADAR ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* Weekly Trend Multi-Line Graph (Span 2) */}
+              <div className="lg:col-span-2 bg-slate-50/60 rounded-3xl p-5 border border-slate-200/80">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                  <div>
+                    <h4 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
+                      <TrendingUp className="w-4 h-4 text-indigo-600" /> සතිපතා ලකුණු වර්ධන ප්‍රස්තාරය (Weekly Progress Trend)
+                    </h4>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Weekly assessment trajectory</p>
+                  </div>
+                  
+                  {/* Subject Filters */}
+                  <div className="flex flex-wrap gap-1 bg-white p-1 rounded-xl border border-slate-200/60">
+                    {['all', 'math', 'sinhala', 'english', 'preschool'].map((filter) => (
+                      <button
+                        key={filter}
+                        onClick={() => setActiveChartSubject(filter)}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                          activeChartSubject === filter
+                            ? 'bg-indigo-600 text-white shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        {filter === 'all' ? 'All Subjects' : CORE_SUBJECTS[filter].shortName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* SVG Area & Line Chart */}
+                <div className="relative w-full overflow-x-auto">
+                  <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full h-auto min-w-[450px]">
+                    <defs>
+                      <linearGradient id="mathGradModal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+                      </linearGradient>
+                      <linearGradient id="sinhalaGradModal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                      </linearGradient>
+                      <linearGradient id="englishGradModal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#a855f7" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#a855f7" stopOpacity="0.0" />
+                      </linearGradient>
+                      <linearGradient id="preschoolGradModal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Grid Lines */}
+                    {[0, 20, 40, 60, 80, 100].map((val) => (
+                      <g key={val}>
+                        <line
+                          x1={padding.left}
+                          y1={getY(val)}
+                          x2={chartWidth - padding.right}
+                          y2={getY(val)}
+                          stroke="#e2e8f0"
+                          strokeWidth="1"
+                          strokeDasharray={val === 0 ? "0" : "4 4"}
+                        />
+                        <text
+                          x={padding.left - 8}
+                          y={getY(val) + 3}
+                          fill="#94a3b8"
+                          fontSize="10"
+                          textAnchor="end"
+                          fontWeight="600"
+                        >
+                          {val}%
+                        </text>
+                      </g>
+                    ))}
+
+                    {/* X Axis Labels */}
+                    {weeks.map((w, idx) => (
+                      <text
+                        key={w}
+                        x={getX(idx)}
+                        y={chartHeight - 10}
+                        fill="#64748b"
+                        fontSize="11"
+                        textAnchor="middle"
+                        fontWeight="bold"
+                      >
+                        {w}
+                      </text>
+                    ))}
+
+                    {/* Shaded Areas & Lines based on Active Filter */}
+                    {(activeChartSubject === 'all' || activeChartSubject === 'math') && (
+                      <>
+                        <path d={getAreaPath('math')} fill="url(#mathGradModal)" />
+                        <path d={getLinePath('math')} fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        {weeklyData.map((item, idx) => (
+                          <circle key={idx} cx={getX(idx)} cy={getY(item.math || 0)} r="4" fill="#2563eb" stroke="#ffffff" strokeWidth="2" />
+                        ))}
+                      </>
+                    )}
+
+                    {(activeChartSubject === 'all' || activeChartSubject === 'sinhala') && (
+                      <>
+                        <path d={getAreaPath('sinhala')} fill="url(#sinhalaGradModal)" />
+                        <path d={getLinePath('sinhala')} fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        {weeklyData.map((item, idx) => (
+                          <circle key={idx} cx={getX(idx)} cy={getY(item.sinhala || 0)} r="4" fill="#059669" stroke="#ffffff" strokeWidth="2" />
+                        ))}
+                      </>
+                    )}
+
+                    {(activeChartSubject === 'all' || activeChartSubject === 'english') && (
+                      <>
+                        <path d={getAreaPath('english')} fill="url(#englishGradModal)" />
+                        <path d={getLinePath('english')} fill="none" stroke="#9333ea" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        {weeklyData.map((item, idx) => (
+                          <circle key={idx} cx={getX(idx)} cy={getY(item.english || 0)} r="4" fill="#9333ea" stroke="#ffffff" strokeWidth="2" />
+                        ))}
+                      </>
+                    )}
+
+                    {(activeChartSubject === 'all' || activeChartSubject === 'preschool') && (
+                      <>
+                        <path d={getAreaPath('preschool')} fill="url(#preschoolGradModal)" />
+                        <path d={getLinePath('preschool')} fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        {weeklyData.map((item, idx) => (
+                          <circle key={idx} cx={getX(idx)} cy={getY(item.preschool || 0)} r="4" fill="#d97706" stroke="#ffffff" strokeWidth="2" />
+                        ))}
+                      </>
+                    )}
+                  </svg>
+                </div>
+
+                {/* Legend Pills */}
+                <div className="flex flex-wrap items-center justify-center gap-4 mt-3 text-[11px] font-bold">
+                  <span className="flex items-center gap-1.5 text-blue-700">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span> ගණිතය (Math)
+                  </span>
+                  <span className="flex items-center gap-1.5 text-emerald-700">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> සිංහල (Sinhala)
+                  </span>
+                  <span className="flex items-center gap-1.5 text-purple-700">
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-600"></span> English Speech
+                  </span>
+                  <span className="flex items-center gap-1.5 text-amber-700">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span> Pre-School Foundations
+                  </span>
+                </div>
+              </div>
+
+              {/* Mastery Radar / Competency Balance Chart */}
+              <div className="bg-slate-50/60 rounded-3xl p-5 border border-slate-200/80 flex flex-col justify-between items-center text-center">
+                <div className="w-full">
+                  <h4 className="text-sm font-black text-slate-900 flex items-center justify-center gap-1.5">
+                    <Compass className="w-4 h-4 text-purple-600" /> විෂය සමතුලිතතාවය (Mastery Radar)
+                  </h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Competency Balance Profile</p>
+                </div>
+
+                {/* Radar SVG */}
+                <div className="relative py-2 flex items-center justify-center">
+                  <svg width="260" height="260" viewBox="0 0 260 260">
+                    {/* Concentric rings */}
+                    {[25, 50, 75, 100].map((ring) => (
+                      <circle
+                        key={ring}
+                        cx={radarCenter.x}
+                        cy={radarCenter.y}
+                        r={(ring / 100) * radarRadius}
+                        fill="none"
+                        stroke="#e2e8f0"
+                        strokeWidth="1"
+                        strokeDasharray={ring === 100 ? "0" : "3 3"}
+                      />
+                    ))}
+
+                    {/* Axes */}
+                    {radarPoints.map((pt, idx) => {
+                      const outerCoord = getRadarCoords(pt.angle, 100);
+                      return (
+                        <line
+                          key={idx}
+                          x1={radarCenter.x}
+                          y1={radarCenter.y}
+                          x2={outerCoord.x}
+                          y2={outerCoord.y}
+                          stroke="#cbd5e1"
+                          strokeWidth="1"
+                        />
+                      );
+                    })}
+
+                    {/* Polygon Filled Area */}
+                    <path
+                      d={radarPolygonPath}
+                      fill="rgba(99, 102, 241, 0.25)"
+                      stroke="#4f46e5"
+                      strokeWidth="2"
+                    />
+
+                    {/* Vertex Points & Labels */}
+                    {radarPoints.map((pt, idx) => {
+                      const coords = getRadarCoords(pt.angle, pt.val);
+                      const textCoords = getRadarCoords(pt.angle, 118);
+                      return (
+                        <g key={idx}>
+                          <circle
+                            cx={coords.x}
+                            cy={coords.y}
+                            r="4"
+                            fill="#4f46e5"
+                            stroke="#ffffff"
+                            strokeWidth="2"
+                          />
+                          <text
+                            x={textCoords.x}
+                            y={textCoords.y + (pt.angle === -Math.PI / 2 ? -4 : pt.angle === Math.PI / 2 ? 10 : 4)}
+                            fontSize="10"
+                            fontWeight="bold"
+                            fill="#475569"
+                            textAnchor={pt.angle === 0 ? "start" : pt.angle === Math.PI ? "end" : "middle"}
+                          >
+                            {pt.label} ({pt.val}%)
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+                </div>
+
+                <div className="w-full bg-white p-2.5 rounded-2xl border border-slate-200/60 text-[11px] text-slate-600 font-medium">
+                  📊 Real-time balance computed from assessment submissions.
+                </div>
+              </div>
+
             </div>
 
             {/* Domain-wise Marks Progress Bars */}
@@ -381,7 +692,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
 
               {loadingAttempts ? (
                 <div className="p-6 text-center text-xs text-slate-500 font-semibold bg-slate-50 rounded-2xl">
-                  Loading real question attempt log from database...
+                  Loading question attempt log from database...
                 </div>
               ) : studentAttempts.length === 0 ? (
                 <div className="p-6 text-center text-xs text-slate-500 font-semibold bg-slate-50 rounded-2xl border border-slate-200/60">
@@ -429,7 +740,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
               )}
             </div>
 
-            {/* AI Recommendation Box */}
+            {/* AI Recommendation Box with Button Below Content */}
             {activeStudentModal.recommendation && (
               <div className="p-4 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 rounded-2xl border border-amber-300 space-y-3">
                 <div className="flex items-start gap-3">
