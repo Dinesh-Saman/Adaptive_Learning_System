@@ -9,23 +9,22 @@ import {
   Download, 
   CheckCircle2, 
   BookOpen, 
-  Compass,
-  ArrowRight,
-  Database,
-  Calculator,
-  Languages,
-  Mic,
-  Palette,
-  LayoutDashboard,
-  LogOut,
-  ChevronRight,
-  Award,
-  Layers,
-  BrainCircuit,
-  ExternalLink,
-  ShieldCheck
+  Compass, 
+  ArrowRight, 
+  Database, 
+  Calculator, 
+  Languages, 
+  Mic, 
+  Palette, 
+  LayoutDashboard, 
+  LogOut, 
+  ChevronRight, 
+  Award, 
+  Layers, 
+  ExternalLink 
 } from 'lucide-react';
 import StudentAnalyticsOverview from '../components/analytics/StudentAnalyticsOverview';
+import CategoryStudentTable from '../components/analytics/CategoryStudentTable';
 import { fetchStudentsAnalyticsFromApi } from '../data/studentAnalyticsData';
 
 const TeacherDashboard = () => {
@@ -286,7 +285,7 @@ const TeacherDashboard = () => {
           </div>
         )}
 
-        {/* ── TAB 2: MATHEMATICS HUB ── */}
+        {/* ── TAB 2: MATHEMATICS HUB (Tabular Students & Drill-down) ── */}
         {activeTab === 'math' && (
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
@@ -304,7 +303,7 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
-            {/* Math Domains & Grade Cards */}
+            {/* Math Quick Launch Hubs */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between space-y-4">
                 <div>
@@ -358,36 +357,12 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
-            {/* Math Domain Competencies */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100">
-              <h3 className="text-lg font-black text-slate-900 mb-4">ගණිතය ප්‍රධාන ක්ෂේත්‍ර 4 (Mathematics Domain Matrix)</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-                  <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded mr-2">M1</span>
-                  <strong className="text-sm text-slate-800">100 දක්වා සංඛ්‍යා (Numbers up to 100)</strong>
-                  <p className="text-xs text-slate-500 mt-1">ස්ථානීය අගය, සංඛ්‍යා රටා, විශාල/කුඩා සංඛ්‍යා හඳුනාගැනීම.</p>
-                </div>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-                  <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded mr-2">M2</span>
-                  <strong className="text-sm text-slate-800">එකතු කිරීම් හා අඩු කිරීම් (Addition & Subtraction)</strong>
-                  <p className="text-xs text-slate-500 mt-1">දශක සහ ඒකක එකතු කිරීම, ගණක රාමු භාවිතය සහ සරල ගැටලු විසඳීම.</p>
-                </div>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-                  <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded mr-2">M3</span>
-                  <strong className="text-sm text-slate-800">ගුණ කිරීම හා බෙදීම (Multiplication & Division)</strong>
-                  <p className="text-xs text-slate-500 mt-1">සමාන කණ්ඩායම්, චක්‍රය සහ සරල බෙදීම් සංකල්ප.</p>
-                </div>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-                  <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded mr-2">M4</span>
-                  <strong className="text-sm text-slate-800">මිනුම් හා හැඩතල (Measurement & Geometry)</strong>
-                  <p className="text-xs text-slate-500 mt-1">දිග, බර, ධාරිතාව, මුදල් භාවිතය සහ 2D/3D ජ්‍යාමිතික හැඩතල.</p>
-                </div>
-              </div>
-            </div>
+            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL */}
+            <CategoryStudentTable subjectKey="math" students={students} />
           </div>
         )}
 
-        {/* ── TAB 3: SINHALA LANGUAGE HUB ── */}
+        {/* ── TAB 3: SINHALA LANGUAGE HUB (Tabular Students & Drill-down) ── */}
         {activeTab === 'sinhala' && (
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-emerald-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
@@ -459,41 +434,12 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
-            {/* Sinhala Domains Matrix */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100">
-              <h3 className="text-lg font-black text-slate-900 mb-4">සිංහල භාෂා ප්‍රධාන ක්ෂේත්‍ර 5 (Sinhala Domain Matrix)</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-                  <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded mr-2">C1</span>
-                  <strong className="text-sm text-slate-800">සමාන පද හා අර්ථ</strong>
-                  <p className="text-xs text-slate-500 mt-1">ශබ්දකෝෂ අර්ථ හා සමාන වචන හඳුනාගැනීම.</p>
-                </div>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-                  <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded mr-2">C2</span>
-                  <strong className="text-sm text-slate-800">විරුද්ධ පද</strong>
-                  <p className="text-xs text-slate-500 mt-1">ප්‍රතිවිරුද්ධ අර්ථ ප්‍රකාශනය.</p>
-                </div>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-                  <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded mr-2">C3</span>
-                  <strong className="text-sm text-slate-800">ප්‍රස්තාව පිරුළු හා ඉඟි වැකි</strong>
-                  <p className="text-xs text-slate-500 mt-1">ජනප්‍රවාද හා සංස්කෘතික භාෂා රටා.</p>
-                </div>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-                  <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded mr-2">C4</span>
-                  <strong className="text-sm text-slate-800">කාලය හා ව්‍යාකරණ</strong>
-                  <p className="text-xs text-slate-500 mt-1">උක්ත ආඛ්‍යාත, කාලත්‍රය සහ අක්ෂර වින්‍යාසය.</p>
-                </div>
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-                  <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded mr-2">C5</span>
-                  <strong className="text-sm text-slate-800">කියවීම හා විරාම ලක්ෂණ</strong>
-                  <p className="text-xs text-slate-500 mt-1">ඡේද කියවා තේරුම් ගැනීම සහ නිවැරදි විරාම ලක්ෂණ.</p>
-                </div>
-              </div>
-            </div>
+            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL */}
+            <CategoryStudentTable subjectKey="sinhala" students={students} />
           </div>
         )}
 
-        {/* ── TAB 4: ENGLISH SPEECH HUB ── */}
+        {/* ── TAB 4: ENGLISH SPEECH HUB (Tabular Students & Drill-down) ── */}
         {activeTab === 'english' && (
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
@@ -511,46 +457,12 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                <span className="text-xs font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded mr-2">E1</span>
-                <h4 className="font-bold text-slate-900 mt-2">Phoneme Clarity</h4>
-                <p className="text-xs text-slate-500 mt-1">Vowel and consonant articulation accuracy.</p>
-              </div>
-              <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                <span className="text-xs font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded mr-2">E2</span>
-                <h4 className="font-bold text-slate-900 mt-2">Pronunciation Accuracy</h4>
-                <p className="text-xs text-slate-500 mt-1">Correct word sound production.</p>
-              </div>
-              <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                <span className="text-xs font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded mr-2">E3</span>
-                <h4 className="font-bold text-slate-900 mt-2">Word Stress & Intonation</h4>
-                <p className="text-xs text-slate-500 mt-1">Sentence pitch and syllable emphasis.</p>
-              </div>
-              <div className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                <span className="text-xs font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded mr-2">E4</span>
-                <h4 className="font-bold text-slate-900 mt-2">Fluency & Speed</h4>
-                <p className="text-xs text-slate-500 mt-1">Natural conversational pacing.</p>
-              </div>
-            </div>
-
-            <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div>
-                <h3 className="text-xl font-black text-slate-900">Launch English Speech Testing Module</h3>
-                <p className="text-sm text-slate-500 mt-1">Conduct interactive spoken English evaluation sessions with AI pronunciation scorecards.</p>
-              </div>
-              <button
-                onClick={() => navigate('/module/english')}
-                className="px-6 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-sm rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 shrink-0 cursor-pointer"
-              >
-                <span>Open English Speech Module</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
+            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL */}
+            <CategoryStudentTable subjectKey="english" students={students} />
           </div>
         )}
 
-        {/* ── TAB 5: PRE-SCHOOL & GRADE 1 HUB ── */}
+        {/* ── TAB 5: PRE-SCHOOL & GRADE 1 HUB (Tabular Students & Drill-down) ── */}
         {activeTab === 'preschool' && (
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-amber-900 via-orange-900 to-amber-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
@@ -568,75 +480,8 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Line Tracing */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl font-bold mb-3">
-                    🖐️
-                  </div>
-                  <h4 className="font-black text-slate-900">Line Tracing</h4>
-                  <p className="text-xs text-slate-500 mt-1">Fine motor control and precision dotted line drawing.</p>
-                </div>
-                <button
-                  onClick={() => navigate('/module/motor')}
-                  className="w-full py-2.5 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
-                >
-                  <span>Launch</span> <ExternalLink className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Digital Coloring */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="w-10 h-10 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center text-xl font-bold mb-3">
-                    🎨
-                  </div>
-                  <h4 className="font-black text-slate-900">Digital Coloring</h4>
-                  <p className="text-xs text-slate-500 mt-1">Boundary-aware coloring with region segmentation.</p>
-                </div>
-                <button
-                  onClick={() => navigate('/module/coloring')}
-                  className="w-full py-2.5 bg-pink-50 hover:bg-pink-100 text-pink-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
-                >
-                  <span>Launch</span> <ExternalLink className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Paper Craft AI */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl font-bold mb-3">
-                    📹
-                  </div>
-                  <h4 className="font-black text-slate-900">Paper Craft AI</h4>
-                  <p className="text-xs text-slate-500 mt-1">Computer vision step-by-step paper folding analysis.</p>
-                </div>
-                <button
-                  onClick={() => navigate('/module/papercraft')}
-                  className="w-full py-2.5 bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
-                >
-                  <span>Launch</span> <ExternalLink className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Story Drawing */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold mb-3">
-                    📖
-                  </div>
-                  <h4 className="font-black text-slate-900">Story Drawing</h4>
-                  <p className="text-xs text-slate-500 mt-1">Audio narrative listening and contextual drawing.</p>
-                </div>
-                <button
-                  onClick={() => navigate('/module/storydrawing')}
-                  className="w-full py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer"
-                >
-                  <span>Launch</span> <ExternalLink className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
+            {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL */}
+            <CategoryStudentTable subjectKey="preschool" students={students} />
           </div>
         )}
 

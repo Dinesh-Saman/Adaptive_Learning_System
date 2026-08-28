@@ -171,3 +171,24 @@ export const recordStudentTestMarks = async (recordData) => {
   }
   return { success: false };
 };
+
+/**
+ * Fetch real question attempts history for a student from MongoDB
+ */
+export const fetchStudentAttemptsFromApi = async (studentId, module = '') => {
+  if (!studentId) return [];
+  try {
+    const url = `${API_BASE_URL}/student/${studentId}/attempts${module ? `?module=${module}` : ''}`;
+    const response = await fetch(url);
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.attempts) {
+        return data.attempts;
+      }
+    }
+  } catch (error) {
+    console.warn(`Could not fetch attempts for student ${studentId}:`, error.message);
+  }
+  return [];
+};
+

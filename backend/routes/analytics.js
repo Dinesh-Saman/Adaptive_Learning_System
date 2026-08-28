@@ -255,4 +255,33 @@ router.post('/record', async (req, res) => {
   }
 });
 
+
+// @route   GET /api/analytics/student/:studentId/attempts
+// @desc    Get real question attempts history for a student
+router.get('/student/:studentId/attempts', async (req, res) => {
+  const { studentId } = req.params;
+  const { module } = req.query;
+
+  if (!global.dbConnected) {
+    return res.json({ success: true, source: 'mock_db', attempts: [] });
+  }
+
+  try {
+    const query = {};
+    if (studentId.match(/^[0-9a-fA-F]{24}$/)) {
+      query.studentId = studentId;
+    }
+    if (module) {
+      query.module = module;
+    }
+
+    const attempts = await QuestionAttempt.find(query).sort({ timestamp: -1 }).limit(100);
+    return res.json({ success: true, source: 'mongodb', attempts });
+  } catch (err) {
+    console.error("Error fetching question attempts:", err);
+    return res.json({ success: true, source: 'fallback', attempts: [] });
+  }
+});
+
 module.exports = router;
+
