@@ -380,62 +380,85 @@ const Dashboard = () => {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+              
+              {/* 1. Line Tracing Card */}
               <div 
                 onClick={() => navigateToModule('motor')}
-                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-purple-400 group transform hover:-translate-y-1 flex flex-col justify-between"
+                className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all p-6 cursor-pointer border-3 border-purple-200 hover:border-purple-500 group transform hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-slate-800 group-hover:text-purple-600 transition-colors">Line Tracing</h2>
-                    <div className="p-3 bg-purple-50 rounded-2xl group-hover:bg-purple-100 transition-colors">
-                      <span className="text-4xl">🖐️</span>
-                    </div>
+                  <div className="w-full h-52 rounded-2xl overflow-hidden mb-4 bg-purple-50 border border-purple-100 shadow-inner">
+                    <img 
+                      src="/images/preschool/line_tracing.png" 
+                      alt="රේඛා මත ලියමු (Line Tracing)" 
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
-                  <p className="text-slate-500 mb-6 text-sm leading-relaxed">Interactive dotted line tracing for fine motor skills development.</p>
+                  <h2 className="text-lg sm:text-xl font-black text-slate-900 group-hover:text-purple-700 transition-colors font-sinhala mb-1">
+                    රේඛා මත ලියමු (Line Tracing)
+                  </h2>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-4">
+                    අත් මෝටර් කුසලතා වර්ධනය සඳහා තිත් රේඛා ඔස්සේ ඇඳීමේ අභ්‍යාස.
+                  </p>
                 </div>
-                <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-purple-700">
-                  <span>Fine Motor</span>
-                  <span className="bg-purple-50 px-3 py-1 rounded-full">Start Tracing ➔</span>
+                <div className="pt-3 border-t border-purple-100 flex justify-between items-center text-xs font-black text-purple-700">
+                  <span>Fine Motor Skills</span>
+                  <span className="bg-purple-100 text-purple-900 px-3 py-1 rounded-full group-hover:bg-purple-600 group-hover:text-white transition-colors">Start Tracing ➔</span>
                 </div>
               </div>
 
+              {/* 2. Digital Coloring Card */}
               <div 
                 onClick={() => navigateToModule('coloring')}
-                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-pink-400 group transform hover:-translate-y-1 flex flex-col justify-between"
+                className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all p-6 cursor-pointer border-3 border-pink-200 hover:border-pink-500 group transform hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-slate-800 group-hover:text-pink-600 transition-colors">Digital Coloring</h2>
-                    <div className="p-3 bg-pink-50 rounded-2xl group-hover:bg-pink-100 transition-colors">
-                      <span className="text-4xl">🎨</span>
-                    </div>
+                  <div className="w-full h-52 rounded-2xl overflow-hidden mb-4 bg-pink-50 border border-pink-100 shadow-inner">
+                    <img 
+                      src="/images/preschool/digital_coloring.jpg" 
+                      alt="පින්තූර පාට කරමු (Digital Coloring)" 
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
-                  <p className="text-slate-500 mb-6 text-sm leading-relaxed">Interactive boundary-aware coloring book with AI region masking.</p>
+                  <h2 className="text-lg sm:text-xl font-black text-slate-900 group-hover:text-pink-700 transition-colors font-sinhala mb-1">
+                    පින්තූර පාට කරමු (Digital Coloring)
+                  </h2>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-4">
+                    AI Region Masking සහිත සිත් ඇදගන්නා ඩිජිටල් පාට කිරීමේ පොත.
+                  </p>
                 </div>
-                <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-pink-700">
-                  <span>Coloring</span>
-                  <span className="bg-pink-50 px-3 py-1 rounded-full">Start Coloring ➔</span>
+                <div className="pt-3 border-t border-pink-100 flex justify-between items-center text-xs font-black text-pink-700">
+                  <span>Interactive Coloring</span>
+                  <span className="bg-pink-100 text-pink-900 px-3 py-1 rounded-full group-hover:bg-pink-600 group-hover:text-white transition-colors">Start Coloring ➔</span>
                 </div>
               </div>
 
+              {/* 3. Story Drawing Card */}
               <div 
                 onClick={() => navigateToModule('storydrawing')}
-                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-orange-400 group transform hover:-translate-y-1 flex flex-col justify-between"
+                className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all p-6 cursor-pointer border-3 border-amber-200 hover:border-amber-500 group transform hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-slate-800 group-hover:text-orange-600 transition-colors">Story Drawing</h2>
-                    <div className="p-3 bg-orange-50 rounded-2xl group-hover:bg-orange-100 transition-colors">
-                      <span className="text-4xl">📖</span>
-                    </div>
+                  <div className="w-full h-52 rounded-2xl overflow-hidden mb-4 bg-amber-50 border border-amber-100 shadow-inner">
+                    <img 
+                      src="/images/preschool/story_drawing.jpg" 
+                      alt="කතාවට පින්තූරයක් අඳිමු (Story Drawing)" 
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
-                  <p className="text-slate-500 mb-6 text-sm leading-relaxed">Listen to a story and draw it! Upload your drawing for AI evaluation.</p>
+                  <h2 className="text-lg sm:text-xl font-black text-slate-900 group-hover:text-amber-700 transition-colors font-sinhala mb-1">
+                    කතාවට පින්තූරයක් අඳිමු (Story Drawing)
+                  </h2>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-4">
+                    කතාවට සවන් දී චිත්‍රය අඳින්න! AI මගින් ඇගයීම ලබා ගන්න.
+                  </p>
                 </div>
-                <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-orange-700">
-                  <span>Creative Arts</span>
-                  <span className="bg-orange-50 px-3 py-1 rounded-full">Start Drawing ➔</span>
+                <div className="pt-3 border-t border-amber-100 flex justify-between items-center text-xs font-black text-amber-800">
+                  <span>Story Comprehension</span>
+                  <span className="bg-amber-100 text-amber-900 px-3 py-1 rounded-full group-hover:bg-amber-600 group-hover:text-white transition-colors">Start Drawing ➔</span>
                 </div>
               </div>
+
             </div>
           </>
         ) : (
