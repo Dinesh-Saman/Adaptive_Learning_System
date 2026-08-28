@@ -104,12 +104,9 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-2xl">{subject.icon}</span>
-            <h3 className="text-lg sm:text-xl font-black text-slate-900">
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 whitespace-nowrap">
               {subject.name} — ලියාපදිංචි ශිෂ්‍ය ලේඛනය
             </h3>
-            <span className="bg-indigo-50 text-indigo-700 font-bold text-xs px-2.5 py-0.5 rounded-full border border-indigo-100">
-              {subjectKey === 'preschool' ? 'Pre-School & Grade 1 Only' : 'Grade 2, 3, 4 Only'}
-            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             {subjectKey === 'preschool' 
