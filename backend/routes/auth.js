@@ -200,49 +200,46 @@ router.post('/register', async (req, res) => {
             studentId: student._id.toString(),
             name: student.name,
             grade: student.grade || 'Grade 4',
-            attendance: '98%',
+            attendance: '100%',
             totalExercises: 0,
-            overallAverage: 75.0,
-            weeklyProgress: [
-              { week: 'Week 1', math: 70, sinhala: 70, english: 70, preschool: 85, average: 73.8 },
-              { week: 'Week 2', math: 75, sinhala: 72, english: 72, preschool: 88, average: 76.8 }
-            ],
+            overallAverage: 0,
+            weeklyProgress: [],
             categoryMarks: {
               math: [
-                { code: 'M1', name: '100 දක්වා සංඛ්‍යා', marks: 25, maxMarks: 30, pct: 83, status: 'Proficient' },
-                { code: 'M2', name: 'එකතු කිරීම් හා අඩු කිරීම්', marks: 24, maxMarks: 30, pct: 80, status: 'Proficient' },
-                { code: 'M3', name: 'ගුණ කිරීම හා බෙදීම', marks: 22, maxMarks: 30, pct: 73, status: 'Developing' },
-                { code: 'M4', name: 'මිනුම් හා හැඩතල', marks: 26, maxMarks: 30, pct: 87, status: 'Mastered' }
+                { code: 'M1', name: '100 දක්වා සංඛ්‍යා', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'M2', name: 'එකතු කිරීම් හා අඩු කිරීම්', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'M3', name: 'ගුණ කිරීම හා බෙදීම', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'M4', name: 'මිනුම් හා හැඩතල', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' }
               ],
               sinhala: [
-                { code: 'C1', name: 'සමාන පද හා අර්ථ', marks: 26, maxMarks: 30, pct: 87, status: 'Mastered' },
-                { code: 'C2', name: 'විරුද්ධ පද', marks: 27, maxMarks: 30, pct: 90, status: 'Mastered' },
-                { code: 'C3', name: 'ප්‍රස්තාව පිරුළු / ඉඟි වැකි', marks: 24, maxMarks: 30, pct: 80, status: 'Proficient' },
-                { code: 'C4', name: 'කාලය හා ව්‍යාකරණ', marks: 22, maxMarks: 30, pct: 73, status: 'Developing' },
-                { code: 'C5', name: 'කියවීම හා විරාම ලක්ෂණ', marks: 25, maxMarks: 30, pct: 83, status: 'Proficient' }
+                { code: 'C1', name: 'සමාන පද හා අර්ථ', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'C2', name: 'විරුද්ධ පද', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'C3', name: 'ප්‍රස්තාව පිරුළු / ඉඟි වැකි', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'C4', name: 'කාලය හා ව්‍යාකරණ', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'C5', name: 'කියවීම හා විරාම ලක්ෂණ', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' }
               ],
               english: [
-                { code: 'E1', name: 'Phoneme Clarity', marks: 24, maxMarks: 30, pct: 80, status: 'Proficient' },
-                { code: 'E2', name: 'Pronunciation Accuracy', marks: 23, maxMarks: 30, pct: 77, status: 'Proficient' },
-                { code: 'E3', name: 'Word Stress & Intonation', marks: 22, maxMarks: 30, pct: 73, status: 'Developing' },
-                { code: 'E4', name: 'Speaking Fluency', marks: 25, maxMarks: 30, pct: 83, status: 'Proficient' }
+                { code: 'E1', name: 'Phoneme Clarity & Articulation', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'E2', name: 'Pronunciation Accuracy', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'E3', name: 'Word Stress & Intonation', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'E4', name: 'Speaking Fluency & Speed', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' }
               ],
               preschool: [
-                { code: 'P1', name: 'Line Tracing', marks: 28, maxMarks: 30, pct: 93, status: 'Mastered' },
-                { code: 'P2', name: 'Digital Coloring', marks: 27, maxMarks: 30, pct: 90, status: 'Mastered' },
-                { code: 'P3', name: 'Paper Craft & Origami', marks: 26, maxMarks: 30, pct: 87, status: 'Mastered' },
-                { code: 'P4', name: 'Story Drawing', marks: 27, maxMarks: 30, pct: 90, status: 'Mastered' }
+                { code: 'P1', name: 'Line Tracing & Fine Motor', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'P2', name: 'Digital Coloring & Boundaries', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'P3', name: 'Paper Craft & Origami Steps', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
+                { code: 'P4', name: 'Story Drawing & Comprehension', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' }
               ]
             },
             recommendation: {
               subjectId: 'sinhala',
               subjectName: 'සිංහල භාෂාව (Sinhala)',
-              categoryCode: 'C4',
-              categoryName: 'කාලය හා ව්‍යාකරණ',
-              reason: 'මූලික ව්‍යාකරණ හා අක්ෂර වින්‍යාසය තවදුරටත් ප්‍රගුණ කිරීම සඳහා නිර්දේශ කෙරේ.',
-              actionTitle: 'Grade 4 Sinhala Adaptive Remedial Exercise',
+              categoryCode: 'C1',
+              categoryName: 'සමාන පද හා අර්ථ',
+              reason: 'ඇගයීම් අභ්‍යාස සම්පූර්ණ කර ඔබේ පළමු ඉගෙනුම් වාර්තාව ලබා ගන්න.',
+              actionTitle: 'Start First Assessment Module',
               actionUrl: '/module/sinhala/grade4',
-              priority: 'High Priority ⭐'
+              priority: 'Initial Assessment ⭐'
             }
           });
         }

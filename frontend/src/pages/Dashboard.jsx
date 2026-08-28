@@ -57,7 +57,7 @@ const Dashboard = () => {
       }
     }
 
-    setStudent({ name, studentId, grade, masteryLevels, overallAverage: 80 });
+    setStudent({ name, studentId, grade, masteryLevels, overallAverage: 0 });
 
     // Fetch dynamic student profile from MongoDB
     fetchStudentAnalyticsFromApi(studentId).then(apiStudent => {
@@ -66,7 +66,7 @@ const Dashboard = () => {
           name: apiStudent.name || name,
           studentId: apiStudent.studentId || studentId,
           grade: apiStudent.grade || grade,
-          overallAverage: apiStudent.overallAverage || 80,
+          overallAverage: apiStudent.overallAverage || 0,
           totalExercises: apiStudent.totalExercises || 0,
           masteryLevels
         });
