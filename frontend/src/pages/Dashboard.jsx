@@ -1,9 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  BarChart3, 
+  Sparkles, 
+  BookOpen, 
+  ArrowRight, 
+  TrendingUp, 
+  Award, 
+  Brain,
+  Layers,
+  ChevronRight
+} from 'lucide-react';
+import StudentAnalyticsOverview from '../components/analytics/StudentAnalyticsOverview';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [student, setStudent] = useState(null);
+  const [activeView, setActiveView] = useState('modules'); // 'modules' | 'analytics'
   const [showSinhalaHubs, setShowSinhalaHubs] = useState(false);
   const [showPreSchoolHub, setShowPreSchoolHub] = useState(false);
   const [showMathHubs, setShowMathHubs] = useState(false);
@@ -21,7 +34,7 @@ const Dashboard = () => {
       return;
     }
 
-    const name = localStorage.getItem('studentName');
+    const name = localStorage.getItem('studentName') || 'Student';
     const masteryLevelsStr = localStorage.getItem('masteryLevels');
     
     let masteryLevels = { math: 0.5, english: 0.5, sinhala: 0.5, motorSkills: 0.5 };
@@ -51,10 +64,54 @@ const Dashboard = () => {
   if (!student) return <div className="p-12 text-center text-slate-500">Loading profile...</div>;
 
   return (
-    <div className="flex-grow bg-slate-50 w-full py-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex-grow bg-slate-50 w-full py-10 min-h-screen">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {showMathHubs ? (
+        {/* Top Navigation & View Switcher */}
+        {!showMathHubs && !showSinhalaHubs && !showPreSchoolHub && (
+          <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-3.5 sm:p-4 rounded-3xl shadow-sm border border-slate-100">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setActiveView('modules')}
+                className={`px-5 py-2.5 rounded-2xl font-black text-sm transition-all flex items-center gap-2 cursor-pointer ${
+                  activeView === 'modules'
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>ඉගෙනුම් මොඩියුල (4 Learning Hubs)</span>
+              </button>
+              
+              <button
+                onClick={() => setActiveView('analytics')}
+                className={`px-5 py-2.5 rounded-2xl font-black text-sm transition-all flex items-center gap-2 cursor-pointer ${
+                  activeView === 'analytics'
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span>ප්‍රගති විශ්ලේෂණය (Student Analytics & Graphs)</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handleLogout}
+                className="text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ANALYTICS TAB VIEW */}
+        {activeView === 'analytics' && !showMathHubs && !showSinhalaHubs && !showPreSchoolHub ? (
+          <StudentAnalyticsOverview initialStudentId="std_001" isTeacherView={false} />
+        ) : showMathHubs ? (
+          /* MATH HUBS */
           <>
             <header className="mb-12 text-center animate-fade-in-up">
               <div className="flex justify-between items-center">
@@ -68,12 +125,12 @@ const Dashboard = () => {
                   <h1 className="text-4xl font-black text-blue-900 mb-2 font-sinhala">ගණිතය ශ්‍රේණි කාණ්ඩ (Mathematics Grade Hubs)</h1>
                   <p className="text-lg text-slate-600">ඔබේ ශ්‍රේණිය තෝරන්න - Choose your Grade level (Grade 2, 3 or 4)</p>
                 </div>
-                <div className="w-36"></div> {/* Spacer for symmetry */}
+                <div className="w-36"></div>
               </div>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Grade 2 Math Adaptive System (Active) */}
+              {/* Grade 2 Math Adaptive System */}
               <div 
                 onClick={() => navigate('/module/math/grade2')}
                 className="bg-gradient-to-br from-amber-50 via-teal-50 to-emerald-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-teal-400 hover:border-teal-600 group transform hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between ring-2 ring-teal-400/30"
@@ -103,7 +160,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Grade 3 Math Adaptive System (Active) */}
+              {/* Grade 3 Math Adaptive System */}
               <div 
                 onClick={() => navigate('/module/math/grade3')}
                 className="bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-purple-400 hover:border-purple-600 group transform hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between ring-2 ring-purple-400/30"
@@ -133,7 +190,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Grade 4 Math Hub (Active) */}
+              {/* Grade 4 Math Hub */}
               <div 
                 onClick={() => navigateToModule('math')}
                 className="bg-gradient-to-br from-blue-50 via-indigo-50 to-emerald-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-blue-400 hover:border-blue-600 group transform hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between ring-2 ring-blue-400/30"
@@ -165,6 +222,7 @@ const Dashboard = () => {
             </div>
           </>
         ) : showSinhalaHubs ? (
+          /* SINHALA HUBS */
           <>
             <header className="mb-12 text-center animate-fade-in-up">
               <div className="flex justify-between items-center">
@@ -178,12 +236,12 @@ const Dashboard = () => {
                   <h1 className="text-4xl font-black text-teal-850 mb-2 font-sinhala">සිංහල ශ්‍රේණි කාණ්ඩ (Grade Hubs)</h1>
                   <p className="text-lg text-slate-600">තබන්න ඊළඟ පියවර - Choose your grade level</p>
                 </div>
-                <div className="w-36"></div> {/* Spacer for symmetry */}
+                <div className="w-36"></div>
               </div>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Grade 2 Sinhala Learning Journey Hub */}
+              {/* Grade 2 Sinhala */}
               <div 
                 onClick={() => navigate('/module/sinhala/grade2')}
                 className="bg-gradient-to-br from-amber-50 via-orange-50 to-pink-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-amber-300 hover:border-amber-500 group transform hover:-translate-y-1 relative overflow-hidden"
@@ -198,7 +256,7 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <p className="text-slate-600 mb-5 h-12 text-sm leading-relaxed font-sinhala">
-                  5-Paper අනුවර්තී ඇගයීම් පද්ධතිය (Diagnostic Assessment), AI දුර්වලතා හඳුනාගැනීම (Knowledge Tracing) සහ විශේෂ අභ්‍යාස මාලාව.
+                  5-Paper අනුවර්තී ඇගයීම් පද්ධතිය (Diagnostic Assessment), AI දුර්වලතා හඳුනාගැනීම සහ විශේෂ අභ්‍යාස මාලාව.
                 </p>
                 <div className="space-y-2 pt-2 border-t border-amber-200/80">
                   <div className="flex justify-between items-center text-xs font-bold text-amber-800">
@@ -211,7 +269,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Grade 3 Sinhala Learning Journey Hub */}
+              {/* Grade 3 Sinhala */}
               <div 
                 onClick={() => navigate('/module/sinhala/grade3')}
                 className="bg-gradient-to-br from-purple-50 via-indigo-50 to-sky-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-purple-300 hover:border-purple-500 group transform hover:-translate-y-1 relative overflow-hidden"
@@ -239,7 +297,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Grade 4 Sinhala Learning Journey */}
+              {/* Grade 4 Sinhala */}
               <div 
                 onClick={() => navigate('/module/sinhala/grade4')}
                 className="bg-gradient-to-br from-emerald-50 via-teal-50 to-sky-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-emerald-300 hover:border-emerald-500 group transform hover:-translate-y-1 relative overflow-hidden"
@@ -254,11 +312,11 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <p className="text-slate-600 mb-5 h-12 text-sm leading-relaxed font-sinhala">
-                  5-Paper අනුවර්තී ඇගයීම් පද්ධතිය — සමාන/විරුද්ධ පද, ප්‍රස්තාව පිරුළු/ඉඟි වැකි, කාලය/ව්‍යාකරණ, කියවීම/විරාම ලක්ෂණ සහ විශේෂ අභ්‍යාස.
+                  5-Paper අනුවර්තී ඇගයීම් පද්ධතිය (150 Items) — සමාන/විරුද්ධ පද, ප්‍රස්තාව පිරුළු/ඉඟි වැකි, කාලය/ව්‍යාකරණ, කියවීම/විරාම ලක්ෂණ.
                 </p>
                 <div className="space-y-2 pt-2 border-t border-emerald-200/80">
                   <div className="flex justify-between items-center text-xs font-bold text-emerald-800">
-                    <span>5 Papers · 5 Domains · AI Adaptive</span>
+                    <span>5 Papers · 5 Domains · 150 Items</span>
                     <span className="bg-emerald-200/90 text-emerald-950 px-3 py-0.5 rounded-full font-black">5-Paper System ➔</span>
                   </div>
                   <div className="w-full bg-emerald-100 rounded-full h-2.5 overflow-hidden">
@@ -283,6 +341,7 @@ const Dashboard = () => {
             </div>
           </>
         ) : showPreSchoolHub ? (
+          /* PRE-SCHOOL HUBS */
           <>
             <header className="mb-12 text-center animate-fade-in-up">
               <div className="flex justify-between items-center">
@@ -296,7 +355,7 @@ const Dashboard = () => {
                   <h1 className="text-4xl font-black text-purple-850 mb-2 font-sinhala">Pre-School & Grade 1 (පෙර පාසල් සහ 1 ශ්‍රේණිය)</h1>
                   <p className="text-lg text-slate-600">සිත් ඇදගන්නා ක්‍රියාකාරකම් - Line Tracing, Coloring & Paper Crafts</p>
                 </div>
-                <div className="w-36"></div> {/* Spacer for symmetry */}
+                <div className="w-36"></div>
               </div>
             </header>
 
@@ -329,7 +388,7 @@ const Dashboard = () => {
                 <p className="text-slate-500 mb-6 h-12 text-sm leading-relaxed">Interactive boundary-aware coloring book with AI region masking.</p>
               </div>
 
-              {/* Paper Craft AI Module */}
+              {/* Paper Craft AI */}
               <div 
                 onClick={() => navigateToModule('papercraft')}
                 className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-teal-400 group transform hover:-translate-y-1"
@@ -343,7 +402,7 @@ const Dashboard = () => {
                 <p className="text-slate-500 mb-6 h-12 text-sm leading-relaxed">Upload a video of your paper craft and get AI-powered step evaluation.</p>
               </div>
 
-              {/* Origami Module */}
+              {/* Origami */}
               <div 
                 onClick={() => navigateToModule('origami')}
                 className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-yellow-400 group transform hover:-translate-y-1"
@@ -355,13 +414,9 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <p className="text-slate-500 mb-6 h-12 text-sm leading-relaxed">AI-guided interactive Origami module using computer vision.</p>
-                <div className="w-full bg-slate-100 rounded-full h-4 mb-3 overflow-hidden">
-                  <div className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-4 rounded-full transition-all duration-1000 ease-out" style={{ width: `10%` }}></div>
-                </div>
-                <p className="text-sm font-bold text-yellow-600 text-right">Interactive Craft</p>
               </div>
 
-              {/* Story Drawing Module */}
+              {/* Story Drawing */}
               <div 
                 onClick={() => navigateToModule('storydrawing')}
                 className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-orange-400 group transform hover:-translate-y-1"
@@ -377,23 +432,42 @@ const Dashboard = () => {
             </div>
           </>
         ) : (
+          /* MAIN 4 FUNCTIONS DASHBOARD */
           <>
-            <header className="mb-12 text-center animate-fade-in-up">
-              <div className="flex justify-between items-start">
-                <div className="w-24"></div> {/* Spacer for centering */}
-                <div>
-                  <h1 className="text-4xl font-bold text-indigo-600 mb-3">Welcome back, {student.name}!</h1>
-                  <p className="text-xl text-slate-600">Choose a module to continue your learning journey today.</p>
+            {/* Quick Analytics & Insights Banner */}
+            <div className="mb-10 bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-950 rounded-3xl p-6 sm:p-7 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-indigo-700/40 relative overflow-hidden">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 bg-indigo-500/30 border border-indigo-400/30 rounded-2xl flex items-center justify-center text-3xl shadow-inner">
+                  📊
                 </div>
-                <div className="w-24 text-right">
-                  <button 
-                    onClick={handleLogout}
-                    className="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm"
-                  >
-                    Logout
-                  </button>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="bg-emerald-500 text-white font-extrabold text-xs px-2.5 py-0.5 rounded-full">
+                      Active Progress: 82.5%
+                    </span>
+                    <span className="text-xs text-indigo-300 font-semibold">Longitudinal Tracking</span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black">
+                    ශිෂ්‍ය ප්‍රගති විශ්ලේෂණය (Weekly Performance & Analytics)
+                  </h2>
+                  <p className="text-indigo-200 text-xs sm:text-sm mt-0.5">
+                    ප්‍රධාන විෂය 4 හි සතිපතා ලකුණු, කාණ්ඩ දුර්වලතා හා AI නිර්දේශිත අභ්‍යාස නිරීක්ෂණය කරන්න.
+                  </p>
                 </div>
               </div>
+
+              <button
+                onClick={() => setActiveView('analytics')}
+                className="px-6 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-sm rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer"
+              >
+                <span>විශ්ලේෂණ ප්‍රස්ථාර බලන්න (View Analytics)</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            <header className="mb-10 text-center animate-fade-in-up">
+              <h1 className="text-4xl font-black text-slate-900 mb-2">Welcome back, {student.name}!</h1>
+              <p className="text-lg text-slate-600">Choose a learning module to continue your journey today.</p>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -428,6 +502,9 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <p className="text-slate-500 mb-6 h-12 text-sm leading-relaxed">Pronunciation and speech error detection tailored for Sinhala speakers.</p>
+                <div className="pt-2 border-t border-slate-100">
+                  <span className="text-xs font-bold text-emerald-600">Start English Speech Module ➔</span>
+                </div>
               </div>
 
               {/* Pre-School & Grade 1 Combined Card */}
@@ -469,44 +546,6 @@ const Dashboard = () => {
               </div>
             </div>
           </>
-        )}
-
-        {/* Coming Soon Modal for Grade 2 Math */}
-        {comingSoonGrade && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-            <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border-2 border-blue-100 text-center animate-scale-up">
-              <div className="w-20 h-20 bg-gradient-to-tr from-amber-100 to-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-inner">
-                <span className="text-4xl">🚀</span>
-              </div>
-              <h3 className="text-2xl font-black text-slate-800 mb-2 font-sinhala">
-                2 ශ්‍රේණිය — ගණිතය
-              </h3>
-              <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-4">
-                Grade 2 Mathematics • Coming Soon
-              </p>
-              <p className="text-slate-600 text-sm leading-relaxed mb-6 font-sinhala">
-                මෙම ශ්‍රේණිය සඳහා ප්‍රශ්න සහ අභ්‍යාස ඉක්මනින්ම යාවත්කාලීන කෙරේ! දැනට <strong>3 ශ්‍රේණිය (ක්‍රියාකාරකම් 15)</strong> සහ <strong>4 ශ්‍රේණිය (පරිච්ඡේද 36)</strong> ගණිත අභ්‍යාස සම්පූර්ණයෙන්ම සක්‍රීයව පවතී.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={() => {
-                    setComingSoonGrade(null);
-                    setShowMathHubs(false);
-                    navigate('/module/math/grade3');
-                  }}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3 px-4 rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md font-sinhala text-sm cursor-pointer"
-                >
-                  3 ශ්‍රේණියට යන්න ➔
-                </button>
-                <button
-                  onClick={() => setComingSoonGrade(null)}
-                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-xl transition-all font-sinhala text-sm cursor-pointer"
-                >
-                  හරි (Close)
-                </button>
-              </div>
-            </div>
-          </div>
         )}
 
       </div>
