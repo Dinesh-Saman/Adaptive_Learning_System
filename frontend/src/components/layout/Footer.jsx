@@ -33,7 +33,7 @@ const Footer = () => {
               <span className="font-black text-2xl text-white tracking-tight font-sinhala block group-hover:text-indigo-300 transition-colors">
                 නැණ පියස
               </span>
-              <span className="block text-[10px] uppercase tracking-wider text-indigo-400 font-extrabold -mt-0.5">
+              <span className="block text-xs uppercase tracking-wider text-indigo-400 font-extrabold -mt-0.5">
                 Nana Piyasa Learning System
               </span>
             </Link>
@@ -43,10 +43,10 @@ const Footer = () => {
             </p>
 
             <div className="flex flex-wrap gap-2 pt-1">
-              <span className="bg-slate-900 text-indigo-300 border border-slate-800 text-[11px] font-bold px-2.5 py-1 rounded-lg">
+              <span className="bg-slate-900 text-indigo-300 border border-slate-800 text-xs font-bold px-2.5 py-1 rounded-lg">
                 Adaptive AI ⭐
               </span>
-              <span className="bg-slate-900 text-emerald-300 border border-slate-800 text-[11px] font-bold px-2.5 py-1 rounded-lg">
+              <span className="bg-slate-900 text-emerald-300 border border-slate-800 text-xs font-bold px-2.5 py-1 rounded-lg">
                 Child Safe 🛡️
               </span>
             </div>
@@ -54,7 +54,7 @@ const Footer = () => {
           
           {/* Column 2: 4 Core Learning Functions */}
           <div className="space-y-4">
-            <h3 className="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
+            <h3 className="text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
               Learning Hubs (කාණ්ඩ)
             </h3>
@@ -88,7 +88,7 @@ const Footer = () => {
           
           {/* Column 3: Platform Portals */}
           <div className="space-y-4">
-            <h3 className="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
+            <h3 className="text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
               Platform Portals
             </h3>
@@ -122,17 +122,17 @@ const Footer = () => {
 
           {/* Column 4: Research & Contact Information */}
           <div className="space-y-4">
-            <h3 className="text-white font-black text-sm uppercase tracking-wider flex items-center gap-2">
+            <h3 className="text-white font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-pink-500"></span>
               Academic Research
             </h3>
-            <p className="text-slate-400 text-xs leading-relaxed">
+            <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
               Faculty of Computing & Technology research initiative investigating longitudinal cognitive enhancement for primary students.
             </p>
             <div className="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1.5">
-              <p className="text-[11px] font-bold text-slate-400">Research Support & Feedback:</p>
-              <Link to="/contact" className="text-xs font-bold text-indigo-300 hover:text-indigo-200 flex items-center gap-1.5 transition-colors">
-                <Mail className="w-3.5 h-3.5" />
+              <p className="text-xs font-bold text-slate-400">Research Support & Feedback:</p>
+              <Link to="/contact" className="text-xs sm:text-sm font-bold text-indigo-300 hover:text-indigo-200 flex items-center gap-1.5 transition-colors">
+                <Mail className="w-4 h-4" />
                 <span>Contact Academic Team</span>
               </Link>
             </div>
@@ -141,13 +141,13 @@ const Footer = () => {
         </div>
         
         {/* Bottom Balanced Bar */}
-        <div className="border-t border-slate-800/80 pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 gap-4">
+        <div className="border-t border-slate-800/80 pt-8 flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm text-slate-400 gap-4">
           <p className="text-center sm:text-left">
             &copy; {new Date().getFullYear()} <strong>නැණ පියස (Nana Piyasa) Project</strong>. All rights reserved.
           </p>
           <p className="flex items-center gap-1.5 text-center sm:text-right">
             <span>Built with</span>
-            <Heart className="h-3.5 w-3.5 text-rose-500 fill-rose-500 animate-pulse" />
+            <Heart className="h-4 w-4 text-rose-500 fill-rose-500 animate-pulse" />
             <span>for primary and early childhood education</span>
           </p>
         </div>
