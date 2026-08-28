@@ -9,10 +9,18 @@ import {
   Award, 
   Brain,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Lock,
+  AlertCircle
 } from 'lucide-react';
 import StudentAnalyticsOverview from '../components/analytics/StudentAnalyticsOverview';
 import { fetchStudentAnalyticsFromApi } from '../data/studentAnalyticsData';
+
+const isPreSchoolStudent = (gradeStr) => {
+  if (!gradeStr) return false;
+  const g = gradeStr.toLowerCase().trim();
+  return g.includes('pre') || g.includes('preschool') || g.includes('pre-school') || g.includes('grade 1') || g === '1';
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -21,7 +29,7 @@ const Dashboard = () => {
   const [showSinhalaHubs, setShowSinhalaHubs] = useState(false);
   const [showPreSchoolHub, setShowPreSchoolHub] = useState(false);
   const [showMathHubs, setShowMathHubs] = useState(false);
-  const [comingSoonGrade, setComingSoonGrade] = useState(null);
+  const [lockedNotice, setLockedNotice] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -75,12 +83,29 @@ const Dashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('studentName');
+    localStorage.removeItem('studentGrade');
+    localStorage.removeItem('studentId');
     localStorage.removeItem('masteryLevels');
     localStorage.removeItem('role');
     navigate('/login');
   };
 
   if (!student) return <div className="p-12 text-center text-slate-500">Loading profile...</div>;
+
+  const isPreSchool = isPreSchoolStudent(student.grade);
+
+  const handleCardClick = (target, isLocked, reason) => {
+    if (isLocked) {
+      setLockedNotice(reason);
+      setTimeout(() => setLockedNotice(''), 4000);
+      return;
+    }
+    setLockedNotice('');
+    if (target === 'math') setShowMathHubs(true);
+    else if (target === 'sinhala') setShowSinhalaHubs(true);
+    else if (target === 'preschool') setShowPreSchoolHub(true);
+    else if (target === 'english') navigateToModule('english');
+  };
 
   return (
     <div className="flex-grow bg-slate-50 w-full py-10 min-h-screen">
@@ -99,7 +124,7 @@ const Dashboard = () => {
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
-                <span>ඉගෙනුම් මොඩියුල (4 Learning Hubs)</span>
+                <span>ඉගෙනුම් මොඩියුල (Learning Hubs)</span>
               </button>
               
               <button
@@ -111,18 +136,29 @@ const Dashboard = () => {
                 }`}
               >
                 <BarChart3 className="w-4 h-4" />
-                <span>ප්‍රගති විශ්ලේෂණය (Student Analytics & Graphs)</span>
+                <span>ප්‍රගති විශ්ලේෂණය (Student Analytics)</span>
               </button>
             </div>
 
             <div className="flex items-center gap-3">
+              <span className="text-xs font-black px-3 py-1 bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100">
+                {student.grade}
+              </span>
               <button 
                 onClick={handleLogout}
-                className="text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl"
+                className="text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl cursor-pointer"
               >
                 Logout
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Lock Warning Toast Notification */}
+        {lockedNotice && (
+          <div className="mb-6 p-4 bg-amber-500 text-white rounded-2xl shadow-lg flex items-center gap-3 animate-bounce">
+            <Lock className="w-5 h-5 shrink-0" />
+            <p className="text-xs sm:text-sm font-bold">{lockedNotice}</p>
           </div>
         )}
 
@@ -149,7 +185,7 @@ const Dashboard = () => {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Grade 2 Math Adaptive System */}
+              {/* Grade 2 Math */}
               <div 
                 onClick={() => navigate('/module/math/grade2')}
                 className="bg-gradient-to-br from-amber-50 via-teal-50 to-emerald-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-teal-400 hover:border-teal-600 group transform hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between ring-2 ring-teal-400/30"
@@ -165,21 +201,18 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <p className="text-slate-600 mb-5 text-sm leading-relaxed font-sinhala">
-                    අනුවර්තී ගණිත ඇගයීම් පද්ධතිය (Adaptive Learning System) — 100 දක්වා සංඛ්‍යා, 20 දක්වා එකතු කිරීම්/අඩු කිරීම්, අභිමත මිනුම් සහ හැඩතල කුසලතා 20ක් ඔස්සේ තනි පුද්ගල ඇගයීම.
+                    අනුවර්තී ගණිත ඇගයීම් පද්ධතිය — 100 දක්වා සංඛ්‍යා, 20 දක්වා එකතු කිරීම්/අඩු කිරීම්, අභිමත මිනුම් සහ හැඩතල.
                   </p>
                 </div>
                 <div className="space-y-2 pt-4 border-t border-teal-200">
                   <div className="flex justify-between items-center text-xs font-bold text-teal-900">
-                    <span>4 Domains · 20 Skills · 5 Tiers</span>
+                    <span>4 Domains · 20 Skills</span>
                     <span className="bg-teal-200 text-teal-900 px-3 py-0.5 rounded-full font-black">Adaptive Test ➔</span>
-                  </div>
-                  <div className="w-full bg-teal-100 rounded-full h-2.5 overflow-hidden">
-                    <div className="bg-gradient-to-r from-teal-500 to-emerald-600 h-2.5 rounded-full" style={{ width: '100%' }}></div>
                   </div>
                 </div>
               </div>
 
-              {/* Grade 3 Math Adaptive System */}
+              {/* Grade 3 Math */}
               <div 
                 onClick={() => navigate('/module/math/grade3')}
                 className="bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-purple-400 hover:border-purple-600 group transform hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between ring-2 ring-purple-400/30"
@@ -195,21 +228,18 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <p className="text-slate-600 mb-5 text-sm leading-relaxed font-sinhala">
-                    අනුවර්තී ගණිත ඇගයීම් පද්ධතිය (Adaptive Learning System) — ප්‍රධාන ක්ෂේත්‍ර 4ක්, කුසලතා 20ක් සහ අපහසුතා මට්ටම් 5ක් ඔස්සේ තනි පුද්ගල ඉගෙනුම් විශ්ලේෂණය.
+                    අනුවර්තී ගණිත ඇගයීම් පද්ධතිය — ප්‍රධාන ක්ෂේත්‍ර 4ක්, කුසලතා 20ක් සහ අපහසුතා මට්ටම් 5ක් ඔස්සේ තනි පුද්ගල ඇගයීම.
                   </p>
                 </div>
                 <div className="space-y-2 pt-4 border-t border-purple-200">
                   <div className="flex justify-between items-center text-xs font-bold text-purple-900">
-                    <span>4 Domains · 20 Skills · 5 Tiers</span>
+                    <span>4 Domains · 20 Skills</span>
                     <span className="bg-purple-200 text-purple-900 px-3 py-0.5 rounded-full font-black">Adaptive Test ➔</span>
-                  </div>
-                  <div className="w-full bg-purple-100 rounded-full h-2.5 overflow-hidden">
-                    <div className="bg-gradient-to-r from-purple-500 to-indigo-600 h-2.5 rounded-full" style={{ width: '100%' }}></div>
                   </div>
                 </div>
               </div>
 
-              {/* Grade 4 Math Hub */}
+              {/* Grade 4 Math */}
               <div 
                 onClick={() => navigateToModule('math')}
                 className="bg-gradient-to-br from-blue-50 via-indigo-50 to-emerald-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-blue-400 hover:border-blue-600 group transform hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between ring-2 ring-blue-400/30"
@@ -225,16 +255,13 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <p className="text-slate-600 mb-5 text-sm leading-relaxed font-sinhala">
-                    4 ශ්‍රේණිය සම්පූර්ණ විෂය නිර්දේශය — වාර 3ක පරිච්ඡේද 36ක්, Adaptive AI දුෂ්කරතා මට්ටම් සහ මුහුණේ ඉරියව් හඳුනාගැනීම.
+                    4 ශ්‍රේණිය සම්පූර්ණ විෂය නිර්දේශය — වාර 3ක පරිච්ඡේද 36ක්, Adaptive AI දුෂ්කරතා මට්ටම්.
                   </p>
                 </div>
                 <div className="space-y-2 pt-4 border-t border-blue-200">
                   <div className="flex justify-between items-center text-xs font-bold text-blue-900">
                     <span>වාර 3ක් · පරිච්ඡේද 36ක්</span>
                     <span className="bg-emerald-100 text-emerald-800 px-3 py-0.5 rounded-full font-black">All Active ➔</span>
-                  </div>
-                  <div className="w-full bg-blue-100 rounded-full h-2.5 overflow-hidden">
-                    <div className="bg-gradient-to-r from-blue-500 to-emerald-500 h-2.5 rounded-full" style={{ width: '100%' }}></div>
                   </div>
                 </div>
               </div>
@@ -247,7 +274,7 @@ const Dashboard = () => {
               <div className="flex justify-between items-center">
                 <button 
                   onClick={() => setShowSinhalaHubs(false)}
-                  className="text-sm font-bold text-teal-700 hover:text-white hover:bg-teal-600 bg-teal-50 border border-teal-200 px-4 py-2.5 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm"
+                  className="text-sm font-bold text-teal-700 hover:text-white hover:bg-teal-600 bg-teal-50 border border-teal-200 px-4 py-2.5 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   <span>⬅</span> Back to Dashboard
                 </button>
@@ -259,7 +286,7 @@ const Dashboard = () => {
               </div>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Grade 2 Sinhala */}
               <div 
                 onClick={() => navigate('/module/sinhala/grade2')}
@@ -274,17 +301,11 @@ const Dashboard = () => {
                     <span className="text-4xl">🦁</span>
                   </div>
                 </div>
-                <p className="text-slate-600 mb-5 h-12 text-sm leading-relaxed font-sinhala">
-                  5-Paper අනුවර්තී ඇගයීම් පද්ධතිය (Diagnostic Assessment), AI දුර්වලතා හඳුනාගැනීම සහ විශේෂ අභ්‍යාස මාලාව.
+                <p className="text-slate-600 mb-5 text-sm leading-relaxed font-sinhala">
+                  5-Paper අනුවර්තී ඇගයීම් පද්ධතිය, AI දුර්වලතා හඳුනාගැනීම සහ විශේෂ අභ්‍යාස මාලාව.
                 </p>
-                <div className="space-y-2 pt-2 border-t border-amber-200/80">
-                  <div className="flex justify-between items-center text-xs font-bold text-amber-800">
-                    <span>5 Papers · 5 Domains · AI Adaptive</span>
-                    <span className="bg-amber-200/90 text-amber-900 px-3 py-0.5 rounded-full font-black">5-Paper System ➔</span>
-                  </div>
-                  <div className="w-full bg-amber-100 rounded-full h-2.5 overflow-hidden">
-                    <div className="bg-gradient-to-r from-amber-400 to-orange-500 h-2.5 rounded-full" style={{ width: '80%' }}></div>
-                  </div>
+                <div className="pt-2 border-t border-amber-200/80">
+                  <span className="bg-amber-200/90 text-amber-900 px-3 py-0.5 rounded-full font-black text-xs">5-Paper System ➔</span>
                 </div>
               </div>
 
@@ -302,17 +323,11 @@ const Dashboard = () => {
                     <span className="text-4xl">🌟</span>
                   </div>
                 </div>
-                <p className="text-slate-600 mb-5 h-12 text-sm leading-relaxed font-sinhala">
-                  5-Paper අනුවර්තී ඇගයීම් පද්ධතිය (Diagnostic Baseline to Final Mastery), දුර්වලතා හඳුනාගැනීම සහ ඉලක්කගත පුහුණු අභ්‍යාස.
+                <p className="text-slate-600 mb-5 text-sm leading-relaxed font-sinhala">
+                  5-Paper අනුවර්තී ඇගයීම් පද්ධතිය (Diagnostic Baseline to Final Mastery).
                 </p>
-                <div className="space-y-2 pt-2 border-t border-purple-200/80">
-                  <div className="flex justify-between items-center text-xs font-bold text-purple-800">
-                    <span>5 Papers · 5 Domains · AI Adaptive</span>
-                    <span className="bg-purple-200/90 text-purple-950 px-3 py-0.5 rounded-full font-black">5-Paper System ➔</span>
-                  </div>
-                  <div className="w-full bg-purple-100 rounded-full h-2.5 overflow-hidden">
-                    <div className="bg-gradient-to-r from-purple-500 to-indigo-600 h-2.5 rounded-full" style={{ width: '85%' }}></div>
-                  </div>
+                <div className="pt-2 border-t border-purple-200/80">
+                  <span className="bg-purple-200/90 text-purple-950 px-3 py-0.5 rounded-full font-black text-xs">5-Paper System ➔</span>
                 </div>
               </div>
 
@@ -330,32 +345,12 @@ const Dashboard = () => {
                     <span className="text-4xl">🦚</span>
                   </div>
                 </div>
-                <p className="text-slate-600 mb-5 h-12 text-sm leading-relaxed font-sinhala">
-                  5-Paper අනුවර්තී ඇගයීම් පද්ධතිය (150 Items) — සමාන/විරුද්ධ පද, ප්‍රස්තාව පිරුළු/ඉඟි වැකි, කාලය/ව්‍යාකරණ, කියවීම/විරාම ලක්ෂණ.
+                <p className="text-slate-600 mb-5 text-sm leading-relaxed font-sinhala">
+                  5-Paper අනුවර්තී ඇගයීම් පද්ධතිය (150 Items) — සමාන/විරුද්ධ පද, ප්‍රස්තාව පිරුළු, ව්‍යාකරණ.
                 </p>
-                <div className="space-y-2 pt-2 border-t border-emerald-200/80">
-                  <div className="flex justify-between items-center text-xs font-bold text-emerald-800">
-                    <span>5 Papers · 5 Domains · 150 Items</span>
-                    <span className="bg-emerald-200/90 text-emerald-950 px-3 py-0.5 rounded-full font-black">5-Paper System ➔</span>
-                  </div>
-                  <div className="w-full bg-emerald-100 rounded-full h-2.5 overflow-hidden">
-                    <div className="bg-gradient-to-r from-emerald-500 to-teal-600 h-2.5 rounded-full" style={{ width: '100%' }}></div>
-                  </div>
+                <div className="pt-2 border-t border-emerald-200/80">
+                  <span className="bg-emerald-200/90 text-emerald-950 px-3 py-0.5 rounded-full font-black text-xs">5-Paper System ➔</span>
                 </div>
-              </div>
-
-              {/* Sinhala Writing Module */}
-              <div 
-                onClick={() => navigateToModule('sinhala')}
-                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-orange-400 group transform hover:-translate-y-1"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-slate-800 group-hover:text-orange-600 transition-colors">Sinhala Writing</h2>
-                  <div className="p-3 bg-orange-50 rounded-2xl group-hover:bg-orange-100 transition-colors">
-                    <span className="text-4xl">✍️</span>
-                  </div>
-                </div>
-                <p className="text-slate-500 mb-6 h-12 text-sm leading-relaxed">Handwritten character recognition and personalized practice.</p>
               </div>
             </div>
           </>
@@ -366,7 +361,7 @@ const Dashboard = () => {
               <div className="flex justify-between items-center">
                 <button 
                   onClick={() => setShowPreSchoolHub(false)}
-                  className="text-sm font-bold text-purple-700 hover:text-white hover:bg-purple-600 bg-purple-50 border border-purple-200 px-4 py-2.5 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm"
+                  className="text-sm font-bold text-purple-700 hover:text-white hover:bg-purple-600 bg-purple-50 border border-purple-200 px-4 py-2.5 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   <span>⬅</span> Back to Dashboard
                 </button>
@@ -379,7 +374,6 @@ const Dashboard = () => {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Line Tracing */}
               <div 
                 onClick={() => navigateToModule('motor')}
                 className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-purple-400 group transform hover:-translate-y-1"
@@ -390,10 +384,9 @@ const Dashboard = () => {
                     <span className="text-4xl">🖐️</span>
                   </div>
                 </div>
-                <p className="text-slate-500 mb-6 h-12 text-sm leading-relaxed">Interactive dotted line tracing for fine motor skills development.</p>
+                <p className="text-slate-500 mb-6 text-sm leading-relaxed">Interactive dotted line tracing for fine motor skills development.</p>
               </div>
 
-              {/* Digital Coloring */}
               <div 
                 onClick={() => navigateToModule('coloring')}
                 className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-pink-400 group transform hover:-translate-y-1"
@@ -404,10 +397,9 @@ const Dashboard = () => {
                     <span className="text-4xl">🎨</span>
                   </div>
                 </div>
-                <p className="text-slate-500 mb-6 h-12 text-sm leading-relaxed">Interactive boundary-aware coloring book with AI region masking.</p>
+                <p className="text-slate-500 mb-6 text-sm leading-relaxed">Interactive boundary-aware coloring book with AI region masking.</p>
               </div>
 
-              {/* Paper Craft AI */}
               <div 
                 onClick={() => navigateToModule('papercraft')}
                 className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-teal-400 group transform hover:-translate-y-1"
@@ -418,24 +410,9 @@ const Dashboard = () => {
                     <span className="text-4xl">📹</span>
                   </div>
                 </div>
-                <p className="text-slate-500 mb-6 h-12 text-sm leading-relaxed">Upload a video of your paper craft and get AI-powered step evaluation.</p>
+                <p className="text-slate-500 mb-6 text-sm leading-relaxed">Upload a video of your paper craft and get AI-powered step evaluation.</p>
               </div>
 
-              {/* Origami */}
-              <div 
-                onClick={() => navigateToModule('origami')}
-                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-yellow-400 group transform hover:-translate-y-1"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-slate-800 group-hover:text-yellow-600 transition-colors">Paper Crafts</h2>
-                  <div className="p-3 bg-yellow-50 rounded-2xl group-hover:bg-yellow-100 transition-colors">
-                    <span className="text-4xl">⛵</span>
-                  </div>
-                </div>
-                <p className="text-slate-500 mb-6 h-12 text-sm leading-relaxed">AI-guided interactive Origami module using computer vision.</p>
-              </div>
-
-              {/* Story Drawing */}
               <div 
                 onClick={() => navigateToModule('storydrawing')}
                 className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-orange-400 group transform hover:-translate-y-1"
@@ -446,123 +423,156 @@ const Dashboard = () => {
                     <span className="text-4xl">📖</span>
                   </div>
                 </div>
-                <p className="text-slate-500 mb-6 h-12 text-sm leading-relaxed">Listen to a story and draw it! Upload your drawing for AI evaluation.</p>
+                <p className="text-slate-500 mb-6 text-sm leading-relaxed">Listen to a story and draw it! Upload your drawing for AI evaluation.</p>
               </div>
             </div>
           </>
         ) : (
-          /* MAIN 4 FUNCTIONS DASHBOARD */
+          /* MAIN 4 FUNCTIONS DASHBOARD WITH GRADE-BASED ACCESS CONTROL */
           <>
-            {/* Quick Analytics & Insights Banner */}
-            <div className="mb-10 bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-950 rounded-3xl p-6 sm:p-7 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-indigo-700/40 relative overflow-hidden">
-              <div className="flex items-center gap-5">
-                <div className="w-14 h-14 bg-indigo-500/30 border border-indigo-400/30 rounded-2xl flex items-center justify-center text-3xl shadow-inner">
-                  📊
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="bg-emerald-500 text-white font-extrabold text-xs px-2.5 py-0.5 rounded-full">
-                      Active Progress: 82.5%
-                    </span>
-                    <span className="text-xs text-indigo-300 font-semibold">Longitudinal Tracking</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-black">
-                    ශිෂ්‍ය ප්‍රගති විශ්ලේෂණය (Weekly Performance & Analytics)
-                  </h2>
-                  <p className="text-indigo-200 text-xs sm:text-sm mt-0.5">
-                    ප්‍රධාන විෂය 4 හි සතිපතා ලකුණු, කාණ්ඩ දුර්වලතා හා AI නිර්දේශිත අභ්‍යාස නිරීක්ෂණය කරන්න.
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setActiveView('analytics')}
-                className="px-6 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-sm rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 shrink-0 cursor-pointer"
-              >
-                <span>විශ්ලේෂණ ප්‍රස්ථාර බලන්න (View Analytics)</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-
             <header className="mb-10 text-center animate-fade-in-up">
-              <h1 className="text-4xl font-black text-slate-900 mb-2">Welcome back, {student.name}!</h1>
-              <p className="text-lg text-slate-600">Choose a learning module to continue your journey today.</p>
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-2">Welcome back, {student.name}!</h1>
+              <p className="text-slate-600">
+                {isPreSchool 
+                  ? 'Your profile is set for Pre-School & Grade 1. Enjoy motor skills, coloring, and craft activities below!'
+                  : `Your profile is set for ${student.grade}. Complete your adaptive primary subject modules below!`}
+              </p>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Mathematics Grade Hubs Card */}
+              
+              {/* 1. Mathematics Grade Hubs Card (Locked for Pre-School) */}
               <div 
-                onClick={() => setShowMathHubs(true)}
-                className="bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-blue-300 hover:border-blue-500 group transform hover:-translate-y-1 relative overflow-hidden"
+                onClick={() => handleCardClick('math', isPreSchool, 'ගණිතය මොඩියුලය 2, 3, 4 ශ්‍රේණි සඳහා පමණක් සීමා කර ඇත (Mathematics is for Grade 2, 3, 4)')}
+                className={`rounded-3xl shadow-md transition-all p-8 relative overflow-hidden flex flex-col justify-between ${
+                  isPreSchool 
+                    ? 'bg-slate-100 border-2 border-slate-200 opacity-65 cursor-not-allowed'
+                    : 'bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-50 border-3 border-blue-300 hover:border-blue-500 hover:shadow-2xl cursor-pointer group transform hover:-translate-y-1'
+                }`}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-black text-slate-800 group-hover:text-blue-600 transition-colors font-sinhala">ගණිතය ශ්‍රේණි කාණ්ඩ (Grade 2, 3, 4 Hubs)</h2>
-                  <div className="p-3 bg-blue-100 rounded-2xl group-hover:bg-blue-200 transition-colors">
-                    <span className="text-4xl">🧮</span>
+                {isPreSchool && (
+                  <div className="absolute top-4 right-4 bg-slate-800/90 text-white text-[11px] font-black px-3 py-1 rounded-full flex items-center gap-1 shadow">
+                    <Lock className="w-3 h-3" /> Grade 2, 3, 4 Only
                   </div>
+                )}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-black text-slate-800 group-hover:text-blue-600 transition-colors font-sinhala">
+                      ගණිතය ශ්‍රේණි කාණ්ඩ (Mathematics)
+                    </h2>
+                    <div className="p-3 bg-blue-100 rounded-2xl group-hover:bg-blue-200 transition-colors">
+                      <span className="text-4xl">🧮</span>
+                    </div>
+                  </div>
+                  <p className="text-slate-600 mb-6 text-sm leading-relaxed font-sinhala">
+                    2, 3 සහ 4 ශ්‍රේණි සඳහා Multimodal AI adaptive ගණිත අභ්‍යාස සහ පරිච්ඡේද.
+                  </p>
                 </div>
-                <p className="text-slate-600 mb-6 h-12 text-sm leading-relaxed font-sinhala">
-                  2, 3 සහ 4 ශ්‍රේණි සඳහා Multimodal AI adaptive ගණිත අභ්‍යාස සහ පරිච්ඡේද (Curriculum-aligned primary math).
-                </p>
-                <div className="pt-2 border-t border-blue-200">
-                  <span className="text-xs font-bold text-blue-600">ශ්‍රේණිය සහ අභ්‍යාස තෝරා ගැනීමට මෙතැන ක්ලික් කරන්න ➔</span>
+                <div className="pt-2 border-t border-slate-200">
+                  <span className={`text-xs font-bold ${isPreSchool ? 'text-slate-400' : 'text-blue-600'}`}>
+                    {isPreSchool ? '🔒 Locked for Pre-School' : 'ශ්‍රේණිය සහ අභ්‍යාස තෝරා ගන්න ➔'}
+                  </span>
                 </div>
               </div>
 
-              {/* English Module */}
+              {/* 2. English Module (Locked for Pre-School) */}
               <div 
-                onClick={() => navigateToModule('english')}
-                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-green-400 group transform hover:-translate-y-1"
+                onClick={() => handleCardClick('english', isPreSchool, 'English Speech මොඩියුලය 2, 3, 4 ශ්‍රේණි සඳහා පමණක් සීමා කර ඇත (English Speech is for Grade 2, 3, 4)')}
+                className={`rounded-3xl shadow-sm transition-all p-8 relative overflow-hidden flex flex-col justify-between ${
+                  isPreSchool 
+                    ? 'bg-slate-100 border-2 border-slate-200 opacity-65 cursor-not-allowed'
+                    : 'bg-white border-2 border-transparent hover:border-green-400 hover:shadow-xl cursor-pointer group transform hover:-translate-y-1'
+                }`}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-slate-800 group-hover:text-green-600 transition-colors">English Speech</h2>
-                  <div className="p-3 bg-green-50 rounded-2xl group-hover:bg-green-100 transition-colors">
-                    <span className="text-4xl">🗣️</span>
+                {isPreSchool && (
+                  <div className="absolute top-4 right-4 bg-slate-800/90 text-white text-[11px] font-black px-3 py-1 rounded-full flex items-center gap-1 shadow">
+                    <Lock className="w-3 h-3" /> Grade 2, 3, 4 Only
                   </div>
+                )}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-bold text-slate-800 group-hover:text-green-600 transition-colors">English Speech</h2>
+                    <div className="p-3 bg-green-50 rounded-2xl group-hover:bg-green-100 transition-colors">
+                      <span className="text-4xl">🗣️</span>
+                    </div>
+                  </div>
+                  <p className="text-slate-500 mb-6 text-sm leading-relaxed">Pronunciation and speech error detection tailored for Sinhala speakers.</p>
                 </div>
-                <p className="text-slate-500 mb-6 h-12 text-sm leading-relaxed">Pronunciation and speech error detection tailored for Sinhala speakers.</p>
                 <div className="pt-2 border-t border-slate-100">
-                  <span className="text-xs font-bold text-emerald-600">Start English Speech Module ➔</span>
+                  <span className={`text-xs font-bold ${isPreSchool ? 'text-slate-400' : 'text-emerald-600'}`}>
+                    {isPreSchool ? '🔒 Locked for Pre-School' : 'Start English Speech Module ➔'}
+                  </span>
                 </div>
               </div>
 
-              {/* Pre-School & Grade 1 Combined Card */}
+              {/* 3. Pre-School & Grade 1 Combined Card (Locked for Grade 2, 3, 4) */}
               <div 
-                onClick={() => setShowPreSchoolHub(true)}
-                className="bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-purple-300 hover:border-purple-500 group transform hover:-translate-y-1 relative overflow-hidden"
+                onClick={() => handleCardClick('preschool', !isPreSchool, 'පෙර පාසල් ක්‍රියාකාරකම් Pre-School & Grade 1 සිසුන් සඳහා පමණි (For Pre-School & Grade 1 Only)')}
+                className={`rounded-3xl shadow-md transition-all p-8 relative overflow-hidden flex flex-col justify-between ${
+                  !isPreSchool 
+                    ? 'bg-slate-100 border-2 border-slate-200 opacity-65 cursor-not-allowed'
+                    : 'bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 border-3 border-purple-300 hover:border-purple-500 hover:shadow-2xl cursor-pointer group transform hover:-translate-y-1'
+                }`}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-black text-slate-855 group-hover:text-purple-700 transition-colors font-sinhala">Pre-School & Grade 1 (පෙර පාසල් සහ 1 ශ්‍රේණිය)</h2>
-                  <div className="p-3 bg-purple-100 rounded-2xl group-hover:bg-purple-200 transition-colors">
-                    <span className="text-4xl">🎨</span>
+                {!isPreSchool && (
+                  <div className="absolute top-4 right-4 bg-slate-800/90 text-white text-[11px] font-black px-3 py-1 rounded-full flex items-center gap-1 shadow">
+                    <Lock className="w-3 h-3" /> Pre-School & Grade 1 Only
                   </div>
+                )}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-black text-slate-855 group-hover:text-purple-700 transition-colors font-sinhala">
+                      Pre-School & Grade 1 (පෙර පාසල් හා 1 ශ්‍රේණිය)
+                    </h2>
+                    <div className="p-3 bg-purple-100 rounded-2xl group-hover:bg-purple-200 transition-colors">
+                      <span className="text-4xl">🎨</span>
+                    </div>
+                  </div>
+                  <p className="text-slate-600 mb-6 text-sm leading-relaxed font-sinhala">
+                    කුඩා ළමුන් සඳහා රේඛා ඇඳීම, පාට කිරීම සහ විවිධ කඩදාසි නිර්මාණ ක්‍රියාකාරකම්.
+                  </p>
                 </div>
-                <p className="text-slate-600 mb-6 h-12 text-sm leading-relaxed font-sinhala">
-                  කුඩා ළමුන් සඳහා රේඛා ඇඳීම, පාට කිරීම සහ විවිධ කඩදාසි නිර්මාණ ක්‍රියාකාරකම් (Line tracing, coloring & paper crafts).
-                </p>
-                <div className="pt-2 border-t border-purple-200">
-                  <span className="text-xs font-bold text-purple-600">ක්‍රියාකාරකම් තෝරා ගැනීමට මෙතැන ක්ලික් කරන්න ➔</span>
+                <div className="pt-2 border-t border-slate-200">
+                  <span className={`text-xs font-bold ${!isPreSchool ? 'text-slate-400' : 'text-purple-600'}`}>
+                    {!isPreSchool ? '🔒 Locked for Primary Grades' : 'ක්‍රියාකාරකම් තෝරා ගැනීමට ක්ලික් කරන්න ➔'}
+                  </span>
                 </div>
               </div>
 
-              {/* Sinhala Grade Hubs Combined Card */}
+              {/* 4. Sinhala Grade Hubs Card (Locked for Pre-School) */}
               <div 
-                onClick={() => setShowSinhalaHubs(true)}
-                className="bg-gradient-to-br from-amber-50 via-teal-50 to-indigo-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-teal-300 hover:border-teal-500 group transform hover:-translate-y-1 relative overflow-hidden"
+                onClick={() => handleCardClick('sinhala', isPreSchool, 'සිංහල භාෂා මොඩියුලය 2, 3, 4 ශ්‍රේණි සඳහා පමණක් සීමා කර ඇත (Sinhala Language is for Grade 2, 3, 4)')}
+                className={`rounded-3xl shadow-md transition-all p-8 relative overflow-hidden flex flex-col justify-between ${
+                  isPreSchool 
+                    ? 'bg-slate-100 border-2 border-slate-200 opacity-65 cursor-not-allowed'
+                    : 'bg-gradient-to-br from-amber-50 via-teal-50 to-indigo-50 border-3 border-teal-300 hover:border-teal-500 hover:shadow-2xl cursor-pointer group transform hover:-translate-y-1'
+                }`}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-black text-slate-855 group-hover:text-teal-700 transition-colors font-sinhala">සිංහල ශ්‍රේණි කාණ්ඩ (Grade 2, 3, 4 Hubs)</h2>
-                  <div className="p-3 bg-teal-100 rounded-2xl group-hover:bg-teal-200 transition-colors">
-                    <span className="text-4xl">🦁</span>
+                {isPreSchool && (
+                  <div className="absolute top-4 right-4 bg-slate-800/90 text-white text-[11px] font-black px-3 py-1 rounded-full flex items-center gap-1 shadow">
+                    <Lock className="w-3 h-3" /> Grade 2, 3, 4 Only
                   </div>
+                )}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-black text-slate-855 group-hover:text-teal-700 transition-colors font-sinhala">
+                      සිංහල ශ්‍රේණි කාණ්ඩ (Grade 2, 3, 4 Hubs)
+                    </h2>
+                    <div className="p-3 bg-teal-100 rounded-2xl group-hover:bg-teal-200 transition-colors">
+                      <span className="text-4xl">🦁</span>
+                    </div>
+                  </div>
+                  <p className="text-slate-600 mb-6 text-sm leading-relaxed font-sinhala">
+                    2, 3 සහ 4 ශ්‍රේණි සඳහා සිංහල භාෂා ඉගෙනුම් ක්‍රියාකාරකම් සහ 5-Paper පද්ධතිය.
+                  </p>
                 </div>
-                <p className="text-slate-600 mb-6 h-12 text-sm leading-relaxed font-sinhala">
-                  2, 3 සහ 4 ශ්‍රේණි සඳහා සිංහල භාෂා ඉගෙනුම් ක්‍රියාකාරකම් සහ මට්ටම් (Interactive level-based exercises for primary grades).
-                </p>
-                <div className="pt-2 border-t border-teal-200">
-                  <span className="text-xs font-bold text-teal-600">මට්ටම් සහ අභ්‍යාස තෝරා ගැනීමට මෙතැන ක්ලික් කරන්න ➔</span>
+                <div className="pt-2 border-t border-slate-200">
+                  <span className={`text-xs font-bold ${isPreSchool ? 'text-slate-400' : 'text-teal-600'}`}>
+                    {isPreSchool ? '🔒 Locked for Pre-School' : 'මට්ටම් සහ අභ්‍යාස තෝරා ගන්න ➔'}
+                  </span>
                 </div>
               </div>
+
             </div>
           </>
         )}

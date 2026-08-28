@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
@@ -19,11 +19,15 @@ import {
   Database,
   ExternalLink,
   X,
-  Clock,
-  HelpCircle,
-  Sparkles
+  Lock
 } from 'lucide-react';
 import { CORE_SUBJECTS, fetchStudentAttemptsFromApi } from '../../data/studentAnalyticsData';
+
+export const isPreSchoolOrGrade1 = (gradeStr) => {
+  if (!gradeStr) return false;
+  const g = gradeStr.toLowerCase().trim();
+  return g.includes('pre') || g.includes('preschool') || g.includes('pre-school') || g.includes('grade 1') || g === '1';
+};
 
 const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
   const navigate = useNavigate();
@@ -47,12 +51,24 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
     if (score >= 85) return { label: 'Mastered ⭐', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
     if (score >= 70) return { label: 'Proficient 👍', color: 'bg-blue-100 text-blue-800 border-blue-200' };
     if (score >= 50) return { label: 'Developing 📈', color: 'bg-amber-100 text-amber-800 border-amber-200' };
-    if (score > 0) return { label: 'Attention Needed ⚠️', color: 'bg-rose-100 text-rose-800 border-rose-200' };
+    if (score > 0) return { label: 'Needs Practice ⚠️', color: 'bg-rose-100 text-rose-800 border-rose-200' };
     return { label: 'Not Started', color: 'bg-slate-100 text-slate-600 border-slate-200' };
   };
 
+  // Grade-based strict filtering rule:
+  // 1. If subjectKey === 'preschool' -> Only show Pre-School & Grade 1 students
+  // 2. If subjectKey in ['math', 'sinhala', 'english'] -> Only show Grade 2, 3, 4 students
+  const eligibleStudents = students.filter((st) => {
+    const isPreSchool = isPreSchoolOrGrade1(st.grade);
+    if (subjectKey === 'preschool') {
+      return isPreSchool;
+    } else {
+      return !isPreSchool;
+    }
+  });
+
   // Filter students based on search and selected domain filter
-  const filteredStudents = students.filter((st) => {
+  const filteredStudents = eligibleStudents.filter((st) => {
     const matchesSearch = st.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (st.grade && st.grade.toLowerCase().includes(searchQuery.toLowerCase()));
     if (!matchesSearch) return false;
@@ -81,86 +97,97 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 w-full">
       
       {/* Subject Header & Filter Toolbar */}
-      <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-2xl">{subject.icon}</span>
-            <h3 className="text-xl font-black text-slate-900">
-              {subject.name} — ලියාපදිංචි ශිෂ්‍ය ලේඛනය (Registered Students)
+            <h3 className="text-lg sm:text-xl font-black text-slate-900">
+              {subject.name} — ලියාපදිංචි ශිෂ්‍ය ලේඛනය
             </h3>
+            <span className="bg-indigo-50 text-indigo-700 font-bold text-xs px-2.5 py-0.5 rounded-full border border-indigo-100">
+              {subjectKey === 'preschool' ? 'Pre-School & Grade 1 Only' : 'Grade 2, 3, 4 Only'}
+            </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Real-time enrolled student mastery levels, category scores, and question responses from MongoDB
+            {subjectKey === 'preschool' 
+              ? 'Showing only registered Pre-School & Grade 1 students for fine motor & creative activities.'
+              : 'Showing only registered Grade 2, 3, 4 students for primary academic modules.'}
           </p>
         </div>
 
         {/* Search Input */}
-        <div className="relative min-w-[240px]">
+        <div className="relative min-w-[220px]">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search student name or grade..."
+            placeholder="Search student..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
       </div>
 
       {/* Domain Quick Filters */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-black text-slate-500 mr-2 uppercase tracking-wider">Domain Focus:</span>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-[11px] font-black text-slate-500 mr-1 uppercase tracking-wider">Domains:</span>
         <button
           onClick={() => setSelectedDomainFilter('all')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             selectedDomainFilter === 'all'
               ? 'bg-slate-900 text-white shadow-sm'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
-          All Domains ({subject.categories.length})
+          All Domains
         </button>
         {subject.categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => setSelectedDomainFilter(cat.id)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
               selectedDomainFilter === cat.id
-                ? `bg-indigo-600 text-white shadow-sm`
+                ? 'bg-indigo-600 text-white shadow-sm'
                 : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >
-            <span className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[10px]">{cat.id}</span>
+            <span className="bg-slate-100 text-slate-700 px-1 py-0.2 rounded text-[10px]">{cat.id}</span>
             <span>{cat.name.split('(')[0]}</span>
           </button>
         ))}
       </div>
 
-      {/* Registered Students Tabular List */}
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+      {/* Registered Students Tabular List - Fits in a Single Screen (No Horizontal Overflow) */}
+      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden w-full">
         {filteredStudents.length === 0 ? (
-          <div className="p-12 text-center space-y-3">
+          <div className="p-10 text-center space-y-3">
             <Users className="w-10 h-10 text-slate-300 mx-auto" />
-            <h4 className="text-base font-bold text-slate-700">No student records found in MongoDB for this filter</h4>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              When students register and complete activities in {subject.name}, their scores and detailed answered question logs will appear here.
+            <h4 className="text-sm font-bold text-slate-700">
+              {eligibleStudents.length === 0 
+                ? `No ${subjectKey === 'preschool' ? 'Pre-School / Grade 1' : 'Grade 2, 3, 4'} students registered yet`
+                : 'No student matches the search filter'}
+            </h4>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
+              {subjectKey === 'preschool'
+                ? 'Only Pre-School and Grade 1 learners appear in this table.'
+                : 'Only Grade 2, 3, and 4 learners appear in this table.'}
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+          <div className="w-full">
+            <table className="w-full text-left text-xs table-auto">
               <thead>
-                <tr className="bg-slate-50 text-slate-600 text-xs uppercase font-extrabold border-b border-slate-200">
-                  <th className="py-4 px-5">ශිෂ්‍යයා (Student Name)</th>
-                  <th className="py-4 px-4">ශ්‍රේණිය (Grade)</th>
-                  <th className="py-4 px-4">ලකුණු මට්ටම (Mastery Score)</th>
-                  <th className="py-4 px-4">කුසලතා මට්ටම (Skill Level)</th>
-                  <th className="py-4 px-4">අභ්‍යාස ගණන (Attempts)</th>
-                  <th className="py-4 px-4">පැමිණීම (Attendance)</th>
-                  <th className="py-4 px-5 text-right">ක්‍රියාමාර්ග (Action)</th>
+                <tr className="bg-slate-50/80 text-slate-600 uppercase font-extrabold text-[11px] border-b border-slate-200">
+                  <th className="py-3 px-4">Student</th>
+                  <th className="py-3 px-3">Grade</th>
+                  <th className="py-3 px-3">Mastery</th>
+                  <th className="py-3 px-3">Skill Level</th>
+                  <th className="py-3 px-3 text-center">Attempts</th>
+                  <th className="py-3 px-3 text-center">Attendance</th>
+                  <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
@@ -173,37 +200,39 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
                       onClick={() => handleOpenStudentModal(st)}
                       className="hover:bg-indigo-50/40 transition-colors cursor-pointer group"
                     >
-                      <td className="py-4 px-5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl shadow-sm border border-slate-200">
+                      {/* Student Info */}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-base shadow-sm border border-slate-200 shrink-0">
                             {st.avatar || '👦'}
                           </div>
-                          <div>
-                            <p className="font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
                               {st.name}
                             </p>
-                            <p className="text-[11px] text-slate-400 font-mono">ID: {st.studentId || st.id}</p>
                           </div>
                         </div>
                       </td>
 
-                      <td className="py-4 px-4">
-                        <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">
-                          {st.grade || 'Grade 4'}
+                      {/* Grade */}
+                      <td className="py-3.5 px-3 whitespace-nowrap">
+                        <span className="text-[11px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
+                          {st.grade || (subjectKey === 'preschool' ? 'Pre-School' : 'Grade 4')}
                         </span>
                       </td>
 
-                      <td className="py-4 px-4">
-                        <div className="w-36">
-                          <div className="flex justify-between items-baseline mb-1">
+                      {/* Mastery Progress */}
+                      <td className="py-3.5 px-3 whitespace-nowrap">
+                        <div className="w-24 sm:w-28">
+                          <div className="flex justify-between items-baseline mb-0.5">
                             <span className="text-xs font-black text-slate-900">{score}%</span>
                           </div>
-                          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                          <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                             <div
-                              className={`h-2 rounded-full transition-all duration-700 ${
-                                score >= 85 ? 'bg-gradient-to-r from-emerald-500 to-teal-500' :
-                                score >= 70 ? 'bg-gradient-to-r from-blue-500 to-indigo-500' :
-                                score >= 50 ? 'bg-gradient-to-r from-amber-500 to-orange-500' : 'bg-slate-300'
+                              className={`h-1.5 rounded-full transition-all duration-700 ${
+                                score >= 85 ? 'bg-emerald-500' :
+                                score >= 70 ? 'bg-blue-500' :
+                                score >= 50 ? 'bg-amber-500' : 'bg-slate-300'
                               }`}
                               style={{ width: `${Math.max(4, score)}%` }}
                             ></div>
@@ -211,30 +240,34 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
                         </div>
                       </td>
 
-                      <td className="py-4 px-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${status.color}`}>
+                      {/* Skill Status Badge */}
+                      <td className="py-3.5 px-3 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold border whitespace-nowrap ${status.color}`}>
                           {status.label}
                         </span>
                       </td>
 
-                      <td className="py-4 px-4 font-black text-slate-800">
-                        {st.totalExercises || 0} Attempts
+                      {/* Attempts */}
+                      <td className="py-3.5 px-3 text-center whitespace-nowrap font-black text-slate-800">
+                        {st.totalExercises || 0}
                       </td>
 
-                      <td className="py-4 px-4 text-xs font-bold text-slate-600">
+                      {/* Attendance */}
+                      <td className="py-3.5 px-3 text-center whitespace-nowrap text-xs font-bold text-slate-600">
                         {st.attendance || '100%'}
                       </td>
 
-                      <td className="py-4 px-5 text-right">
+                      {/* Inspect Action */}
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleOpenStudentModal(st);
                           }}
-                          className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1 ml-auto cursor-pointer"
+                          className="px-3 py-1 bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white rounded-lg text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1 cursor-pointer"
                         >
                           <span>Inspect</span>
-                          <ChevronRight className="w-3.5 h-3.5" />
+                          <ChevronRight className="w-3 h-3" />
                         </button>
                       </td>
                     </tr>
@@ -254,18 +287,18 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
             {/* Modal Top Bar */}
             <div className="flex items-start justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-3xl shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-3xl shadow-inner">
                   {activeStudentModal.avatar || '👦'}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-2xl font-black text-slate-900">{activeStudentModal.name}</h2>
                     <span className="bg-indigo-100 text-indigo-800 text-xs font-black px-2.5 py-0.5 rounded-full">
-                      {activeStudentModal.grade || 'Grade 4'}
+                      {activeStudentModal.grade || (subjectKey === 'preschool' ? 'Pre-School' : 'Grade 4')}
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5 font-mono">
-                    MongoDB Student ID: {activeStudentModal.studentId || activeStudentModal.id} • Registered Profile
+                    MongoDB Student ID: {activeStudentModal.studentId || activeStudentModal.id}
                   </p>
                 </div>
               </div>
@@ -280,25 +313,25 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
 
             {/* Subject Performance & Skill Level Overview */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-indigo-50/60 p-5 rounded-2xl border border-indigo-100">
+              <div className="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100">
                 <p className="text-xs font-bold text-indigo-700 uppercase">Subject Mastery Score</p>
-                <h3 className="text-3xl font-black text-indigo-900 mt-1">
+                <h3 className="text-2xl font-black text-indigo-900 mt-1">
                   {getSubjectScore(activeStudentModal)}%
                 </h3>
-                <p className="text-[11px] text-indigo-600 mt-0.5">Across all {subject.categories.length} tested domains</p>
+                <p className="text-[11px] text-indigo-600 mt-0.5">Across all tested domains</p>
               </div>
 
-              <div className="bg-emerald-50/60 p-5 rounded-2xl border border-emerald-100">
+              <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100">
                 <p className="text-xs font-bold text-emerald-700 uppercase">Skill Competency Level</p>
-                <h3 className="text-xl font-black text-emerald-900 mt-1">
+                <h3 className="text-lg font-black text-emerald-900 mt-1">
                   {getStudentStatus(getSubjectScore(activeStudentModal)).label}
                 </h3>
                 <p className="text-[11px] text-emerald-600 mt-0.5">Adaptive diagnostic rating</p>
               </div>
 
-              <div className="bg-amber-50/60 p-5 rounded-2xl border border-amber-100">
+              <div className="bg-amber-50/60 p-4 rounded-2xl border border-amber-100">
                 <p className="text-xs font-bold text-amber-700 uppercase">Total Completed Tests</p>
-                <h3 className="text-3xl font-black text-amber-900 mt-1">
+                <h3 className="text-2xl font-black text-amber-900 mt-1">
                   {activeStudentModal.totalExercises || 0}
                 </h3>
                 <p className="text-[11px] text-amber-600 mt-0.5">Recorded question attempts in DB</p>
@@ -310,21 +343,21 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
               <h4 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
                 <BarChart3 className="w-4 h-4 text-indigo-600" /> Domain-wise Marks Breakdown (ක්ෂේත්‍ර අනුව ලකුණු)
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {activeStudentModal.categoryMarks?.[subjectKey]?.map((cat) => (
-                  <div key={cat.code} className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
-                    <div className="flex justify-between items-baseline mb-1.5">
+                  <div key={cat.code} className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80">
+                    <div className="flex justify-between items-baseline mb-1">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[11px] font-black bg-white px-2 py-0.5 rounded border border-slate-200 text-indigo-600">
+                        <span className="text-[10px] font-black bg-white px-1.5 py-0.5 rounded border border-slate-200 text-indigo-600">
                           {cat.code}
                         </span>
                         <span className="text-xs font-bold text-slate-800">{cat.name}</span>
                       </div>
                       <span className="text-xs font-black text-slate-900">{cat.pct}% ({cat.marks}/{cat.maxMarks})</span>
                     </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
                       <div
-                        className={`h-2 rounded-full transition-all duration-500 ${
+                        className={`h-1.5 rounded-full transition-all duration-500 ${
                           cat.pct >= 85 ? 'bg-emerald-500' :
                           cat.pct >= 70 ? 'bg-blue-500' :
                           cat.pct >= 50 ? 'bg-amber-500' : 'bg-slate-300'
@@ -354,7 +387,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
                 </div>
               ) : studentAttempts.length === 0 ? (
                 <div className="p-6 text-center text-xs text-slate-500 font-semibold bg-slate-50 rounded-2xl border border-slate-200/60">
-                  No individual question submission logs recorded yet for this student. Submissions during tests are saved directly here.
+                  No individual question submission logs recorded yet for this student in this category.
                 </div>
               ) : (
                 <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
@@ -367,7 +400,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
                         <th className="py-2.5 px-3">Correct Answer</th>
                         <th className="py-2.5 px-3">Result</th>
                         <th className="py-2.5 px-3">Response Time</th>
-                        <th className="py-2.5 px-3">Misconception Diagnostic</th>
+                        <th className="py-2.5 px-3">Misconception</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -400,7 +433,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
 
             {/* AI Recommendation Box */}
             {activeStudentModal.recommendation && (
-              <div className="p-5 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 rounded-2xl border border-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="p-4 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 rounded-2xl border border-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-3">
                   <Brain className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
                   <div>
