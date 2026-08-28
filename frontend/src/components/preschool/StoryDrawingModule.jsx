@@ -262,7 +262,7 @@ const StoryDrawingModule = ({ onExit }) => {
                     isEvaluating ? 'bg-slate-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600 hover:shadow-lg transform hover:-translate-y-0.5'
                   }`}
                 >
-                  {isEvaluating ? 'AI is looking at your drawing...' : 'ඇගයීම ආරම්භ කරන්න (Evaluate)'}
+                  {isEvaluating ? 'පරීක්ෂා කරමින් පවතී...' : 'ඇගයීම ආරම්භ කරන්න (Evaluate)'}
                 </button>
               </div>
             )}
