@@ -620,9 +620,6 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
           <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-blue-200 shadow-2xl space-y-8 animate-scale-up">
             
             <div className="text-center pb-6 border-b border-slate-200">
-              <div className="w-20 h-20 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-3xl flex items-center justify-center text-4xl text-white mx-auto mb-4 shadow-lg">
-                🏆
-              </div>
               <h2 className="text-3xl font-black text-slate-800 mb-1 font-sinhala">
                 3 ශ්‍රේණිය — ප්‍රශ්න පත්‍රය 0{activePaperId} ඇගයීම් වාර්තාව
               </h2>
