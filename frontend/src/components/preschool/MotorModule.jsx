@@ -1,70 +1,90 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 const TRACING_TASKS = [
-  {
-    id: 'ws1',
-    title: 'රටා පුහුණුව 1 (Patterns)',
-    icon: '〰️',
-    imageSrc: '/assets/worksheets/ws1.png',
-    isSplit: false
-  },
-  {
-    id: 'ws2',
-    title: 'රටා පුහුණුව 2 (Bugs)',
-    icon: '🐞',
-    imageSrc: '/assets/worksheets/ws2.png',
-    isSplit: false
-  },
-  {
-    id: 'ws3',
-    title: 'සමනල මාවත (Butterfly)',
-    icon: '🦋',
-    imageSrc: '/assets/worksheets/ws3.png',
-    isSplit: false
-  },
-  {
-    id: 'ws4',
-    title: 'හැඩතල (Shapes)',
-    icon: '🔺',
-    imageSrc: '/assets/worksheets/ws4.png',
-    isSplit: false
-  },
-  {
-    id: 'ws5',
-    title: 'සත්තු මාවත (Animals)',
-    icon: '🐘',
-    imageSrc: '/assets/worksheets/ws5.png',
-    isSplit: false
-  },
+  // ── FRUITS ──
   {
     id: 'mango',
     title: 'අඹ (Mango)',
     icon: '🥭',
     imageSrc: '/assets/tracing-mango.png',
+    category: 'fruits'
   },
   {
     id: 'orange',
     title: 'දොඩම් (Orange)',
     icon: '🍊',
     imageSrc: '/assets/tracing-orange.png',
+    category: 'fruits'
   },
   {
     id: 'apple',
     title: 'ඇපල් (Apple)',
     icon: '🍎',
     imageSrc: '/assets/tracing-apple.png',
+    category: 'fruits'
   },
   {
     id: 'banana',
     title: 'කෙසෙල් (Banana)',
     icon: '🍌',
     imageSrc: '/assets/tracing-banana.png',
+    category: 'fruits'
+  },
+  // ── PATTERNS & SHAPES ──
+  {
+    id: 'ws1',
+    title: 'රටා පුහුණුව 1 (Patterns)',
+    icon: '〰️',
+    imageSrc: '/assets/worksheets/ws1.png',
+    isSplit: false,
+    category: 'patterns'
+  },
+  {
+    id: 'ws2',
+    title: 'රටා පුහුණුව 2 (Bugs)',
+    icon: '🐞',
+    imageSrc: '/assets/worksheets/ws2.png',
+    isSplit: false,
+    category: 'patterns'
+  },
+  {
+    id: 'ws3',
+    title: 'සමනල මාවත (Butterfly)',
+    icon: '🦋',
+    imageSrc: '/assets/worksheets/ws3.png',
+    isSplit: false,
+    category: 'patterns'
+  },
+  {
+    id: 'ws4',
+    title: 'හැඩතල (Shapes)',
+    icon: '🔺',
+    imageSrc: '/assets/worksheets/ws4.png',
+    isSplit: false,
+    category: 'patterns'
+  },
+  {
+    id: 'ws5',
+    title: 'සත්තු මාවත (Animals)',
+    icon: '🐘',
+    imageSrc: '/assets/worksheets/ws5.png',
+    isSplit: false,
+    category: 'patterns'
+  },
+  {
+    id: 'ws6',
+    title: 'රළ රටා (Wave Lines)',
+    icon: '🌊',
+    imageSrc: '/assets/worksheets/ws6.png',
+    isSplit: false,
+    category: 'patterns'
   }
 ];
 
 export default function MotorModule({ onExit }) {
   const [stage, setStage] = useState('selection');
   const [selectedTask, setSelectedTask] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('all'); // 'all', 'fruits', 'patterns'
   
   const [isDrawing, setIsDrawing] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -396,25 +416,84 @@ export default function MotorModule({ onExit }) {
     setStage('result');
   };
 
-  const renderSelection = () => (
-    <div className="max-w-6xl mx-auto p-6 animate-fade-in-up text-center">
-      <h2 onClick={onExit} className="text-4xl font-bold text-purple-600 mb-2 font-sinhala cursor-pointer hover:opacity-80 transition-opacity inline-block">
-        රේඛා ඇඳීම (Line Tracing)
-      </h2>
-      <p className="text-slate-600 mb-12 text-lg">Develop fine motor skills by tracing the dotted lines!</p>
-      
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-        {TRACING_TASKS.map(task => (
-          <button key={task.id} onClick={() => handleSelectTask(task)} className="cursor-pointer bg-white px-6 pt-6 pb-10 rounded-[2rem] shadow-sm border-4 border-slate-100 hover:border-purple-400 hover:shadow-xl transition-all transform hover:-translate-y-2 group flex flex-col items-center h-full">
-            <div className="w-full aspect-[4/5] mb-6 overflow-hidden rounded-2xl relative group-hover:scale-105 transition-transform bg-slate-50">
-              <img src={task.imageSrc} alt={task.title} className="w-full h-full object-cover object-left" />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 font-sinhala whitespace-pre-line leading-relaxed">{task.title.replace(' (', '\n(')}</h3>
+  const renderSelection = () => {
+    const filteredTasks = activeCategory === 'all' 
+      ? TRACING_TASKS 
+      : TRACING_TASKS.filter(t => t.category === activeCategory);
+
+    return (
+      <div className="max-w-6xl mx-auto p-6 animate-fade-in-up text-center">
+        <h2 onClick={onExit} className="text-3xl sm:text-4xl font-black text-purple-600 mb-2 font-sinhala cursor-pointer hover:opacity-80 transition-opacity inline-block">
+          රේඛා මත ලියමු (Line Tracing)
+        </h2>
+        <p className="text-slate-600 mb-8 text-base sm:text-lg">
+          තිත් රේඛා ඔස්සේ අඳිමින් අත් මෝටර් කුසලතා දියුණු කරගන්න! (Trace the dotted lines)
+        </p>
+        
+        {/* Category Toggle Tabs */}
+        <div className="inline-flex items-center gap-2 p-1.5 bg-slate-200/80 backdrop-blur-sm rounded-3xl mb-10 shadow-inner">
+          <button
+            onClick={() => setActiveCategory('all')}
+            className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 cursor-pointer ${
+              activeCategory === 'all'
+                ? 'bg-white text-purple-700 shadow-md transform scale-105'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <span>🌟</span>
+            <span>සියල්ල (All)</span>
           </button>
-        ))}
+          <button
+            onClick={() => setActiveCategory('fruits')}
+            className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 cursor-pointer ${
+              activeCategory === 'fruits'
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md transform scale-105'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <span>🍎</span>
+            <span>පළතුරු (Fruits)</span>
+          </button>
+          <button
+            onClick={() => setActiveCategory('patterns')}
+            className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 cursor-pointer ${
+              activeCategory === 'patterns'
+                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md transform scale-105'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <span>〰️</span>
+            <span>රටා හා හැඩතල (Patterns)</span>
+          </button>
+        </div>
+
+        {/* Task Cards Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          {filteredTasks.map(task => (
+            <button 
+              key={task.id} 
+              onClick={() => handleSelectTask(task)} 
+              className="cursor-pointer bg-white px-5 pt-5 pb-7 rounded-[2rem] shadow-sm border-3 border-slate-100 hover:border-purple-400 hover:shadow-xl transition-all transform hover:-translate-y-2 group flex flex-col items-center justify-between h-full"
+            >
+              <div className="w-full aspect-[4/5] mb-4 overflow-hidden rounded-2xl relative group-hover:scale-105 transition-transform bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center p-2">
+                <img src={task.imageSrc} alt={task.title} className="w-full h-full object-contain" />
+              </div>
+              <div className="w-full text-center">
+                <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold mb-1.5 ${
+                  task.category === 'fruits' ? 'bg-amber-100 text-amber-800' : 'bg-purple-100 text-purple-800'
+                }`}>
+                  {task.category === 'fruits' ? '🍎 Fruit' : '〰️ Pattern'}
+                </span>
+                <h3 className="text-base sm:text-lg font-bold text-slate-800 font-sinhala leading-snug">
+                  {task.title}
+                </h3>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderTracing = () => {
     const colors = ['#000000', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
