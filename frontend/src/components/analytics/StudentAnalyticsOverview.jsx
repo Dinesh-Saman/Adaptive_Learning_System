@@ -291,32 +291,33 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
 
       {/* AI Recommendation Banner */}
       {student.recommendation && (
-        <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-2 border-amber-300 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-md shrink-0">
-                <Brain className="w-7 h-7" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="bg-amber-500 text-white text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    {student.recommendation.priority || 'Adaptive AI Focus'}
-                  </span>
-                  <span className="text-xs font-bold text-amber-900">
-                    AI Adaptive Diagnostic Recommendation (MongoDB Synced)
-                  </span>
-                </div>
-                <h3 className="text-lg font-black text-slate-900">
-                  ඉලක්කගත පුහුණු නිර්දේශය: {student.recommendation.subjectName} — {student.recommendation.categoryName}
-                </h3>
-                <p className="text-sm text-slate-600 mt-1 max-w-3xl leading-relaxed">
-                  {student.recommendation.reason}
-                </p>
-              </div>
+        <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-2 border-amber-300 rounded-3xl p-6 sm:p-7 shadow-sm space-y-4">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-md shrink-0">
+              <Brain className="w-7 h-7" />
             </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="bg-amber-500 text-white text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  {student.recommendation.priority || 'Adaptive AI Focus'}
+                </span>
+                <span className="text-xs font-bold text-amber-900">
+                  AI Adaptive Diagnostic Recommendation
+                </span>
+              </div>
+              <h3 className="text-lg font-black text-slate-900">
+                ඉලක්කගත පුහුණු නිර්දේශය: {student.recommendation.subjectName} — {student.recommendation.categoryName}
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed max-w-4xl">
+                {student.recommendation.reason}
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-2 pl-0 sm:pl-[72px] flex justify-start">
             <button
               onClick={() => navigate(student.recommendation.actionUrl || '/dashboard')}
-              className="px-6 py-3.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-sm rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 shrink-0 cursor-pointer"
+              className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-sm rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer"
             >
               <span>{student.recommendation.actionTitle}</span>
               <ArrowUpRight className="w-4 h-4" />

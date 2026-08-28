@@ -431,7 +431,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
 
             {/* AI Recommendation Box */}
             {activeStudentModal.recommendation && (
-              <div className="p-4 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 rounded-2xl border border-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="p-4 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 rounded-2xl border border-amber-300 space-y-3">
                 <div className="flex items-start gap-3">
                   <Brain className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
                   <div>
@@ -446,13 +446,15 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => navigate(activeStudentModal.recommendation.actionUrl || '/dashboard')}
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow transition-all shrink-0 cursor-pointer flex items-center gap-1"
-                >
-                  <span>Launch Remedial Test</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </button>
+                <div className="pt-1 pl-9 flex justify-start">
+                  <button
+                    onClick={() => navigate(activeStudentModal.recommendation.actionUrl || '/dashboard')}
+                    className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>Launch Remedial Test</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             )}
 
