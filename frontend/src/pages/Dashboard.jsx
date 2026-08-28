@@ -168,19 +168,21 @@ const Dashboard = () => {
         ) : showMathHubs ? (
           /* MATH HUBS */
           <>
-            <header className="mb-12 text-center animate-fade-in-up">
-              <div className="flex justify-between items-center">
+            <header className="mb-10 animate-fade-in-up">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button 
                   onClick={() => setShowMathHubs(false)}
-                  className="text-sm font-bold text-blue-700 hover:text-white hover:bg-blue-600 bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  className="text-xs sm:text-sm font-bold text-blue-700 hover:text-white hover:bg-blue-600 bg-blue-50 border border-blue-200 px-4 py-2 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 self-start sm:self-auto"
                 >
                   <span>⬅</span> Back to Dashboard
                 </button>
-                <div>
-                  <h1 className="text-4xl font-black text-blue-900 mb-2 font-sinhala">ගණිතය ශ්‍රේණි කාණ්ඩ (Mathematics Grade Hubs)</h1>
-                  <p className="text-lg text-slate-600">ඔබේ ශ්‍රේණිය තෝරන්න - Choose your Grade level (Grade 2, 3 or 4)</p>
+                <div className="text-center flex-1">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-blue-900 mb-1 font-sinhala whitespace-nowrap">
+                    ගණිතය ශ්‍රේණි කාණ්ඩ (Mathematics Grade Hubs)
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-600">ඔබේ ශ්‍රේණිය තෝරන්න — Choose your Grade level (Grade 2, 3 or 4)</p>
                 </div>
-                <div className="w-36"></div>
+                <div className="hidden sm:block w-36 shrink-0"></div>
               </div>
             </header>
 
@@ -270,19 +272,21 @@ const Dashboard = () => {
         ) : showSinhalaHubs ? (
           /* SINHALA HUBS */
           <>
-            <header className="mb-12 text-center animate-fade-in-up">
-              <div className="flex justify-between items-center">
+            <header className="mb-10 animate-fade-in-up">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button 
                   onClick={() => setShowSinhalaHubs(false)}
-                  className="text-sm font-bold text-teal-700 hover:text-white hover:bg-teal-600 bg-teal-50 border border-teal-200 px-4 py-2.5 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  className="text-xs sm:text-sm font-bold text-teal-700 hover:text-white hover:bg-teal-600 bg-teal-50 border border-teal-200 px-4 py-2 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 self-start sm:self-auto"
                 >
                   <span>⬅</span> Back to Dashboard
                 </button>
-                <div>
-                  <h1 className="text-4xl font-black text-teal-850 mb-2 font-sinhala">සිංහල ශ්‍රේණි කාණ්ඩ (Grade Hubs)</h1>
-                  <p className="text-lg text-slate-600">තබන්න ඊළඟ පියවර - Choose your grade level</p>
+                <div className="text-center flex-1">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-teal-950 mb-1 font-sinhala whitespace-nowrap">
+                    සිංහල ශ්‍රේණි කාණ්ඩ (Sinhala Grade Hubs)
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-600">5-Paper අනුවර්තී ඇගයීම් පද්ධතිය — Choose your grade level</p>
                 </div>
-                <div className="w-36"></div>
+                <div className="hidden sm:block w-36 shrink-0"></div>
               </div>
             </header>
 
@@ -357,19 +361,21 @@ const Dashboard = () => {
         ) : showPreSchoolHub ? (
           /* PRE-SCHOOL HUBS */
           <>
-            <header className="mb-12 text-center animate-fade-in-up">
-              <div className="flex justify-between items-center">
+            <header className="mb-10 animate-fade-in-up">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button 
                   onClick={() => setShowPreSchoolHub(false)}
-                  className="text-sm font-bold text-purple-700 hover:text-white hover:bg-purple-600 bg-purple-50 border border-purple-200 px-4 py-2.5 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  className="text-xs sm:text-sm font-bold text-purple-700 hover:text-white hover:bg-purple-600 bg-purple-50 border border-purple-200 px-4 py-2 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 self-start sm:self-auto"
                 >
                   <span>⬅</span> Back to Dashboard
                 </button>
-                <div>
-                  <h1 className="text-4xl font-black text-purple-850 mb-2 font-sinhala">Pre-School & Grade 1 (පෙර පාසල් සහ 1 ශ්‍රේණිය)</h1>
-                  <p className="text-lg text-slate-600">සිත් ඇදගන්නා ක්‍රියාකාරකම් - Line Tracing, Coloring & Paper Crafts</p>
+                <div className="text-center flex-1">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-purple-950 mb-1 font-sinhala whitespace-nowrap">
+                    Pre-School & Grade 1 (පෙර පාසල් සහ 1 ශ්‍රේණිය)
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-600">සිත් ඇදගන්නා ක්‍රියාකාරකම් — Line Tracing, Coloring & Paper Crafts</p>
                 </div>
-                <div className="w-36"></div>
+                <div className="hidden sm:block w-36 shrink-0"></div>
               </div>
             </header>
 
