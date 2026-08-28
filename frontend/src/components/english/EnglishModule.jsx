@@ -13,28 +13,34 @@ const POOLS = {
 const PAPERS_CONFIG = [
   {
     id: 1,
-    title: 'ප්‍රශ්න පත්‍රය 01',
-    subtitle: 'මූලික උච්චාරණ සහ කථන ඇගයීම',
-    badge: 'ප්‍රශ්න 30 • Easy ➔ Medium ➔ Hard',
-    icon: '📝',
+    level: 'easy',
+    title: 'ප්‍රශ්න පත්‍රය 01 (Easy)',
+    levelTitle: 'පහසු මට්ටම — Single Words',
+    subtitle: 'තනි වචන නිවැරදිව උච්චාරණය කිරීම',
+    badge: 'ප්‍රශ්න 10 • Easy',
+    icon: '🔤',
     color: 'from-emerald-500 to-teal-600',
-    borderColor: 'border-teal-300'
+    borderColor: 'border-emerald-300'
   },
   {
     id: 2,
-    title: 'ප්‍රශ්න පත්‍රය 02',
-    subtitle: 'මධ්‍යම මට්ටමේ කථන චතුරතාව',
-    badge: 'ප්‍රශ්න 30 • Easy ➔ Medium ➔ Hard',
-    icon: '🎯',
+    level: 'medium',
+    title: 'ප්‍රශ්න පත්‍රය 02 (Medium)',
+    levelTitle: 'මධ්‍යම මට්ටම — Short Sentences',
+    subtitle: 'කෙටි වාක්‍ය කියවීම සහ ස්වභාවික රිද්මය',
+    badge: 'ප්‍රශ්න 10 • Medium',
+    icon: '📖',
     color: 'from-blue-500 to-indigo-600',
     borderColor: 'border-blue-300'
   },
   {
     id: 3,
-    title: 'ප්‍රශ්න පත්‍රය 03',
-    subtitle: 'උසස් කථන සහ රිද්ම ඇගයීම',
-    badge: 'ප්‍රශ්න 30 • Easy ➔ Medium ➔ Hard',
-    icon: '🏆',
+    level: 'hard',
+    title: 'ප්‍රශ්න පත්‍රය 03 (Hard)',
+    levelTitle: 'උසස් මට්ටම — Long Sentences',
+    subtitle: 'දිගු වාක්‍ය සහ චතුර කථන ප්‍රකාශනය',
+    badge: 'ප්‍රශ්න 10 • Hard',
+    icon: '🎙️',
     color: 'from-purple-500 to-pink-600',
     borderColor: 'border-purple-300'
   }
@@ -148,22 +154,15 @@ function calculateSimilarity(str1, str2) {
 export default function EnglishModule({ onExit }) {
   const navigate = useNavigate();
 
-  // Navigation State: 'grades_hub' | 'papers_hub' | 'quiz' | 'level_complete' | 'report'
+  // Navigation State: 'grades_hub' | 'papers_hub' | 'quiz' | 'report'
   const [viewState, setViewState] = useState('grades_hub');
   const [selectedGrade, setSelectedGrade] = useState(2);
   const [activePaperId, setActivePaperId] = useState(1);
 
-  // Progressive Levels: 'easy' (Single Words) | 'medium' (Short Sentences) | 'hard' (Long Sentences)
-  const [currentLevel, setCurrentLevel] = useState('easy');
-  const [levelQuestions, setLevelQuestions] = useState([]);
+  // Active Paper State (10 Questions)
+  const [paperQuestions, setPaperQuestions] = useState([]);
   const [currentQIndex, setCurrentQIndex] = useState(0);
-
-  // History and Results
-  const [levelHistory, setLevelHistory] = useState({
-    easy: [],
-    medium: [],
-    hard: []
-  });
+  const [history, setHistory] = useState([]);
 
   // Recording State
   const [isListening, setIsListening] = useState(false);
@@ -172,10 +171,6 @@ export default function EnglishModule({ onExit }) {
   const [isAnswered, setIsAnswered] = useState(false);
   const [isPassed, setIsPassed] = useState(false);
   const recognitionRef = useRef(null);
-
-  // Level Completion Modal / Review State
-  const [levelScore, setLevelScore] = useState(0);
-  const [levelPassed, setLevelPassed] = useState(false);
 
   // LocalStorage Paper History
   const [paperHistory, setPaperHistory] = useState(() => {
@@ -202,6 +197,20 @@ export default function EnglishModule({ onExit }) {
     try {
       localStorage.setItem(`g${grade}_english_paper_history`, JSON.stringify(updatedGrade));
     } catch (e) {}
+  };
+
+  // Check if a paper is unlocked (Paper 1 is unlocked, Paper 2 needs Paper 1 >= 75%, Paper 3 needs Paper 2 >= 75%)
+  const isPaperUnlocked = (pId) => {
+    if (pId === 1) return true;
+    if (pId === 2) {
+      const p1Result = paperHistory[selectedGrade]?.[1];
+      return p1Result && p1Result.overallAccuracy >= 75;
+    }
+    if (pId === 3) {
+      const p2Result = paperHistory[selectedGrade]?.[2];
+      return p2Result && p2Result.overallAccuracy >= 75;
+    }
+    return false;
   };
 
   // Initialize Speech Recognition
@@ -234,12 +243,14 @@ export default function EnglishModule({ onExit }) {
 
       recognitionRef.current = reco;
     }
-  }, [currentQIndex, currentLevel, levelQuestions]);
+  }, [currentQIndex, paperQuestions]);
 
-  // Pick 10 random questions for a specific level from the 100-question pool
-  const generateLevelQuestions = (grade, level) => {
+  // Pick 10 random questions for a specific paper from the 100-question pool
+  const generatePaperQuestions = (grade, paperId) => {
     const pool = POOLS[grade]?.questions || [];
-    const filtered = pool.filter(q => q.level === level);
+    const paperConf = PAPERS_CONFIG.find(p => p.id === paperId);
+    const targetLevel = paperConf ? paperConf.level : 'easy';
+    const filtered = pool.filter(q => q.level === targetLevel);
     // Shuffle and pick 10
     const shuffled = [...filtered].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 10);
@@ -247,13 +258,13 @@ export default function EnglishModule({ onExit }) {
 
   // Start a specific paper
   const handleStartPaper = (pId) => {
+    if (!isPaperUnlocked(pId)) return;
     playSound('click');
     setActivePaperId(pId);
-    setCurrentLevel('easy');
-    setLevelHistory({ easy: [], medium: [], hard: [] });
+    setHistory([]);
 
-    const qList = generateLevelQuestions(selectedGrade, 'easy');
-    setLevelQuestions(qList);
+    const qList = generatePaperQuestions(selectedGrade, pId);
+    setPaperQuestions(qList);
     setCurrentQIndex(0);
     setUserTranscript('');
     setRecordedAccuracy(null);
@@ -268,7 +279,7 @@ export default function EnglishModule({ onExit }) {
     const saved = paperHistory[selectedGrade]?.[pId];
     if (saved) {
       setActivePaperId(pId);
-      setLevelHistory(saved.levelHistory || { easy: [], medium: [], hard: [] });
+      setHistory(saved.history || []);
       setViewState('report');
     } else {
       handleStartPaper(pId);
@@ -291,7 +302,7 @@ export default function EnglishModule({ onExit }) {
           setIsListening(true);
         } else {
           // Fallback simulation for unsupported browsers
-          const currentQ = levelQuestions[currentQIndex];
+          const currentQ = paperQuestions[currentQIndex];
           setTimeout(() => {
             const sim = currentQ ? currentQ.target_text : "test";
             setUserTranscript(sim);
@@ -306,7 +317,7 @@ export default function EnglishModule({ onExit }) {
 
   // Evaluate spoken transcript against target
   const handleEvaluateSpeech = (transcript) => {
-    const currentQ = levelQuestions[currentQIndex];
+    const currentQ = paperQuestions[currentQIndex];
     if (!currentQ) return;
 
     const acc = calculateSimilarity(transcript, currentQ.target_text);
@@ -324,14 +335,14 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Move to next question or complete level
+  // Move to next question or complete paper
   const handleNextQuestion = () => {
     playSound('click');
-    const currentQ = levelQuestions[currentQIndex];
+    const currentQ = paperQuestions[currentQIndex];
     const entry = {
       qNum: currentQIndex + 1,
       id: currentQ.id,
-      level: currentLevel,
+      level: currentQ.level,
       targetText: currentQ.target_text,
       userTranscript: userTranscript || '(No speech detected)',
       accuracy: recordedAccuracy !== null ? recordedAccuracy : 0,
@@ -340,112 +351,49 @@ export default function EnglishModule({ onExit }) {
       phoneticHint: currentQ.phonetic_hint
     };
 
-    const updatedHistory = [...(levelHistory[currentLevel] || []), entry];
-    const newAllHistory = {
-      ...levelHistory,
-      [currentLevel]: updatedHistory
-    };
-    setLevelHistory(newAllHistory);
+    const updatedHistory = [...history, entry];
+    setHistory(updatedHistory);
 
     if (currentQIndex < 9) {
-      // Next question in current level
+      // Next question
       setCurrentQIndex(prev => prev + 1);
       setUserTranscript('');
       setRecordedAccuracy(null);
       setIsAnswered(false);
       setIsPassed(false);
     } else {
-      // Level Completed (10 questions finished)
+      // Paper Completed (10 questions finished)
       const passedCount = updatedHistory.filter(h => h.isPassed).length;
-      const scorePct = Math.round((passedCount / 10) * 100);
-      setLevelScore(scorePct);
-      const levelSuccess = scorePct >= 75;
-      setLevelPassed(levelSuccess);
+      const finalAccuracy = Math.round((passedCount / 10) * 100);
 
-      if (levelSuccess) {
+      savePaperResult(selectedGrade, activePaperId, {
+        paperId: activePaperId,
+        grade: selectedGrade,
+        totalQuestions: 10,
+        totalPassed: passedCount,
+        overallAccuracy: finalAccuracy,
+        history: updatedHistory,
+        completedAt: new Date().toLocaleDateString('si-LK')
+      });
+
+      if (finalAccuracy >= 75) {
         playSound('unlock');
       } else {
         playSound('wrong');
       }
 
-      setViewState('level_complete');
-    }
-  };
-
-  // Proceed to next level after scoring >= 75%
-  const handleProceedToNextLevel = () => {
-    playSound('click');
-    if (currentLevel === 'easy') {
-      setCurrentLevel('medium');
-      const nextQList = generateLevelQuestions(selectedGrade, 'medium');
-      setLevelQuestions(nextQList);
-      setCurrentQIndex(0);
-      setUserTranscript('');
-      setRecordedAccuracy(null);
-      setIsAnswered(false);
-      setIsPassed(false);
-      setViewState('quiz');
-    } else if (currentLevel === 'medium') {
-      setCurrentLevel('hard');
-      const nextQList = generateLevelQuestions(selectedGrade, 'hard');
-      setLevelQuestions(nextQList);
-      setCurrentQIndex(0);
-      setUserTranscript('');
-      setRecordedAccuracy(null);
-      setIsAnswered(false);
-      setIsPassed(false);
-      setViewState('quiz');
-    } else if (currentLevel === 'hard') {
-      // Entire 3-Level Paper Completed!
-      const allEntries = [
-        ...(levelHistory.easy || []),
-        ...(levelHistory.medium || []),
-        ...(levelHistory.hard || [])
-      ];
-      const totalPassed = allEntries.filter(h => h.isPassed).length;
-      const finalAccuracy = Math.round((totalPassed / allEntries.length) * 100);
-
-      savePaperResult(selectedGrade, activePaperId, {
-        paperId: activePaperId,
-        grade: selectedGrade,
-        totalQuestions: allEntries.length,
-        totalPassed,
-        overallAccuracy: finalAccuracy,
-        levelHistory,
-        completedAt: new Date().toLocaleDateString('si-LK')
-      });
-
-      playSound('correct');
       setViewState('report');
     }
   };
 
-  // Retake current level if scored < 75%
-  const handleRetakeCurrentLevel = () => {
-    playSound('click');
-    const newQList = generateLevelQuestions(selectedGrade, currentLevel);
-    setLevelQuestions(newQList);
-    setLevelHistory(prev => ({ ...prev, [currentLevel]: [] }));
-    setCurrentQIndex(0);
-    setUserTranscript('');
-    setRecordedAccuracy(null);
-    setIsAnswered(false);
-    setIsPassed(false);
-    setViewState('quiz');
-  };
+  const currentQ = paperQuestions[currentQIndex];
+  const activePaperConfig = PAPERS_CONFIG.find(p => p.id === activePaperId) || PAPERS_CONFIG[0];
 
-  const currentQ = levelQuestions[currentQIndex];
-
-  // Report calculations
-  const allHistoryItems = [
-    ...(levelHistory.easy || []),
-    ...(levelHistory.medium || []),
-    ...(levelHistory.hard || [])
-  ];
-  const totalPassedCount = allHistoryItems.filter(h => h.isPassed).length;
-  const overallReportAccuracy = allHistoryItems.length > 0
-    ? Math.round((totalPassedCount / allHistoryItems.length) * 100)
+  const totalPassedCount = history.filter(h => h.isPassed).length;
+  const overallReportAccuracy = history.length > 0
+    ? Math.round((totalPassedCount / history.length) * 100)
     : 0;
+  const hasPassedThreshold = overallReportAccuracy >= 75;
 
   return (
     <div 
@@ -458,7 +406,7 @@ export default function EnglishModule({ onExit }) {
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => {
-              if (viewState === 'quiz' || viewState === 'level_complete') {
+              if (viewState === 'quiz') {
                 if (window.confirm("ඔබට මෙම ප්‍රශ්න පත්‍රයෙන් ඉවත් වීමට අවශ්‍යද?")) {
                   setViewState('papers_hub');
                 }
@@ -484,10 +432,8 @@ export default function EnglishModule({ onExit }) {
 
           {viewState === 'quiz' && (
             <div className="flex items-center gap-2">
-              <span className={`text-white font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm ${
-                currentLevel === 'easy' ? 'bg-emerald-600' : currentLevel === 'medium' ? 'bg-blue-600' : 'bg-purple-600'
-              }`}>
-                {currentLevel === 'easy' ? 'Level 1: Easy (වචන)' : currentLevel === 'medium' ? 'Level 2: Medium (කෙටි වාක්‍ය)' : 'Level 3: Hard (දිගු වාක්‍ය)'}
+              <span className={`text-white font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm bg-gradient-to-r ${activePaperConfig.color}`}>
+                {activePaperConfig.badge}
               </span>
               <span className="bg-white/90 backdrop-blur border border-slate-200 text-slate-800 font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm">
                 ප්‍රශ්න {currentQIndex + 1} / 10
@@ -532,9 +478,9 @@ export default function EnglishModule({ onExit }) {
                     <h2 className="text-2xl font-black text-slate-800 font-sinhala">{g.title}</h2>
                     <p className="text-xs text-slate-600 font-medium leading-relaxed">{g.desc}</p>
                     <div className="pt-2 text-xs font-bold text-slate-500 space-y-1">
-                      <div>✓ Easy: Single Words (10 Qs)</div>
-                      <div>✓ Medium: Short Sentences (10 Qs)</div>
-                      <div>✓ Hard: Long Sentences (10 Qs)</div>
+                      <div>✓ Paper 01: Easy (10 Qs)</div>
+                      <div>✓ Paper 02: Medium (10 Qs)</div>
+                      <div>✓ Paper 03: Hard (10 Qs)</div>
                     </div>
                   </div>
 
@@ -549,7 +495,7 @@ export default function EnglishModule({ onExit }) {
           </div>
         )}
 
-        {/* ── SCREEN 2: 3 PAPERS HUB ── */}
+        {/* ── SCREEN 2: 3 PAPERS HUB (EASY, MEDIUM, HARD) ── */}
         {viewState === 'papers_hub' && (
           <div className="space-y-6 animate-fade-in">
             <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl text-center relative overflow-hidden">
@@ -557,10 +503,10 @@ export default function EnglishModule({ onExit }) {
                 Grade {selectedGrade} • {selectedGrade} ශ්‍රේණිය ඉංග්‍රීසි
               </div>
               <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2 font-sinhala">
-                අනුවර්තී කථන ප්‍රශ්න පත්‍ර 3
+                කථන ප්‍රශ්න පත්‍ර 3 (Easy, Medium, Hard)
               </h1>
               <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
-                සෑම ප්‍රශ්න පත්‍රයකම පහසු, මධ්‍යම සහ උසස් මට්ටම් 3ක් අඩංගු වේ. ඊළඟ මට්ටමට යාමට 75% කට වඩා ලකුණු ලබා ගත යුතුය.
+                Easy මට්ටමෙන් ආරම්භ කර 75% කට වඩා ලකුණු ලබාගෙන Medium සහ Hard මට්ටම් අගුළු හරින්න.
               </p>
             </div>
 
@@ -568,18 +514,27 @@ export default function EnglishModule({ onExit }) {
               {PAPERS_CONFIG.map(p => {
                 const result = paperHistory[selectedGrade]?.[p.id];
                 const isCompleted = !!result;
+                const unlocked = isPaperUnlocked(p.id);
 
                 return (
                   <div 
                     key={p.id}
-                    className={`bg-white rounded-3xl p-6 border-2 transition-all duration-300 shadow-lg flex flex-col justify-between hover:shadow-2xl hover:-translate-y-1 relative overflow-hidden ${
-                      isCompleted ? 'border-emerald-300 bg-emerald-50/20' : 'border-slate-200'
+                    className={`bg-white rounded-3xl p-6 border-2 transition-all duration-300 shadow-lg flex flex-col justify-between hover:shadow-2xl relative overflow-hidden ${
+                      !unlocked 
+                        ? 'opacity-75 bg-slate-50 border-slate-300' 
+                        : isCompleted 
+                        ? 'border-emerald-300 bg-emerald-50/20' 
+                        : 'border-slate-200 hover:-translate-y-1'
                     }`}
                   >
                     <div className="space-y-3">
                       <div className="flex justify-between items-start">
                         <span className="text-4xl">{p.icon}</span>
-                        {isCompleted ? (
+                        {!unlocked ? (
+                          <span className="bg-slate-200 text-slate-600 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1">
+                            🔒 අගුළු දමා ඇත
+                          </span>
+                        ) : isCompleted ? (
                           <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1">
                             ✓ සම්පූර්ණයි
                           </span>
@@ -598,7 +553,9 @@ export default function EnglishModule({ onExit }) {
                       </p>
 
                       <div className="pt-2">
-                        <span className="inline-block text-xs font-black bg-slate-100 text-slate-700 px-3 py-1 rounded-lg">
+                        <span className={`inline-block text-xs font-black px-3 py-1 rounded-lg ${
+                          p.id === 1 ? 'bg-emerald-100 text-emerald-800' : p.id === 2 ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                        }`}>
                           {p.badge}
                         </span>
                       </div>
@@ -611,21 +568,38 @@ export default function EnglishModule({ onExit }) {
                           </span>
                         </div>
                       )}
+
+                      {!unlocked && (
+                        <div className="mt-4 p-3 bg-amber-50 rounded-2xl border border-amber-200 text-[11px] font-bold text-amber-800">
+                          🔒 ප්‍රශ්න පත්‍රය 0{p.id - 1} සඳහා 75% ක් ලබාගෙන මෙය අගුළු හරින්න.
+                        </div>
+                      )}
                     </div>
 
                     <div className="pt-6 space-y-2">
-                      <button
-                        onClick={() => handleStartPaper(p.id)}
-                        className={`w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white shadow-md transition-all cursor-pointer bg-gradient-to-r ${p.color} hover:opacity-95 active:scale-95`}
-                      >
-                        {isCompleted ? '🔄 නැවත කරන්න' : 'ආරම්භ කරන්න ➔'}
-                      </button>
-                      {isCompleted && (
+                      {unlocked ? (
+                        <>
+                          <button
+                            onClick={() => handleStartPaper(p.id)}
+                            className={`w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white shadow-md transition-all cursor-pointer bg-gradient-to-r ${p.color} hover:opacity-95 active:scale-95`}
+                          >
+                            {isCompleted ? '🔄 නැවත කරන්න' : 'ආරම්භ කරන්න ➔'}
+                          </button>
+                          {isCompleted && (
+                            <button
+                              onClick={() => handleViewSavedPaperReport(p.id)}
+                              className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors cursor-pointer"
+                            >
+                              📊 වාර්තාව බලන්න
+                            </button>
+                          )}
+                        </>
+                      ) : (
                         <button
-                          onClick={() => handleViewSavedPaperReport(p.id)}
-                          className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors cursor-pointer"
+                          disabled
+                          className="w-full py-3.5 px-4 rounded-2xl font-black text-sm text-slate-400 bg-slate-200 cursor-not-allowed border border-slate-300"
                         >
-                          📊 වාර්තාව බලන්න
+                          🔒 අගුළු දමා ඇත
                         </button>
                       )}
                     </div>
@@ -636,21 +610,19 @@ export default function EnglishModule({ onExit }) {
           </div>
         )}
 
-        {/* ── SCREEN 3: ACTIVE SPEAKING QUIZ ── */}
+        {/* ── SCREEN 3: ACTIVE SPEAKING QUIZ (10 QUESTIONS) ── */}
         {viewState === 'quiz' && currentQ && (
           <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl animate-scale-up space-y-6">
             
             {/* Level Stepper and Progress */}
             <div>
               <div className="flex justify-between items-center text-xs font-black text-slate-600 mb-2">
-                <span>{currentQ.level_name_si}</span>
+                <span>{activePaperConfig.levelTitle}</span>
                 <span>ප්‍රශ්න {currentQIndex + 1} / 10</span>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
                 <div 
-                  className={`h-3 rounded-full transition-all duration-300 ${
-                    currentLevel === 'easy' ? 'bg-emerald-500' : currentLevel === 'medium' ? 'bg-blue-500' : 'bg-purple-500'
-                  }`}
+                  className={`h-3 rounded-full transition-all duration-300 bg-gradient-to-r ${activePaperConfig.color}`}
                   style={{ width: `${((currentQIndex + 1) / 10) * 100}%` }}
                 ></div>
               </div>
@@ -661,7 +633,7 @@ export default function EnglishModule({ onExit }) {
               
               <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-200">
                 <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700">
-                  {currentLevel === 'easy' ? '🔤 Single Word' : currentLevel === 'medium' ? '📖 Short Sentence' : '🎙️ Long Sentence'}
+                  {currentQ.level === 'easy' ? '🔤 Easy (Single Word)' : currentQ.level === 'medium' ? '📖 Medium (Short Sentence)' : '🎙️ Hard (Long Sentence)'}
                 </span>
                 <span className="text-xs font-bold text-slate-500">
                   තේරුම: <strong className="text-slate-800">{currentQ.sinhala_meaning}</strong>
@@ -738,7 +710,7 @@ export default function EnglishModule({ onExit }) {
                       : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-75 shadow-none'
                   }`}
                 >
-                  <span>{currentQIndex >= 9 ? 'මට්ටම අවසන් කරන්න ➔' : 'ඊළඟ ප්‍රශ්නය ➔'}</span>
+                  <span>{currentQIndex >= 9 ? 'ප්‍රශ්න පත්‍රය අවසන් කරන්න ➔' : 'ඊළඟ ප්‍රශ්නය ➔'}</span>
                 </button>
               </div>
 
@@ -746,63 +718,16 @@ export default function EnglishModule({ onExit }) {
           </div>
         )}
 
-        {/* ── SCREEN 4: LEVEL COMPLETION / 75% UNLOCK MODAL ── */}
-        {viewState === 'level_complete' && (
-          <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-emerald-200 shadow-2xl space-y-6 text-center animate-scale-up">
-            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center text-4xl text-white mx-auto shadow-lg ${
-              levelPassed ? 'bg-gradient-to-tr from-emerald-400 to-teal-600' : 'bg-gradient-to-tr from-amber-400 to-orange-500'
-            }`}>
-              {levelPassed ? '🎉' : '🎯'}
-            </div>
-
-            <h2 className="text-3xl font-black text-slate-800 font-sinhala">
-              {levelPassed ? 'මට්ටම සාර්ථකව නිම කළා!' : 'තවදුරටත් පුහුණු වෙමු!'}
-            </h2>
-
-            <p className="text-slate-600 font-bold text-sm sm:text-base max-w-md mx-auto">
-              {levelPassed
-                ? `ඔබ ${currentLevel === 'easy' ? 'පහසු (Easy)' : currentLevel === 'medium' ? 'මධ්‍යම (Medium)' : 'උසස් (Hard)'} මට්ටමේදී ${levelScore}% ක ලකුණක් ලබා ගෙන ඇත! ඊළඟ මට්ටම විවෘත විය.`
-                : `ඊළඟ මට්ටමට පිවිසීමට අවම වශයෙන් 75% ක ලකුණක් අවශ්‍ය වේ. ඔබ ලබාගත් ලකුණ: ${levelScore}%. නැවත උත්සාහ කරන්න.`}
-            </p>
-
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 max-w-xs mx-auto">
-              <span className="text-xs font-bold text-slate-500">ලබාගත් නිරවද්‍යතාව:</span>
-              <p className={`text-3xl font-black ${levelPassed ? 'text-emerald-700' : 'text-amber-700'}`}>
-                {levelScore}%
-              </p>
-              <span className="text-xs font-bold text-slate-400">අවශ්‍ය ප්‍රමාණය: 75%</span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-200 justify-center">
-              {levelPassed ? (
-                <button
-                  onClick={handleProceedToNextLevel}
-                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black py-3.5 px-8 rounded-2xl shadow-md transition-all cursor-pointer text-center"
-                >
-                  {currentLevel === 'hard' ? 'සම්පූර්ණ වාර්තාව බලන්න ➔' : 'ඊළඟ මට්ටමට පිවිසෙන්න ➔'}
-                </button>
-              ) : (
-                <button
-                  onClick={handleRetakeCurrentLevel}
-                  className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black py-3.5 px-8 rounded-2xl shadow-md transition-all cursor-pointer text-center"
-                >
-                  🔄 නැවත පුහුණු වන්න (Retake Level)
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── SCREEN 5: COMPREHENSIVE PAPER REPORT ── */}
+        {/* ── SCREEN 4: COMPREHENSIVE PAPER REPORT ── */}
         {viewState === 'report' && (
           <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-emerald-200 shadow-2xl space-y-8 animate-scale-up">
             
             <div className="text-center pb-6 border-b border-slate-200">
               <h2 className="text-3xl font-black text-slate-800 mb-1 font-sinhala">
-                {selectedGrade} ශ්‍රේණිය — ප්‍රශ්න පත්‍රය 0{activePaperId} කථන වාර්තාව
+                {selectedGrade} ශ්‍රේණිය — {activePaperConfig.title} වාර්තාව
               </h2>
               <p className="text-sm text-slate-500 font-bold">
-                මට්ටම් 3ක (Easy, Medium, Hard) සමස්ත ඇගයීම් සමාලෝචනය
+                {activePaperConfig.levelTitle} • ප්‍රශ්න 10 ඇගයීම් ප්‍රතිඵලය
               </p>
             </div>
 
@@ -810,61 +735,52 @@ export default function EnglishModule({ onExit }) {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
                 <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">සාර්ථක උච්චාරණ</p>
-                <p className="text-3xl font-black text-emerald-700">{totalPassedCount} / {allHistoryItems.length || 30}</p>
+                <p className="text-3xl font-black text-emerald-700">{totalPassedCount} / 10</p>
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-center">
                 <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">නිරවද්‍යතා ප්‍රතිශතය</p>
                 <p className="text-3xl font-black text-blue-700">{overallReportAccuracy}%</p>
               </div>
               <div className="col-span-2 sm:col-span-1 bg-purple-50 border border-purple-200 rounded-2xl p-5 text-center">
-                <p className="text-xs font-bold text-purple-600 uppercase tracking-widest mb-1">ළඟා වූ මට්ටම</p>
-                <p className="text-2xl font-black text-purple-700">Level 3 (Mastery)</p>
+                <p className="text-xs font-bold text-purple-600 uppercase tracking-widest mb-1">තත්ත්වය</p>
+                <p className={`text-2xl font-black ${hasPassedThreshold ? 'text-emerald-700' : 'text-amber-700'}`}>
+                  {hasPassedThreshold ? '✓ Passed (75%+)' : '✗ Needs Practice'}
+                </p>
               </div>
             </div>
 
-            {/* 3 Level Progress Breakdown */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
-                <span>📊</span> මට්ටම් 3 හි ප්‍රවීණතා විස්තරය
-              </h3>
-              {[
-                { key: 'easy', name: 'Level 1: Easy (තනි වචන)', items: levelHistory.easy || [], color: 'from-emerald-500 to-teal-600' },
-                { key: 'medium', name: 'Level 2: Medium (කෙටි වාක්‍ය)', items: levelHistory.medium || [], color: 'from-blue-500 to-indigo-600' },
-                { key: 'hard', name: 'Level 3: Hard (දිගු වාක්‍ය)', items: levelHistory.hard || [], color: 'from-purple-500 to-pink-600' }
-              ].map(lvl => {
-                const passed = lvl.items.filter(i => i.isPassed).length;
-                const total = lvl.items.length || 10;
-                const pct = Math.round((passed / total) * 100);
-
-                return (
-                  <div key={lvl.key} className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-black text-sm text-slate-800">{lvl.name}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-2.5 py-0.5 rounded-lg">
-                          ✓ {passed}/{total}
-                        </span>
-                        <span className="font-black text-sm text-slate-700">{pct}%</span>
-                      </div>
-                    </div>
-                    <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-                      <div
-                        className={`bg-gradient-to-r ${lvl.color} h-3 rounded-full transition-all duration-700`}
-                        style={{ width: `${pct}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            {/* Unlock Status Alert */}
+            {hasPassedThreshold ? (
+              <div className="p-5 bg-emerald-50 rounded-2xl border-2 border-emerald-200 flex items-center gap-4">
+                <span className="text-3xl">🎉</span>
+                <div>
+                  <h4 className="font-black text-emerald-900 text-base">විශිෂ්ටයි! ඔබ 75% කට වඩා ලබා ගත්තා!</h4>
+                  <p className="text-xs text-emerald-700 font-medium mt-0.5">
+                    {activePaperId < 3 
+                      ? `ඊළඟ ප්‍රශ්න පත්‍රය 0${activePaperId + 1} (${PAPERS_CONFIG[activePaperId].badge}) දැන් අගුළු හැරී ඇත.` 
+                      : 'ඔබ සියලුම මට්ටම් (Easy, Medium, Hard) සාර්ථකව සම්පූර්ණ කළා!'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="p-5 bg-amber-50 rounded-2xl border-2 border-amber-200 flex items-center gap-4">
+                <span className="text-3xl">🎯</span>
+                <div>
+                  <h4 className="font-black text-amber-900 text-base">ඊළඟ ප්‍රශ්න පත්‍රයට යාමට 75% ක් අවශ්‍ය වේ.</h4>
+                  <p className="text-xs text-amber-700 font-medium mt-0.5">
+                    ඔබ ලබාගෙන ඇත්තේ {overallReportAccuracy}% කි. කරුණාකර නැවත උත්සාහ කරන්න.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Detailed Question Review */}
             <div>
               <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
-                <span>📋</span> සියලුම කථන ප්‍රශ්න සමාලෝචනය
+                <span>📋</span> ප්‍රශ්න 10 සමාලෝචනය
               </h3>
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                {allHistoryItems.map((h, idx) => (
+              <div className="space-y-3">
+                {history.map((h, idx) => (
                   <div 
                     key={idx} 
                     className={`p-4 rounded-2xl border-2 ${
@@ -900,6 +816,16 @@ export default function EnglishModule({ onExit }) {
               >
                 🔄 නැවත කරන්න (ප්‍රශ්න පත්‍රය 0{activePaperId})
               </button>
+              
+              {hasPassedThreshold && activePaperId < 3 && (
+                <button
+                  onClick={() => handleStartPaper(activePaperId + 1)}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-3.5 px-6 rounded-2xl shadow-md transition-all cursor-pointer text-center"
+                >
+                  ඊළඟ ප්‍රශ්න පත්‍රය වෙත (0{activePaperId + 1}) ➔
+                </button>
+              )}
+
               <button
                 onClick={() => setViewState('papers_hub')}
                 className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-black py-3.5 px-6 rounded-2xl transition-all cursor-pointer text-center"
