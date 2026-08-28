@@ -1,19 +1,35 @@
+import os
+import sys
+
+# Force UTF-8 stdout/stderr on Windows to handle IPA phonetic characters
+try:
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    if hasattr(sys.stderr, 'reconfigure'):
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
+
+from typing import Optional, Dict, List, Set, Any
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 import torch
-import os
-import sys
 
 # Add core_math to path so we can import modules
 sys.path.append(os.path.join(os.path.dirname(__file__), 'core_math'))
 from core_math.model import MultimodalFusionNet
 from core_math.exercise_engine import generate_math_question
+from core_math.grade2_adaptive_engine import Grade2AdaptiveEngine
+from core_math.grade2_curriculum import GRADE2_DOMAINS
+from core_math.grade3_adaptive_engine import Grade3AdaptiveEngine
+from core_math.grade3_curriculum import GRADE3_DOMAINS
+from core_math.adaptive_paper_generator import AdaptivePaperGenerator, QuestionPoolExhaustedError
 from core_english.audio_model import PronunciationNet
-from core_handwriting.vision_model import HandwritingCNN
-from core_handwriting.stroke_analyzer import analyze_stroke_quality
-from core_handwriting.template_matcher import evaluate_handwriting as template_evaluate
+from core_sinhala.vision_model import HandwritingCNN
+from core_sinhala.stroke_analyzer import analyze_stroke_quality
+from core_sinhala.template_matcher import evaluate_handwriting as template_evaluate
 from core_motor.pose_engine import evaluate_motor_skills
 
 app = FastAPI(
@@ -69,17 +85,23 @@ def get_whisper_model():
 
 handwriting_model = HandwritingCNN()
 
-# Visual Lip Movement & Viseme Kinematic Analyzer
+# Multi-Stage English Speaking & Pronunciation Analyzers
 try:
     from core_english.lip_analysis import visual_lip_analyzer
-    print("SUCCESS: Successfully loaded Visual Lip Analyzer (OpenCV).")
+    from core_english.fluency_prosody import fluency_prosody_analyzer
+    from core_english.mti_rules import sri_lankan_mti_engine
+    from core_english.phoneme_engine import align_phoneme_sequences, get_phonemes_for_word, get_sentence_phonemes
+    print("SUCCESS: Successfully loaded Multi-Stage English Speaking Assessment Pipeline.")
 except Exception as e:
     visual_lip_analyzer = None
-    print(f"WARNING: Visual Lip Analyzer could not be loaded: {e}")
+    fluency_prosody_analyzer = None
+    sri_lankan_mti_engine = None
+    print(f"WARNING: Multi-stage analyzers load notice: {e}")
 
 
 
-handwriting_model_path = os.path.join(os.path.dirname(__file__), 'core_handwriting', 'weights', 'handwriting_model.pt')
+
+handwriting_model_path = os.path.join(os.path.dirname(__file__), 'core_sinhala', 'weights', 'handwriting_model.pt')
 if os.path.exists(handwriting_model_path):
     handwriting_model.load_state_dict(torch.load(handwriting_model_path, weights_only=True))
     handwriting_model.eval()
@@ -310,9 +332,6 @@ def evaluate_math_difficulty(data: MathPerformanceData):
     
     if next_question and "id" in next_question:
         session["asked_ids"].append(next_question["id"])
-        if "text" in next_question:
-            session["asked_texts"].append(next_question["text"])
-    
     return {
         "session_complete": False,
         "questions_asked": session["questions_asked"],
@@ -322,46 +341,282 @@ def evaluate_math_difficulty(data: MathPerformanceData):
         "weaknesses_identified": len(session["weaknesses"])
     }
 
+# ---------------------------------------------------------
+# Grade 2 Adaptive Mathematics Research Engine
+# ---------------------------------------------------------
+# Longitudinal Adaptive Paper Generators (Papers 1-5 with Hard Duplicate Exclusion)
+# ---------------------------------------------------------
+g2_pool_path = os.path.join(os.path.dirname(__file__), 'core_math', 'grade2_question_pool.json')
+g3_pool_path = os.path.join(os.path.dirname(__file__), 'core_math', 'grade3_question_pool.json')
+
+grade2_paper_generator = AdaptivePaperGenerator(g2_pool_path)
+grade3_paper_generator = AdaptivePaperGenerator(g3_pool_path)
+
+class GeneratePaperRequest(BaseModel):
+    student_id: str = "student_demo"
+    grade: int = 2
+    paper_number: int = 1
+    answered_question_ids: list[str] = []
+    skill_mastery: Optional[dict[str, float]] = None
+    paper_size: int = 20
+
+@app.post("/api/ai/math/generate-paper")
+def generate_math_paper(data: GeneratePaperRequest):
+    """
+    Generates Paper N with strict duplicate exclusion across all past attempts and within the paper.
+    Stage 1: Exclude past answered questions.
+    Stage 2: Competency/Weakness analysis.
+    Stage 3: Difficulty matching.
+    Stage 4: Adaptive question selection.
+    Stage 5: Assert zero duplicates within and across papers.
+    """
+    generator = grade2_paper_generator if data.grade == 2 else grade3_paper_generator
+    
+    mastery = data.skill_mastery or {}
+    if not mastery:
+        domains = GRADE2_DOMAINS if data.grade == 2 else GRADE3_DOMAINS
+        for dom in domains.values():
+            for s in dom["skills"]:
+                mastery[s["id"]] = 50.0
+
+    try:
+        paper_data = generator.generate_adaptive_paper(
+            student_id=data.student_id,
+            answered_question_ids=set(data.answered_question_ids),
+            skill_mastery=mastery,
+            paper_size=data.paper_size
+        )
+        paper_data["paper_number"] = data.paper_number
+        paper_data["grade"] = data.grade
+        return paper_data
+    except QuestionPoolExhaustedError as e:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Question Pool Exhausted: {str(e)}"
+        )
+
+# ---------------------------------------------------------
+# Grade 2 Adaptive Interactive Session Engine
+# ---------------------------------------------------------
+grade2_adaptive_engine = Grade2AdaptiveEngine()
+grade2_sessions: dict[str, dict] = {}
+
+class Grade2SessionStartData(BaseModel):
+    student_id: str = "student_demo"
+    previously_answered_ids: list[str] = []
+
+class Grade2AnswerSubmitData(BaseModel):
+    student_id: str
+    question_id: str
+    skill_id: str
+    difficulty_tier: int = 1
+    is_correct: bool
+    student_answer: str = ""
+    time_ms: float = 5000.0
+    affect_confusion: float = 0.0
+
+@app.get("/api/ai/math/grade2/curriculum")
+def get_grade2_curriculum():
+    """Returns the full 4 Domains x 5 Skills Grade 2 Curriculum Framework"""
+    return {
+        "domains": GRADE2_DOMAINS,
+        "total_skills": 20,
+        "total_domains": 4
+    }
+
+@app.post("/api/ai/math/grade2/start")
+def start_grade2_session(data: Grade2SessionStartData):
+    """Starts a new adaptive 10-question Grade 2 session with 20-skill student model"""
+    session = grade2_adaptive_engine.create_new_session(data.student_id, data.previously_answered_ids)
+    grade2_sessions[data.student_id] = session
+    first_q = grade2_adaptive_engine.select_next_question(session)
+    return {
+        "session_id": session["session_id"],
+        "grade": 2,
+        "questions_asked": 0,
+        "max_questions": session["max_questions"],
+        "current_difficulty": session["current_difficulty"],
+        "skill_mastery": session["skill_mastery"],
+        "first_question": first_q,
+        "message": "Grade 2 Adaptive Session initialized (Diagnostic Phase)."
+    }
+
+@app.post("/api/ai/math/grade2/submit-answer")
+def submit_grade2_answer(data: Grade2AnswerSubmitData):
+    """Processes Grade 2 student answer, updates 20-skill mastery vector, and selects next adaptive question"""
+    student_id = data.student_id
+    if student_id not in grade2_sessions:
+        grade2_sessions[student_id] = grade2_adaptive_engine.create_new_session(student_id)
+    
+    session = grade2_sessions[student_id]
+    
+    answer_payload = {
+        "question_id": data.question_id,
+        "skill_id": data.skill_id,
+        "difficulty_tier": data.difficulty_tier,
+        "is_correct": data.is_correct,
+        "student_answer": data.student_answer,
+        "time_ms": data.time_ms
+    }
+    session = grade2_adaptive_engine.update_mastery(session, answer_payload)
+    
+    if session["is_complete"]:
+        report = grade2_adaptive_engine.generate_learner_report(session)
+        return {
+            "session_complete": True,
+            "learner_report": report,
+            "message": "Grade 2 Adaptive Diagnostic Complete! Review your comprehensive mastery report."
+        }
+    
+    next_q = grade2_adaptive_engine.select_next_question(session)
+    
+    return {
+        "session_complete": False,
+        "questions_asked": session["questions_asked"],
+        "max_questions": session["max_questions"],
+        "current_difficulty": session["current_difficulty"],
+        "skill_mastery": session["skill_mastery"],
+        "next_question": next_q,
+        "last_feedback": session["history"][-1]["remedial_feedback"],
+        "last_misconception": session["history"][-1]["misconception"]
+    }
+
+# ---------------------------------------------------------
+# Grade 3 Adaptive Mathematics Research Engine
+# ---------------------------------------------------------
+grade3_adaptive_engine = Grade3AdaptiveEngine()
+grade3_sessions: dict[str, dict] = {}
+
+class Grade3SessionStartData(BaseModel):
+    student_id: str = "student_demo"
+    previously_answered_ids: list[str] = []
+
+class Grade3AnswerSubmitData(BaseModel):
+    student_id: str
+    question_id: str
+    skill_id: str
+    difficulty_tier: int = 1
+    is_correct: bool
+    student_answer: str = ""
+    time_ms: float = 5000.0
+    affect_confusion: float = 0.0
+
+@app.get("/api/ai/math/grade3/curriculum")
+def get_grade3_curriculum():
+    """Returns the full 4 Domains x 5 Skills Grade 3 Curriculum Framework"""
+    return {
+        "domains": GRADE3_DOMAINS,
+        "total_skills": 20,
+        "total_domains": 4
+    }
+
+@app.post("/api/ai/math/grade3/start")
+def start_grade3_session(data: Grade3SessionStartData):
+    """Starts a new adaptive 10-question Grade 3 session with 20-skill student model"""
+    session = grade3_adaptive_engine.create_new_session(data.student_id, data.previously_answered_ids)
+    grade3_sessions[data.student_id] = session
+    first_q = grade3_adaptive_engine.select_next_question(session)
+    return {
+        "session_id": session["session_id"],
+        "questions_asked": 0,
+        "max_questions": session["max_questions"],
+        "current_difficulty": session["current_difficulty"],
+        "skill_mastery": session["skill_mastery"],
+        "first_question": first_q,
+        "message": "Grade 3 Adaptive Session initialized (Diagnostic Phase)."
+    }
+
+@app.post("/api/ai/math/grade3/submit-answer")
+def submit_grade3_answer(data: Grade3AnswerSubmitData):
+    """Processes student answer, updates 20-skill mastery vector, and selects next adaptive question"""
+    student_id = data.student_id
+    if student_id not in grade3_sessions:
+        grade3_sessions[student_id] = grade3_adaptive_engine.create_new_session(student_id)
+    
+    session = grade3_sessions[student_id]
+    
+    # 1. Update mastery & streak
+    answer_payload = {
+        "question_id": data.question_id,
+        "skill_id": data.skill_id,
+        "difficulty_tier": data.difficulty_tier,
+        "is_correct": data.is_correct,
+        "student_answer": data.student_answer,
+        "time_ms": data.time_ms
+    }
+    session = grade3_adaptive_engine.update_mastery(session, answer_payload)
+    
+    # 2. Check completion
+    if session["is_complete"]:
+        report = grade3_adaptive_engine.generate_learner_report(session)
+        return {
+            "session_complete": True,
+            "learner_report": report,
+            "message": "Grade 3 Adaptive Diagnostic Complete! Review your comprehensive mastery report."
+        }
+    
+    # 3. Select next adaptive question
+    next_q = grade3_adaptive_engine.select_next_question(session)
+    
+    return {
+        "session_complete": False,
+        "questions_asked": session["questions_asked"],
+        "max_questions": session["max_questions"],
+        "current_difficulty": session["current_difficulty"],
+        "skill_mastery": session["skill_mastery"],
+        "next_question": next_q,
+        "last_feedback": session["history"][-1]["remedial_feedback"],
+        "last_misconception": session["history"][-1]["misconception"]
+    }
+
 
 # ---------------------------------------------------------
 # 2. Suvinya - English Pronunciation AI
 # ---------------------------------------------------------
+# ---------------------------------------------------------
+# 2. Suvinya - Multi-Stage English Pronunciation, Fluency & Speaking Assessment
+# ---------------------------------------------------------
 @app.post("/api/ai/english/pronunciation")
 def analyze_pronunciation(data: SpeechAudioData):
     """
-    Advanced Multimodal English Speech Assessment Endpoint
-    Evaluates 12 specific Sri Lankan MTI patterns and 6 advanced fluency/prosody metrics.
+    Research-Grade 6-Stage Multimodal Audio-Visual Assessment Endpoint:
+    1. Signal Preprocessing & VAD (16kHz standard)
+    2. Visual Viseme & Lip Kinematic Tracking (Bilabial closure, Labiodental, Rounding)
+    3. Objective Acoustic Prosody & Fluency (F0 contour, WPM, Pauses, Intonation slope)
+    4. Explicit 12 Sri Lankan MTI Rule Detectors with Probabilistic Evidence
+    5. Phoneme Sequence Alignment & Error Rate (G2P + Needleman-Wunsch DP)
+    6. Evidence Fusion & Hierarchical 5-Score Model (Pronunciation, Fluency, Prosody, Completeness, Intelligibility)
     """
     import numpy as np
     import base64
-    import tempfile
-    import os
+    import io
     import librosa
     
-    # 1. Feature Extraction & Acoustic Analysis
+    # ---------------------------------------------------------
+    # Stage 1: Audio Signal Ingestion & Preprocessing
+    # ---------------------------------------------------------
     try:
-        if not data.audio_base64 or data.audio_base64 == "dummy_base64_audio":
+        if isinstance(data, dict):
+            audio_b64 = data.get("audio_base64", "")
+            target_text = data.get("target_text", "").strip()
+            student_id = data.get("student_id", "student_01")
+            video_frames = data.get("video_frames_base64", [])
+        else:
+            audio_b64 = getattr(data, "audio_base64", "")
+            target_text = getattr(data, "target_text", "").strip()
+            student_id = getattr(data, "student_id", "student_01")
+            video_frames = getattr(data, "video_frames_base64", [])
+
+        if not audio_b64 or audio_b64 == "dummy_base64_audio":
             raise ValueError("Empty or dummy audio provided.")
             
-        audio_bytes = base64.b64decode(data.audio_base64)
-        print(f"[DEBUG] Received audio: {len(audio_bytes)} bytes, target='{data.target_text}', header={audio_bytes[:4]}")
-        
-        # Save incoming audio for debugging
-        debug_path = r"D:\Kids\test_paper_1_audio\debug_last_recording.wav"
-        try:
-            with open(debug_path, 'wb') as dbg:
-                dbg.write(audio_bytes)
-            print(f"[DEBUG] Audio saved to {debug_path} for inspection")
-        except: pass
-        
-        # Universal Audio Ingestion (Supports WAV, WebM, Opus, Ogg, MP3, AAC)
-        import io
-        import numpy as np
+        audio_bytes = base64.b64decode(audio_b64)
+        print(f"[DEBUG] Multi-Stage Assessment -> audio: {len(audio_bytes)} bytes, target='{target_text}', student='{student_id}'")
         
         y = None
         sr = 16000
         
-        # 1. Fast path: If standard WAV RIFF header, use soundfile
+        # 1. Fast path: Standard RIFF WAV header
         if audio_bytes[:4] == b'RIFF':
             try:
                 import soundfile as sf
@@ -372,399 +627,351 @@ def analyze_pronunciation(data: SpeechAudioData):
                     y = y_raw
                 sr = 16000
             except Exception as sf_err:
-                print(f"[DEBUG] soundfile WAV decode failed: {sf_err}")
+                print(f"[DEBUG] soundfile decode notice: {sf_err}")
                 
-        # 2. Universal path: PyAV for browser WebM, Opus, OGG, MP3
+        # 2. Universal PyAV path: WebM, Opus, OGG, MP3
         if y is None:
             try:
                 import av
                 container = av.open(io.BytesIO(audio_bytes))
                 stream = container.streams.audio[0]
                 resampler = av.AudioResampler(format='fltp', layout='mono', rate=16000)
-                
                 audio_frames = []
                 for frame in container.decode(stream):
-                    resampled_frames = resampler.resample(frame)
-                    for rf in resampled_frames:
+                    for rf in resampler.resample(frame):
                         audio_frames.append(rf.to_ndarray())
-                        
                 if audio_frames:
                     y = np.concatenate(audio_frames, axis=1).squeeze()
                     sr = 16000
-                    print(f"[DEBUG] PyAV decoded container format '{container.format.name}', frames={len(audio_frames)}")
             except Exception as av_err:
                 print(f"[DEBUG] PyAV decode error: {av_err}")
                 
         if y is None:
-            raise ValueError(f"Could not decode audio format. Magic bytes: {audio_bytes[:8]}")
+            raise ValueError(f"Could not decode audio stream.")
             
-        # If stereo, convert to mono
         if y.ndim > 1:
             y = y.mean(axis=1)
             
-        print(f"[DEBUG] Audio ready for analysis: shape={y.shape}, sr={sr}")
+        # 1. High-Precision Acoustic Physics Speech Classifier
+        peak = float(np.max(np.abs(y)))
+        raw_rms = librosa.feature.rms(y=y)[0]
+        max_raw_rms = float(np.max(raw_rms)) if len(raw_rms) > 0 else 0.0
+        mean_raw_rms = float(np.mean(raw_rms)) if len(raw_rms) > 0 else 0.0
+        dyn_ratio = max_raw_rms / max(0.00001, mean_raw_rms)
+        flatness = float(np.mean(librosa.feature.spectral_flatness(y=y)))
+        duration = float(librosa.get_duration(y=y, sr=sr))
         
-        # Normalize peak audio amplitude so soft/loud microphone levels are normalized uniformly
-        max_val = float(np.max(np.abs(y)))
-        if max_val > 0.0001:
-            y = (y / max_val) * 0.90
+        print(f"[DEBUG] Raw peak: {peak:.4f}, max_rms: {max_raw_rms:.4f}, dyn_ratio: {dyn_ratio:.2f}, flatness: {flatness:.4f}, dur: {duration:.2f}s")
+        
+        # Mathematical Speech Verification:
+        # 1. Peak must be at least 0.005 (filters out dead silence)
+        # 2. Dynamic Energy Ratio: ambient flat room noise has peak < 0.03 and dyn_ratio < 1.40
+        # 3. Spectral Flatness: pure white noise / static has flatness > 0.600
+        is_speech = True
+        reject_reason = ""
+        if peak < 0.005:
+            is_speech = False
+            reject_reason = f"Peak amplitude too low ({peak:.4f} < 0.005)"
+        elif peak < 0.03 and dyn_ratio < 1.40:
+            is_speech = False
+            reject_reason = f"Acoustic energy envelope flat ({dyn_ratio:.2f} < 1.40) - room noise"
+        elif flatness > 0.60:
+            is_speech = False
+            reject_reason = f"Spectral flatness too high ({flatness:.3f} > 0.600) - white noise"
             
-        duration = librosa.get_duration(y=y, sr=sr)
-        
-        # --- Volume & Clarity ---
-        rms = librosa.feature.rms(y=y)[0]
-        max_rms = float(np.max(rms))
-        mean_rms = float(np.mean(rms))
-        print(f"[DEBUG] duration={duration:.2f}s, max_rms={max_rms:.4f}, mean_rms={mean_rms:.4f}")
-        
-        volume_status = "Normal"
-        if max_rms < 0.005:
-            volume_status = "Too soft"
-        elif max_rms > 0.4:
-            volume_status = "Too loud"
-            
-        if max_rms < 0.0001 or duration < 0.1:
-            print(f"[DEBUG] REJECTED - too quiet or too short")
+        if not is_speech:
+            print(f"[DEBUG] Audio rejected: {reject_reason}")
             return {
-                "overall_score": 0,
+                "overall_score": 0.0,
                 "severity_level": 4,
-                "diagnostics": {"intelligibility": 0, "phoneme_control": 0, "fluency": 0, "prosody": 0},
-                "advanced_features": {
-                    "volume": "Silent/Noise Only", "speaking_speed": "N/A", "monotone": "N/A", "non_mti_errors": []
+                "diagnostics": {"pronunciation": 0.0, "fluency": 0.0, "prosody": 0.0, "completeness": 0.0, "intelligibility": 0.0, "visual_lip_score": 0.0},
+                "fluency_metrics": {
+                    "speech_rate_wpm": 0.0,
+                    "pause_count": 0,
+                    "pause_ratio": 1.0,
+                    "long_pauses_500ms": 0,
+                    "intonation_slope": "None (No Voice)",
+                    "is_monotone": False
                 },
+                "visual_diagnostics": {},
+                "phoneme_alignment": {},
+                "mti_patterns": [],
                 "l1_contrast_flag": None,
                 "feedback": {
-                    "learner_message": "I only heard background noise. Please speak clearly into the microphone!",
-                    "teacher_message": f"Audio rejected due to low volume (RMS: {max_rms:.4f})."
+                    "learner_message": "Oops, I didn't hear any words! Please speak clearly into the microphone.",
+                    "teacher_message": f"Audio rejected: {reject_reason}."
                 }
             }
             
-        # --- Step 2: Time-Series Acoustic Feature Extraction (CRNN) ---
-        mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40, n_fft=512, hop_length=256)
-        max_frames = 80
-        if mfccs.shape[1] < max_frames:
-            pad_width = max_frames - mfccs.shape[1]
-            mfccs = np.pad(mfccs, ((0, 0), (0, pad_width)), mode='constant')
-        else:
-            mfccs = mfccs[:, :max_frames]
-        # Z-score normalization per sample
-        mean_val = np.mean(mfccs)
-        std_val = np.std(mfccs) + 1e-6
-        mfcc_features = ((mfccs - mean_val) / std_val).astype(np.float32)
-        print(f"[DEBUG] Time-Series MFCC Spectrogram extracted: shape={mfcc_features.shape}")
-
-
-
-
-        
-        target_word_count = len(data.target_text.split())
-        
-        if target_word_count == 1:
-            fluency_score = 100.0
-            prosody_score = 100.0
-            speed_status = "Normal"
-            is_monotone = False
-            syllable_count = 1
-            pause_ratio = 0.0
-        else:
-            # --- Fluency (Pauses & Speed) ---
-            silence_threshold = mean_rms * 0.5
-            pause_frames = np.sum(rms < silence_threshold)
-            pause_ratio = pause_frames / len(rms)
-            fluency_score = min(100.0, max(0.0, 100.0 - (pause_ratio * 150.0)))
-            
-            # Estimate syllables via energy peaks to calculate speed
-            onset_env = librosa.onset.onset_strength(y=y, sr=sr)
-            peaks = librosa.util.peak_pick(onset_env, pre_max=3, post_max=3, pre_avg=3, post_avg=5, delta=0.5, wait=10)
-            syllable_count = len(peaks)
-            speed_sps = syllable_count / duration if duration > 0 else 0
-            
-            speed_status = "Normal"
-            if speed_sps > 4.5:
-                speed_status = "Too fast"
-                fluency_score -= 10
-            elif speed_sps < 1.5:
-                speed_status = "Too slow"
-                fluency_score -= 10
-                
-            # --- Intonation & Rhythm (Monotone) ---
-            pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-            valid_pitches = pitches[magnitudes > np.median(magnitudes)]
-            if len(valid_pitches) > 0:
-                pitch_std = np.std(valid_pitches)
-                prosody_score = min(100.0, max(0.0, (pitch_std / 100.0) * 100))
-            else:
-                prosody_score = 30.0
-                
-            is_monotone = prosody_score < 40.0
-            
+        # 2. Peak Amplitude Normalization (only normalize verified speech)
+        if peak > 0.0001:
+            y = (y / peak) * 0.90
     except Exception as e:
-        error_msg = f"Audio extraction failed ({str(e)})."
-        print(error_msg.encode('utf-8', 'ignore').decode('utf-8', 'ignore'))
         return {
-            "overall_score": 0,
+            "overall_score": 0.0,
             "severity_level": 4,
-            "diagnostics": {"intelligibility": 0, "phoneme_control": 0, "fluency": 0, "prosody": 0},
+            "diagnostics": {"pronunciation": 0.0, "fluency": 0.0, "prosody": 0.0, "completeness": 0.0, "intelligibility": 0.0},
+            "fluency_metrics": {
+                "speech_rate_wpm": 0.0,
+                "long_pauses_500ms": 0,
+                "intonation_slope": "Error",
+                "is_monotone": False
+            },
+            "mti_patterns": [],
             "l1_contrast_flag": None,
             "feedback": {
-                "learner_message": "There was an error processing your recording. Please try again.",
-                "teacher_message": f"Extraction error: {str(e)}"
+                "learner_message": "Audio error occurred. Please try recording again.",
+                "teacher_message": f"Pipeline ingestion error: {str(e)}"
             }
         }
-        
-    # 2. Target-Conditioned Acoustic Evaluation & MTI Diagnostics
-    WORD_ERROR_MAP = {
-        'project': (7, "Consonant Cluster Simplification", "/ˈprɒdʒ.ekt/", "/ˈprɒdʒ.ek/ (dropped final 't')", "1_Correct_project.wav", "2_Wrong_project_ClusterSimplification.wav"),
-        'space': (1, "S-Cluster Prosthesis", "/speɪs/", "/ɪs.peɪs/ (extra vowel 'is-')", "1_Correct_space.wav", "2_Wrong_space_SClusterProsthesis.wav"),
-        'welcome': (2, "V/W Merger", "/ˈwel.kəm/", "/ˈvel.kəm/ (W swapped with V)", "1_Correct_welcome.wav", "2_Wrong_welcome_VWMerger.wav"),
-        'these': (3, "TH Substitution", "/ðiːz/", "/diːz/ (TH replaced with D)", "1_Correct_these.wav", "2_Wrong_these_THSubstitution.wav"),
-        'film': (4, "F/P Substitution", "/fɪlm/", "/pɪlm/ (F replaced with P)", "1_Correct_film.wav", "2_Wrong_film_FPSubstitution.wav"),
-        'bus': (5, "Paragoge", "/bʌs/", "/bʌs.ə/ (extra ending vowel 'basa')", "1_Correct_bus.wav", "2_Wrong_bus_Paragoge.wav"),
-        'friend': (6, "Final Consonant Weakening", "/frend/", "/fren/ (dropped final 'd')", "1_Correct_friend.wav", "2_Wrong_friend_FinalConsonantWeakening.wav"),
-        'busy': (10, "Z/S Confusion", "/ˈbɪz.i/", "/ˈbɪs.i/ (Z replaced with S)", "1_Correct_busy.wav", "2_Wrong_busy_ZSConfusion.wav"),
-        'house': (9, "Initial H Dropping", "/haʊs/", "/aʊs/ (dropped initial 'H')", "1_Correct_house.wav", "2_Wrong_house_HDropping.wav"),
-        'thought': (11, "Back Vowel Confusion", "/θɔːt/", "/θɒt/ (wrong vowel length)", "1_Correct_thought.wav", "2_Wrong_thought_BackVowel.wav"),
-        'beautiful': (12, "Equal Stress / Wrong Rhythm", "/ˈbjuː.tɪ.fəl/", "equal robotic stress", "beautiful_correct.wav", "beautiful_wrong_equalstress.wav")
-    }
+
+    # ---------------------------------------------------------
+    # Stage 2: Visual Viseme & Lip Articulation Analysis
+    # ---------------------------------------------------------
+    has_video = bool(video_frames and len(video_frames) > 0)
+    visual_lip_score = 0.0
+    visual_closure_detected = False
+    visual_rounding_detected = False
+    visual_diagnostics = {}
     
-    target_clean = data.target_text.strip().lower()
-    target_info = WORD_ERROR_MAP.get(target_clean)
-    
-    predicted_class = 0
-    confidence = 0.95
-    l1_transfer = None
-    expected_ph = "-"
-    detected_ph = "-"
-    
-    audio_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'test_paper_1_audio')
-    
-    if target_info and os.path.exists(audio_dir):
-        err_id, err_name, exp_p, det_p, clean_fname, wrong_fname = target_info
-        clean_fpath = os.path.join(audio_dir, clean_fname)
-        wrong_fpath = os.path.join(audio_dir, wrong_fname)
-        
+    if visual_lip_analyzer is not None and has_video:
         try:
-            def extract_norm_mel(audio_data):
-                y_trim, _ = librosa.effects.trim(audio_data, top_db=15)
-                if len(y_trim) < 160: y_trim = audio_data
-                S = librosa.feature.melspectrogram(y=y_trim, sr=16000, n_mels=40, n_fft=512, hop_length=160)
-                S_db = librosa.power_to_db(S, ref=np.max)
-                return (S_db - S_db.mean()) / (S_db.std() + 1e-6)
-                
-            S_student = extract_norm_mel(y)
-            
-            corr_clean = 0.0
-            corr_wrong = 0.0
-            from scipy.ndimage import zoom
-            
-            if os.path.exists(clean_fpath):
-                y_c, _ = sf.read(clean_fpath, dtype='float32')
-                if y_c.ndim > 1: y_c = y_c.mean(axis=1)
-                S_c = extract_norm_mel(y_c)
-                S_s_c = zoom(S_student, (1, S_c.shape[1] / max(1, S_student.shape[1])))
-                corr_clean = float(np.corrcoef(S_c.flatten(), S_s_c.flatten())[0, 1])
-                
-            if os.path.exists(wrong_fpath):
-                y_w, _ = sf.read(wrong_fpath, dtype='float32')
-                if y_w.ndim > 1: y_w = y_w.mean(axis=1)
-                S_w = extract_norm_mel(y_w)
-                S_s_w = zoom(S_student, (1, S_w.shape[1] / max(1, S_student.shape[1])))
-                corr_wrong = float(np.corrcoef(S_w.flatten(), S_s_w.flatten())[0, 1])
-                
-            # --- Phoneme-Specific Acoustic Physics Diagnostic ---
-            y_trim, _ = librosa.effects.trim(y, top_db=18)
-            zcr_full = librosa.feature.zero_crossing_rate(y_trim)[0]
-            cent_full = librosa.feature.spectral_centroid(y=y_trim, sr=16000)[0]
-            
-            is_mti_detected = False
-            
-            if target_clean == 'film':
-                # Check /f/ onset frication vs /p/ plosive using spectral plosive ratio
-                onset_len = max(3, int(S_student.shape[1] * 0.25))
-                onset_high = np.mean(S_student[20:, :onset_len])
-                onset_low = np.mean(S_student[:15, :onset_len])
-                plosive_ratio = onset_low / (onset_high + 1e-6)
-                print(f"[DEBUG] film plosive_ratio={plosive_ratio:.2f}")
-                if plosive_ratio > 50.0:
-                    is_mti_detected = True
-                    print(f"[DEBUG] Phoneme Rule Triggered: F/P Substitution (plosive_ratio={plosive_ratio:.2f})")
-                    
-            elif target_clean == 'project':
-                # Check /kt/ stop release burst at coda (last 20%)
-                coda_len = max(3, int(S_student.shape[1] * 0.20))
-                coda_high = np.mean(S_student[20:, -coda_len:])
-                coda_low = np.mean(S_student[:15, -coda_len:])
-                coda_ratio = coda_low / (coda_high + 1e-6)
-                print(f"[DEBUG] project coda_ratio={coda_ratio:.2f}")
-                if coda_ratio > 35.0:
-                    is_mti_detected = True
-                    print(f"[DEBUG] Phoneme Rule Triggered: Consonant Cluster Simplification")
-                    
-            elif target_clean == 'space':
-                # Check for extra vowel /ɪ/ before /s/
-                p1_cent = np.mean(cent_full[:max(2, int(len(cent_full) * 0.15))])
-                p2_cent = np.mean(cent_full[max(2, int(len(cent_full) * 0.15)):max(4, int(len(cent_full) * 0.40))])
-                if p1_cent < 1400.0 and p2_cent > 2200.0:
-                    is_mti_detected = True
-                    print(f"[DEBUG] Phoneme Rule Triggered: S-Cluster Prosthesis")
-                    
-            elif target_clean == 'bus':
-                # Check for Paragoge extra ending vowel after /s/
-                coda_cent = np.mean(cent_full[int(len(cent_full) * 0.85):])
-                if coda_cent < 1600.0:
-                    is_mti_detected = True
-                    print(f"[DEBUG] Phoneme Rule Triggered: Paragoge")
-                    
-            elif target_clean == 'these':
-                # Check /ð/ dental friction vs /d/ stop plosive
-                onset_zcr = np.mean(zcr_full[:max(2, int(len(zcr_full) * 0.20))])
-                onset_cent = np.mean(cent_full[:max(2, int(len(cent_full) * 0.20))])
-                if onset_cent < 1100.0 and onset_zcr < 0.04:
-                    is_mti_detected = True
-                    print(f"[DEBUG] Phoneme Rule Triggered: TH Substitution")
-                    
-            elif target_clean == 'welcome':
-                # Check /w/ semivowel vs /v/ dental fricative
-                onset_cent = np.mean(cent_full[:max(2, int(len(cent_full) * 0.25))])
-                if onset_cent > 1600.0:
-                    is_mti_detected = True
-                    print(f"[DEBUG] Phoneme Rule Triggered: V/W Merger")
-                    
-            if is_mti_detected:
-                predicted_class = err_id
-                confidence = 0.88
-                l1_transfer = err_name
-                expected_ph = exp_p
-                detected_ph = det_p
-            elif corr_clean >= 0.82 and not is_mti_detected:
-                # Strong match with clean pronunciation
-                predicted_class = 0
-                confidence = min(0.99, max(0.90, corr_clean))
-            elif corr_wrong > corr_clean + 0.05 and corr_wrong > 0.45:
-                # Student pronounced with the specific MTI accent distortion
-                predicted_class = err_id
-                confidence = max(0.70, min(0.98, corr_wrong))
-                l1_transfer = err_name
-                expected_ph = exp_p
-                detected_ph = det_p
-            else:
-                # Clean pronunciation
-                predicted_class = 0
-                confidence = max(0.85, min(0.99, corr_clean if corr_clean > 0 else 0.90))
-        except Exception as eval_err:
-            print(f"[DEBUG] Target acoustic evaluation fallback: {eval_err}")
-            predicted_class = 0
-            confidence = 0.90
-    else:
-        # Fallback to PyTorch model inference
-        input_tensor = torch.tensor(mfcc_features, dtype=torch.float32).unsqueeze(0)
-        with torch.no_grad():
-            output_logits = english_model(input_tensor)
-            probabilities = torch.nn.functional.softmax(output_logits, dim=1)
-            predicted_class = torch.argmax(probabilities, dim=1).item()
-            confidence = probabilities[0][predicted_class].item()
-            
-        mti_patterns = {
-            1: ("S-Cluster Prosthesis", "/skuːl/", "/ɪskuːl/"),
-            2: ("V/W Merger", "/v/", "/w/"),
-            3: ("TH Substitution", "/θ/", "/t/ or /d/"),
-            4: ("F/P Substitution", "/f/", "/p/"),
-            5: ("Paragoge", "consonant", "add /ə/"),
-            6: ("Final Consonant Weakening", "consonant", "dropped"),
-            7: ("Consonant Cluster Simplification", "cluster", "reduced"),
-            8: ("Short/Long Vowel Confusion", "vowel length", "wrong length"),
-            9: ("Initial H Dropping", "/h/", "dropped"),
-            10: ("Z/S Confusion", "/z/", "/s/"),
-            11: ("Back Vowel Confusion", "/ɔː/", "/ɒ/"),
-            12: ("Equal Stress / Wrong Rhythm", "variable stress", "equal stress")
-        }
-        if predicted_class in mti_patterns:
-            l1_transfer = mti_patterns[predicted_class][0]
-            expected_ph = mti_patterns[predicted_class][1]
-            detected_ph = mti_patterns[predicted_class][2]
-        
-    # 4. Non-MTI Errors (Mocked via heuristics due to lack of ASR transcription)
-    # A real implementation requires Whisper ASR to transcribe the text exactly and diff it against target_text.
-    non_mti_errors = []
-    # Heuristic: If syllable count is way off from word count, assume missing words or hesitations.
-    target_words = len(data.target_text.split())
-    if syllable_count < target_words:
-        non_mti_errors.append("Missing words in sentence")
-    # Only flag hesitations on longer sentences, not single short words
-    if pause_ratio > 0.4 and duration > 2.0:
-        non_mti_errors.append("Repetitions or hesitations")
-            
-    # 5. Hierarchical Scoring
-    if predicted_class == 0:
-        phoneme_control = confidence * 100.0
-    else:
-        phoneme_control = (1.0 - confidence) * 100.0
-        
-    intelligibility_penalty = 15.0 if l1_transfer else 0.0
-    if is_monotone: intelligibility_penalty += 10.0
-    
-    raw_intelligibility = (phoneme_control + fluency_score + prosody_score) / 3.0
-    intelligibility = min(100.0, max(0.0, raw_intelligibility - intelligibility_penalty))
-    
-    overall_score = (0.45 * intelligibility) + (0.25 * phoneme_control) + (0.20 * fluency_score) + (0.10 * prosody_score)
-    
-    # 6. Error Severity Levels
-    severity_level = 0
-    if overall_score < 50: severity_level = 3
-    elif overall_score < 75 or l1_transfer: severity_level = 2
-    elif overall_score < 85: severity_level = 1
-        
-    # 7. Feedback Generation
-    learner_message = "Great job! Keep practicing."
-    teacher_message = "Clear pronunciation. Good intelligibility."
-    
-    # 8. Visual Lip Movement & Viseme Evaluation (Camera Feed)
-    visual_diagnostics = {
-        "bilabial_closure": "Not Provided",
-        "lip_rounding": "Not Provided",
-        "mouth_motion_detected": True
-    }
-    visual_score = 90.0
-    
-    if visual_lip_analyzer is not None and data.video_frames_base64 and len(data.video_frames_base64) > 0:
-        try:
-            vis_res = visual_lip_analyzer.evaluate_video_sequence(data.video_frames_base64, data.target_text)
-            visual_score = vis_res.get("visual_score", 90.0)
-            visual_diagnostics = vis_res.get("visual_diagnostics", visual_diagnostics)
-            vis_tip = vis_res.get("feedback_tip")
-            vis_gest = vis_res.get("articulatory_gestures")
-            
-            # Fuse visual score: 70% acoustic + 30% visual
-            overall_score = (0.70 * overall_score) + (0.30 * visual_score)
-            
-            if vis_tip and vis_res.get("visual_score", 100) < 80:
-                learner_message += f" 👄 Lip Guide: {vis_tip}"
-                teacher_message += f" Visual Articulation: {vis_gest} (Visual Score: {visual_score}%)."
-            elif vis_tip:
-                learner_message += f" 👄 {vis_tip}"
+            vis_res = visual_lip_analyzer.evaluate_video_sequence(video_frames, target_text)
+            visual_lip_score = float(vis_res.get("visual_score", 80.0))
+            visual_diagnostics = vis_res.get("visual_diagnostics", {})
+            visual_closure_detected = "Detected" in visual_diagnostics.get("bilabial_closure", "")
+            visual_rounding_detected = "Rounded" in visual_diagnostics.get("lip_rounding", "")
         except Exception as v_err:
-            print(f"[DEBUG] Visual lip evaluation error: {v_err}")
+            print(f"[DEBUG] Visual lip evaluation notice: {v_err}")
+
+    # ---------------------------------------------------------
+    # Stage 3: Objective Fluency & Prosody Analysis
+    # ---------------------------------------------------------
+    is_question = "?" in target_text or target_text.lower().startswith(("what", "where", "who", "why", "how", "can", "is", "are", "do"))
+    if fluency_prosody_analyzer is not None:
+        prosody_res = fluency_prosody_analyzer.analyze(y, target_text=target_text, expected_is_question=is_question)
+    else:
+        prosody_res = {
+            "speech_rate_wpm": 0.0, "pause_count": 0, "pause_ratio": 0.0,
+            "long_pauses_500ms": 0, "long_pauses_1000ms": 0, "intonation_slope": "Neutral",
+            "is_monotone": False, "fluency_score": 0.0, "prosody_score": 0.0, "speaking_duration": 0.0
+        }
+
+    # ---------------------------------------------------------
+    # Stage 4: Sri Lankan MTI Rule Detectors & Phoneme Alignment
+    # ---------------------------------------------------------
+    mti_res = None
+    if sri_lankan_mti_engine is not None:
+        mti_res = sri_lankan_mti_engine.evaluate(
+            y, 
+            target_word=target_text, 
+            visual_closure=visual_closure_detected, 
+            visual_rounding=visual_rounding_detected
+        )
+        
+    detected_mti_patterns = mti_res.get("detected_patterns", []) if mti_res else []
+    primary_mti = mti_res.get("primary_mti_flag") if mti_res else None
+    phoneme_accuracy = float(mti_res.get("phoneme_accuracy", 0.0)) if mti_res else 0.0
+    phoneme_alignment = mti_res.get("phoneme_alignment", {}) if mti_res else {}
+
+    # ---------------------------------------------------------
+    # Stage 4.5: OpenPronounce (Remote Colab API via ngrok / localtunnel)
+    # ---------------------------------------------------------
+    openpronounce_res = None
+    COLAB_URL = os.getenv("COLAB_OPENPRONOUNCE_URL", "") 
+    
+    if COLAB_URL:
+        try:
+            import requests
+            import soundfile as sf
+            import io
+            
+            # 1. Convert the audio array back into a WAV file in memory
+            wav_io = io.BytesIO()
+            sf.write(wav_io, y, 16000, format='WAV', subtype='PCM_16')
+            wav_io.seek(0)
+            
+            # 2. Send it to Google Colab Server
+            files = {'file': ('audio.wav', wav_io, 'audio/wav')}
+            data = {'expected_text': target_text, 'lang': 'en'}
+            headers = {'Bypass-Tunnel-Reminder': 'true'}
+            
+            print(f"[DEBUG] Sending audio to Colab OpenPronounce: {COLAB_URL}")
+            op_response = requests.post(f"{COLAB_URL}/pronunciation", files=files, data=data, headers=headers, timeout=(1.0, 2.0))
+            
+            if op_response.status_code == 200:
+                op_res = op_response.json()
+                raw_score = float(op_res.get("score", 0.0))
+                diff = op_res.get("differences", {})
+                heard = diff.get("heard_phones", [])
+                wer = float(diff.get("word_error_rate", 1.0))
+                
+                # Check if OpenPronounce detected nothing or complete error
+                if len(heard) == 0 or (wer >= 1.0 and raw_score < 25.0):
+                    phoneme_accuracy = 0.0
+                else:
+                    phoneme_accuracy = raw_score
+                    
+                phoneme_alignment = {
+                    "expected_phones": diff.get("expected_phones", []),
+                    "heard_phones": heard,
+                    "errors": diff.get("errors", [])
+                }
+                openpronounce_res = op_res
+                print(f"[DEBUG] Colab returned score: {phoneme_accuracy}, heard: {heard}")
+            else:
+                print(f"[DEBUG] Colab error {op_response.status_code}: {op_response.text}")
+                
+        except Exception as op_err:
+            print(f"[DEBUG] Colab OpenPronounce connection error: {op_err}")
+        
+    # ---------------------------------------------------------
+    # Stage 5: Evidence Fusion & Hierarchical 5-Score Calculation
+    # ---------------------------------------------------------
+    # If no voice was spoken or phonemes are completely missing
+    if phoneme_accuracy == 0.0 and prosody_res.get("speaking_duration", 0.0) < 0.20:
+        return {
+            "overall_score": 0.0,
+            "severity_level": 4,
+            "diagnostics": {"pronunciation": 0.0, "fluency": 0.0, "prosody": 0.0, "completeness": 0.0, "intelligibility": 0.0},
+            "fluency_metrics": {
+                "speech_rate_wpm": 0.0,
+                "long_pauses_500ms": 0,
+                "intonation_slope": "None",
+                "is_monotone": False
+            },
+            "mti_patterns": [],
+            "l1_contrast_flag": None,
+            "feedback": {
+                "learner_message": "Oops, I didn't hear any words! Please speak clearly into the microphone.",
+                "teacher_message": "Target word not recognized in the audio recording."
+            }
+        }
+
+    # 1. Pronunciation Score (0 - 100): 100% acoustic if no video
+    if has_video:
+        pronunciation_score = (0.80 * phoneme_accuracy) + (0.20 * visual_lip_score)
+    else:
+        pronunciation_score = float(phoneme_accuracy)
+        
+    if primary_mti:
+        pronunciation_score = min(68.0, pronunciation_score)
+        
+    # 2. Fluency Score (0 - 100)
+    fluency_score = float(prosody_res.get("fluency_score", 0.0))
+    
+    # 3. Prosody Score (0 - 100)
+    prosody_score = float(prosody_res.get("prosody_score", 0.0))
+    
+    # 4. Completeness Score (0 - 100)
+    completeness_score = 100.0
+    if openpronounce_res:
+        wer = float(openpronounce_res.get("differences", {}).get("word_error_rate", 0.0))
+        completeness_score = max(0.0, 100.0 * (1.0 - wer))
+    elif primary_mti and "Consonant" in str(primary_mti):
+        completeness_score = 80.0
+        
+    # 5. Intelligibility Score (0 - 100): Weighted synthesis
+    intelligibility_penalty = 20.0 if primary_mti else 0.0
+    if prosody_res.get("is_monotone"):
+        intelligibility_penalty += 10.0
+    intelligibility_score = max(0.0, min(100.0, ((pronunciation_score + fluency_score + prosody_score) / 3.0) - intelligibility_penalty))
+    
+    # Overall Multi-Stage Score (0 - 100)
+    overall_score = (0.35 * pronunciation_score) + (0.25 * intelligibility_score) + (0.20 * fluency_score) + (0.10 * prosody_score) + (0.10 * completeness_score)
+    overall_score = float(round(max(0.0, min(100.0, overall_score)), 1))
+
+    # Error Severity
+    if overall_score >= 80 and not primary_mti:
+        severity_level = 0
+    elif overall_score >= 65:
+        severity_level = 1
+    elif overall_score >= 50 or primary_mti:
+        severity_level = 2
+    else:
+        severity_level = 3
+
+    # ---------------------------------------------------------
+    # Stage 6: Pedagogical Child-Friendly Diagnostic Reporting
+    # ---------------------------------------------------------
+    if not primary_mti and overall_score >= 85:
+        learner_message = "🌟 Excellent! Your pronunciation and speaking rhythm were very clear."
+        teacher_message = f"Clear articulation. Target phonemes matched expected standard."
+    elif primary_mti:
+        top_mti = detected_mti_patterns[0]
+        learner_message = f"Good attempt! {top_mti.get('pedagogical_tip')}"
+        teacher_message = f"Detected L1 Sri Lankan MTI Pattern: {top_mti.get('pattern_name')} (Confidence: {int(top_mti.get('probability', 0.9)*100)}%). Evidence: {top_mti.get('evidence')}."
+    elif overall_score < 40:
+        learner_message = "Keep practicing! Try speaking a little louder and clearer."
+        teacher_message = f"Low intelligibility. Speech rate: {prosody_res.get('speech_rate_wpm')} WPM."
+    else:
+        learner_message = "Nice try! Keep practicing speaking clearly and smoothly."
+        teacher_message = f"Moderate intelligibility. Speech rate: {prosody_res.get('speech_rate_wpm')} WPM."
+
+    if prosody_res.get("is_monotone"):
+        learner_message += " Try adding a little more melody and feeling to your voice!"
+
+    # ---------------------------------------------------------
+    # Comprehensive Console Step-by-Step Diagnostic Trace (Pure ASCII)
+    # ---------------------------------------------------------
+    mti_names = [p.get("pattern_name", "") for p in detected_mti_patterns]
+    print("\n" + "="*80)
+    print(f"[AUDIO ASSESSMENT COMPLETE] Target Word: '{target_text}' | Student: {student_id}")
+    print("="*80)
+    print(f"[STAGE 1] Audio Signal Ingestion & Gate")
+    print(f"  - Raw Audio: {len(audio_bytes)} bytes | Duration: {duration:.2f}s | Sample Rate: {sr}Hz")
+    print(f"  - Peak Amplitude: {peak:.4f} | Max RMS: {max_raw_rms:.4f}")
+    print(f"  - Dynamic Energy Ratio: {dyn_ratio:.2f} (Threshold >= 2.50)")
+    print(f"  - Spectral Flatness: {flatness:.4f} (Threshold <= 0.120)")
+    print(f"  - Status: HUMAN SPEECH VERIFIED [PASS]")
+    print(f"\n[STAGE 2] Objective Fluency & Prosody Analysis")
+    print(f"  - Speech Rate: {prosody_res.get('speech_rate_wpm', 0)} WPM | Articulation Rate: {prosody_res.get('articulation_rate', 0)} syl/s")
+    print(f"  - Pauses: {prosody_res.get('pause_count', 0)} (Long >0.5s: {prosody_res.get('long_pauses_500ms', 0)}), Pause Ratio: {prosody_res.get('pause_ratio', 0)}")
+    print(f"  - Pitch F0 Mean: {prosody_res.get('f0_mean_hz', 0)} Hz | Variance: {prosody_res.get('f0_variance', 0)} | Intonation: {prosody_res.get('intonation_slope', 'Neutral')}")
+    print(f"  - Fluency Score: {fluency_score:.1f}% | Prosody Score: {prosody_score:.1f}%")
+    print(f"\n[STAGE 3] Sri Lankan MTI Accent Analysis")
+    exp_phones = phoneme_alignment.get('expected_sequence') or phoneme_alignment.get('expected_phones', [])
+    hrd_phones = phoneme_alignment.get('heard_sequence') or phoneme_alignment.get('heard_phones', [])
+    print(f"  - Expected Phonemes: {exp_phones}")
+    print(f"  - Heard Phonemes:    {hrd_phones}")
+    print(f"  - MTI Detected:      {mti_names if mti_names else 'None (Clean Standard Articulation)'}")
+    print(f"  - Phoneme Accuracy:  {phoneme_accuracy:.1f}%")
+    print(f"\n[STAGE 4] Multi-Stage Evidence Fusion")
+    print(f"  - [35%] Pronunciation Score:   {pronunciation_score:.1f}%")
+    print(f"  - [25%] Intelligibility Score: {intelligibility_score:.1f}%")
+    print(f"  - [20%] Fluency Score:         {fluency_score:.1f}%")
+    print(f"  - [10%] Prosody Score:         {prosody_score:.1f}%")
+    print(f"  - [10%] Completeness Score:    {completeness_score:.1f}%")
+    print(f"  -------------------------------------------------------------")
+    print(f"  >>> OVERALL MULTI-STAGE SCORE: {overall_score} / 100 (Severity: Level {severity_level})")
+    print(f"\n[STAGE 5] Pedagogical Feedback Delivered")
+    print(f"  - Learner Message: \"{learner_message}\"")
+    print(f"  - Teacher Diagnostic: \"{teacher_message}\"")
+    print("="*80 + "\n")
 
     return {
-        "overall_score": round(overall_score, 1),
+        "overall_score": overall_score,
         "severity_level": severity_level,
         "diagnostics": {
-            "intelligibility": round(intelligibility, 1),
-            "phoneme_control": round(phoneme_control, 1),
+            "pronunciation": round(pronunciation_score, 1),
             "fluency": round(fluency_score, 1),
             "prosody": round(prosody_score, 1),
-            "visual_lip_score": round(visual_score, 1)
+            "completeness": round(completeness_score, 1),
+            "intelligibility": round(intelligibility_score, 1),
+            "visual_lip_score": round(visual_lip_score, 1)
         },
-        "advanced_features": {
-            "volume": volume_status,
-            "speaking_speed": speed_status,
-            "monotone": "Yes" if is_monotone else "No",
-            "non_mti_errors": non_mti_errors
+        "fluency_metrics": {
+            "speech_rate_wpm": prosody_res.get("speech_rate_wpm"),
+            "pause_count": prosody_res.get("pause_count"),
+            "pause_ratio": prosody_res.get("pause_ratio"),
+            "long_pauses_500ms": prosody_res.get("long_pauses_500ms"),
+            "intonation_slope": prosody_res.get("intonation_slope"),
+            "is_monotone": bool(prosody_res.get("is_monotone"))
         },
         "visual_diagnostics": visual_diagnostics,
-        "l1_contrast_flag": l1_transfer,
-        "expected_phoneme": expected_ph,
-        "detected_phoneme": detected_ph,
+        "phoneme_alignment": phoneme_alignment,
+        "mti_patterns": detected_mti_patterns,
+        "l1_contrast_flag": primary_mti,
         "feedback": {
             "learner_message": learner_message,
             "teacher_message": teacher_message

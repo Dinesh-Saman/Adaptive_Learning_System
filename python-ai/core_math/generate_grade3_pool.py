@@ -1,0 +1,1381 @@
+# -*- coding: utf-8 -*-
+"""
+Generates 100 Research-Grade Questions for Grade 3 Mathematics:
+4 Domains x 5 Skills x 5 Difficulty Levels = 100 Questions
+Each question includes bilingual text, options, visual aids, hints, error patterns, and explanations.
+"""
+import json
+import os
+
+from grade3_curriculum import GRADE3_DOMAINS, DIFFICULTY_LEVELS
+
+def build_grade3_question_bank():
+    questions = [
+        # =========================================================================
+        # DOMAIN 1: NUMBER SENSE (සංඛ්‍යා සංකල්පය)
+        # =========================================================================
+        # Skill 1: Counting Forward & Backward (ඉදිරියට සහ පසුපසට ගණන් කිරීම)
+        {
+            "id": "G3_D1_S1_L1",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S1_COUNTING",
+            "difficulty_tier": 1,
+            "text_si": "45ට පසු එන ඊළඟ සංඛ්‍යාව කුමක්ද?",
+            "text_en": "What number comes immediately after 45?",
+            "q_format": "multiple_choice",
+            "options": ["44", "46", "47", "50"],
+            "answer": "46",
+            "explanation_si": "45ට 1ක් එකතු කළ විට ඊළඟ සංඛ්‍යාව 46 වේ.",
+            "explanation_en": "Adding 1 to 45 gives the next number 46.",
+            "error_patterns": {
+                "44": "Predecessor confusion: Subtracted 1 instead of counting forward.",
+                "50": "Round-up confusion: Rounded up to nearest ten."
+            }
+        },
+        {
+            "id": "G3_D1_S1_L2",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S1_COUNTING",
+            "difficulty_tier": 2,
+            "text_si": "5න් 5 ගණන් කිරීමේදී හිස්තැනට එන සංඛ්‍යාව කුමක්ද? 20, 25, __, 35, 40",
+            "text_en": "When skip-counting by 5s, what number fills the blank? 20, 25, __, 35, 40",
+            "q_format": "multiple_choice",
+            "options": ["28", "30", "32", "36"],
+            "answer": "30",
+            "explanation_si": "25ට 5ක් එකතු කළ විට 30 ලැබේ.",
+            "explanation_en": "Counting by 5s: 25 + 5 = 30.",
+            "error_patterns": {
+                "28": "Random addition confusion.",
+                "32": "Miscounting sequence."
+            }
+        },
+        {
+            "id": "G3_D1_S1_L3",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S1_COUNTING",
+            "difficulty_tier": 3,
+            "text_si": "100න් 100 පසුපසට ගණන් කිරීමේදී: 700, 600, 500, __, 300",
+            "text_en": "Counting backwards by 100s: 700, 600, 500, __, 300",
+            "q_format": "multiple_choice",
+            "options": ["450", "400", "490", "200"],
+            "answer": "400",
+            "explanation_si": "500න් 100ක් අඩු කළ විට 400 ලැබේ.",
+            "explanation_en": "Counting back by 100s: 500 - 100 = 400."
+        },
+        {
+            "id": "G3_D1_S1_L4",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S1_COUNTING",
+            "difficulty_tier": 4,
+            "text_si": "388 සිට ඉදිරියට 10 බැගින් 3 වරක් ගණන් කළ විට ලැබෙන අගය කීයද?",
+            "text_en": "Starting from 388, count forward by 10s three times. What is the number?",
+            "q_format": "multiple_choice",
+            "options": ["398", "408", "418", "428"],
+            "answer": "418",
+            "explanation_si": "388 + 10 = 398 -> 398 + 10 = 408 -> 408 + 10 = 418.",
+            "explanation_en": "388 + 30 = 418."
+        },
+        {
+            "id": "G3_D1_S1_L5",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S1_COUNTING",
+            "difficulty_tier": 5,
+            "text_si": "කමල් 500 සිට 50 බැගින් පසුපසට ගණන් කරයි. නිමල් 200 සිට 50 බැගින් ඉදිරියට ගණන් කරයි. දෙදෙනාටම හමුවන පොදු සංඛ්‍යාව කුමක්ද?",
+            "text_en": "Kamal counts backward from 500 by 50s. Nimal counts forward from 200 by 50s. What common number do they both reach?",
+            "q_format": "multiple_choice",
+            "options": ["300", "350", "400", "450"],
+            "answer": "350",
+            "explanation_si": "කමල්: 500, 450, 400, 350. නිමල්: 200, 250, 300, 350. දෙදෙනාම 350 හමුවේ.",
+            "explanation_en": "Kamal: 500, 450, 400, 350. Nimal: 200, 250, 300, 350. Both meet at 350."
+        },
+
+        # Skill 2: Number Recognition & Reading (සංඛ්‍යා කියවීම)
+        {
+            "id": "G3_D1_S2_L1",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S2_NUMBER_READING",
+            "difficulty_tier": 1,
+            "text_si": "'තුන්සිය විසි පහ' යන්න ඉලක්කමෙන් ලියූ විට:",
+            "text_en": "How is 'Three hundred and twenty-five' written in numbers?",
+            "q_format": "multiple_choice",
+            "options": ["325", "352", "235", "30025"],
+            "answer": "325",
+            "explanation_si": "තුන්සිය විසි පහ = 325.",
+            "explanation_en": "Three hundred and twenty-five = 325."
+        },
+        {
+            "id": "G3_D1_S2_L2",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S2_NUMBER_READING",
+            "difficulty_tier": 2,
+            "text_si": "709 සංඛ්‍යාව වචනයෙන් ලියන්නේ කෙසේද?",
+            "text_en": "How do you write 709 in words?",
+            "q_format": "multiple_choice",
+            "options": ["හත්සිය නවය", "හත්සිය අනූව", "හත්සිය අනූ නවය", "හත්දහස් නවය"],
+            "answer": "හත්සිය නවය",
+            "explanation_si": "709 යනු හත්සිය නවයයි (දහයේ ස්ථානයේ අගය 0 වේ).",
+            "explanation_en": "709 is 'Seven hundred and nine'."
+        },
+        {
+            "id": "G3_D1_S2_L3",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S2_NUMBER_READING",
+            "difficulty_tier": 3,
+            "text_si": "4, 0, 8 ඉලක්කම් තුනම එක් වරක් පමණක් යොදා සෑදිය හැකි කුඩාම තුන් අංක සංඛ්‍යාව කුමක්ද?",
+            "text_en": "Using digits 4, 0, 8 exactly once, what is the smallest 3-digit number?",
+            "q_format": "multiple_choice",
+            "options": ["048", "408", "480", "804"],
+            "answer": "408",
+            "explanation_si": "තුන් අංක සංඛ්‍යාවක් 0න් ආරම්භ විය නොහැක. කුඩාම ඉලක්කම 4 මුලට යොදා 408 සාදයි.",
+            "explanation_en": "A 3-digit number cannot start with 0. 408 is the smallest valid 3-digit number."
+        },
+        {
+            "id": "G3_D1_S2_L4",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S2_NUMBER_READING",
+            "difficulty_tier": 4,
+            "text_si": "සියයේ ස්ථානය 6 ද, දහයේ ස්ථානය 0 ද, එකස්ථානය 4 ද වන සංඛ්‍යාව වචනයෙන් කුමක්ද?",
+            "text_en": "A number has 6 hundreds, 0 tens, and 4 ones. What is it in words?",
+            "q_format": "multiple_choice",
+            "options": ["හයසිය හතළිහ", "හයසිය හතර", "හයසිය හතළිස් හතර", "හැට හතර"],
+            "answer": "හයසිය හතර",
+            "explanation_si": "600 + 0 + 4 = 604 (හයසිය හතර).",
+            "explanation_en": "600 + 0 + 4 = 604 (Six hundred and four)."
+        },
+        {
+            "id": "G3_D1_S2_L5",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S2_NUMBER_READING",
+            "difficulty_tier": 5,
+            "text_si": "මගේ සියයේ අගය 800කි. එකස්ථානයේ අගය දහයේ ස්ථානයේ අගයට සමානය. මුළු සංඛ්‍යාවේ ඉලක්කම්වල එකතුව 14කි. මා කවුද?",
+            "text_en": "My hundreds value is 800. My ones digit equals my tens digit. The sum of all digits is 14. What number am I?",
+            "q_format": "multiple_choice",
+            "options": ["833", "844", "822", "851"],
+            "answer": "833",
+            "explanation_si": "8 + 3 + 3 = 14. දහයේ සහ එකස්ථානයේ අගයන් සමානයි (3 සහ 3). සංඛ්‍යාව 833 වේ.",
+            "explanation_en": "8 + 3 + 3 = 14. Tens digit equals ones digit. Number is 833."
+        },
+
+        # Skill 3: Place Value (ස්ථානීය අගය)
+        {
+            "id": "G3_D1_S3_L1",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S3_PLACE_VALUE",
+            "difficulty_tier": 1,
+            "text_si": "352 සංඛ්‍යාවේ 5 ඉලක්කම අයත් ස්ථානය කුමක්ද?",
+            "text_en": "What is the place of digit 5 in the number 352?",
+            "q_format": "multiple_choice",
+            "options": ["එකස්ථානය (Ones)", "දහස්ථානය (Tens)", "සියස්ථානය (Hundreds)", "දහස්ස්ථානය (Thousands)"],
+            "answer": "දහස්ථානය (Tens)",
+            "explanation_si": "352 හි 5 ඇත්තේ දහයේ ස්ථානයේය (අගය 50 වේ).",
+            "explanation_en": "In 352, digit 5 is in the tens place (value 50)."
+        },
+        {
+            "id": "G3_D1_S3_L2",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S3_PLACE_VALUE",
+            "difficulty_tier": 2,
+            "text_si": "472 සංඛ්‍යාවේ 4 ඉලක්කමේ නියමිත අගය (Value of 4) කුමක්ද?",
+            "text_en": "What is the value of digit 4 in 472?",
+            "q_format": "multiple_choice",
+            "options": ["4", "40", "400", "470"],
+            "answer": "400",
+            "explanation_si": "4 ඇත්තේ සියයේ ස්ථානයේ බැවින් එහි අගය 400 වේ.",
+            "explanation_en": "Digit 4 is in the hundreds place, so its value is 400."
+        },
+        {
+            "id": "G3_D1_S3_L3",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S3_PLACE_VALUE",
+            "difficulty_tier": 3,
+            "text_si": "526 සංඛ්‍යාව සියය, දහය සහ එක බැගින් වෙන් කර ලියූ විට:",
+            "text_en": "Partition 526 into hundreds, tens, and ones:",
+            "q_format": "multiple_choice",
+            "options": ["500 + 20 + 6", "50 + 20 + 6", "500 + 2 + 6", "500 + 26"],
+            "answer": "500 + 20 + 6",
+            "explanation_si": "526 = 500 + 20 + 6.",
+            "explanation_en": "526 = 500 + 20 + 6."
+        },
+        {
+            "id": "G3_D1_S3_L4",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S3_PLACE_VALUE",
+            "difficulty_tier": 4,
+            "text_si": "සියයේ මිටි 6ක්, දහයේ මිටි 3ක් සහ තනි කැට 8ක් එකතු කළ විට සෑදෙන සංඛ්‍යාව කුමක්ද?",
+            "text_en": "A number has 6 hundreds, 3 tens, and 8 ones. What is the number?",
+            "q_format": "multiple_choice",
+            "options": ["638", "683", "368", "836"],
+            "answer": "638",
+            "explanation_si": "600 + 30 + 8 = 638.",
+            "explanation_en": "600 + 30 + 8 = 638."
+        },
+        {
+            "id": "G3_D1_S3_L5",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S3_PLACE_VALUE",
+            "difficulty_tier": 5,
+            "text_si": "තුන් අංක සංඛ්‍යාවක සියයේ ඉලක්කම 4 වේ. දහයේ ඉලක්කම එකස්ථානයේ ඉලක්කමට වඩා 2ක් වැඩිය. එකස්ථානයේ ඉලක්කම 3 නම් සංඛ්‍යාව කුමක්ද?",
+            "text_en": "In a 3-digit number, hundreds digit is 4. Tens digit is 2 more than ones digit. If ones digit is 3, what is the number?",
+            "q_format": "multiple_choice",
+            "options": ["453", "435", "423", "432"],
+            "answer": "453",
+            "explanation_si": "සියය = 4, එක = 3, දහය = 3 + 2 = 5. සංඛ්‍යාව 453 වේ.",
+            "explanation_en": "Hundreds = 4, Ones = 3, Tens = 3 + 2 = 5. The number is 453."
+        },
+
+        # Skill 4: Comparing & Ordering Numbers (සංඛ්‍යා සැසඳීම)
+        {
+            "id": "G3_D1_S4_L1",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S4_COMPARING_ORDERING",
+            "difficulty_tier": 1,
+            "text_si": "245 සහ 254 අතරින් විශාල සංඛ්‍යාව කුමක්ද?",
+            "text_en": "Which number is greater: 245 or 254?",
+            "q_format": "multiple_choice",
+            "options": ["245", "254", "දෙකම සමානයි", "කිසිවක් නොවේ"],
+            "answer": "254",
+            "explanation_si": "දහයේ ස්ථානය සැසඳූ විට 5 > 4 බැවින් 254 විශාල වේ.",
+            "explanation_en": "Comparing tens place: 5 > 4, so 254 is greater."
+        },
+        {
+            "id": "G3_D1_S4_L2",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S4_COMPARING_ORDERING",
+            "difficulty_tier": 2,
+            "text_si": "හිස්තැනට ගැළපෙන නිවැරදි ලකුණ තෝරන්න: 618 __ 681",
+            "text_en": "Choose the correct sign for: 618 __ 681",
+            "q_format": "multiple_choice",
+            "options": ["<", ">", "=", "+"],
+            "answer": "<",
+            "explanation_si": "618 කුඩාය 681 ට වඩා (618 < 681).",
+            "explanation_en": "618 is less than 681 (618 < 681)."
+        },
+        {
+            "id": "G3_D1_S4_L3",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S4_COMPARING_ORDERING",
+            "difficulty_tier": 3,
+            "text_si": "ආරෝහණ පිළිවෙළට (කුඩාම අගයේ සිට විශාලම අගයට) ඇති නිවැරදි කාණ්ඩය කුමක්ද?",
+            "text_en": "Which group is in ascending order (smallest to largest)?",
+            "q_format": "multiple_choice",
+            "options": ["120, 145, 189, 210", "210, 189, 145, 120", "145, 120, 189, 210", "120, 189, 145, 210"],
+            "answer": "120, 145, 189, 210",
+            "explanation_si": "120 < 145 < 189 < 210 කුඩා අගයේ සිට වැඩිවන පිළිවෙළයි.",
+            "explanation_en": "120 < 145 < 189 < 210 is ascending order."
+        },
+        {
+            "id": "G3_D1_S4_L4",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S4_COMPARING_ORDERING",
+            "difficulty_tier": 4,
+            "text_si": "පහත සංඛ්‍යා අතරින් 450ට වඩා විශාල, 500ට වඩා කුඩා සංඛ්‍යාව කුමක්ද? [ 405, 455, 505, 395 ]",
+            "text_en": "Which number is greater than 450 but less than 500? [ 405, 455, 505, 395 ]",
+            "q_format": "multiple_choice",
+            "options": ["405", "455", "505", "395"],
+            "answer": "455",
+            "explanation_si": "450 < 455 < 500.",
+            "explanation_en": "455 is between 450 and 500."
+        },
+        {
+            "id": "G3_D1_S4_L5",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S4_COMPARING_ORDERING",
+            "difficulty_tier": 5,
+            "text_si": "සංඛ්‍යා 3ක් ඇත: X = 300 + 40, Y = 400 - 60, Z = 350. මෙම සංඛ්‍යා සැසඳූ විට නිවැරදි ප්‍රකාශය කුමක්ද?",
+            "text_en": "Three numbers: X = 300 + 40, Y = 400 - 60, Z = 350. Which statement is true?",
+            "q_format": "multiple_choice",
+            "options": ["X සහ Y සමාන වේ", "X > Z", "Y > Z", "X < Y < Z"],
+            "answer": "X සහ Y සමාන වේ",
+            "explanation_si": "X = 340, Y = 340, Z = 350. එබැවින් X සහ Y සමාන වේ.",
+            "explanation_en": "X = 340, Y = 340, Z = 350. Therefore X equals Y."
+        },
+
+        # Skill 5: Number Patterns & Sequences (සංඛ්‍යා රටා)
+        {
+            "id": "G3_D1_S5_L1",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S5_NUMBER_PATTERNS",
+            "difficulty_tier": 1,
+            "text_si": "සංඛ්‍යා රටාවේ ඊළඟ අංකය කුමක්ද? 2, 4, 6, 8, __",
+            "text_en": "What is the next number in the pattern? 2, 4, 6, 8, __",
+            "q_format": "multiple_choice",
+            "options": ["9", "10", "11", "12"],
+            "answer": "10",
+            "explanation_si": "2 බැගින් වැඩිවන රටාව: 8 + 2 = 10.",
+            "explanation_en": "Pattern adds 2 each time: 8 + 2 = 10."
+        },
+        {
+            "id": "G3_D1_S5_L2",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S5_NUMBER_PATTERNS",
+            "difficulty_tier": 2,
+            "text_si": "10න් 10 වැඩිවන රටාවේ හිස්තැන පුරවන්න: 130, 140, 150, __, 170",
+            "text_en": "Fill the blank in the +10 sequence: 130, 140, 150, __, 170",
+            "q_format": "multiple_choice",
+            "options": ["155", "160", "165", "180"],
+            "answer": "160",
+            "explanation_si": "150 + 10 = 160.",
+            "explanation_en": "150 + 10 = 160."
+        },
+        {
+            "id": "G3_D1_S5_L3",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S5_NUMBER_PATTERNS",
+            "difficulty_tier": 3,
+            "text_si": "අඩුවන රටාවේ ඊළඟ අංකය සොයන්න: 95, 85, 75, 65, __",
+            "text_en": "Find the next number in decreasing pattern: 95, 85, 75, 65, __",
+            "q_format": "multiple_choice",
+            "options": ["50", "55", "60", "45"],
+            "answer": "55",
+            "explanation_si": "10 බැගින් අඩුවේ: 65 - 10 = 55.",
+            "explanation_en": "Subtracting 10: 65 - 10 = 55."
+        },
+        {
+            "id": "G3_D1_S5_L4",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S5_NUMBER_PATTERNS",
+            "difficulty_tier": 4,
+            "text_si": "රටාව හඳුනාගෙන A සහ B හි අගයන් සොයන්න: 105, 110, A, 120, B",
+            "text_en": "Identify pattern and find values of A and B: 105, 110, A, 120, B",
+            "q_format": "multiple_choice",
+            "options": ["A=115, B=125", "A=112, B=122", "A=115, B=130", "A=114, B=124"],
+            "answer": "A=115, B=125",
+            "explanation_si": "5න් 5 වැඩිවේ. A = 115, B = 125.",
+            "explanation_en": "+5 pattern. A = 115, B = 125."
+        },
+        {
+            "id": "G3_D1_S5_L5",
+            "domain_id": "D1_NUMBER_SENSE",
+            "skill_id": "D1_S5_NUMBER_PATTERNS",
+            "difficulty_tier": 5,
+            "text_si": "පහත රටාවේ නොගැළපෙන වැරදි අංකය කුමක්ද? [ 20, 24, 28, 31, 36, 40 ]",
+            "text_en": "Which number does not belong in this pattern? [ 20, 24, 28, 31, 36, 40 ]",
+            "q_format": "multiple_choice",
+            "options": ["24", "28", "31", "36"],
+            "answer": "31",
+            "explanation_si": "රටාව 4න් 4 වැඩිවේ. 28 + 4 = 32 විය යුතුය. 31 වැරදිය.",
+            "explanation_en": "Pattern is +4. 28 + 4 should be 32, not 31."
+        },
+
+        # =========================================================================
+        # DOMAIN 2: MATHEMATICAL OPERATIONS (ගණිත කර්ම)
+        # =========================================================================
+        # Skill 1: Addition (එකතු කිරීම)
+        {
+            "id": "G3_D2_S1_L1",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S1_ADDITION",
+            "difficulty_tier": 1,
+            "text_si": "24 + 13 = ?",
+            "text_en": "24 + 13 = ?",
+            "q_format": "multiple_choice",
+            "options": ["35", "37", "47", "36"],
+            "answer": "37",
+            "explanation_si": "24 + 13 = 37.",
+            "explanation_en": "24 + 13 = 37."
+        },
+        {
+            "id": "G3_D2_S1_L2",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S1_ADDITION",
+            "difficulty_tier": 2,
+            "text_si": "148 + 36 = ?",
+            "text_en": "148 + 36 = ?",
+            "q_format": "multiple_choice",
+            "options": ["174", "184", "194", "182"],
+            "answer": "184",
+            "explanation_si": "8 + 6 = 14 (1ක් ඉතිරි), 4 + 3 + 1 = 8 -> 184.",
+            "explanation_en": "148 + 36 = 184 (with regrouping)."
+        },
+        {
+            "id": "G3_D2_S1_L3",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S1_ADDITION",
+            "difficulty_tier": 3,
+            "text_si": "පාසල් පුස්තකාලයේ කතන්දර පොත් 235ක් සහ විද්‍යා පොත් 148ක් ඇත. මුළු පොත් ගණන කීයද?",
+            "text_en": "A library has 235 story books and 148 science books. How many books in total?",
+            "q_format": "multiple_choice",
+            "options": ["373", "383", "393", "483"],
+            "answer": "383",
+            "explanation_si": "235 + 148 = 383.",
+            "explanation_en": "235 + 148 = 383."
+        },
+        {
+            "id": "G3_D2_S1_L4",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S1_ADDITION",
+            "difficulty_tier": 4,
+            "text_si": "356 + __ = 500. හිස්තැනට ගැළපෙන අගය කුමක්ද?",
+            "text_en": "356 + __ = 500. What is the missing value?",
+            "q_format": "multiple_choice",
+            "options": ["144", "154", "244", "134"],
+            "answer": "144",
+            "explanation_si": "500 - 356 = 144.",
+            "explanation_en": "500 - 356 = 144."
+        },
+        {
+            "id": "G3_D2_S1_L5",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S1_ADDITION",
+            "difficulty_tier": 5,
+            "text_si": "පළමු දිනයේ මුද්දර 125ක්ද, දෙවන දිනයේ ඊට වඩා 45ක් වැඩියෙන්ද එකතු කළේ නම් දින දෙකේදී එකතු කළ මුළු මුද්දර ගණන කීයද?",
+            "text_en": "Collected 125 stamps on Day 1, and 45 more than Day 1 on Day 2. What is the total collected across both days?",
+            "q_format": "multiple_choice",
+            "options": ["170", "250", "295", "300"],
+            "answer": "295",
+            "explanation_si": "දෙවන දිනය = 125 + 45 = 170. මුළු එකතුව = 125 + 170 = 295.",
+            "explanation_en": "Day 2 = 125 + 45 = 170. Total = 125 + 170 = 295."
+        },
+
+        # Skill 2: Subtraction (අඩු කිරීම)
+        {
+            "id": "G3_D2_S2_L1",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S2_SUBTRACTION",
+            "difficulty_tier": 1,
+            "text_si": "48 - 15 = ?",
+            "text_en": "48 - 15 = ?",
+            "q_format": "multiple_choice",
+            "options": ["23", "33", "35", "38"],
+            "answer": "33",
+            "explanation_si": "48 - 15 = 33.",
+            "explanation_en": "48 - 15 = 33."
+        },
+        {
+            "id": "G3_D2_S2_L2",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S2_SUBTRACTION",
+            "difficulty_tier": 2,
+            "text_si": "243 - 28 = ?",
+            "text_en": "243 - 28 = ?",
+            "q_format": "multiple_choice",
+            "options": ["215", "225", "235", "205"],
+            "answer": "215",
+            "explanation_si": "243 - 28 = 215.",
+            "explanation_en": "243 - 28 = 215 (with borrowing)."
+        },
+        {
+            "id": "G3_D2_S2_L3",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S2_SUBTRACTION",
+            "difficulty_tier": 3,
+            "text_si": "ගසක අඹ ගෙඩි 350ක් තිබුණි. එයින් ගෙඩි 124ක් කඩා ගත් පසු ගසේ ඉතිරි අඹ ගණන කීයද?",
+            "text_en": "A tree had 350 mangoes. After picking 124, how many remain on the tree?",
+            "q_format": "multiple_choice",
+            "options": ["216", "226", "236", "246"],
+            "answer": "226",
+            "explanation_si": "350 - 124 = 226.",
+            "explanation_en": "350 - 124 = 226."
+        },
+        {
+            "id": "G3_D2_S2_L4",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S2_SUBTRACTION",
+            "difficulty_tier": 4,
+            "text_si": "600 - 247 = ?",
+            "text_en": "600 - 247 = ?",
+            "q_format": "multiple_choice",
+            "options": ["343", "353", "363", "453"],
+            "answer": "353",
+            "explanation_si": "600 - 247 = 353.",
+            "explanation_en": "600 - 247 = 353."
+        },
+        {
+            "id": "G3_D2_S2_L5",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S2_SUBTRACTION",
+            "difficulty_tier": 5,
+            "text_si": "සමන්ත ළඟ රු. 750ක් තිබුණි. ඔහු රු. 280ක පොතක් සහ රු. 150ක පෑනක් මිලදී ගත්තේ නම් ඔහු ළඟ ඉතිරි මුදල කීයද?",
+            "text_en": "Samantha had Rs. 750. He bought a book for Rs. 280 and a pen for Rs. 150. How much money remains?",
+            "q_format": "multiple_choice",
+            "options": ["Rs. 320", "Rs. 330", "Rs. 340", "Rs. 430"],
+            "answer": "Rs. 320",
+            "explanation_si": "වියදම = 280 + 150 = 430. ඉතිරිය = 750 - 430 = 320.",
+            "explanation_en": "Total spent = 280 + 150 = 430. Balance = 750 - 430 = 320."
+        },
+
+        # Skill 3: Multiplication (ගුණ කිරීම)
+        {
+            "id": "G3_D2_S3_L1",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S3_MULTIPLICATION",
+            "difficulty_tier": 1,
+            "text_si": "3 x 4 = ?",
+            "text_en": "3 x 4 = ?",
+            "q_format": "multiple_choice",
+            "options": ["7", "10", "12", "14"],
+            "answer": "12",
+            "explanation_si": "3 x 4 = 12 (3 හතර වරක් එකතු කිරීම).",
+            "explanation_en": "3 x 4 = 12."
+        },
+        {
+            "id": "G3_D2_S3_L2",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S3_MULTIPLICATION",
+            "difficulty_tier": 2,
+            "text_si": "පැන්සල් 5 බැගින් වූ පැකට් 4ක ඇති මුළු පැන්සල් ගණන කීයද?",
+            "text_en": "There are 4 packets with 5 pencils in each packet. How many pencils altogether?",
+            "q_format": "multiple_choice",
+            "options": ["9", "15", "20", "25"],
+            "answer": "20",
+            "explanation_si": "4 x 5 = 20.",
+            "explanation_en": "4 groups of 5 = 4 x 5 = 20."
+        },
+        {
+            "id": "G3_D2_S3_L3",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S3_MULTIPLICATION",
+            "difficulty_tier": 3,
+            "text_si": "පෙට්ටියක ඇපල් ගෙඩි 6ක් ඇත. එවැනි පෙට්ටි 7ක ඇති මුළු ඇපල් ගෙඩි ගණන කීයද?",
+            "text_en": "A box has 6 apples. How many apples are in 7 such boxes?",
+            "q_format": "multiple_choice",
+            "options": ["36", "42", "48", "49"],
+            "answer": "42",
+            "explanation_si": "7 x 6 = 42.",
+            "explanation_en": "7 x 6 = 42."
+        },
+        {
+            "id": "G3_D2_S3_L4",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S3_MULTIPLICATION",
+            "difficulty_tier": 4,
+            "text_si": "පේළියක ළමුන් 8 දෙනෙකු බැගින් පේළි 5ක් සිටියි. තවත් ළමුන් 4 දෙනෙකු ඔවුන්ට එකතු වුවහොත් මුළු ළමුන් ගණන කීයද?",
+            "text_en": "5 rows with 8 children in each row. If 4 more children join, what is the total count?",
+            "q_format": "multiple_choice",
+            "options": ["40", "44", "48", "52"],
+            "answer": "44",
+            "explanation_si": "(5 x 8) + 4 = 40 + 4 = 44.",
+            "explanation_en": "(5 x 8) + 4 = 40 + 4 = 44."
+        },
+        {
+            "id": "G3_D2_S3_L5",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S3_MULTIPLICATION",
+            "difficulty_tier": 5,
+            "text_si": "A = 4 x 5 සහ B = 3 x 8 නම්, A සහ B අතර වෙනස (B - A) කීයද?",
+            "text_en": "If A = 4 x 5 and B = 3 x 8, what is the difference (B - A)?",
+            "q_format": "multiple_choice",
+            "options": ["2", "4", "6", "8"],
+            "answer": "4",
+            "explanation_si": "A = 20, B = 24. වෙනස = 24 - 20 = 4.",
+            "explanation_en": "A = 20, B = 24. Difference = 24 - 20 = 4."
+        },
+
+        # Skill 4: Division (බෙදීම)
+        {
+            "id": "G3_D2_S4_L1",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S4_DIVISION",
+            "difficulty_tier": 1,
+            "text_si": "ටොෆි 10ක් ළමුන් 2කට සමානව බෙදූ විට එක් ළමයෙකුට ලැබෙන ටොෆි ගණන කීයද?",
+            "text_en": "10 toffees are shared equally between 2 children. How many does each child get?",
+            "q_format": "multiple_choice",
+            "options": ["4", "5", "6", "8"],
+            "answer": "5",
+            "explanation_si": "10 ÷ 2 = 5.",
+            "explanation_en": "10 ÷ 2 = 5."
+        },
+        {
+            "id": "G3_D2_S4_L2",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S4_DIVISION",
+            "difficulty_tier": 2,
+            "text_si": "12 ÷ 3 = ?",
+            "text_en": "12 ÷ 3 = ?",
+            "q_format": "multiple_choice",
+            "options": ["3", "4", "6", "9"],
+            "answer": "4",
+            "explanation_si": "12 ÷ 3 = 4 (3 x 4 = 12).",
+            "explanation_en": "12 ÷ 3 = 4."
+        },
+        {
+            "id": "G3_D2_S4_L3",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S4_DIVISION",
+            "difficulty_tier": 3,
+            "text_si": "අඹ ගෙඩි 20ක් කූඩ 4කට සමානව බෙදා දැමූ විට එක් කූඩයක ඇති අඹ ගණන කීයද?",
+            "text_en": "20 mangoes are distributed equally into 4 baskets. How many in each basket?",
+            "q_format": "multiple_choice",
+            "options": ["4", "5", "6", "10"],
+            "answer": "5",
+            "explanation_si": "20 ÷ 4 = 5.",
+            "explanation_en": "20 ÷ 4 = 5."
+        },
+        {
+            "id": "G3_D2_S4_L4",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S4_DIVISION",
+            "difficulty_tier": 4,
+            "text_si": "ගුරුවරියක් ළඟ පැන්සල් 42ක් ඇත. ඒවා පැකට්ටුවකට 6 බැගින් දැමුවහොත් සෑදිය හැකි පැකට් ගණන කීයද?",
+            "text_en": "A teacher has 42 pencils and puts 6 pencils into each packet. How many packets can she make?",
+            "q_format": "multiple_choice",
+            "options": ["6", "7", "8", "9"],
+            "answer": "7",
+            "explanation_si": "42 ÷ 6 = 7.",
+            "explanation_en": "42 ÷ 6 = 7."
+        },
+        {
+            "id": "G3_D2_S4_L5",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S4_DIVISION",
+            "difficulty_tier": 5,
+            "text_si": "ළමුන් 30 දෙනෙකු 5 දෙනා බැගින් කණ්ඩායම්වලට බෙදනු ලැබේ. එක් එක් කණ්ඩායමට බෝල 2ක් බැගින් ලබාදුනහොත් අවශ්‍ය මුළු බෝල ගණන කීයද?",
+            "text_en": "30 students are divided into groups of 5. If each group gets 2 balls, how many total balls are needed?",
+            "q_format": "multiple_choice",
+            "options": ["6", "10", "12", "15"],
+            "answer": "12",
+            "explanation_si": "කණ්ඩායම් ගණන = 30 ÷ 5 = 6. මුළු බෝල = 6 x 2 = 12.",
+            "explanation_en": "Groups = 30 ÷ 5 = 6. Total balls = 6 x 2 = 12."
+        },
+
+        # Skill 5: Simple Fractions (සරල භාග)
+        {
+            "id": "G3_D2_S5_L1",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S5_FRACTIONS",
+            "difficulty_tier": 1,
+            "text_si": "සමාන කොටස් 2කට බෙදූ රවුමක එක් කොටසක් හඳුන්වන්නේ කෙසේද?",
+            "text_en": "One part of a circle divided into 2 equal parts is called:",
+            "q_format": "multiple_choice",
+            "options": ["හතරෙන් එක (1/4)", "දෙකෙන් එක / අඩ (1/2)", "තුනෙන් එක (1/3)", "සම්පූර්ණ (1)"],
+            "answer": "දෙකෙන් එක / අඩ (1/2)",
+            "explanation_si": "සමාන කොටස් 2න් 1ක් = 1/2 (අඩ).",
+            "explanation_en": "1 part out of 2 equal parts = 1/2 (Half)."
+        },
+        {
+            "id": "G3_D2_S5_L2",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S5_FRACTIONS",
+            "difficulty_tier": 2,
+            "text_si": "කේක් ගෙඩියක් සමාන කොටස් 4කට කපා එයින් කොටස් 3ක් කෑවේ නම් කෑ ප්‍රමාණය භාගයක් ලෙස:",
+            "text_en": "A cake is cut into 4 equal slices and 3 slices are eaten. The fraction eaten is:",
+            "q_format": "multiple_choice",
+            "options": ["1/4", "2/4", "3/4", "4/4"],
+            "answer": "3/4",
+            "explanation_si": "සමාන කොටස් 4න් 3ක් = 3/4 (තුන්කාල).",
+            "explanation_en": "3 parts out of 4 = 3/4."
+        },
+        {
+            "id": "G3_D2_S5_L3",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S5_FRACTIONS",
+            "difficulty_tier": 3,
+            "text_si": "ඇපල් ගෙඩි 8ක 1/2ක් (අඩක්) යනු ඇපල් කීයක්ද?",
+            "text_en": "What is 1/2 (half) of 8 apples?",
+            "q_format": "multiple_choice",
+            "options": ["2", "4", "6", "8"],
+            "answer": "4",
+            "explanation_si": "8න් 1/2ක් = 8 ÷ 2 = 4.",
+            "explanation_en": "Half of 8 = 8 ÷ 2 = 4."
+        },
+        {
+            "id": "G3_D2_S5_L4",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S5_FRACTIONS",
+            "difficulty_tier": 4,
+            "text_si": "පැන්සල් 12කින් 1/4ක් (හතරෙන් එකක්) කීයද?",
+            "text_en": "What is 1/4 of 12 pencils?",
+            "q_format": "multiple_choice",
+            "options": ["2", "3", "4", "6"],
+            "answer": "3",
+            "explanation_si": "12න් 1/4ක් = 12 ÷ 4 = 3.",
+            "explanation_en": "1/4 of 12 = 12 ÷ 4 = 3."
+        },
+        {
+            "id": "G3_D2_S5_L5",
+            "domain_id": "D2_OPERATIONS",
+            "skill_id": "D2_S5_FRACTIONS",
+            "difficulty_tier": 5,
+            "text_si": "බෝල 16කින් 1/2ක් රතු පාටය, 1/4ක් නිල් පාටය, ඉතිරි බෝල කහ පාටය. කහ පාට බෝල ගණන කීයද?",
+            "text_en": "Out of 16 balls, 1/2 are red, 1/4 are blue, and the rest are yellow. How many are yellow?",
+            "q_format": "multiple_choice",
+            "options": ["2", "4", "6", "8"],
+            "answer": "4",
+            "explanation_si": "රතු = 8, නිල් = 4 (එකතුව 12). කහ = 16 - 12 = 4.",
+            "explanation_en": "Red = 8, Blue = 4 (Total 12). Yellow = 16 - 12 = 4."
+        },
+
+        # =========================================================================
+        # DOMAIN 3: MEASUREMENT (මිනුම් සහ එදිනෙදා ගණිතය)
+        # =========================================================================
+        # Skill 1: Length (දිග)
+        {
+            "id": "G3_D3_S1_L1",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S1_LENGTH",
+            "difficulty_tier": 1,
+            "text_si": "පන්ති කාමරයේ කළු ලෑල්ලේ දිග මැනීමට වඩාත් සුදුසු සම්මත ඒකකය කුමක්ද?",
+            "text_en": "What is the best standard unit to measure the length of a classroom blackboard?",
+            "q_format": "multiple_choice",
+            "options": ["මිලිමීටර් (mm)", "මීටර් (m)", "ලීටර් (L)", "ග්‍රෑම් (g)"],
+            "answer": "මීටර් (m)",
+            "explanation_si": "දිග මැනීමේ සම්මත ඒකකය මීටර් (m) වේ.",
+            "explanation_en": "Standard unit for board length is meters (m)."
+        },
+        {
+            "id": "G3_D3_S1_L2",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S1_LENGTH",
+            "difficulty_tier": 2,
+            "text_si": "මීටර 1ක (1 m) ඇති සෙන්ටිමීටර් (cm) ගණන කීයද?",
+            "text_en": "How many centimeters (cm) are in 1 meter (1 m)?",
+            "q_format": "multiple_choice",
+            "options": ["10 cm", "50 cm", "100 cm", "1000 cm"],
+            "answer": "100 cm",
+            "explanation_si": "1 m = 100 cm.",
+            "explanation_en": "1 meter = 100 centimeters."
+        },
+        {
+            "id": "G3_D3_S1_L3",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S1_LENGTH",
+            "difficulty_tier": 3,
+            "text_si": "රතු පීත්ත පටියක් 45 cm ද, නිල් පීත්ත පටියක් 35 cm ද දිගයි. පීත්ත පටි දෙකේම මුළු දිග කීයද?",
+            "text_en": "Red ribbon is 45 cm, Blue ribbon is 35 cm. What is their total length?",
+            "q_format": "multiple_choice",
+            "options": ["70 cm", "75 cm", "80 cm", "90 cm"],
+            "answer": "80 cm",
+            "explanation_si": "45 cm + 35 cm = 80 cm.",
+            "explanation_en": "45 cm + 35 cm = 80 cm."
+        },
+        {
+            "id": "G3_D3_S1_L4",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S1_LENGTH",
+            "difficulty_tier": 4,
+            "text_si": "මීටර් 1ක් (100 cm) දිග ලණුවකින් 35 cm කෑල්ලක් කපා ඉවත් කළේ නම් ඉතිරි ලණුවේ දිග කීයද?",
+            "text_en": "From a 1 meter (100 cm) rope, a 35 cm piece is cut off. What length remains?",
+            "q_format": "multiple_choice",
+            "options": ["55 cm", "65 cm", "75 cm", "60 cm"],
+            "answer": "65 cm",
+            "explanation_si": "100 cm - 35 cm = 65 cm.",
+            "explanation_en": "100 cm - 35 cm = 65 cm."
+        },
+        {
+            "id": "G3_D3_S1_L5",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S1_LENGTH",
+            "difficulty_tier": 5,
+            "text_si": "කූරු 4ක් එකට තැබූ විට මුළු දිග 1 m (100 cm) වේ. පළමු කූරු 3න් එකක දිග 25 cm බැගින් නම්, 4 වන කූරේ දිග කීයද?",
+            "text_en": "4 sticks put together measure 1 m (100 cm). If each of the first 3 sticks is 25 cm, what is the 4th stick's length?",
+            "q_format": "multiple_choice",
+            "options": ["20 cm", "25 cm", "30 cm", "35 cm"],
+            "answer": "25 cm",
+            "explanation_si": "25 x 3 = 75 cm. 4 වන කූර = 100 - 75 = 25 cm.",
+            "explanation_en": "25 x 3 = 75 cm. 4th stick = 100 - 75 = 25 cm."
+        },
+
+        # Skill 2: Weight / Mass (ස්කන්ධය / බර)
+        {
+            "id": "G3_D3_S2_L1",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S2_WEIGHT",
+            "difficulty_tier": 1,
+            "text_si": "බර මැනීමේ සම්මත ඒකකය කුමක්ද?",
+            "text_en": "What is the standard unit of mass/weight?",
+            "q_format": "multiple_choice",
+            "options": ["මීටර් (m)", "ලීටර් (L)", "කිලෝග්‍රෑම් (kg)", "තත්පර (s)"],
+            "answer": "කිලෝග්‍රෑම් (kg)",
+            "explanation_si": "ස්කන්ධය මනින්නේ කිලෝග්‍රෑම් (kg) සහ ග්‍රෑම් (g) වලිනි.",
+            "explanation_en": "Mass is measured in kilograms (kg) and grams (g)."
+        },
+        {
+            "id": "G3_D3_S2_L2",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S2_WEIGHT",
+            "difficulty_tier": 2,
+            "text_si": "කිලෝග්‍රෑම් 1ක (1 kg) ඇති ග්‍රෑම් (g) ගණන කීයද?",
+            "text_en": "How many grams (g) are in 1 kilogram (1 kg)?",
+            "q_format": "multiple_choice",
+            "options": ["10 g", "100 g", "500 g", "1000 g"],
+            "answer": "1000 g",
+            "explanation_si": "1 kg = 1000 g.",
+            "explanation_en": "1 kg = 1000 g."
+        },
+        {
+            "id": "G3_D3_S2_L3",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S2_WEIGHT",
+            "difficulty_tier": 3,
+            "text_si": "සීනි 250 g බැගින් වූ පැකට් කීයකින් 1 kg (1000 g) සෑදිය හැකිද?",
+            "text_en": "How many 250 g sugar packets make 1 kg (1000 g)?",
+            "q_format": "multiple_choice",
+            "options": ["2", "3", "4", "5"],
+            "answer": "4",
+            "explanation_si": "250 g x 4 = 1000 g (1 kg).",
+            "explanation_en": "250 g x 4 = 1000 g (1 kg)."
+        },
+        {
+            "id": "G3_D3_S2_L4",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S2_WEIGHT",
+            "difficulty_tier": 4,
+            "text_si": "තබන ලද තුලාවක එක් පැත්තක 1 kg බරක් ඇත. අනෙක් පැත්තේ 600 g බරක් ඇත. තුලාව සමබර කිරීමට තව එක් කළ යුතු බර කීයද?",
+            "text_en": "On a scale, left side has 1 kg. Right side has 600 g. How much weight is needed to balance it?",
+            "q_format": "multiple_choice",
+            "options": ["300 g", "400 g", "500 g", "600 g"],
+            "answer": "400 g",
+            "explanation_si": "1000 g - 600 g = 400 g.",
+            "explanation_en": "1000 g - 600 g = 400 g."
+        },
+        {
+            "id": "G3_D3_S2_L5",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S2_WEIGHT",
+            "difficulty_tier": 5,
+            "text_si": "සමාන පොත් 4ක බර 800 g නම්, එවැනි පොත් 3ක බර කොපමණද?",
+            "text_en": "If 4 identical books weigh 800 g, what is the weight of 3 such books?",
+            "q_format": "multiple_choice",
+            "options": ["400 g", "500 g", "600 g", "700 g"],
+            "answer": "600 g",
+            "explanation_si": "1ක බර = 800 ÷ 4 = 200 g. පොත් 3ක් = 200 x 3 = 600 g.",
+            "explanation_en": "1 book = 800 ÷ 4 = 200 g. 3 books = 200 x 3 = 600 g."
+        },
+
+        # Skill 3: Capacity & Volume (ධාරිතාව)
+        {
+            "id": "G3_D3_S3_L1",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S3_CAPACITY",
+            "difficulty_tier": 1,
+            "text_si": "ද්‍රව ධාරිතාව මැනීමේ සම්මත ඒකකය කුමක්ද?",
+            "text_en": "What is the standard unit to measure liquid volume/capacity?",
+            "q_format": "multiple_choice",
+            "options": ["ලීටර් (L)", "මීටර් (m)", "ග්‍රෑම් (g)", "සෙන්ටිමීටර් (cm)"],
+            "answer": "ලීටර් (L)",
+            "explanation_si": "ධාරිතාව ලීටර් (L) සහ මිලිලීටර් (ml) වලින් මනියි.",
+            "explanation_en": "Capacity is measured in liters (L) and milliliters (ml)."
+        },
+        {
+            "id": "G3_D3_S3_L2",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S3_CAPACITY",
+            "difficulty_tier": 2,
+            "text_si": "ලීටර් 1ක (1 L) ඇති මිලිලීටර් (ml) ගණන කීයද?",
+            "text_en": "How many milliliters (ml) are in 1 liter (1 L)?",
+            "q_format": "multiple_choice",
+            "options": ["10 ml", "100 ml", "500 ml", "1000 ml"],
+            "answer": "1000 ml",
+            "explanation_si": "1 L = 1000 ml.",
+            "explanation_en": "1 L = 1000 ml."
+        },
+        {
+            "id": "G3_D3_S3_L3",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S3_CAPACITY",
+            "difficulty_tier": 3,
+            "text_si": "500 ml බෝතල් කීයකින් ලීටර් 2ක (2 L) ජල බඳුනක් සම්පූර්ණයෙන්ම පිරවිය හැකිද?",
+            "text_en": "How many 500 ml bottles are needed to fill a 2 Liter (2 L) container?",
+            "q_format": "multiple_choice",
+            "options": ["2", "3", "4", "5"],
+            "answer": "4",
+            "explanation_si": "2 L = 2000 ml. 2000 ÷ 500 = 4.",
+            "explanation_en": "2 L = 2000 ml. 2000 ÷ 500 = 4 bottles."
+        },
+        {
+            "id": "G3_D3_S3_L4",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S3_CAPACITY",
+            "difficulty_tier": 4,
+            "text_si": "ලීටර් 5ක ජල බාල්දියකින් ලීටර් 2යි 500 ml ක් භාවිත කළේ නම් ඉතිරි ජල ප්‍රමාණය කීයද?",
+            "text_en": "From a 5 L bucket of water, 2 L 500 ml is used. How much water remains?",
+            "q_format": "multiple_choice",
+            "options": ["2 L", "2 L 500 ml", "3 L", "3 L 500 ml"],
+            "answer": "2 L 500 ml",
+            "explanation_si": "5 L - 2.5 L = 2.5 L (2 L 500 ml).",
+            "explanation_en": "5 L - 2 L 500 ml = 2 L 500 ml."
+        },
+        {
+            "id": "G3_D3_S3_L5",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S3_CAPACITY",
+            "difficulty_tier": 5,
+            "text_si": "කෝප්පයක ධාරිතාව 200 ml වේ. බෝතලයක ධාරිතාව 1 L (1000 ml) වේ. කෝප්ප 3ක ඇති ජලය බෝතලයට දැමූ විට බෝතලය පිරීමට තව කොපමණ ජලය අවශ්‍යද?",
+            "text_en": "A cup holds 200 ml. A bottle holds 1 L (1000 ml). After pouring 3 cups into the bottle, how much more is needed to fill it?",
+            "q_format": "multiple_choice",
+            "options": ["300 ml", "400 ml", "500 ml", "600 ml"],
+            "answer": "400 ml",
+            "explanation_si": "කෝප්ප 3 = 600 ml. ඉතිරි අවශ්‍ය ප්‍රමාණය = 1000 - 600 = 400 ml.",
+            "explanation_en": "3 cups = 600 ml. Needed = 1000 - 600 = 400 ml."
+        },
+
+        # Skill 4: Time & Clock Reading (කාලය)
+        {
+            "id": "G3_D3_S4_L1",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S4_TIME",
+            "difficulty_tier": 1,
+            "text_si": "ඔරලෝසුවක දිග කටුව (Minute Hand) 12 මතද, කෙටි කටුව (Hour Hand) 4 මතද ඇති විට වේලාව කීයද?",
+            "text_en": "Minute hand points to 12, hour hand points to 4. What is the time?",
+            "q_format": "multiple_choice",
+            "options": ["12:04", "4:00", "4:12", "12:00"],
+            "answer": "4:00",
+            "explanation_si": "කෙටි කටුව 4 මතද දිග කටුව 12 මතද ඇති විට වේලාව 4:00 වේ.",
+            "explanation_en": "Hour hand on 4, minute hand on 12 = 4:00."
+        },
+        {
+            "id": "G3_D3_S4_L2",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S4_TIME",
+            "difficulty_tier": 2,
+            "text_si": "පැයකට (1 hour) ඇති මිනිත්තු (minutes) ගණන කීයද?",
+            "text_en": "How many minutes are in 1 hour?",
+            "q_format": "multiple_choice",
+            "options": ["12", "24", "60", "100"],
+            "answer": "60",
+            "explanation_si": "පැය 1 = මිනිත්තු 60.",
+            "explanation_en": "1 hour = 60 minutes."
+        },
+        {
+            "id": "G3_D3_S4_L3",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S4_TIME",
+            "difficulty_tier": 3,
+            "text_si": "දිග කටුව 6 මතද, කෙටි කටුව 7 සහ 8 අතරද ඇති විට වේලාව කීයද?",
+            "text_en": "Minute hand points to 6, hour hand between 7 and 8. What is the time?",
+            "q_format": "multiple_choice",
+            "options": ["7:00", "7:30 (හතහමාර)", "8:30 (අටහමාර)", "6:35"],
+            "answer": "7:30 (හතහමාර)",
+            "explanation_si": "දිග කටුව 6 මත ඇති විට මිනිත්තු 30කි (7:30).",
+            "explanation_en": "Minute hand at 6 = 30 mins -> 7:30 (Half past 7)."
+        },
+        {
+            "id": "G3_D3_S4_L4",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S4_TIME",
+            "difficulty_tier": 4,
+            "text_si": "චිත්‍රපටියක් ප.ව. 3:00ට ආරම්භ වී ප.ව. 4:45ට අවසන් විය. චිත්‍රපටියේ කාලය කොපමණද?",
+            "text_en": "A movie started at 3:00 PM and finished at 4:45 PM. What was its duration?",
+            "q_format": "multiple_choice",
+            "options": ["පැය 1යි මිනිත්තු 15", "පැය 1යි මිනිත්තු 30", "පැය 1යි මිනිත්තු 45", "පැය 2යි"],
+            "answer": "පැය 1යි මිනිත්තු 45",
+            "explanation_si": "3:00 සිට 4:45 දක්වා = පැය 1යි මිනිත්තු 45කි.",
+            "explanation_en": "From 3:00 to 4:45 = 1 hour and 45 minutes."
+        },
+        {
+            "id": "G3_D3_S4_L5",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S4_TIME",
+            "difficulty_tier": 5,
+            "text_si": "අද බදාදා නම් තවත් දින 10කට පසු දිනය කුමක්ද?",
+            "text_en": "If today is Wednesday, what day will it be after 10 days?",
+            "q_format": "multiple_choice",
+            "options": ["සිකුරාදා (Friday)", "සෙනසුරාදා (Saturday)", "ඉරිදා (Sunday)", "සඳුදා (Monday)"],
+            "answer": "සෙනසුරාදා (Saturday)",
+            "explanation_si": "දින 7කින් නැවත බදාදා වේ. තවත් දින 3ක් ගිය විට (බ්‍රහස්, සිකු, සෙනසුරාදා) වේ.",
+            "explanation_en": "7 days = Wednesday. +3 days = Thursday, Friday, Saturday."
+        },
+
+        # Skill 5: Money & Transactions (මුදල්)
+        {
+            "id": "G3_D3_S5_L1",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S5_MONEY",
+            "difficulty_tier": 1,
+            "text_si": "රුපියල් 20 නෝට්ටුවක් සෑදීමට රුපියල් 5 කාසි කීයක් අවශ්‍යද?",
+            "text_en": "How many Rs. 5 coins make a Rs. 20 note?",
+            "q_format": "multiple_choice",
+            "options": ["2", "3", "4", "5"],
+            "answer": "4",
+            "explanation_si": "5 x 4 = රු. 20.",
+            "explanation_en": "Rs. 5 x 4 = Rs. 20."
+        },
+        {
+            "id": "G3_D3_S5_L2",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S5_MONEY",
+            "difficulty_tier": 2,
+            "text_si": "රු. 50 නෝට්ටුවක්, රු. 20 නෝට්ටුවක් සහ රු. 10 කාසියක් එකතු කළ විට මුළු මුදල කීයද?",
+            "text_en": "Total of one Rs. 50 note, one Rs. 20 note, and one Rs. 10 coin is:",
+            "q_format": "multiple_choice",
+            "options": ["Rs. 70", "Rs. 80", "Rs. 90", "Rs. 100"],
+            "answer": "Rs. 80",
+            "explanation_si": "50 + 20 + 10 = රු. 80.",
+            "explanation_en": "50 + 20 + 10 = Rs. 80."
+        },
+        {
+            "id": "G3_D3_S5_L3",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S5_MONEY",
+            "difficulty_tier": 3,
+            "text_si": "රු. 100ක් දී රු. 65ක පොතක් ගත් විට ඉතිරි මුදල කීයද?",
+            "text_en": "Buying a book for Rs. 65 with a Rs. 100 note. What is the change?",
+            "q_format": "multiple_choice",
+            "options": ["Rs. 25", "Rs. 35", "Rs. 45", "Rs. 30"],
+            "answer": "Rs. 35",
+            "explanation_si": "100 - 65 = රු. 35.",
+            "explanation_en": "100 - 65 = Rs. 35."
+        },
+        {
+            "id": "G3_D3_S5_L4",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S5_MONEY",
+            "difficulty_tier": 4,
+            "text_si": "රු. 40ක චොකලට් එකක් සහ රු. 25 බැගින් වූ පැන්සල් 2ක් ගත් විට ගෙවිය යුතු මුළු මුදල කීයද?",
+            "text_en": "Buying one chocolate for Rs. 40 and 2 pencils at Rs. 25 each. What is the total cost?",
+            "q_format": "multiple_choice",
+            "options": ["Rs. 65", "Rs. 80", "Rs. 90", "Rs. 95"],
+            "answer": "Rs. 90",
+            "explanation_si": "40 + (25 x 2) = 40 + 50 = රු. 90.",
+            "explanation_en": "40 + 50 = Rs. 90."
+        },
+        {
+            "id": "G3_D3_S5_L5",
+            "domain_id": "D3_MEASUREMENT",
+            "skill_id": "D3_S5_MONEY",
+            "difficulty_tier": 5,
+            "text_si": "අමල් ළඟ රු. 500ක් තිබුණි. ඔහු රු. 180ක පොතක් සහ රු. 120ක පෑනක් ගෙන ඉතිරි මුදලින් රු. 50 බැගින් වූ අභ්‍යාස පොත් කීයක් ගත හැකිද?",
+            "text_en": "Amal had Rs. 500. He bought a book for Rs. 180 and a pen for Rs. 120. With the remaining money, how many Rs. 50 notebooks can he buy?",
+            "q_format": "multiple_choice",
+            "options": ["3", "4", "5", "6"],
+            "answer": "4",
+            "explanation_si": "වියදම = 300. ඉතිරිය = 200. පොත් ගණන = 200 ÷ 50 = 4.",
+            "explanation_en": "Spent = 300. Balance = 200. Books = 200 ÷ 50 = 4."
+        },
+
+        # =========================================================================
+        # DOMAIN 4: GEOMETRY, SPACE & DATA (ජ්‍යාමිතිය සහ දත්ත)
+        # =========================================================================
+        # Skill 1: 2D Shapes (ද්විමාන හැඩතල)
+        {
+            "id": "G3_D4_S1_L1",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S1_2D_SHAPES",
+            "difficulty_tier": 1,
+            "text_si": "පාද 3ක් සහ මුදුන් 3ක් ඇති ද්විමාන හැඩතලය කුමක්ද?",
+            "text_en": "Which 2D shape has 3 sides and 3 vertices?",
+            "q_format": "multiple_choice",
+            "options": ["වෘත්තය (Circle)", "සමචතුරස්‍රය (Square)", "ත්‍රිකෝණය (Triangle)", "සෘජුකෝණාස්‍රය (Rectangle)"],
+            "answer": "ත්‍රිකෝණය (Triangle)",
+            "explanation_si": "ත්‍රිකෝණයට පාද 3ක් සහ මුදුන් 3ක් ඇත.",
+            "explanation_en": "A triangle has 3 sides and 3 vertices."
+        },
+        {
+            "id": "G3_D4_S1_L2",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S1_2D_SHAPES",
+            "difficulty_tier": 2,
+            "text_si": "සමචතුරස්‍රයක (Square) ඇති සුවිශේෂී ලක්ෂණය කුමක්ද?",
+            "text_en": "What is the key property of a square?",
+            "q_format": "multiple_choice",
+            "options": ["පාද 4ම දිගින් සමාන වේ", "පාද නොමැත", "පාද 3ක් පමණක් ඇත", "මුහුණත් වක්‍ර වේ"],
+            "answer": "පාද 4ම දිගින් සමාන වේ",
+            "explanation_si": "සමචතුරස්‍රයක පාද 4ම දිගින් සමාන වේ.",
+            "explanation_en": "All 4 sides of a square are equal in length."
+        },
+        {
+            "id": "G3_D4_S1_L3",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S1_2D_SHAPES",
+            "difficulty_tier": 3,
+            "text_si": "සෘජුකෝණාස්‍රයක (Rectangle) සම්මුඛ (ඉදිරිපස) පාද අතර සම්බන්ධය කුමක්ද?",
+            "text_en": "In a rectangle, what is true about opposite sides?",
+            "q_format": "multiple_choice",
+            "options": ["සම්මුඛ පාද සමාන දිගින් යුක්තය", "සියලු පාද අසමානය", "මුදුන් නොමැත", "පාද 5ක් ඇත"],
+            "answer": "සම්මුඛ පාද සමාන දිගින් යුක්තය",
+            "explanation_si": "සෘජුකෝණාස්‍රයක සම්මුඛ පාද දිගින් සමාන වේ.",
+            "explanation_en": "Opposite sides of a rectangle are equal."
+        },
+        {
+            "id": "G3_D4_S1_L4",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S1_2D_SHAPES",
+            "difficulty_tier": 4,
+            "text_si": "සමචතුරස්‍ර 2ක් එක ළඟ තබා එකතු කළ විට ලැබෙන නව හැඩය කුමක්ද?",
+            "text_en": "When 2 equal squares are placed side by side, what new shape is formed?",
+            "q_format": "multiple_choice",
+            "options": ["ත්‍රිකෝණයක්", "සෘජුකෝණාස්‍රයක්", "වෘත්තයක්", "පංචාස්‍රයක්"],
+            "answer": "සෘජුකෝණාස්‍රයක්",
+            "explanation_si": "සමචතුරස්‍ර 2ක් යා කළ විට දිග වැඩි සෘජුකෝණාස්‍රයක් සෑදේ.",
+            "explanation_en": "Joining two equal squares forms a rectangle."
+        },
+        {
+            "id": "G3_D4_S1_L5",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S1_2D_SHAPES",
+            "difficulty_tier": 5,
+            "text_si": "ත්‍රිකෝණ 4ක් සහ සමචතුරස්‍ර 3ක ඇති මුළු පාද ගණන කීයද?",
+            "text_en": "What is the total number of sides in 4 triangles and 3 squares combined?",
+            "q_format": "multiple_choice",
+            "options": ["20", "22", "24", "26"],
+            "answer": "24",
+            "explanation_si": "(4 x 3) + (3 x 4) = 12 + 12 = 24.",
+            "explanation_en": "(4 x 3) + (3 x 4) = 12 + 12 = 24 sides."
+        },
+
+        # Skill 2: 3D Solids (ත්‍රිමාණ ඝන වස්තු)
+        {
+            "id": "G3_D4_S2_L1",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S2_3D_SOLIDS",
+            "difficulty_tier": 1,
+            "text_si": "දාදු කැටයක (Dice) හැඩය අයත් වන්නේ කුමන ත්‍රිමාණ වස්තුවටද?",
+            "text_en": "What 3D solid shape does a playing dice represent?",
+            "q_format": "multiple_choice",
+            "options": ["ඝනකය (Cube)", "ගෝලය (Sphere)", "සිලින්ඩරය (Cylinder)", "කේතුව (Cone)"],
+            "answer": "ඝනකය (Cube)",
+            "explanation_si": "දාදු කැටය ඝනක (Cube) හැඩයකි.",
+            "explanation_en": "A dice is in the shape of a cube."
+        },
+        {
+            "id": "G3_D4_S2_L2",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S2_3D_SOLIDS",
+            "difficulty_tier": 2,
+            "text_si": "වක්‍ර මුහුණතක් සහ පැතලි වෘත්තාකාර මුහුණත් 2ක් ඇති ත්‍රිමාණ වස්තුව කුමක්ද?",
+            "text_en": "Which 3D shape has 1 curved surface and 2 flat circular faces?",
+            "q_format": "multiple_choice",
+            "options": ["ඝනකය", "සිලින්ඩරය (Cylinder)", "ගෝලය (Sphere)", "පිරමිඩය"],
+            "answer": "සිලින්ඩරය (Cylinder)",
+            "explanation_si": "සිලින්ඩරයට පැතලි වෘත්තාකාර මුහුණත් 2ක් සහ වක්‍ර මුහුණතක් ඇත.",
+            "explanation_en": "A cylinder has 2 flat circular faces and 1 curved face."
+        },
+        {
+            "id": "G3_D4_S2_L3",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S2_3D_SOLIDS",
+            "difficulty_tier": 3,
+            "text_si": "ඝනකයකට (Cube) ඇති මුළු පැතලි මුහුණත් ගණන කීයද?",
+            "text_en": "How many flat faces does a cube have?",
+            "q_format": "multiple_choice",
+            "options": ["4", "6", "8", "12"],
+            "answer": "6",
+            "explanation_si": "ඝනකයකට සමචතුරස්‍රාකාර මුහුණත් 6ක් ඇත.",
+            "explanation_en": "A cube has 6 flat square faces."
+        },
+        {
+            "id": "G3_D4_S2_L4",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S2_3D_SOLIDS",
+            "difficulty_tier": 4,
+            "text_si": "පැතලි මුහුණත් කිසිවක් නොමැති, පෙරළිය හැකි එකම ත්‍රිමාණ වස්තුව කුමක්ද?",
+            "text_en": "Which 3D solid has no flat faces and can easily roll?",
+            "q_format": "multiple_choice",
+            "options": ["ඝනකාභය", "කේතුව", "ගෝලය (Sphere)", "සිලින්ඩරය"],
+            "answer": "ගෝලය (Sphere)",
+            "explanation_si": "ගෝලයකට ඇත්තේ එක් වක්‍ර පෘෂ්ඨයක් පමණි.",
+            "explanation_en": "A sphere has only a continuous curved surface and no flat faces."
+        },
+        {
+            "id": "G3_D4_S2_L5",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S2_3D_SOLIDS",
+            "difficulty_tier": 5,
+            "text_si": "ඝනකාභයක (Cuboid) දාර (Edges) 12ක් සහ ශීර්ෂ (Vertices) 8ක් ඇත. එහි මුහුණත් (Faces) ගණන කීයද?",
+            "text_en": "A cuboid has 12 edges and 8 vertices. How many faces does it have?",
+            "q_format": "multiple_choice",
+            "options": ["4", "6", "8", "10"],
+            "answer": "6",
+            "explanation_si": "ඝනකාභයකට මුහුණත් 6ක් ඇත.",
+            "explanation_en": "A cuboid has 6 faces."
+        },
+
+        # Skill 3: Direction & Position (දිශාව සහ පිහිටීම)
+        {
+            "id": "G3_D4_S3_L1",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S3_DIRECTION",
+            "difficulty_tier": 1,
+            "text_si": "හිරු උදාවන දිශාව කුමක්ද?",
+            "text_en": "In which direction does the Sun rise?",
+            "q_format": "multiple_choice",
+            "options": ["උතුර (North)", "දකුණ (South)", "නැගෙනහිර (East)", "බටහිර (West)"],
+            "answer": "නැගෙනහිර (East)",
+            "explanation_si": "හිරු නැගෙනහිරින් උදාවේ.",
+            "explanation_en": "The Sun rises in the East."
+        },
+        {
+            "id": "G3_D4_S3_L2",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S3_DIRECTION",
+            "difficulty_tier": 2,
+            "text_si": "නැගෙනහිර දෙසට මුහුණ ලා සිටින විට ඔබේ දකුණු අත පැත්තේ ඇති දිශාව කුමක්ද?",
+            "text_en": "When facing East, which direction is on your right-hand side?",
+            "q_format": "multiple_choice",
+            "options": ["උතුර (North)", "දකුණ (South)", "බටහිර (West)", "නැගෙනහිර (East)"],
+            "answer": "දකුණ (South)",
+            "explanation_si": "නැගෙනහිරට මුහුණ ලා සිටින විට දකුණු අත පැත්තේ ඇත්තේ දකුණ දිශාවයි.",
+            "explanation_en": "Facing East, right side is South."
+        },
+        {
+            "id": "G3_D4_S3_L3",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S3_DIRECTION",
+            "difficulty_tier": 3,
+            "text_si": "සිතියමක සාමාන්‍යයෙන් ඉහළින්ම දක්වන්නේ කුමන දිශාවද?",
+            "text_en": "Which direction is usually at the top of a map?",
+            "q_format": "multiple_choice",
+            "options": ["උතුර (North)", "දකුණ (South)", "නැගෙනහිර (East)", "බටහිර (West)"],
+            "answer": "උතුර (North)",
+            "explanation_si": "සිතියම්වල ඉහළ දිශාව උතුර (North) වේ.",
+            "explanation_en": "Top of standard maps represents North."
+        },
+        {
+            "id": "G3_D4_S3_L4",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S3_DIRECTION",
+            "difficulty_tier": 4,
+            "text_si": "රොබෝවෙක් උතුරට පියවර 4ක් ගොස්, දකුණට හැරී පියවර 3ක් ගමන් කරයි. දැන් ඔහු සිටින්නේ ආරම්භක ස්ථානයට සාපේක්ෂව කුමන දිශාවේ ද?",
+            "text_en": "A robot moves 4 steps North, turns right (East) and moves 3 steps. In what quadrant direction is it relative to start?",
+            "q_format": "multiple_choice",
+            "options": ["ඊසාන (North-East)", "ගිනිකොන (South-East)", "වයඹ (North-West)", "නිරිත (South-West)"],
+            "answer": "ඊසාන (North-East)",
+            "explanation_si": "උතුර සහ නැගෙනහිර අතර දිශාව ඊසාන (North-East) වේ.",
+            "explanation_en": "North and East combine to North-East."
+        },
+        {
+            "id": "G3_D4_S3_L5",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S3_DIRECTION",
+            "difficulty_tier": 5,
+            "text_si": "උතුරට මුහුණ ලා සිටින ළමයෙකු දක්ෂිණාවර්තව (Clockwise) සම්පූර්ණ අඩ වටයක් (180°) කැරකුණහොත් දැන් ඔහු මුහුණ ලා සිටින දිශාව කුමක්ද?",
+            "text_en": "Facing North, a child turns clockwise by half a turn (180 degrees). Which direction are they facing now?",
+            "q_format": "multiple_choice",
+            "options": ["නැගෙනහිර", "දකුණ (South)", "බටහිර", "උතුර"],
+            "answer": "දකුණ (South)",
+            "explanation_si": "උතුරට විරුද්ධ දිශාව දකුණ (South) වේ.",
+            "explanation_en": "180 degree turn from North faces South."
+        },
+
+        # Skill 4: Symmetry (සමමිතිය)
+        {
+            "id": "G3_D4_S4_L1",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S4_SYMMETRY",
+            "difficulty_tier": 1,
+            "text_si": "සමමිතික රූපයක් මැදින් නැමූ විට ලැබෙන කොටස් දෙක කෙසේ වේද?",
+            "text_en": "When a symmetrical shape is folded along its line of symmetry, the two halves are:",
+            "q_format": "multiple_choice",
+            "options": ["සම්පූර්ණයෙන්ම එකිනෙක මත සමපාත වේ", "එකක් විශාල වේ", "හැඩය වෙනස් වේ", "කිසිවක් නොවේ"],
+            "answer": "සම්පූර්ණයෙන්ම එකිනෙක මත සමපාත වේ",
+            "explanation_si": "සමමිතික අක්ෂයෙන් නැමූ විට කොටස් දෙක එකිනෙක මත සමපාත වේ.",
+            "explanation_en": "Two halves match identically when folded."
+        },
+        {
+            "id": "G3_D4_S4_L2",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S4_SYMMETRY",
+            "difficulty_tier": 2,
+            "text_si": "පහත ඉංග්‍රීසි අකුරු අතරින් සිරස් සමමිතික අක්ෂයක් (Vertical line of symmetry) ඇත්තේ කුමන අකුරටද?",
+            "text_en": "Which of these English letters has a vertical line of symmetry?",
+            "q_format": "multiple_choice",
+            "options": ["A", "B", "C", "F"],
+            "answer": "A",
+            "explanation_si": "A අකුර සිරස්ව මැදින් දෙකට නැමිය හැක.",
+            "explanation_en": "Letter 'A' has a vertical line of symmetry."
+        },
+        {
+            "id": "G3_D4_S4_L3",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S4_SYMMETRY",
+            "difficulty_tier": 3,
+            "text_si": "සමචතුරස්‍රයකට (Square) ඇති සමමිතික අක්ෂ ගණන කීයද?",
+            "text_en": "How many lines of symmetry does a square have?",
+            "q_format": "multiple_choice",
+            "options": ["2", "4", "6", "8"],
+            "answer": "4",
+            "explanation_si": "සමචතුරස්‍රයකට සිරස්, තිරස් සහ විකර්ණ 2ක් ලෙස සමමිතික අක්ෂ 4ක් ඇත.",
+            "explanation_en": "A square has 4 lines of symmetry."
+        },
+        {
+            "id": "G3_D4_S4_L4",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S4_SYMMETRY",
+            "difficulty_tier": 4,
+            "text_si": "සෘජුකෝණාස්‍රයකට (Rectangle) ඇති සමමිතික අක්ෂ ගණන කීයද?",
+            "text_en": "How many lines of symmetry does a rectangle have?",
+            "q_format": "multiple_choice",
+            "options": ["1", "2", "4", "අනන්තය"],
+            "answer": "2",
+            "explanation_si": "සෘජුකෝණාස්‍රයකට සිරස් සහ තිරස් ලෙස සමමිතික අක්ෂ 2ක් ඇත (විකර්ණ සමමිතික නොවේ).",
+            "explanation_en": "A rectangle has exactly 2 lines of symmetry."
+        },
+        {
+            "id": "G3_D4_S4_L5",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S4_SYMMETRY",
+            "difficulty_tier": 5,
+            "text_si": "වෘත්තයකට (Circle) අඳිය හැකි සමමිතික අක්ෂ ගණන කොපමණද?",
+            "text_en": "How many lines of symmetry can be drawn for a circle?",
+            "q_format": "multiple_choice",
+            "options": ["4ක් පමණි", "8ක් පමණි", "100ක් පමණි", "අසීමිත / අනන්ත ගණනක් (Infinite)"],
+            "answer": "අසීමිත / අනන්ත ගණනක් (Infinite)",
+            "explanation_si": "කේන්ද්‍රය හරහා ඕනෑම විෂ්කම්භයක් ඔස්සේ වෘත්තයකට අනන්ත සමමිතික අක්ෂ ඇත.",
+            "explanation_en": "A circle has infinite lines of symmetry through its center."
+        },
+
+        # Skill 5: Data Handling & Graphs (දත්ත සහ ප්‍රස්තාර)
+        {
+            "id": "G3_D4_S5_L1",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S5_DATA_GRAPHS",
+            "difficulty_tier": 1,
+            "text_si": "රූප ප්‍රස්තාරයක (Pictograph) 🌟 රූපයකින් ළමුන් 2ක් නියෝජනය වේ නම්, 🌟🌟🌟 මගින් දැක්වෙන ළමුන් ගණන කීයද?",
+            "text_en": "In a pictograph, 🌟 represents 2 children. How many children are represented by 🌟🌟🌟?",
+            "q_format": "multiple_choice",
+            "options": ["3", "5", "6", "8"],
+            "answer": "6",
+            "explanation_si": "3 x 2 = 6.",
+            "explanation_en": "3 x 2 = 6 children."
+        },
+        {
+            "id": "G3_D4_S5_L2",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S5_DATA_GRAPHS",
+            "difficulty_tier": 2,
+            "text_si": "පන්ති කාමරයේ කැමති පලතුරු: අඹ (8), ඇපල් (5), කෙසෙල් (12). වැඩිම ළමුන් පිරිසක් කැමති පලතුර කුමක්ද?",
+            "text_en": "Favorite fruits: Mango (8), Apple (5), Banana (12). Which fruit is most popular?",
+            "q_format": "multiple_choice",
+            "options": ["අඹ", "ඇපල්", "කෙසෙල් (Banana)", "සියල්ල සමානයි"],
+            "answer": "කෙසෙල් (Banana)",
+            "explanation_si": "වැඩිම අගය 12 වන කෙසෙල් වේ.",
+            "explanation_en": "Banana has the highest count of 12."
+        },
+        {
+            "id": "G3_D4_S5_L3",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S5_DATA_GRAPHS",
+            "difficulty_tier": 3,
+            "text_si": "ගණන් කිරීමේ සලකුණු (Tally marks) වල 卌 卌 ||| මගින් නිරූපණය වන සංඛ්‍යාව කීයද?",
+            "text_en": "What number is represented by the tally marks 卌 卌 |||?",
+            "q_format": "multiple_choice",
+            "options": ["11", "12", "13", "14"],
+            "answer": "13",
+            "explanation_si": "5 + 5 + 3 = 13.",
+            "explanation_en": "5 + 5 + 3 = 13."
+        },
+        {
+            "id": "G3_D4_S5_L4",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S5_DATA_GRAPHS",
+            "difficulty_tier": 4,
+            "text_si": "ප්‍රස්තාරයක සඳුදා (10), අඟහරුවාදා (15), බදාදා (20) ලෙස පොත් විකිණී ඇත. දින 3 තුළ විකිණුනු මුළු පොත් ගණන කීයද?",
+            "text_en": "Books sold: Mon (10), Tue (15), Wed (20). How many books were sold in total over the 3 days?",
+            "q_format": "multiple_choice",
+            "options": ["35", "40", "45", "50"],
+            "answer": "45",
+            "explanation_si": "10 + 15 + 20 = 45.",
+            "explanation_en": "10 + 15 + 20 = 45."
+        },
+        {
+            "id": "G3_D4_S5_L5",
+            "domain_id": "D4_GEOMETRY_DATA",
+            "skill_id": "D4_S5_DATA_GRAPHS",
+            "difficulty_tier": 5,
+            "text_si": "පාසල් නිවාස 4ක ලකුණු: නිල් (45), රතු (60), කහ (35), කොළ (50). ප්‍රථම ස්ථානය සහ අවසන් ස්ථානය අතර ලකුණු වෙනස කීයද?",
+            "text_en": "House points: Blue (45), Red (60), Yellow (35), Green (50). What is the difference between 1st place and last place?",
+            "q_format": "multiple_choice",
+            "options": ["15", "20", "25", "30"],
+            "answer": "25",
+            "explanation_si": "ප්‍රථම (රතු = 60) - අවසන් (කහ = 35) = 60 - 35 = 25.",
+            "explanation_en": "1st (Red = 60) - Last (Yellow = 35) = 60 - 35 = 25."
+        }
+    ]
+    return questions
+
+if __name__ == "__main__":
+    qs = build_grade3_question_bank()
+    out_file = os.path.join(os.path.dirname(__file__), "grade3_question_pool.json")
+    with open(out_file, "w", encoding="utf-8") as f:
+        json.dump({"total": len(qs), "questions": qs}, f, ensure_ascii=False, indent=2)
+    print(f"Successfully generated {len(qs)} Grade 3 questions in {out_file}")

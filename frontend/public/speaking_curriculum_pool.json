@@ -1,0 +1,256 @@
+{
+  "curriculum_version": "Sri_Lankan_Primary_English_2026",
+  "grades": [2, 3, 4],
+  "categories": [
+    {
+      "id": "word_pronunciation",
+      "title": "Word Pronunciation",
+      "icon": "🔤",
+      "description": "Practice individual target phonemes and sound articulation."
+    },
+    {
+      "id": "minimal_pairs",
+      "title": "Minimal Pair Contrasts",
+      "icon": "⚖️",
+      "description": "Distinguish between tricky sound pairs (e.g. TH vs T, F vs P, W vs V)."
+    },
+    {
+      "id": "sentence_reading",
+      "title": "Sentence Reading & Rhythm",
+      "icon": "📖",
+      "description": "Read connected sentences with natural stress and fluency."
+    },
+    {
+      "id": "picture_speaking",
+      "title": "Picture Description",
+      "icon": "🖼️",
+      "description": "Look at pictures and speak spontaneously."
+    },
+    {
+      "id": "guided_conversation",
+      "title": "Guided Conversation & Retelling",
+      "icon": "💬",
+      "description": "Answer conversational questions and tell mini-stories."
+    }
+  ],
+  "items": [
+    {
+      "id": "G2_WORD_001",
+      "grade": 2,
+      "category": "word_pronunciation",
+      "topic": "Classroom & School",
+      "prompt": "school",
+      "display_text": "school",
+      "phonetic_target": "/skuːl/",
+      "tested_pattern": "S_CLUSTER_PROSTHESIS",
+      "hint": "Start with a clean hissing 'sss' sound without adding 'is-'."
+    },
+    {
+      "id": "G2_WORD_002",
+      "grade": 2,
+      "category": "word_pronunciation",
+      "topic": "Numbers & Counting",
+      "prompt": "three",
+      "display_text": "three",
+      "phonetic_target": "/θriː/",
+      "tested_pattern": "TH_SUBSTITUTION",
+      "hint": "Place your tongue gently between your front teeth."
+    },
+    {
+      "id": "G2_WORD_003",
+      "grade": 2,
+      "category": "word_pronunciation",
+      "topic": "Animals & Nature",
+      "prompt": "fish",
+      "display_text": "fish",
+      "phonetic_target": "/fɪʃ/",
+      "tested_pattern": "F_P_SUBSTITUTION",
+      "hint": "Touch your top teeth to your bottom lip for 'F'."
+    },
+    {
+      "id": "G2_WORD_004",
+      "grade": 2,
+      "category": "word_pronunciation",
+      "topic": "Transport",
+      "prompt": "bus",
+      "display_text": "bus",
+      "phonetic_target": "/bʌs/",
+      "tested_pattern": "PARAGOGE",
+      "hint": "End cleanly on 's' without adding an extra vowel."
+    },
+    {
+      "id": "G2_WORD_005",
+      "grade": 2,
+      "category": "word_pronunciation",
+      "topic": "Home",
+      "prompt": "house",
+      "display_text": "house",
+      "phonetic_target": "/haʊs/",
+      "tested_pattern": "INITIAL_H_DELETION",
+      "hint": "Breathe out gently for 'H' before starting the vowel."
+    },
+    {
+      "id": "G2_PAIR_001",
+      "grade": 2,
+      "category": "minimal_pairs",
+      "topic": "Sound Contrasts",
+      "prompt": "three",
+      "contrast_word": "tree",
+      "display_text": "three vs tree",
+      "phonetic_target": "/θriː/ vs /triː/",
+      "tested_pattern": "TH_SUBSTITUTION",
+      "hint": "'Three' has tongue between teeth; 'Tree' has tongue on top roof."
+    },
+    {
+      "id": "G2_PAIR_002",
+      "grade": 2,
+      "category": "minimal_pairs",
+      "topic": "Sound Contrasts",
+      "prompt": "fan",
+      "contrast_word": "pan",
+      "display_text": "fan vs pan",
+      "phonetic_target": "/fæn/ vs /pæn/",
+      "tested_pattern": "F_P_SUBSTITUTION",
+      "hint": "'Fan' uses teeth on lip; 'Pan' presses two lips together."
+    },
+    {
+      "id": "G2_PAIR_003",
+      "grade": 2,
+      "category": "minimal_pairs",
+      "topic": "Sound Contrasts",
+      "prompt": "west",
+      "contrast_word": "vest",
+      "display_text": "west vs vest",
+      "phonetic_target": "/west/ vs /vest/",
+      "tested_pattern": "V_W_MERGER",
+      "hint": "Round lips into an 'O' for 'West'; teeth on lip for 'Vest'."
+    },
+    {
+      "id": "G2_SENT_001",
+      "grade": 2,
+      "category": "sentence_reading",
+      "topic": "Daily Actions",
+      "prompt": "I go to school.",
+      "display_text": "I go to school.",
+      "phonetic_target": "/aɪ ɡəʊ tə skuːl/",
+      "tested_pattern": "S_CLUSTER_PROSTHESIS",
+      "hint": "Read smoothly with a clean 'school' sound."
+    },
+    {
+      "id": "G2_SENT_002",
+      "grade": 2,
+      "category": "sentence_reading",
+      "topic": "Numbers",
+      "prompt": "I have three books.",
+      "display_text": "I have three books.",
+      "phonetic_target": "/aɪ hæv θriː bʊks/",
+      "tested_pattern": "TH_SUBSTITUTION",
+      "hint": "Emphasize the 'th' in three."
+    },
+    {
+      "id": "G3_WORD_001",
+      "grade": 3,
+      "category": "word_pronunciation",
+      "topic": "School Subjects",
+      "prompt": "project",
+      "display_text": "project",
+      "phonetic_target": "/ˈprɒdʒ.ekt/",
+      "tested_pattern": "CLUSTER_SIMPLIFICATION",
+      "hint": "Clearly pronounce the final 'kt' cluster at the end."
+    },
+    {
+      "id": "G3_WORD_002",
+      "grade": 3,
+      "category": "word_pronunciation",
+      "topic": "Daily Life",
+      "prompt": "busy",
+      "display_text": "busy",
+      "phonetic_target": "/ˈbɪz.i/",
+      "tested_pattern": "Z_S_CONFUSION",
+      "hint": "Make a buzzing 'zzz' sound for the middle 's'."
+    },
+    {
+      "id": "G3_WORD_003",
+      "grade": 3,
+      "category": "word_pronunciation",
+      "topic": "Feelings & Expressions",
+      "prompt": "welcome",
+      "display_text": "welcome",
+      "phonetic_target": "/ˈwel.kəm/",
+      "tested_pattern": "V_W_MERGER",
+      "hint": "Pucker your lips forward for the 'W'."
+    },
+    {
+      "id": "G3_WORD_004",
+      "grade": 3,
+      "category": "word_pronunciation",
+      "topic": "Descriptions",
+      "prompt": "beautiful",
+      "display_text": "beautiful",
+      "phonetic_target": "/ˈbjuː.tɪ.fəl/",
+      "tested_pattern": "STRESS_RHYTHM_DEVIATION",
+      "hint": "Put strong stress on the first syllable: BYOO-ti-ful."
+    },
+    {
+      "id": "G3_SENT_001",
+      "grade": 3,
+      "category": "sentence_reading",
+      "topic": "Friends & Classroom",
+      "prompt": "He is my best friend.",
+      "display_text": "He is my best friend.",
+      "phonetic_target": "/hiː ɪz maɪ best frend/",
+      "tested_pattern": "FINAL_CONSONANT_WEAKENING",
+      "hint": "Pronounce the final 'd' in friend and 't' in best."
+    },
+    {
+      "id": "G3_SENT_002",
+      "grade": 3,
+      "category": "sentence_reading",
+      "topic": "Questions",
+      "prompt": "Where is the station?",
+      "display_text": "Where is the station?",
+      "phonetic_target": "/weər ɪz ðə ˈsteɪ.ʃən/",
+      "tested_pattern": "V_W_MERGER",
+      "hint": "Use rising question intonation at the end."
+    },
+    {
+      "id": "G3_PIC_001",
+      "grade": 3,
+      "category": "picture_speaking",
+      "topic": "Playground",
+      "prompt": "The children are playing with a ball.",
+      "display_text": "Look at the playground picture: What are the children doing?",
+      "image_emoji": "⚽ 👧 👦 🌳",
+      "hint": "Say: 'The children are playing with a ball.'"
+    },
+    {
+      "id": "G3_CONV_001",
+      "grade": 3,
+      "category": "guided_conversation",
+      "topic": "Personal Response",
+      "prompt": "My favourite food is rice.",
+      "display_text": "What is your favourite food?",
+      "hint": "Answer in a complete sentence: 'My favourite food is...'"
+    },
+    {
+      "id": "G4_SENT_001",
+      "grade": 4,
+      "category": "sentence_reading",
+      "topic": "Classroom Activity",
+      "prompt": "Three students are working on a science project.",
+      "display_text": "Three students are working on a science project.",
+      "phonetic_target": "/θriː ˈstjuː.dənts ɑːr ˈwɜː.kɪŋ ɒn ə ˈsaɪ.əns ˈprɒdʒ.ekt/",
+      "tested_pattern": "TH_SUBSTITUTION",
+      "hint": "Keep a steady rhythm and clear consonant endings."
+    },
+    {
+      "id": "G4_CONV_001",
+      "grade": 4,
+      "category": "guided_conversation",
+      "topic": "School Description",
+      "prompt": "My school is very big and beautiful.",
+      "display_text": "Tell me about your school.",
+      "hint": "Speak 2-3 sentences about your teachers, friends and classroom."
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+[
+  {
+    "id": "G2_WORD_001",
+    "target_text": "school",
+    "expected_pattern": "S_CLUSTER_PROSTHESIS",
+    "right_spoken": "school",
+    "wrong_spoken": "is school",
+    "right_path": "synthetic_curriculum_audio/G2_WORD_001_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G2_WORD_001_wrong.wav"
+  },
+  {
+    "id": "G2_WORD_002",
+    "target_text": "three",
+    "expected_pattern": "TH_SUBSTITUTION",
+    "right_spoken": "three",
+    "wrong_spoken": "tree",
+    "right_path": "synthetic_curriculum_audio/G2_WORD_002_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G2_WORD_002_wrong.wav"
+  },
+  {
+    "id": "G2_WORD_003",
+    "target_text": "fish",
+    "expected_pattern": "F_P_SUBSTITUTION",
+    "right_spoken": "fish",
+    "wrong_spoken": "pish",
+    "right_path": "synthetic_curriculum_audio/G2_WORD_003_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G2_WORD_003_wrong.wav"
+  },
+  {
+    "id": "G2_WORD_004",
+    "target_text": "bus",
+    "expected_pattern": "PARAGOGE",
+    "right_spoken": "bus",
+    "wrong_spoken": "bussa",
+    "right_path": "synthetic_curriculum_audio/G2_WORD_004_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G2_WORD_004_wrong.wav"
+  },
+  {
+    "id": "G2_WORD_005",
+    "target_text": "house",
+    "expected_pattern": "INITIAL_H_DELETION",
+    "right_spoken": "house",
+    "wrong_spoken": "ouse",
+    "right_path": "synthetic_curriculum_audio/G2_WORD_005_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G2_WORD_005_wrong.wav"
+  },
+  {
+    "id": "G2_PAIR_001",
+    "target_text": "three",
+    "expected_pattern": "TH_SUBSTITUTION",
+    "right_spoken": "three",
+    "wrong_spoken": "tree",
+    "right_path": "synthetic_curriculum_audio/G2_PAIR_001_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G2_PAIR_001_wrong.wav"
+  },
+  {
+    "id": "G2_PAIR_002",
+    "target_text": "fan",
+    "expected_pattern": "F_P_SUBSTITUTION",
+    "right_spoken": "fan",
+    "wrong_spoken": "pan",
+    "right_path": "synthetic_curriculum_audio/G2_PAIR_002_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G2_PAIR_002_wrong.wav"
+  },
+  {
+    "id": "G2_PAIR_003",
+    "target_text": "west",
+    "expected_pattern": "V_W_MERGER",
+    "right_spoken": "west",
+    "wrong_spoken": "vest",
+    "right_path": "synthetic_curriculum_audio/G2_PAIR_003_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G2_PAIR_003_wrong.wav"
+  },
+  {
+    "id": "G2_SENT_001",
+    "target_text": "I go to school.",
+    "expected_pattern": "S_CLUSTER_PROSTHESIS",
+    "right_spoken": "I go to school.",
+    "wrong_spoken": "I go to is school.",
+    "right_path": "synthetic_curriculum_audio/G2_SENT_001_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G2_SENT_001_wrong.wav"
+  },
+  {
+    "id": "G2_SENT_002",
+    "target_text": "I have three books.",
+    "expected_pattern": "TH_SUBSTITUTION",
+    "right_spoken": "I have three books.",
+    "wrong_spoken": "I have tree books.",
+    "right_path": "synthetic_curriculum_audio/G2_SENT_002_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G2_SENT_002_wrong.wav"
+  },
+  {
+    "id": "G3_WORD_001",
+    "target_text": "project",
+    "expected_pattern": "CLUSTER_SIMPLIFICATION",
+    "right_spoken": "project",
+    "wrong_spoken": "projec",
+    "right_path": "synthetic_curriculum_audio/G3_WORD_001_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G3_WORD_001_wrong.wav"
+  },
+  {
+    "id": "G3_WORD_002",
+    "target_text": "busy",
+    "expected_pattern": "Z_S_CONFUSION",
+    "right_spoken": "busy",
+    "wrong_spoken": "busi",
+    "right_path": "synthetic_curriculum_audio/G3_WORD_002_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G3_WORD_002_wrong.wav"
+  },
+  {
+    "id": "G3_WORD_003",
+    "target_text": "welcome",
+    "expected_pattern": "V_W_MERGER",
+    "right_spoken": "welcome",
+    "wrong_spoken": "velcome",
+    "right_path": "synthetic_curriculum_audio/G3_WORD_003_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G3_WORD_003_wrong.wav"
+  },
+  {
+    "id": "G3_WORD_004",
+    "target_text": "beautiful",
+    "expected_pattern": "STRESS_RHYTHM_DEVIATION",
+    "right_spoken": "beautiful",
+    "wrong_spoken": "beautiful",
+    "right_path": "synthetic_curriculum_audio/G3_WORD_004_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G3_WORD_004_wrong.wav"
+  },
+  {
+    "id": "G3_SENT_001",
+    "target_text": "He is my best friend.",
+    "expected_pattern": "FINAL_CONSONANT_WEAKENING",
+    "right_spoken": "He is my best friend.",
+    "wrong_spoken": "He is my bes frien.",
+    "right_path": "synthetic_curriculum_audio/G3_SENT_001_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G3_SENT_001_wrong.wav"
+  },
+  {
+    "id": "G3_SENT_002",
+    "target_text": "Where is the station?",
+    "expected_pattern": "V_W_MERGER",
+    "right_spoken": "Where is the station?",
+    "wrong_spoken": "Vhere is the station?",
+    "right_path": "synthetic_curriculum_audio/G3_SENT_002_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G3_SENT_002_wrong.wav"
+  },
+  {
+    "id": "G3_PIC_001",
+    "target_text": "The children are playing with a ball.",
+    "expected_pattern": "GENERAL",
+    "right_spoken": "The children are playing with a ball.",
+    "wrong_spoken": "The children are playing wid a ball.",
+    "right_path": "synthetic_curriculum_audio/G3_PIC_001_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G3_PIC_001_wrong.wav"
+  },
+  {
+    "id": "G3_CONV_001",
+    "target_text": "My favourite food is rice.",
+    "expected_pattern": "GENERAL",
+    "right_spoken": "My favourite food is rice.",
+    "wrong_spoken": "My pavorite food is rice.",
+    "right_path": "synthetic_curriculum_audio/G3_CONV_001_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G3_CONV_001_wrong.wav"
+  },
+  {
+    "id": "G4_SENT_001",
+    "target_text": "Three students are working on a science project.",
+    "expected_pattern": "TH_SUBSTITUTION",
+    "right_spoken": "Three students are working on a science project.",
+    "wrong_spoken": "Tree students are working on a science projec.",
+    "right_path": "synthetic_curriculum_audio/G4_SENT_001_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G4_SENT_001_wrong.wav"
+  },
+  {
+    "id": "G4_CONV_001",
+    "target_text": "My school is very big and beautiful.",
+    "expected_pattern": "GENERAL",
+    "right_spoken": "My school is very big and beautiful.",
+    "wrong_spoken": "My is school is very big and beautiful.",
+    "right_path": "synthetic_curriculum_audio/G4_CONV_001_right.wav",
+    "wrong_path": "synthetic_curriculum_audio/G4_CONV_001_wrong.wav"
+  }
+]
