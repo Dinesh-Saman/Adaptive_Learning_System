@@ -384,10 +384,10 @@ const Dashboard = () => {
               {/* 1. Line Tracing Card */}
               <div 
                 onClick={() => navigateToModule('motor')}
-                className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all p-6 cursor-pointer border-3 border-purple-200 hover:border-purple-500 group transform hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden"
+                className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all p-5 sm:p-6 cursor-pointer border-3 border-purple-200 hover:border-purple-500 group transform hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden"
               >
                 <div>
-                  <div className="w-full h-52 rounded-2xl overflow-hidden mb-4 bg-purple-50 border border-purple-100 shadow-inner">
+                  <div className="w-full h-80 sm:h-96 rounded-2xl overflow-hidden mb-4 bg-purple-50 border border-purple-100 shadow-inner">
                     <img 
                       src="/images/preschool/line_tracing.png" 
                       alt="රේඛා මත ලියමු (Line Tracing)" 
@@ -410,10 +410,10 @@ const Dashboard = () => {
               {/* 2. Digital Coloring Card */}
               <div 
                 onClick={() => navigateToModule('coloring')}
-                className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all p-6 cursor-pointer border-3 border-pink-200 hover:border-pink-500 group transform hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden"
+                className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all p-5 sm:p-6 cursor-pointer border-3 border-pink-200 hover:border-pink-500 group transform hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden"
               >
                 <div>
-                  <div className="w-full h-52 rounded-2xl overflow-hidden mb-4 bg-pink-50 border border-pink-100 shadow-inner">
+                  <div className="w-full h-80 sm:h-96 rounded-2xl overflow-hidden mb-4 bg-pink-50 border border-pink-100 shadow-inner">
                     <img 
                       src="/images/preschool/digital_coloring.jpg" 
                       alt="පින්තූර පාට කරමු (Digital Coloring)" 
@@ -436,10 +436,10 @@ const Dashboard = () => {
               {/* 3. Story Drawing Card */}
               <div 
                 onClick={() => navigateToModule('storydrawing')}
-                className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all p-6 cursor-pointer border-3 border-amber-200 hover:border-amber-500 group transform hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden"
+                className="bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all p-5 sm:p-6 cursor-pointer border-3 border-amber-200 hover:border-amber-500 group transform hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden"
               >
                 <div>
-                  <div className="w-full h-52 rounded-2xl overflow-hidden mb-4 bg-amber-50 border border-amber-100 shadow-inner">
+                  <div className="w-full h-80 sm:h-96 rounded-2xl overflow-hidden mb-4 bg-amber-50 border border-amber-100 shadow-inner">
                     <img 
                       src="/images/preschool/story_drawing.jpg" 
                       alt="කතාවට පින්තූරයක් අඳිමු (Story Drawing)" 
