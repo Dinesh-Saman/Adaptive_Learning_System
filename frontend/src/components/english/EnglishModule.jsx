@@ -115,40 +115,67 @@ function speakEnglish(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-// Levenshtein distance similarity calculation
-function calculateSimilarity(str1, str2) {
-  const s1 = (str1 || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-  const s2 = (str2 || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-  if (s1 === s2) return 100;
-  if (!s1 || !s2) return 0;
+// Rigorous Speech Accuracy Evaluation
+function calculateSimilarity(spokenText, targetText) {
+  const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+  const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+  
+  if (!spokenClean || !targetClean) return 0;
+  if (spokenClean === targetClean) return 100;
 
-  // Exact token match
-  const words1 = s1.split(/\s+/);
-  const words2 = s2.split(/\s+/);
-  let matchedWords = 0;
-  words1.forEach(w => {
-    if (words2.includes(w)) matchedWords++;
-  });
-  const wordMatchScore = (matchedWords / Math.max(words1.length, words2.length)) * 100;
+  const spokenWords = spokenClean.split(/\s+/).filter(Boolean);
+  const targetWords = targetClean.split(/\s+/).filter(Boolean);
 
-  // Character Levenshtein
-  const matrix = [];
-  for (let i = 0; i <= s1.length; i++) matrix[i] = [i];
-  for (let j = 0; j <= s2.length; j++) matrix[0][j] = j;
-  for (let i = 1; i <= s1.length; i++) {
-    for (let j = 1; j <= s2.length; j++) {
-      const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
-      matrix[i][j] = Math.min(
-        matrix[i - 1][j] + 1,
-        matrix[i][j - 1] + 1,
-        matrix[i - 1][j - 1] + cost
-      );
+  // ── CASE 1: Single Word Pronunciation (Easy Level / 1 word target) ──
+  if (targetWords.length === 1) {
+    const targetWord = targetWords[0];
+    
+    // If the child spoke the exact word (either standalone or in a phrase like "the hand", "a hand")
+    if (spokenWords.includes(targetWord)) {
+      return 100;
+    }
+
+    // If the word was pronounced incorrectly (e.g. "and" instead of "hand", "cat" instead of "hat")
+    // A wrong single word MUST NOT pass (cap score strictly at 25-35% maximum)
+    const matrix = [];
+    for (let i = 0; i <= spokenClean.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= targetClean.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= spokenClean.length; i++) {
+      for (let j = 1; j <= targetClean.length; j++) {
+        const cost = spokenClean[i - 1] === targetClean[j - 1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j - 1] + cost
+        );
+      }
+    }
+    const dist = matrix[spokenClean.length][targetClean.length];
+    const maxLen = Math.max(spokenClean.length, targetClean.length);
+    const rawSim = (maxLen - dist) / maxLen;
+    // Scale wrong single word to at most 30%
+    return Math.round(rawSim * 30);
+  }
+
+  // ── CASE 2: Multi-Word Sentences (Medium & Hard Levels) ──
+  let matchedCount = 0;
+  const targetCopy = [...targetWords];
+  
+  for (const sw of spokenWords) {
+    const idx = targetCopy.indexOf(sw);
+    if (idx !== -1) {
+      matchedCount++;
+      targetCopy.splice(idx, 1);
     }
   }
-  const maxLen = Math.max(s1.length, s2.length);
-  const charScore = Math.max(0, Math.round(((maxLen - matrix[s1.length][s2.length]) / maxLen) * 100));
 
-  return Math.round(Math.max(wordMatchScore, charScore));
+  const wordRecall = (matchedCount / targetWords.length) * 100;
+  const wordPrecision = (matchedCount / spokenWords.length) * 100;
+  
+  if (wordRecall + wordPrecision === 0) return 0;
+  const tokenAccuracy = Math.round((2 * wordRecall * wordPrecision) / (wordRecall + wordPrecision));
+
+  return Math.min(tokenAccuracy, Math.round(wordRecall));
 }
 
 export default function EnglishModule({ onExit }) {
