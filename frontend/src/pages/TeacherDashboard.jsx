@@ -260,7 +260,7 @@ const TeacherDashboard = () => {
                   🎯
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-500 uppercase">Primary Learning Pillars</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase">Primary Learning Modules</p>
                   <h3 className="text-2xl font-black text-amber-700">4 Active Hubs</h3>
                 </div>
               </div>
@@ -287,9 +287,7 @@ const TeacherDashboard = () => {
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
               <div>
-                <span className="bg-blue-500/30 text-blue-200 border border-blue-400/40 text-xs font-black px-3 py-0.5 rounded-full">
-                  Pillar 1 Focus
-                </span>
+
                 <h1 className="text-3xl font-black mt-2 font-sinhala">1. ගණිතය ශ්‍රේණි කළමනාකරණය (Mathematics Hub)</h1>
                 <p className="text-blue-200 text-sm mt-1">
                   Grade 2, Grade 3, and Grade 4 Primary Mathematics Curriculums & Adaptive Multi-Tier Testing
@@ -364,9 +362,7 @@ const TeacherDashboard = () => {
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-emerald-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
               <div>
-                <span className="bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 text-xs font-black px-3 py-0.5 rounded-full">
-                  Pillar 2 Focus
-                </span>
+
                 <h1 className="text-3xl font-black mt-2 font-sinhala">2. සිංහල භාෂා කළමනාකරණය (Sinhala Language Hub)</h1>
                 <p className="text-emerald-200 text-sm mt-1">
                   Grade 2, 3, 4 5-Paper Adaptive Assessment System & Neural Handwriting Recognition AI
@@ -441,9 +437,7 @@ const TeacherDashboard = () => {
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
               <div>
-                <span className="bg-purple-500/30 text-purple-200 border border-purple-400/40 text-xs font-black px-3 py-0.5 rounded-full">
-                  Pillar 3 Focus
-                </span>
+
                 <h1 className="text-3xl font-black mt-2">3. English Speech & Pronunciation Hub</h1>
                 <p className="text-purple-200 text-sm mt-1">
                   Real-time Speech Recognition, Phonetic Accuracy & Intonation Monitoring for Primary ESL
@@ -464,9 +458,7 @@ const TeacherDashboard = () => {
           <div className="space-y-8 animate-fade-in">
             <div className="bg-gradient-to-r from-amber-900 via-orange-900 to-amber-950 text-white p-8 rounded-3xl shadow-xl flex items-center justify-between gap-6">
               <div>
-                <span className="bg-amber-500/30 text-amber-200 border border-amber-400/40 text-xs font-black px-3 py-0.5 rounded-full">
-                  Pillar 4 Focus
-                </span>
+
                 <h1 className="text-3xl font-black mt-2 font-sinhala">4. Pre-School & Grade 1 (පෙර පාසල් හා 1 ශ්‍රේණිය)</h1>
                 <p className="text-amber-200 text-sm mt-1">
                   Fine Motor Coordination, Digital Coloring, Computer Vision Paper Craft & Story Drawing

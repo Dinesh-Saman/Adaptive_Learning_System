@@ -200,7 +200,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                 </span>
               </div>
               <p className="text-indigo-200 text-sm mt-1">
-                4-Pillar Longitudinal Adaptive Progress & Performance Diagnostics
+                ශිෂ්‍ය ප්‍රගති හා කාර්ය සාධන විශ්ලේෂණය (Adaptive Performance Diagnostics)
               </p>
               <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-indigo-200">
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-xl">
@@ -336,7 +336,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
               <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-indigo-600" /> සතිපතා ලකුණු වර්ධන ප්‍රස්තාරය (Weekly Progress Trend)
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">Performance Across Pillars Recorded in Database</p>
+              <p className="text-xs text-slate-500 mt-0.5">Performance Across Subjects Recorded in Database</p>
             </div>
             
             {/* Subject Filters */}
