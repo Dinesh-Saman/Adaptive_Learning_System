@@ -51,6 +51,9 @@ const sinhalaRouter = require('./routes/sinhala');
 app.use('/api/sinhala', sinhalaRouter);
 app.use('/api/ai/handwriting', sinhalaRouter);
 
+// ── Multi-Subject Longitudinal Analytics & Progress Intelligence ──
+app.use('/api/analytics', require('./routes/analytics'));
+
 // ── Start Server ──
 app.listen(PORT, () => {
   console.log(`🚀 AI Adaptive Learning API Server is running on port ${PORT}`);

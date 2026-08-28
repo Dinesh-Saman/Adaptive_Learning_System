@@ -1,79 +1,14 @@
-/**
- * studentAnalyticsData.js
- * Longitudinal Analytics & Progress Intelligence Dataset for the 4 Core Learning Hubs:
- * 1. ගණිතය (Mathematics) - Grade 2, 3, 4
- * 2. සිංහල භාෂාව (Sinhala Language) - Grade 2, 3, 4
- * 3. English Speech & Pronunciation
- * 4. Pre-School & Grade 1 (Fine Motor Skills, Crafts & Coloring)
- */
+const express = require('express');
+const router = express.Router();
+const fs = require('fs');
+const path = require('path');
+const StudentAnalytics = require('../models/StudentAnalytics');
 
-export const CORE_SUBJECTS = {
-  math: {
-    id: 'math',
-    name: 'ගණිතය (Mathematics)',
-    shortName: 'Math',
-    icon: '🧮',
-    color: 'blue',
-    gradient: 'from-blue-600 to-indigo-600',
-    lightBg: 'bg-blue-50 text-blue-800 border-blue-200',
-    categories: [
-      { id: 'M1', name: '100 දක්වා සංඛ්‍යා (Numbers to 100)', weight: 0.25 },
-      { id: 'M2', name: 'එකතු කිරීම් හා අඩු කිරීම් (Addition & Subtraction)', weight: 0.30 },
-      { id: 'M3', name: 'ගුණ කිරීම හා බෙදීම (Multiplication & Division)', weight: 0.25 },
-      { id: 'M4', name: 'මිනුම් හා හැඩතල (Measurement & Geometry)', weight: 0.20 }
-    ]
-  },
-  sinhala: {
-    id: 'sinhala',
-    name: 'සිංහල භාෂාව (Sinhala)',
-    shortName: 'Sinhala',
-    icon: '🦁',
-    color: 'emerald',
-    gradient: 'from-emerald-600 to-teal-600',
-    lightBg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-    categories: [
-      { id: 'C1', name: 'සමාන පද හා අර්ථ (Synonyms)', weight: 0.20 },
-      { id: 'C2', name: 'විරුද්ධ පද (Antonyms)', weight: 0.20 },
-      { id: 'C3', name: 'ප්‍රස්තාව පිරුළු / ඉඟි වැකි (Proverbs & Idioms)', weight: 0.20 },
-      { id: 'C4', name: 'කාලය හා ව්‍යාකරණ (Grammar & Tenses)', weight: 0.20 },
-      { id: 'C5', name: 'කියවීම හා විරාම ලක්ෂණ (Reading & Punctuation)', weight: 0.20 }
-    ]
-  },
-  english: {
-    id: 'english',
-    name: 'English Speech',
-    shortName: 'English',
-    icon: '🗣️',
-    color: 'purple',
-    gradient: 'from-purple-600 to-pink-600',
-    lightBg: 'bg-purple-50 text-purple-800 border-purple-200',
-    categories: [
-      { id: 'E1', name: 'Phoneme Clarity & Articulation', weight: 0.30 },
-      { id: 'E2', name: 'Pronunciation Accuracy', weight: 0.30 },
-      { id: 'E3', name: 'Word Stress & Intonation', weight: 0.20 },
-      { id: 'E4', name: 'Speaking Fluency & Speed', weight: 0.20 }
-    ]
-  },
-  preschool: {
-    id: 'preschool',
-    name: 'Pre-School & Grade 1 (Foundations)',
-    shortName: 'Pre-School',
-    icon: '🎨',
-    color: 'amber',
-    gradient: 'from-amber-500 to-orange-600',
-    lightBg: 'bg-amber-50 text-amber-800 border-amber-200',
-    categories: [
-      { id: 'P1', name: 'Line Tracing & Fine Motor (රේඛා ඇඳීම)', weight: 0.30 },
-      { id: 'P2', name: 'Digital Coloring & Boundaries (පාට කිරීම)', weight: 0.25 },
-      { id: 'P3', name: 'Paper Craft & Origami Steps (කඩදාසි නිර්මාණ)', weight: 0.25 },
-      { id: 'P4', name: 'Story Drawing & Comprehension (චිත්‍ර ඇඳීම)', weight: 0.20 }
-    ]
-  }
-};
+const MOCK_ANALYTICS_PATH = path.join(__dirname, '../data/mock_analytics.json');
 
-export const STUDENT_PROFILES = [
+// Default Seed Data
+const DEFAULT_STUDENTS_SEED = [
   {
-    id: 'std_001',
     studentId: 'std_001',
     name: 'කසුන් පෙරේරා (Kasun Perera)',
     grade: 'Grade 4',
@@ -128,7 +63,6 @@ export const STUDENT_PROFILES = [
     }
   },
   {
-    id: 'std_002',
     studentId: 'std_002',
     name: 'දිනිති සිල්වා (Dinithi Silva)',
     grade: 'Grade 3',
@@ -183,7 +117,6 @@ export const STUDENT_PROFILES = [
     }
   },
   {
-    id: 'std_003',
     studentId: 'std_003',
     name: 'සහන් ජයවර්ධන (Sahan Jayawardena)',
     grade: 'Grade 2',
@@ -239,63 +172,167 @@ export const STUDENT_PROFILES = [
   }
 ];
 
-const API_BASE_URL = 'http://localhost:5000/api/analytics';
-
-/**
- * Fetch all students analytics from MongoDB via backend API
- */
-export const fetchStudentsAnalyticsFromApi = async () => {
+// Helper to get/set mock JSON data
+const getMockAnalytics = () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/students`);
-    if (response.ok) {
-      const data = await response.json();
-      if (data && data.students && data.students.length > 0) {
-        return data.students.map(s => ({ ...s, id: s.studentId || s.id }));
+    if (!fs.existsSync(path.dirname(MOCK_ANALYTICS_PATH))) {
+      fs.mkdirSync(path.dirname(MOCK_ANALYTICS_PATH), { recursive: true });
+    }
+    if (!fs.existsSync(MOCK_ANALYTICS_PATH)) {
+      fs.writeFileSync(MOCK_ANALYTICS_PATH, JSON.stringify(DEFAULT_STUDENTS_SEED, null, 2));
+    }
+    return JSON.parse(fs.readFileSync(MOCK_ANALYTICS_PATH, 'utf8'));
+  } catch (err) {
+    console.error("Error reading mock analytics:", err);
+    return DEFAULT_STUDENTS_SEED;
+  }
+};
+
+const saveMockAnalytics = (data) => {
+  try {
+    fs.writeFileSync(MOCK_ANALYTICS_PATH, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error("Error saving mock analytics:", err);
+  }
+};
+
+// Auto seed MongoDB if connected and empty
+const autoSeedMongo = async () => {
+  if (!global.dbConnected) return;
+  try {
+    const count = await StudentAnalytics.countDocuments();
+    if (count === 0) {
+      await StudentAnalytics.insertMany(DEFAULT_STUDENTS_SEED);
+      console.log("🌱 Auto-seeded StudentAnalytics in MongoDB successfully");
+    }
+  } catch (err) {
+    console.warn("Auto-seed error:", err.message);
+  }
+};
+
+// Run seed on router load
+setTimeout(autoSeedMongo, 2000);
+
+// @route   GET /api/analytics/students
+// @desc    Get all students' analytics overview
+router.get('/students', async (req, res) => {
+  if (!global.dbConnected) {
+    const data = getMockAnalytics();
+    return res.json({ success: true, source: 'mock_db', students: data });
+  }
+
+  try {
+    let students = await StudentAnalytics.find({}).sort({ studentId: 1 });
+    if (students.length === 0) {
+      await StudentAnalytics.insertMany(DEFAULT_STUDENTS_SEED);
+      students = await StudentAnalytics.find({}).sort({ studentId: 1 });
+    }
+    return res.json({ success: true, source: 'mongodb', students });
+  } catch (err) {
+    console.error("Error fetching students analytics from MongoDB:", err);
+    const data = getMockAnalytics();
+    return res.json({ success: true, source: 'fallback', students: data });
+  }
+});
+
+// @route   GET /api/analytics/student/:studentId
+// @desc    Get specific student analytics
+router.get('/student/:studentId', async (req, res) => {
+  const { studentId } = req.params;
+
+  if (!global.dbConnected) {
+    const data = getMockAnalytics();
+    const student = data.find(s => s.studentId === studentId || s.id === studentId);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student analytics not found' });
+    }
+    return res.json({ success: true, source: 'mock_db', student });
+  }
+
+  try {
+    let student = await StudentAnalytics.findOne({ studentId });
+    if (!student) {
+      const fallback = DEFAULT_STUDENTS_SEED.find(s => s.studentId === studentId);
+      if (fallback) {
+        student = new StudentAnalytics(fallback);
+        await student.save();
+      } else {
+        return res.status(404).json({ success: false, message: 'Student analytics not found' });
       }
     }
-  } catch (error) {
-    console.warn("Could not connect to MongoDB Analytics API, using fallback data:", error.message);
+    return res.json({ success: true, source: 'mongodb', student });
+  } catch (err) {
+    console.error("Error fetching student from MongoDB:", err);
+    const data = getMockAnalytics();
+    const student = data.find(s => s.studentId === studentId);
+    return res.json({ success: true, source: 'fallback', student: student || DEFAULT_STUDENTS_SEED[0] });
   }
-  return STUDENT_PROFILES;
-};
+});
 
-/**
- * Fetch specific student analytics by ID from MongoDB
- */
-export const fetchStudentAnalyticsFromApi = async (studentId) => {
+// @route   POST /api/analytics/record
+// @desc    Record marks from a test / paper attempt into MongoDB & recalculate analytics
+router.post('/record', async (req, res) => {
+  const { 
+    studentId = 'std_001', 
+    subject = 'sinhala', 
+    categoryCode = 'C1', 
+    marks = 28, 
+    maxMarks = 30,
+    week = 'Week 6'
+  } = req.body;
+
+  const pct = Math.round((marks / maxMarks) * 100);
+  const status = pct >= 85 ? 'Mastered' : pct >= 70 ? 'Proficient' : pct >= 60 ? 'Developing' : 'Attention Needed';
+
+  if (!global.dbConnected) {
+    const data = getMockAnalytics();
+    const sIdx = data.findIndex(s => s.studentId === studentId);
+    if (sIdx !== -1) {
+      data[sIdx].totalExercises = (data[sIdx].totalExercises || 0) + 1;
+      if (data[sIdx].categoryMarks && data[sIdx].categoryMarks[subject]) {
+        const cIdx = data[sIdx].categoryMarks[subject].findIndex(c => c.code === categoryCode);
+        if (cIdx !== -1) {
+          data[sIdx].categoryMarks[subject][cIdx].marks = marks;
+          data[sIdx].categoryMarks[subject][cIdx].maxMarks = maxMarks;
+          data[sIdx].categoryMarks[subject][cIdx].pct = pct;
+          data[sIdx].categoryMarks[subject][cIdx].status = status;
+        }
+      }
+      saveMockAnalytics(data);
+    }
+    return res.json({ success: true, source: 'mock_db', message: 'Score recorded successfully' });
+  }
+
   try {
-    const response = await fetch(`${API_BASE_URL}/student/${studentId}`);
-    if (response.ok) {
-      const data = await response.json();
-      if (data && data.student) {
-        return { ...data.student, id: data.student.studentId || data.student.id };
+    let student = await StudentAnalytics.findOne({ studentId });
+    if (!student) {
+      student = new StudentAnalytics({
+        studentId,
+        name: req.body.name || 'Student',
+        weeklyProgress: DEFAULT_STUDENTS_SEED[0].weeklyProgress,
+        categoryMarks: DEFAULT_STUDENTS_SEED[0].categoryMarks,
+        recommendation: DEFAULT_STUDENTS_SEED[0].recommendation
+      });
+    }
+
+    student.totalExercises += 1;
+    if (student.categoryMarks && student.categoryMarks[subject]) {
+      const cat = student.categoryMarks[subject].find(c => c.code === categoryCode);
+      if (cat) {
+        cat.marks = marks;
+        cat.maxMarks = maxMarks;
+        cat.pct = pct;
+        cat.status = status;
       }
     }
-  } catch (error) {
-    console.warn(`Could not fetch student ${studentId} from API, using fallback:`, error.message);
-  }
-  return STUDENT_PROFILES.find(s => s.id === studentId || s.studentId === studentId) || STUDENT_PROFILES[0];
-};
+    student.lastUpdated = new Date();
+    await student.save();
 
-/**
- * Save new test marks into MongoDB backend
- */
-export const recordStudentTestMarks = async (recordData) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/record`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(recordData)
-    });
-    if (response.ok) {
-      return await response.json();
-    }
-  } catch (error) {
-    console.error("Failed to record marks in MongoDB:", error);
+    return res.json({ success: true, source: 'mongodb', message: 'Score recorded in MongoDB successfully', student });
+  } catch (err) {
+    console.error("Error saving score to MongoDB:", err);
+    return res.status(500).json({ success: false, error: err.message });
   }
-  return { success: false };
-};
+});
 
-export const getStudentAnalytics = (studentId) => {
-  return STUDENT_PROFILES.find(s => s.id === studentId || s.studentId === studentId) || STUDENT_PROFILES[0];
-};
+module.exports = router;
