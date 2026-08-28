@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GRADE2_DOMAINS } from '../../data/math/grade2_math_curriculum';
 import questionData from '../../data/math/grade2_question_pool.json';
@@ -66,12 +66,45 @@ const DIFFICULTY_DELTAS = {
   5: { correct: 8, wrong: -2, label: 'Level 5: විශිෂ්ට (Concept Transfer)' }
 };
 
+const PAPERS_CONFIG = [
+  {
+    id: 1,
+    title: 'ප්‍රශ්න පත්‍රය 01 (Paper 1)',
+    subtitle: 'මූලික විෂය නිර්දේශ ඇගයීම (Diagnostic & Foundational)',
+    badge: 'ප්‍රශ්න 20 • Basic to Intermediate',
+    icon: '📝',
+    color: 'from-teal-500 to-emerald-600',
+    borderColor: 'border-teal-300'
+  },
+  {
+    id: 2,
+    title: 'ප්‍රශ්න පත්‍රය 02 (Paper 2)',
+    subtitle: 'මධ්‍යම මට්ටමේ කුසලතා ඇගයීම (Progressive Mastery)',
+    badge: 'ප්‍රශ්න 20 • Intermediate to High',
+    icon: '🎯',
+    color: 'from-blue-500 to-indigo-600',
+    borderColor: 'border-blue-300'
+  },
+  {
+    id: 3,
+    title: 'ප්‍රශ්න පත්‍රය 03 (Paper 3)',
+    subtitle: 'උසස් සංකල්ප මට්ටමේ ඇගයීම (Advanced & Concept Transfer)',
+    badge: 'ප්‍රශ්න 20 • Advanced Mastery',
+    icon: '🏆',
+    color: 'from-purple-500 to-pink-600',
+    borderColor: 'border-purple-300'
+  }
+];
+
 export default function MathGrade2AdaptiveModule({ onExit }) {
   const navigate = useNavigate();
   const pool = questionData.questions || [];
 
-  // Session State
-  const [sessionStarted, setSessionStarted] = useState(false);
+  // View: 'papers_hub' | 'quiz' | 'report'
+  const [viewState, setViewState] = useState('papers_hub');
+  const [activePaperId, setActivePaperId] = useState(1);
+
+  // Quiz State (20 Questions)
   const [qNum, setQNum] = useState(1);
   const [currentDiff, setCurrentDiff] = useState(1);
   const [currentQuestion, setCurrentQuestion] = useState(null);
@@ -80,11 +113,8 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [misconception, setMisconception] = useState(null);
-  const [remedialFeedback, setRemedialFeedback] = useState(null);
   const [consecutiveCorrect, setConsecutiveCorrect] = useState(0);
   const [consecutiveWrong, setConsecutiveWrong] = useState(0);
-  const [sessionComplete, setSessionComplete] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
 
   // 20-Skill Mastery Vector (0 to 100%)
@@ -98,7 +128,27 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
     return init;
   });
 
-  // Persistent Question History across Papers (Non-repetition Invariant)
+  // Paper History in LocalStorage
+  const [paperHistory, setPaperHistory] = useState(() => {
+    try {
+      const stored = localStorage.getItem('g2_math_paper_history');
+      return stored ? JSON.parse(stored) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  const savePaperResult = (paperId, resultData) => {
+    const updated = {
+      ...paperHistory,
+      [paperId]: resultData
+    };
+    setPaperHistory(updated);
+    try {
+      localStorage.setItem('g2_math_paper_history', JSON.stringify(updated));
+    } catch (e) {}
+  };
+
   const getPersistentAnsweredIds = () => {
     try {
       const stored = localStorage.getItem('g2_math_answered_ids');
@@ -118,21 +168,19 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
     } catch (e) {}
   };
 
-  // Start / Restart Session
-  const handleStartSession = () => {
+  // Start a specific paper (20 Questions)
+  const handleStartPaper = (pId) => {
     playSound('click');
+    setActivePaperId(pId);
     setQNum(1);
-    setCurrentDiff(1);
+    setCurrentDiff(pId === 1 ? 1 : pId === 2 ? 2 : 3);
     setAskedIds([]);
     setHistory([]);
     setSelectedOption(null);
     setIsAnswered(false);
     setIsCorrect(false);
-    setMisconception(null);
-    setRemedialFeedback(null);
     setConsecutiveCorrect(0);
     setConsecutiveWrong(0);
-    setSessionComplete(false);
 
     const init = {};
     Object.values(GRADE2_DOMAINS).forEach(dom => {
@@ -142,17 +190,32 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
     });
     setSkillMastery(init);
 
-    const firstQ = selectNextQuestion(1, 1, init, []);
+    const firstQ = selectNextQuestion(1, pId === 1 ? 1 : pId === 2 ? 2 : 3, init, []);
     setCurrentQuestion(firstQ);
     if (firstQ) {
       setAskedIds([firstQ.id]);
       speakSinhala(firstQ.text_si);
     }
     setStartTime(Date.now());
-    setSessionStarted(true);
+    setViewState('quiz');
   };
 
-  // 5-Stage Adaptive Question Selection Algorithm with Strict Duplicate Filter
+  // View existing paper report directly
+  const handleViewSavedPaperReport = (pId) => {
+    playSound('click');
+    const saved = paperHistory[pId];
+    if (saved) {
+      setActivePaperId(pId);
+      setHistory(saved.history || []);
+      setSkillMastery(saved.skillMastery || {});
+      setCurrentDiff(saved.currentDiff || 1);
+      setViewState('report');
+    } else {
+      handleStartPaper(pId);
+    }
+  };
+
+  // 5-Stage Adaptive Question Selection Algorithm for 20 Questions
   const selectNextQuestion = (nextQNum, targetDiff, currentMasteries, existingAskedIds) => {
     const persistentExclusions = getPersistentAnsweredIds();
     const allExclusions = new Set([...existingAskedIds, ...persistentExclusions]);
@@ -163,19 +226,19 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
       // Diagnostic Q1: Counting or Number Reading or Basic Addition
       const diagSkills = ['G2_D1_S1_COUNTING', 'G2_D1_S2_NUMBER_READING', 'G2_D2_S1_ADDITION_20'];
       targetSkillId = diagSkills[Math.floor(Math.random() * diagSkills.length)];
-    } else if (nextQNum === 10) {
-      // Q10: Consolidation test of weakest skill
+    } else if (nextQNum === 20) {
+      // Q20: Final consolidation test of weakest skill
       const sorted = Object.entries(currentMasteries).sort((a, b) => a[1] - b[1]);
       targetSkillId = sorted[0][0];
     } else {
-      // Q2 - Q9: Dynamic Selection
+      // Q2 - Q19: Dynamic Adaptive Selection (70% Weakness focus, 30% Coverage)
       const sorted = Object.entries(currentMasteries).sort((a, b) => a[1] - b[1]);
       const weakestThree = sorted.slice(0, 3).map(x => x[0]);
       
       if (Math.random() < 0.7 && weakestThree.length > 0) {
         targetSkillId = weakestThree[Math.floor(Math.random() * weakestThree.length)];
       } else {
-        const testedSkills = new Set(history.map(h => h.skill_id));
+        const testedSkills = new Set(history.map(h => h.skillId));
         const allSkills = Object.keys(currentMasteries);
         const untested = allSkills.filter(s => !testedSkills.has(s));
         targetSkillId = untested.length > 0
@@ -184,7 +247,7 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
       }
     }
 
-    // Stage 1-4 Candidate Matching
+    // Candidate Matching
     let candidates = pool.filter(q => 
       q.skill_id === targetSkillId && 
       q.difficulty_tier === targetDiff && 
@@ -207,7 +270,7 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
     }
 
     let unseen = pool.filter(q => !allExclusions.has(q.id));
-    return unseen.length > 0 ? unseen[Math.floor(Math.random() * unseen.length)] : null;
+    return unseen.length > 0 ? unseen[Math.floor(Math.random() * unseen.length)] : pool[0];
   };
 
   // Submit Answer Handler
@@ -250,21 +313,11 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
       } else if (currentDiff > 1) {
         nextDiff = Math.max(1, currentDiff - 1);
       }
-
-      if (currentQuestion.error_patterns && currentQuestion.error_patterns[opt]) {
-        setMisconception(currentQuestion.error_patterns[opt]);
-      } else {
-        setMisconception(null);
-      }
     }
 
     setConsecutiveCorrect(nextConsecCorrect);
     setConsecutiveWrong(nextConsecWrong);
     setCurrentDiff(nextDiff);
-
-    setRemedialFeedback(
-      `නිවැරදි පිළිතුර: ${currentQuestion.answer}. ${currentQuestion.explanation_si || ''}`
-    );
 
     const historyEntry = {
       qNum,
@@ -285,9 +338,23 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
   // Next Question
   const handleNextQuestion = () => {
     playSound('click');
-    if (qNum >= 10) {
-      setSessionComplete(true);
+    if (qNum >= 20) {
+      // Complete paper
+      const finalTotalCorrect = history.filter(h => h.isCorrect).length;
+      const finalAccuracy = Math.round((finalTotalCorrect / 20) * 100);
+      
+      savePaperResult(activePaperId, {
+        paperId: activePaperId,
+        totalCorrect: finalTotalCorrect,
+        overallAccuracy: finalAccuracy,
+        currentDiff,
+        history,
+        skillMastery,
+        completedAt: new Date().toLocaleDateString('si-LK')
+      });
+
       playSound('correct');
+      setViewState('report');
       return;
     }
 
@@ -296,8 +363,6 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
     setSelectedOption(null);
     setIsAnswered(false);
     setIsCorrect(false);
-    setMisconception(null);
-    setRemedialFeedback(null);
 
     const nextQ = selectNextQuestion(nextQNum, currentDiff, skillMastery, askedIds);
     setCurrentQuestion(nextQ);
@@ -315,7 +380,6 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
     const scores = dom.skills.map(s => skillMastery[s.id] || 50);
     const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
     
-    // Calculate questions asked, correct, and wrong for this specific domain
     const domSkillIds = new Set(dom.skills.map(s => s.id));
     const domHistory = history.filter(h => domSkillIds.has(h.skillId));
     const askedCount = domHistory.length;
@@ -353,77 +417,153 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
       className="min-h-screen bg-cover bg-center bg-fixed font-sans select-none relative overflow-x-hidden pb-16"
       style={{ backgroundImage: "url('/images/grade4_bg.png')" }}
     >
-      
-      <div className="max-w-4xl mx-auto relative z-10">
-      
+      <div className="max-w-4xl mx-auto relative z-10 p-4 sm:p-6">
         
         {/* Top Navigation */}
         <div className="flex items-center justify-between mb-6">
           <button
-            onClick={onExit || (() => navigate('/dashboard'))}
+            onClick={() => {
+              if (viewState === 'quiz') {
+                if (window.confirm("ඔබට මෙම ප්‍රශ්න පත්‍රයෙන් ඉවත් වීමට අවශ්‍යද?")) {
+                  setViewState('papers_hub');
+                }
+              } else if (viewState === 'report') {
+                setViewState('papers_hub');
+              } else {
+                onExit ? onExit() : navigate('/dashboard');
+              }
+            }}
             className="flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-slate-200 hover:border-teal-400 text-slate-700 font-bold rounded-2xl shadow-sm hover:shadow transition-all cursor-pointer"
           >
             <span>⬅</span>
-            <span>Dashboard එකට</span>
+            <span>{viewState === 'papers_hub' ? 'Dashboard එකට' : 'ප්‍රශ්න පත්‍ර තෝරන්න'}</span>
           </button>
 
-          {sessionStarted && !sessionComplete && (
+          {viewState === 'quiz' && (
             <div className="flex items-center gap-3">
-              <span className="text-xs font-bold bg-teal-100 text-teal-800 px-3 py-1.5 rounded-xl border border-teal-200">
-                ප්‍රශ්නය {qNum} / 10
+              <span className="bg-teal-600 text-white font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm">
+                ප්‍රශ්න පත්‍රය 0{activePaperId}
               </span>
-              <span className="text-xs font-black bg-blue-100 text-blue-800 px-3 py-1.5 rounded-xl border border-blue-200">
-                Tier {currentDiff} ({DIFFICULTY_DELTAS[currentDiff]?.label.split(':')[0]})
+              <span className="bg-white/90 backdrop-blur border border-teal-200 text-teal-800 font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm">
+                ප්‍රශ්න {qNum} / 20
               </span>
             </div>
           )}
         </div>
 
-        {/* ── SCREEN 1: PRE-TEST INTRO HERO ── */}
-        {!sessionStarted && !sessionComplete && (
-          <div className="bg-white rounded-3xl p-8 sm:p-10 border-2 border-teal-200 shadow-xl text-center animate-fade-in">
-            <div className="w-20 h-20 bg-gradient-to-tr from-teal-500 to-emerald-600 rounded-3xl flex items-center justify-center text-4xl text-white mx-auto mb-5 shadow-md">
-              🌱
-            </div>
-            <div className="inline-block bg-teal-50 border border-teal-200 px-4 py-1.5 rounded-full text-xs font-black text-teal-700 uppercase tracking-widest mb-3">
-              National Curriculum Research Engine (Grade 2)
-            </div>
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-800 mb-3">
-              2 ශ්‍රේණිය — අනුවර්තී ගණිත ඇගයීම් පද්ධතිය
-            </h1>
-            <p className="text-slate-600 text-base max-w-xl mx-auto mb-8 leading-relaxed">
-              ශ්‍රී ලංකා ජාතික ගුරු මාර්ගෝපදේශය පදනම් කරගත් <strong>ප්‍රධාන ක්ෂේත්‍ර 4ක්</strong> සහ <strong>කුසලතා 20ක්</strong> (100 දක්වා සංඛ්‍යා, 20 දක්වා එකතු කිරීම/අඩු කිරීම, අභිමත මිනුම්, හැඩතල) ඔස්සේ ක්‍රියාත්මක වන ඇගයීම් පද්ධතිය.
-            </p>
-
-            {/* 4 Domains Overview Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8 text-left">
-              {Object.values(GRADE2_DOMAINS).map(dom => (
-                <div key={dom.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                  <span className="text-2xl mb-1 block">{dom.icon}</span>
-                  <p className="text-xs font-bold text-slate-800 mb-0.5">{dom.name_si}</p>
-                  <p className="text-[10px] font-bold text-slate-400">{dom.name_en}</p>
-                </div>
-              ))}
+        {/* ── SCREEN 1: 3 ADAPTIVE PAPERS HUB ── */}
+        {viewState === 'papers_hub' && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Hero Welcome Banner */}
+            <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-teal-100 shadow-xl text-center relative overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-teal-100 rounded-full blur-2xl opacity-50"></div>
+              <div className="inline-block bg-teal-100 text-teal-800 font-black text-xs px-4 py-1.5 rounded-full mb-3 uppercase tracking-wider">
+                Grade 2 • 2 ශ්‍රේණිය ගණිතය
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2 font-sinhala">
+                අනුවර්තී ප්‍රශ්න පත්‍ර පද්ධතිය (3 Adaptive Papers)
+              </h1>
+              <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
+                ශ්‍රී ලංකා ජාතික විෂය නිර්දේශයේ කුසලතා 20 ආවරණය වන පරිදි සකස් කළ ප්‍රශ්න 20 බැගින් යුත් අනුවර්තී ප්‍රශ්න පත්‍ර 3ක්.
+              </p>
             </div>
 
-            <button
-              onClick={handleStartSession}
-              className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-black text-lg px-8 py-4 rounded-2xl shadow-lg shadow-teal-500/30 transform hover:-translate-y-0.5 transition-all cursor-pointer"
-            >
-              🚀 2 ශ්‍රේණිය ඇගයීම අරඹන්න (Start Grade 2 Test)
-            </button>
+            {/* 3 Paper Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {PAPERS_CONFIG.map((p) => {
+                const result = paperHistory[p.id];
+                const isCompleted = !!result;
+
+                return (
+                  <div 
+                    key={p.id}
+                    className={`bg-white rounded-3xl p-6 border-2 transition-all duration-300 shadow-lg flex flex-col justify-between hover:shadow-2xl hover:-translate-y-1 relative overflow-hidden ${
+                      isCompleted ? 'border-emerald-300 bg-emerald-50/20' : 'border-slate-200'
+                    }`}
+                  >
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-start">
+                        <span className="text-4xl">{p.icon}</span>
+                        {isCompleted ? (
+                          <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1">
+                            ✓ සම්පූර්ණයි
+                          </span>
+                        ) : (
+                          <span className="bg-slate-100 text-slate-600 text-xs font-black px-3 py-1 rounded-full">
+                            නව ප්‍රශ්න පත්‍රය
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-xl font-black text-slate-800 font-sinhala leading-snug">
+                        {p.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                        {p.subtitle}
+                      </p>
+
+                      <div className="pt-2">
+                        <span className="inline-block text-xs font-black bg-slate-100 text-slate-700 px-3 py-1 rounded-lg">
+                          {p.badge}
+                        </span>
+                      </div>
+
+                      {isCompleted && (
+                        <div className="mt-4 p-3 bg-white rounded-2xl border border-emerald-200 flex items-center justify-between">
+                          <span className="text-xs font-bold text-slate-600">පෙර ලකුණු:</span>
+                          <span className="text-sm font-black text-emerald-700">
+                            {result.totalCorrect}/20 ({result.overallAccuracy}%)
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-6 space-y-2">
+                      <button
+                        onClick={() => handleStartPaper(p.id)}
+                        className={`w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white shadow-md transition-all cursor-pointer bg-gradient-to-r ${p.color} hover:opacity-95 active:scale-95`}
+                      >
+                        {isCompleted ? '🔄 නැවත කරන්න (Retake)' : 'ආරම්භ කරන්න (Start) ➔'}
+                      </button>
+                      {isCompleted && (
+                        <button
+                          onClick={() => handleViewSavedPaperReport(p.id)}
+                          className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-teal-700 bg-teal-50 hover:bg-teal-100 transition-colors cursor-pointer"
+                        >
+                          📊 වාර්තාව බලන්න (View Report)
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
-        {/* ── SCREEN 2: ACTIVE QUESTION SCREEN ── */}
-        {sessionStarted && !sessionComplete && currentQuestion && (
-          <div className="space-y-6 animate-fade-in">
+        {/* ── SCREEN 2: 20 ADAPTIVE QUESTIONS QUIZ ── */}
+        {viewState === 'quiz' && currentQuestion && (
+          <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-teal-100 shadow-xl animate-scale-up space-y-6">
             
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-teal-100 shadow-xl relative overflow-hidden">
-              
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+            {/* Progress Bar (20 Questions) */}
+            <div>
+              <div className="flex justify-between items-center text-xs font-black text-slate-600 mb-2">
+                <span>ප්‍රශ්න ප්‍රගතිය (Progress)</span>
+                <span>{qNum} / 20 ({Math.round((qNum / 20) * 100)}%)</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+                <div 
+                  className="bg-gradient-to-r from-teal-500 to-emerald-500 h-3 rounded-full transition-all duration-300"
+                  style={{ width: `${(qNum / 20) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Question Card */}
+            <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-black uppercase tracking-wider text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-100">
+                  <span className="text-xs font-black uppercase tracking-wider text-teal-700 bg-teal-100 px-3 py-1 rounded-full">
                     {getSkillName(currentQuestion.skill_id).si}
                   </span>
                   <span className="text-xs font-bold text-slate-400">
@@ -432,21 +572,21 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
                 </div>
                 <button
                   onClick={() => speakSinhala(currentQuestion.text_si)}
-                  className="flex items-center gap-1 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-full transition-colors cursor-pointer"
+                  className="flex items-center gap-1 text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full transition-colors cursor-pointer shadow-sm"
                 >
                   <span>🔊</span> ශබ්ද නගා කියවන්න
                 </button>
               </div>
 
-              <h2 className="text-xl sm:text-2xl font-black text-slate-800 mb-2 leading-relaxed">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800 leading-relaxed font-sinhala">
                 {currentQuestion.text_si}
               </h2>
-              <p className="text-sm text-slate-400 font-sans mb-6">
+              <p className="text-sm text-slate-400 font-sans">
                 {currentQuestion.text_en}
               </p>
 
               {/* Options */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 {currentQuestion.options.map((opt, idx) => {
                   let btnStyle = 'bg-white border-2 border-slate-200 text-slate-700 hover:border-teal-400 hover:bg-teal-50/50';
                   
@@ -473,12 +613,12 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
 
               {/* Continue Action */}
               {isAnswered && (
-                <div className="flex justify-end pt-2 animate-fade-in">
+                <div className="flex justify-end pt-4 animate-fade-in border-t border-slate-200">
                   <button
                     onClick={handleNextQuestion}
-                    className="bg-teal-600 hover:bg-teal-700 text-white font-black px-7 py-3 rounded-2xl shadow-md transition-all flex items-center gap-2 cursor-pointer text-base"
+                    className="bg-teal-600 hover:bg-teal-700 text-white font-black px-8 py-3.5 rounded-2xl shadow-lg transition-all flex items-center gap-2 cursor-pointer text-base active:scale-95"
                   >
-                    <span>{qNum >= 10 ? 'සම්පූර්ණ වාර්තාව බලන්න (View Report) ➔' : 'ඊළඟ ප්‍රශ්නය ➔'}</span>
+                    <span>{qNum >= 20 ? 'සම්පූර්ණ වාර්තාව බලන්න (View Report) ➔' : 'ඊළඟ ප්‍රශ්නය ➔'}</span>
                   </button>
                 </div>
               )}
@@ -487,19 +627,19 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
           </div>
         )}
 
-        {/* ── SCREEN 3: COMPREHENSIVE LEARNER REPORT ── */}
-        {sessionComplete && (
+        {/* ── SCREEN 3: COMPREHENSIVE LEARNER REPORT (20 QUESTIONS) ── */}
+        {viewState === 'report' && (
           <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-teal-200 shadow-2xl space-y-8 animate-scale-up">
             
             <div className="text-center pb-6 border-b border-slate-200">
               <div className="w-20 h-20 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-3xl flex items-center justify-center text-4xl text-white mx-auto mb-4 shadow-lg">
                 🏆
               </div>
-              <h2 className="text-3xl font-black text-slate-800 mb-1">
-                2 ශ්‍රේණිය ඇගයීම් වාර්තාව (Grade 2 Mastery Report)
+              <h2 className="text-3xl font-black text-slate-800 mb-1 font-sinhala">
+                2 ශ්‍රේණිය — ප්‍රශ්න පත්‍රය 0{activePaperId} ඇගයීම් වාර්තාව
               </h2>
               <p className="text-sm text-slate-500 font-bold">
-                කුසලතා 20 විශ්ලේෂණය (Grade 2 National Curriculum)
+                කුසලතා 20 අනුවර්තී විශ්ලේෂණය (Grade 2 National Curriculum)
               </p>
             </div>
 
@@ -507,7 +647,7 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="bg-teal-50 border border-teal-200 rounded-2xl p-5 text-center">
                 <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-1">නිවැරදි පිළිතුරු</p>
-                <p className="text-3xl font-black text-teal-700">{totalCorrect} / 10</p>
+                <p className="text-3xl font-black text-teal-700">{totalCorrect} / 20</p>
               </div>
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
                 <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">නිරවද්‍යතා ප්‍රතිශතය</p>
@@ -600,10 +740,10 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
               </div>
             </div>
 
-            {/* Detailed Question Review Table */}
+            {/* Detailed Question Review Table for all 20 questions */}
             <div>
               <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
-                <span>📋</span> ප්‍රශ්න සමාලෝචනය (Detailed Question Review)
+                <span>📋</span> ප්‍රශ්න 20 සමාලෝචනය (Detailed 20-Question Review)
               </h3>
               <div className="space-y-3">
                 {history.map((h, idx) => (
@@ -620,7 +760,7 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
                         <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black text-white ${h.isCorrect ? 'bg-emerald-500' : 'bg-rose-500'}`}>
                           {h.isCorrect ? '✓' : '✗'}
                         </span>
-                        <span className="font-bold text-slate-800 text-sm">ප්‍රශ්නය {h.qNum}</span>
+                        <span className="font-bold text-slate-800 text-sm">ප්‍රශ්නය {h.qNum} / 20</span>
                       </div>
                       <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${h.isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
                         {h.isCorrect ? 'නිවැරදියි' : 'වැරදියි'}
@@ -646,16 +786,22 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-200">
               <button
-                onClick={handleStartSession}
+                onClick={() => handleStartPaper(activePaperId)}
                 className="flex-1 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-black py-3.5 px-6 rounded-2xl shadow-md transition-all cursor-pointer text-center"
               >
-                🔄 නැවත ඇගයීමක් කරන්න (Retake Diagnostic)
+                🔄 නැවත කරන්න (Retake Paper 0{activePaperId})
+              </button>
+              <button
+                onClick={() => setViewState('papers_hub')}
+                className="flex-1 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 font-black py-3.5 px-6 rounded-2xl transition-all cursor-pointer text-center"
+              >
+                📑 වෙනත් ප්‍රශ්න පත්‍රයක් (Select Another Paper)
               </button>
               <button
                 onClick={onExit || (() => navigate('/dashboard'))}
                 className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black py-3.5 px-6 rounded-2xl transition-all cursor-pointer text-center"
               >
-                🏠 Dashboard එකට යන්න (Dashboard)
+                🏠 Dashboard
               </button>
             </div>
 
