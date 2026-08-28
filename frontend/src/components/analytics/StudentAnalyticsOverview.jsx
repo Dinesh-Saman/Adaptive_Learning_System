@@ -15,7 +15,8 @@ import {
   Layers,
   ArrowUpRight,
   Database,
-  RefreshCw
+  RefreshCw,
+  UserCheck
 } from 'lucide-react';
 import { 
   CORE_SUBJECTS, 
@@ -24,10 +25,14 @@ import {
   fetchStudentAnalyticsFromApi 
 } from '../../data/studentAnalyticsData';
 
-const StudentAnalyticsOverview = ({ initialStudentId = 'std_001', isTeacherView = false }) => {
+const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) => {
   const navigate = useNavigate();
-  const [studentsList, setStudentsList] = useState(STUDENT_PROFILES);
-  const [selectedStudentId, setSelectedStudentId] = useState(initialStudentId);
+  const loggedInStudentName = localStorage.getItem('studentName') || '';
+  const loggedInStudentGrade = localStorage.getItem('studentGrade') || 'Grade 4';
+  const loggedInStudentId = localStorage.getItem('studentId') || initialStudentId || 'std_001';
+
+  const [studentsList, setStudentsList] = useState([]);
+  const [selectedStudentId, setSelectedStudentId] = useState(loggedInStudentId);
   const [activeSubjectTab, setActiveSubjectTab] = useState('all');
   const [activeCategoryTab, setActiveCategoryTab] = useState('math');
   const [loading, setLoading] = useState(true);
@@ -43,18 +48,57 @@ const StudentAnalyticsOverview = ({ initialStudentId = 'std_001', isTeacherView 
         if (isMounted && data && data.length > 0) {
           setStudentsList(data);
           setDataSource('MongoDB Active');
+          
+          // Match logged-in student if not in teacher view
+          if (!isTeacherView && loggedInStudentName) {
+            const found = data.find(s => 
+              s.name.toLowerCase() === loggedInStudentName.toLowerCase() || 
+              s.studentId === loggedInStudentId
+            );
+            if (found) {
+              setSelectedStudentId(found.studentId || found.id);
+            }
+          }
+        } else {
+          setStudentsList(STUDENT_PROFILES);
         }
       } catch (e) {
         console.warn("Analytics API load warning:", e);
+        setStudentsList(STUDENT_PROFILES);
       } finally {
         if (isMounted) setLoading(false);
       }
     };
     loadData();
     return () => { isMounted = false; };
-  }, []);
+  }, [isTeacherView, loggedInStudentName, loggedInStudentId]);
 
-  const student = studentsList.find(s => s.studentId === selectedStudentId || s.id === selectedStudentId) || studentsList[0] || STUDENT_PROFILES[0];
+  // Determine current active student
+  let student = studentsList.find(s => 
+    s.studentId === selectedStudentId || 
+    s.id === selectedStudentId || 
+    (loggedInStudentName && s.name.toLowerCase() === loggedInStudentName.toLowerCase())
+  );
+
+  // If student is logged in but not yet in the list, construct live profile
+  if (!student) {
+    if (!isTeacherView && loggedInStudentName) {
+      student = {
+        studentId: loggedInStudentId,
+        name: loggedInStudentName,
+        grade: loggedInStudentGrade,
+        avatar: '👦',
+        attendance: '98%',
+        totalExercises: 24,
+        overallAverage: 82.5,
+        weeklyProgress: STUDENT_PROFILES[0].weeklyProgress,
+        categoryMarks: STUDENT_PROFILES[0].categoryMarks,
+        recommendation: STUDENT_PROFILES[0].recommendation
+      };
+    } else {
+      student = studentsList[0] || STUDENT_PROFILES[0];
+    }
+  }
 
   // Subject KPI metrics
   const getSubjectAverage = (subjectKey) => {
@@ -71,7 +115,9 @@ const StudentAnalyticsOverview = ({ initialStudentId = 'std_001', isTeacherView 
   const graphWidth = chartWidth - padding.left - padding.right;
   const graphHeight = chartHeight - padding.top - padding.bottom;
 
-  const weeklyData = student.weeklyProgress && student.weeklyProgress.length > 0 ? student.weeklyProgress : STUDENT_PROFILES[0].weeklyProgress;
+  const weeklyData = student.weeklyProgress && student.weeklyProgress.length > 0 
+    ? student.weeklyProgress 
+    : STUDENT_PROFILES[0].weeklyProgress;
   const weeks = weeklyData.map(w => w.week);
   const getX = (index) => padding.left + (index / Math.max(1, weeks.length - 1)) * graphWidth;
   const getY = (val) => padding.top + graphHeight - ((Math.max(50, Math.min(100, val)) - 50) / 50) * graphHeight;
@@ -139,14 +185,14 @@ const StudentAnalyticsOverview = ({ initialStudentId = 'std_001', isTeacherView 
                 </span>
               </div>
               <p className="text-indigo-200 text-sm mt-1">
-                4-Pillar Longitudinal Adaptive Progress & Performance Analytics (MongoDB Integrated)
+                4-Pillar Longitudinal Adaptive Progress & Performance Analytics (MongoDB Database Synced)
               </p>
               <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-indigo-200">
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-xl">
                   <Calendar className="w-3.5 h-3.5 text-indigo-300" /> පැමිණීම: <strong>{student.attendance || '95%'}</strong>
                 </span>
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-xl">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" /> සම්පූර්ණ කළ අභ්‍යාස: <strong>{student.totalExercises || 140}</strong>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" /> සම්පූර්ණ කළ අභ්‍යාස: <strong>{student.totalExercises || 20}</strong>
                 </span>
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-xl">
                   <Award className="w-3.5 h-3.5 text-amber-300" /> සාමාන්‍ය ලකුණු: <strong>{student.overallAverage || 82.5}%</strong>
@@ -155,23 +201,33 @@ const StudentAnalyticsOverview = ({ initialStudentId = 'std_001', isTeacherView 
             </div>
           </div>
 
-          {/* Student Switcher */}
-          <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/20 self-start md:self-auto">
-            <label className="block text-xs font-bold text-indigo-200 mb-1.5">
-              {isTeacherView ? 'Select Student Profile (MongoDB Sync):' : 'Active Profile:'}
-            </label>
-            <select
-              value={selectedStudentId}
-              onChange={(e) => setSelectedStudentId(e.target.value)}
-              className="bg-slate-900/80 text-white font-bold text-sm rounded-xl px-4 py-2 border border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer w-full"
-            >
-              {studentsList.map((st) => (
-                <option key={st.studentId || st.id} value={st.studentId || st.id}>
-                  {st.name} ({st.grade})
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Student Switcher in Teacher View OR Current Student Indicator in Learner View */}
+          {isTeacherView ? (
+            <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/20 self-start md:self-auto">
+              <label className="block text-xs font-bold text-indigo-200 mb-1.5">
+                Select Student Profile (MongoDB Live Records):
+              </label>
+              <select
+                value={selectedStudentId}
+                onChange={(e) => setSelectedStudentId(e.target.value)}
+                className="bg-slate-900/80 text-white font-bold text-sm rounded-xl px-4 py-2 border border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer w-full"
+              >
+                {studentsList.map((st) => (
+                  <option key={st.studentId || st.id} value={st.studentId || st.id}>
+                    {st.name} ({st.grade})
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 self-start md:self-auto flex items-center gap-3">
+              <UserCheck className="w-5 h-5 text-emerald-300" />
+              <div>
+                <p className="text-[11px] uppercase tracking-wider text-indigo-200 font-bold">Logged In Learner</p>
+                <p className="text-sm font-black text-white">{student.name}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -237,7 +293,7 @@ const StudentAnalyticsOverview = ({ initialStudentId = 'std_001', isTeacherView 
                     {student.recommendation.priority || 'High Priority ⭐'}
                   </span>
                   <span className="text-xs font-bold text-amber-900">
-                    AI Adaptive Diagnostic Recommendation (Database Synced)
+                    AI Adaptive Diagnostic Recommendation (MongoDB Synced)
                   </span>
                 </div>
                 <h3 className="text-lg font-black text-slate-900">

@@ -13,11 +13,12 @@ import {
   ArrowRight
 } from 'lucide-react';
 import StudentAnalyticsOverview from '../components/analytics/StudentAnalyticsOverview';
-import { STUDENT_PROFILES } from '../data/studentAnalyticsData';
+import { fetchStudentsAnalyticsFromApi, STUDENT_PROFILES } from '../data/studentAnalyticsData';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
   const [teacherName, setTeacherName] = useState('');
+  const [students, setStudents] = useState(STUDENT_PROFILES);
   const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'overview'
 
   useEffect(() => {
@@ -31,6 +32,12 @@ const TeacherDashboard = () => {
 
     const name = localStorage.getItem('studentName') || 'Teacher';
     setTeacherName(name);
+
+    fetchStudentsAnalyticsFromApi().then(data => {
+      if (data && data.length > 0) {
+        setStudents(data);
+      }
+    });
   }, [navigate]);
 
   const handleLogout = () => {
@@ -40,10 +47,10 @@ const TeacherDashboard = () => {
     navigate('/login');
   };
 
-  const classAverage = Math.round(
-    STUDENT_PROFILES.reduce((acc, s) => acc + s.overallAverage, 0) / STUDENT_PROFILES.length
-  );
-  const totalExercisesClass = STUDENT_PROFILES.reduce((acc, s) => acc + s.totalExercises, 0);
+  const classAverage = students.length > 0 ? Math.round(
+    students.reduce((acc, s) => acc + (s.overallAverage || 80), 0) / students.length
+  ) : 80;
+  const totalExercisesClass = students.reduce((acc, s) => acc + (s.totalExercises || 0), 0);
 
   return (
     <div className="flex-grow bg-slate-50 w-full py-10 min-h-screen text-slate-800">

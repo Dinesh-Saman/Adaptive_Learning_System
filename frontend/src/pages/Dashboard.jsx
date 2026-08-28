@@ -12,6 +12,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import StudentAnalyticsOverview from '../components/analytics/StudentAnalyticsOverview';
+import { fetchStudentAnalyticsFromApi } from '../data/studentAnalyticsData';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -35,6 +36,8 @@ const Dashboard = () => {
     }
 
     const name = localStorage.getItem('studentName') || 'Student';
+    const studentId = localStorage.getItem('studentId') || name;
+    const grade = localStorage.getItem('studentGrade') || 'Grade 4';
     const masteryLevelsStr = localStorage.getItem('masteryLevels');
     
     let masteryLevels = { math: 0.5, english: 0.5, sinhala: 0.5, motorSkills: 0.5 };
@@ -46,7 +49,23 @@ const Dashboard = () => {
       }
     }
 
-    setStudent({ name, masteryLevels });
+    setStudent({ name, studentId, grade, masteryLevels, overallAverage: 80 });
+
+    // Fetch dynamic student profile from MongoDB
+    fetchStudentAnalyticsFromApi(studentId).then(apiStudent => {
+      if (apiStudent) {
+        setStudent({
+          name: apiStudent.name || name,
+          studentId: apiStudent.studentId || studentId,
+          grade: apiStudent.grade || grade,
+          overallAverage: apiStudent.overallAverage || 80,
+          totalExercises: apiStudent.totalExercises || 0,
+          masteryLevels
+        });
+      }
+    }).catch(err => {
+      console.warn("MongoDB student profile load fallback:", err);
+    });
   }, [navigate]);
 
   const navigateToModule = (moduleId) => {
@@ -109,7 +128,7 @@ const Dashboard = () => {
 
         {/* ANALYTICS TAB VIEW */}
         {activeView === 'analytics' && !showMathHubs && !showSinhalaHubs && !showPreSchoolHub ? (
-          <StudentAnalyticsOverview initialStudentId="std_001" isTeacherView={false} />
+          <StudentAnalyticsOverview initialStudentId={student?.studentId || student?.name || 'std_001'} isTeacherView={false} />
         ) : showMathHubs ? (
           /* MATH HUBS */
           <>

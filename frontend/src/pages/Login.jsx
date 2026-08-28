@@ -90,6 +90,12 @@ const Login = () => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('studentName', data.name);
       localStorage.setItem('role', data.role || role);
+      if (data.userId || data.studentId) {
+        localStorage.setItem('studentId', data.userId || data.studentId);
+      }
+      if (data.grade) {
+        localStorage.setItem('studentGrade', data.grade);
+      }
       
       if (data.role === 'teacher') {
         navigate('/teacher/dashboard');

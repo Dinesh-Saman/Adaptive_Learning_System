@@ -3,6 +3,7 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const StudentAnalytics = require('../models/StudentAnalytics');
+const Student = require('../models/Student');
 
 const MOCK_ANALYTICS_PATH = path.join(__dirname, '../data/mock_analytics.json');
 
@@ -172,7 +173,6 @@ const DEFAULT_STUDENTS_SEED = [
   }
 ];
 
-// Helper to get/set mock JSON data
 const getMockAnalytics = () => {
   try {
     if (!fs.existsSync(path.dirname(MOCK_ANALYTICS_PATH))) {
@@ -196,25 +196,46 @@ const saveMockAnalytics = (data) => {
   }
 };
 
-// Auto seed MongoDB if connected and empty
-const autoSeedMongo = async () => {
+// Sync MongoDB registered students with StudentAnalytics
+const syncRegisteredStudentsWithAnalytics = async () => {
   if (!global.dbConnected) return;
   try {
+    const registeredStudents = await Student.find({});
+    for (const st of registeredStudents) {
+      const exists = await StudentAnalytics.findOne({ 
+        $or: [{ studentId: st._id.toString() }, { name: st.name }] 
+      });
+      if (!exists) {
+        await StudentAnalytics.create({
+          studentId: st._id.toString(),
+          name: st.name,
+          grade: st.grade || 'Grade 4',
+          avatar: '👦',
+          attendance: '98%',
+          totalExercises: 20,
+          overallAverage: 80.0,
+          weeklyProgress: DEFAULT_STUDENTS_SEED[0].weeklyProgress,
+          categoryMarks: DEFAULT_STUDENTS_SEED[0].categoryMarks,
+          recommendation: DEFAULT_STUDENTS_SEED[0].recommendation
+        });
+        console.log(`Synced registered student ${st.name} to StudentAnalytics in MongoDB`);
+      }
+    }
+
     const count = await StudentAnalytics.countDocuments();
     if (count === 0) {
       await StudentAnalytics.insertMany(DEFAULT_STUDENTS_SEED);
-      console.log("🌱 Auto-seeded StudentAnalytics in MongoDB successfully");
+      console.log("🌱 Seeded initial StudentAnalytics in MongoDB");
     }
   } catch (err) {
-    console.warn("Auto-seed error:", err.message);
+    console.warn("Sync students analytics error:", err.message);
   }
 };
 
-// Run seed on router load
-setTimeout(autoSeedMongo, 2000);
+setTimeout(syncRegisteredStudentsWithAnalytics, 1500);
 
 // @route   GET /api/analytics/students
-// @desc    Get all students' analytics overview
+// @desc    Get all students' analytics overview from MongoDB
 router.get('/students', async (req, res) => {
   if (!global.dbConnected) {
     const data = getMockAnalytics();
@@ -222,11 +243,8 @@ router.get('/students', async (req, res) => {
   }
 
   try {
-    let students = await StudentAnalytics.find({}).sort({ studentId: 1 });
-    if (students.length === 0) {
-      await StudentAnalytics.insertMany(DEFAULT_STUDENTS_SEED);
-      students = await StudentAnalytics.find({}).sort({ studentId: 1 });
-    }
+    await syncRegisteredStudentsWithAnalytics();
+    const students = await StudentAnalytics.find({}).sort({ studentId: 1 });
     return res.json({ success: true, source: 'mongodb', students });
   } catch (err) {
     console.error("Error fetching students analytics from MongoDB:", err);
@@ -236,36 +254,53 @@ router.get('/students', async (req, res) => {
 });
 
 // @route   GET /api/analytics/student/:studentId
-// @desc    Get specific student analytics
+// @desc    Get specific student analytics from MongoDB by studentId or name
 router.get('/student/:studentId', async (req, res) => {
   const { studentId } = req.params;
 
   if (!global.dbConnected) {
     const data = getMockAnalytics();
-    const student = data.find(s => s.studentId === studentId || s.id === studentId);
+    const student = data.find(s => s.studentId === studentId || s.id === studentId || s.name === studentId);
     if (!student) {
-      return res.status(404).json({ success: false, message: 'Student analytics not found' });
+      return res.json({ success: true, source: 'mock_db', student: data[0] });
     }
     return res.json({ success: true, source: 'mock_db', student });
   }
 
   try {
-    let student = await StudentAnalytics.findOne({ studentId });
+    let student = await StudentAnalytics.findOne({ 
+      $or: [{ studentId }, { name: studentId }] 
+    });
+
     if (!student) {
-      const fallback = DEFAULT_STUDENTS_SEED.find(s => s.studentId === studentId);
-      if (fallback) {
-        student = new StudentAnalytics(fallback);
+      // Check if student exists in Student collection
+      let regStudent = null;
+      if (studentId.match(/^[0-9a-fA-F]{24}$/)) {
+        regStudent = await Student.findById(studentId);
+      } else {
+        regStudent = await Student.findOne({ name: studentId });
+      }
+
+      if (regStudent) {
+        student = new StudentAnalytics({
+          studentId: regStudent._id.toString(),
+          name: regStudent.name,
+          grade: regStudent.grade || 'Grade 4',
+          weeklyProgress: DEFAULT_STUDENTS_SEED[0].weeklyProgress,
+          categoryMarks: DEFAULT_STUDENTS_SEED[0].categoryMarks,
+          recommendation: DEFAULT_STUDENTS_SEED[0].recommendation
+        });
         await student.save();
       } else {
-        return res.status(404).json({ success: false, message: 'Student analytics not found' });
+        student = await StudentAnalytics.findOne({}) || DEFAULT_STUDENTS_SEED[0];
       }
     }
+
     return res.json({ success: true, source: 'mongodb', student });
   } catch (err) {
     console.error("Error fetching student from MongoDB:", err);
     const data = getMockAnalytics();
-    const student = data.find(s => s.studentId === studentId);
-    return res.json({ success: true, source: 'fallback', student: student || DEFAULT_STUDENTS_SEED[0] });
+    return res.json({ success: true, source: 'fallback', student: data[0] });
   }
 });
 
@@ -274,6 +309,7 @@ router.get('/student/:studentId', async (req, res) => {
 router.post('/record', async (req, res) => {
   const { 
     studentId = 'std_001', 
+    name = '',
     subject = 'sinhala', 
     categoryCode = 'C1', 
     marks = 28, 
@@ -286,7 +322,7 @@ router.post('/record', async (req, res) => {
 
   if (!global.dbConnected) {
     const data = getMockAnalytics();
-    const sIdx = data.findIndex(s => s.studentId === studentId);
+    const sIdx = data.findIndex(s => s.studentId === studentId || (name && s.name === name));
     if (sIdx !== -1) {
       data[sIdx].totalExercises = (data[sIdx].totalExercises || 0) + 1;
       if (data[sIdx].categoryMarks && data[sIdx].categoryMarks[subject]) {
@@ -304,11 +340,14 @@ router.post('/record', async (req, res) => {
   }
 
   try {
-    let student = await StudentAnalytics.findOne({ studentId });
+    let student = await StudentAnalytics.findOne({ 
+      $or: [{ studentId }, (name ? { name } : { studentId })] 
+    });
+
     if (!student) {
       student = new StudentAnalytics({
         studentId,
-        name: req.body.name || 'Student',
+        name: name || 'Student',
         weeklyProgress: DEFAULT_STUDENTS_SEED[0].weeklyProgress,
         categoryMarks: DEFAULT_STUDENTS_SEED[0].categoryMarks,
         recommendation: DEFAULT_STUDENTS_SEED[0].recommendation
