@@ -207,9 +207,6 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
               </p>
               <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-indigo-200">
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-xl">
-                  <Calendar className="w-3.5 h-3.5 text-indigo-300" /> පැමිණීම: <strong>{student.attendance || '100%'}</strong>
-                </span>
-                <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-xl">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" /> සම්පූර්ණ කළ අභ්‍යාස: <strong>{student.totalExercises || 0}</strong>
                 </span>
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-xl">

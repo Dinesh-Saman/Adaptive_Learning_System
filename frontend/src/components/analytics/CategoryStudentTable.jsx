@@ -186,7 +186,6 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
                   <th className="py-3 px-3">Mastery</th>
                   <th className="py-3 px-3">Skill Level</th>
                   <th className="py-3 px-3 text-center">Attempts</th>
-                  <th className="py-3 px-3 text-center">Attendance</th>
                   <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
@@ -250,11 +249,6 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
                       {/* Attempts */}
                       <td className="py-3.5 px-3 text-center whitespace-nowrap font-black text-slate-800">
                         {st.totalExercises || 0}
-                      </td>
-
-                      {/* Attendance */}
-                      <td className="py-3.5 px-3 text-center whitespace-nowrap text-xs font-bold text-slate-600">
-                        {st.attendance || '100%'}
                       </td>
 
                       {/* Inspect Action */}
