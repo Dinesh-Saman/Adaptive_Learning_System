@@ -406,7 +406,7 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
   return (
     <div 
       className="min-h-screen bg-cover bg-center bg-fixed font-sans select-none relative overflow-x-hidden pb-16"
-      style={{ backgroundImage: "url('/images/grade4_bg.png')" }}
+      style={{ backgroundImage: "url('/images/grade4_meadow_bg.jpg')" }}
     >
       <div className="max-w-4xl mx-auto relative z-10 p-4 sm:p-6">
         
