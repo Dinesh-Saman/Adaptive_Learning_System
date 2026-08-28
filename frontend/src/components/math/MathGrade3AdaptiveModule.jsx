@@ -610,17 +610,20 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
                 })}
               </div>
 
-              {/* Continue Action */}
-              {isAnswered && (
-                <div className="flex justify-end pt-4 animate-fade-in border-t border-slate-200">
-                  <button
-                    onClick={handleNextQuestion}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-black px-8 py-3.5 rounded-2xl shadow-lg transition-all flex items-center gap-2 cursor-pointer text-base active:scale-95"
-                  >
-                    <span>{qNum >= 20 ? 'සම්පූර්ණ වාර්තාව බලන්න (View Report) ➔' : 'ඊළඟ ප්‍රශ්නය ➔'}</span>
-                  </button>
-                </div>
-              )}
+              {/* Continue Action Button - Always visible, disabled until answered */}
+              <div className="flex justify-end pt-4 border-t border-slate-200">
+                <button
+                  disabled={!isAnswered}
+                  onClick={handleNextQuestion}
+                  className={`px-8 py-3.5 rounded-2xl font-black text-base transition-all flex items-center gap-2 ${
+                    isAnswered
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg cursor-pointer active:scale-95'
+                      : 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed opacity-75'
+                  }`}
+                >
+                  <span>{qNum >= 20 ? 'සම්පූර්ණ වාර්තාව බලන්න (View Report) ➔' : 'ඊළඟ ප්‍රශ්නය ➔'}</span>
+                </button>
+              </div>
 
             </div>
           </div>
