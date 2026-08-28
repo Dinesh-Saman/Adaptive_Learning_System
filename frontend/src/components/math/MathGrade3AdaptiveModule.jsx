@@ -48,16 +48,6 @@ function playSound(type) {
   } catch (e) {}
 }
 
-function speakSinhala(text) {
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'si-LK';
-  utterance.rate = 0.88;
-  utterance.pitch = 1.08;
-  window.speechSynthesis.speak(utterance);
-}
-
 const DIFFICULTY_DELTAS = {
   1: { correct: 5, wrong: -8, label: 'Level 1: මූලික' },
   2: { correct: 5, wrong: -6, label: 'Level 2: සරල' },
@@ -194,7 +184,6 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
     setCurrentQuestion(firstQ);
     if (firstQ) {
       setAskedIds([firstQ.id]);
-      speakSinhala(firstQ.text_si);
     }
     setStartTime(Date.now());
     setViewState('quiz');
@@ -362,7 +351,6 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
     setCurrentQuestion(nextQ);
     if (nextQ) {
       setAskedIds(prev => [...prev, nextQ.id]);
-      speakSinhala(nextQ.text_si);
     }
     setStartTime(Date.now());
   };
@@ -558,12 +546,7 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
                     {getSkillName(currentQuestion.skill_id).si}
                   </span>
                 </div>
-                <button
-                  onClick={() => speakSinhala(currentQuestion.text_si)}
-                  className="flex items-center gap-1 text-xs font-bold text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full transition-colors cursor-pointer shadow-sm"
-                >
-                  <span>🔊</span> ශබ්ද නගා කියවන්න
-                </button>
+
               </div>
 
               <h2 className="text-xl sm:text-2xl font-black text-slate-800 leading-relaxed font-sinhala">
