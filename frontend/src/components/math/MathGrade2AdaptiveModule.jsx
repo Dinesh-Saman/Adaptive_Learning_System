@@ -314,13 +314,24 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
   const domainSummaries = Object.entries(GRADE2_DOMAINS).map(([domId, dom]) => {
     const scores = dom.skills.map(s => skillMastery[s.id] || 50);
     const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    
+    // Calculate questions asked, correct, and wrong for this specific domain
+    const domSkillIds = new Set(dom.skills.map(s => s.id));
+    const domHistory = history.filter(h => domSkillIds.has(h.skillId));
+    const askedCount = domHistory.length;
+    const correctCount = domHistory.filter(h => h.isCorrect).length;
+    const wrongCount = askedCount - correctCount;
+
     return {
       id: domId,
       name_en: dom.name_en,
       name_si: dom.name_si,
       icon: dom.icon,
       color: dom.color,
-      masteryAvg: avg
+      masteryAvg: avg,
+      askedCount,
+      correctCount,
+      wrongCount
     };
   });
 
@@ -516,13 +527,36 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
               <div className="space-y-4">
                 {domainSummaries.map(dom => (
                   <div key={dom.id} className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
-                    <div className="flex justify-between items-center mb-2">
+                    <div className="flex flex-wrap justify-between items-center gap-2 mb-2">
                       <div className="flex items-center gap-2">
                         <span className="text-xl">{dom.icon}</span>
                         <span className="font-black text-sm text-slate-800">{dom.name_si}</span>
                         <span className="text-xs text-slate-400 font-sans">({dom.name_en})</span>
                       </div>
-                      <span className="font-black text-sm text-teal-600">{dom.masteryAvg}%</span>
+                      <div className="flex items-center gap-2">
+                        {dom.askedCount > 0 ? (
+                          <div className="flex items-center gap-1.5 text-xs font-black">
+                            <span className="bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg">
+                              ප්‍රශ්න {dom.askedCount}
+                            </span>
+                            <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                              ✓ {dom.correctCount}
+                            </span>
+                            {dom.wrongCount > 0 && (
+                              <span className="bg-rose-100 text-rose-800 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                ✗ {dom.wrongCount}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">
+                            ප්‍රශ්න අසා නැත
+                          </span>
+                        )}
+                        <span className="font-black text-sm text-teal-700 bg-teal-50 px-3 py-1 rounded-xl border border-teal-200">
+                          {dom.masteryAvg}%
+                        </span>
+                      </div>
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
                       <div
