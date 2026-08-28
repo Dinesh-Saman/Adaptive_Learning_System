@@ -199,14 +199,18 @@ const MathModule = ({ onExit }) => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 w-full text-center min-h-[90vh]">
-      <div className="flex justify-between items-center mb-8">
-        <button 
-          onClick={onExit}
-          className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition-colors"
-        >
-          &larr; Exit Session
-        </button>
+    <div 
+      className="min-h-screen bg-cover bg-center bg-fixed font-sans select-none relative overflow-x-hidden pb-16"
+      style={{ backgroundImage: "url('/images/math_bg.png')" }}
+    >
+      <div className="max-w-5xl mx-auto p-6 w-full text-center relative z-10">
+        <div className="flex justify-between items-center mb-8">
+          <button 
+            onClick={onExit}
+            className="px-5 py-2.5 bg-white border-2 border-slate-200 hover:border-blue-400 text-slate-700 rounded-2xl font-bold transition-all shadow-sm cursor-pointer"
+          >
+            &larr; Dashboard එකට
+          </button>
         <div className={`flex items-center gap-4 bg-slate-100 p-2 rounded-xl ${sessionState === 'active' ? '' : 'hidden'}`}>
            <video 
              ref={videoRef} 
@@ -547,6 +551,7 @@ const MathModule = ({ onExit }) => {
           </>
         )}
       </div>
+    </div>
     </div>
   );
 };
