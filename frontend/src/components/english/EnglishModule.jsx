@@ -1,474 +1,923 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import g2Data from '../../data/english/grade2_speaking_pool.json';
+import g3Data from '../../data/english/grade3_speaking_pool.json';
+import g4Data from '../../data/english/grade4_speaking_pool.json';
 
-const EnglishModule = ({ onExit }) => {
-  const [curriculumData, setCurriculumData] = useState(null);
-  const [selectedGrade, setSelectedGrade] = useState(() => {
-    return parseInt(sessionStorage.getItem('speaking_grade') || '2', 10);
+const POOLS = {
+  2: g2Data,
+  3: g3Data,
+  4: g4Data
+};
+
+const PAPERS_CONFIG = [
+  {
+    id: 1,
+    title: 'ප්‍රශ්න පත්‍රය 01',
+    subtitle: 'මූලික උච්චාරණ සහ කථන ඇගයීම',
+    badge: 'ප්‍රශ්න 30 • Easy ➔ Medium ➔ Hard',
+    icon: '📝',
+    color: 'from-emerald-500 to-teal-600',
+    borderColor: 'border-teal-300'
+  },
+  {
+    id: 2,
+    title: 'ප්‍රශ්න පත්‍රය 02',
+    subtitle: 'මධ්‍යම මට්ටමේ කථන චතුරතාව',
+    badge: 'ප්‍රශ්න 30 • Easy ➔ Medium ➔ Hard',
+    icon: '🎯',
+    color: 'from-blue-500 to-indigo-600',
+    borderColor: 'border-blue-300'
+  },
+  {
+    id: 3,
+    title: 'ප්‍රශ්න පත්‍රය 03',
+    subtitle: 'උසස් කථන සහ රිද්ම ඇගයීම',
+    badge: 'ප්‍රශ්න 30 • Easy ➔ Medium ➔ Hard',
+    icon: '🏆',
+    color: 'from-purple-500 to-pink-600',
+    borderColor: 'border-purple-300'
+  }
+];
+
+// Audio synthesizers for sound feedback
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    if (type === 'click') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, now);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    } else if (type === 'correct') {
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + i * 0.09);
+        gain.gain.setValueAtTime(0.15, now + i * 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.09 + 0.18);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.09);
+        osc.stop(now + i * 0.09 + 0.18);
+      });
+    } else if (type === 'unlock') {
+      [440, 554.37, 659.25, 880, 1108.73].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + i * 0.1);
+        gain.gain.setValueAtTime(0.2, now + i * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.2);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.1);
+        osc.stop(now + i * 0.1 + 0.2);
+      });
+    } else if (type === 'wrong') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.linearRampToValueAtTime(150, now + 0.25);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    }
+  } catch (e) {}
+}
+
+// English Text to Speech (Model voice)
+function speakEnglish(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'en-US';
+  utterance.rate = 0.85;
+  utterance.pitch = 1.05;
+  window.speechSynthesis.speak(utterance);
+}
+
+// Levenshtein distance similarity calculation
+function calculateSimilarity(str1, str2) {
+  const s1 = (str1 || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+  const s2 = (str2 || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+  if (s1 === s2) return 100;
+  if (!s1 || !s2) return 0;
+
+  // Exact token match
+  const words1 = s1.split(/\s+/);
+  const words2 = s2.split(/\s+/);
+  let matchedWords = 0;
+  words1.forEach(w => {
+    if (words2.includes(w)) matchedWords++;
   });
-  const [selectedMode, setSelectedMode] = useState('practice');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [currentItemIndex, setCurrentItemIndex] = useState(0);
+  const wordMatchScore = (matchedWords / Math.max(words1.length, words2.length)) * 100;
 
-  const [isRecording, setIsRecording] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [feedback, setFeedback] = useState(null);
-  const [audioUrl, setAudioUrl] = useState(null);
+  // Character Levenshtein
+  const matrix = [];
+  for (let i = 0; i <= s1.length; i++) matrix[i] = [i];
+  for (let j = 0; j <= s2.length; j++) matrix[0][j] = j;
+  for (let i = 1; i <= s1.length; i++) {
+    for (let j = 1; j <= s2.length; j++) {
+      const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+  const maxLen = Math.max(s1.length, s2.length);
+  const charScore = Math.max(0, Math.round(((maxLen - matrix[s1.length][s2.length]) / maxLen) * 100));
 
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const fileInputRef = useRef(null);
+  return Math.round(Math.max(wordMatchScore, charScore));
+}
 
-  // Load speaking curriculum pool
-  useEffect(() => {
-    fetch('/speaking_curriculum_pool.json')
-      .then(res => res.json())
-      .then(data => setCurriculumData(data))
-      .catch(err => console.error("Failed to load speaking curriculum:", err));
-  }, []);
+export default function EnglishModule({ onExit }) {
+  const navigate = useNavigate();
 
-  // Save selected grade
-  useEffect(() => {
-    sessionStorage.setItem('speaking_grade', String(selectedGrade));
-  }, [selectedGrade]);
+  // Navigation State: 'grades_hub' | 'papers_hub' | 'quiz' | 'level_complete' | 'report'
+  const [viewState, setViewState] = useState('grades_hub');
+  const [selectedGrade, setSelectedGrade] = useState(2);
+  const [activePaperId, setActivePaperId] = useState(1);
 
-  // Filter items based on grade and category
-  const filteredItems = (curriculumData?.items || []).filter(item => {
-    const matchGrade = item.grade === selectedGrade;
-    const matchCat = selectedCategory === 'all' || item.category === selectedCategory;
-    return matchGrade && matchCat;
+  // Progressive Levels: 'easy' (Single Words) | 'medium' (Short Sentences) | 'hard' (Long Sentences)
+  const [currentLevel, setCurrentLevel] = useState('easy');
+  const [levelQuestions, setLevelQuestions] = useState([]);
+  const [currentQIndex, setCurrentQIndex] = useState(0);
+
+  // History and Results
+  const [levelHistory, setLevelHistory] = useState({
+    easy: [],
+    medium: [],
+    hard: []
   });
 
-  const currentItem = filteredItems[currentItemIndex] || filteredItems[0];
-  const targetText = currentItem ? currentItem.prompt : "";
+  // Recording State
+  const [isListening, setIsListening] = useState(false);
+  const [userTranscript, setUserTranscript] = useState('');
+  const [recordedAccuracy, setRecordedAccuracy] = useState(null);
+  const [isAnswered, setIsAnswered] = useState(false);
+  const [isPassed, setIsPassed] = useState(false);
+  const recognitionRef = useRef(null);
 
-  const startRecording = async () => {
+  // Level Completion Modal / Review State
+  const [levelScore, setLevelScore] = useState(0);
+  const [levelPassed, setLevelPassed] = useState(false);
+
+  // LocalStorage Paper History
+  const [paperHistory, setPaperHistory] = useState(() => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const g2 = JSON.parse(localStorage.getItem('g2_english_paper_history') || '{}');
+      const g3 = JSON.parse(localStorage.getItem('g3_english_paper_history') || '{}');
+      const g4 = JSON.parse(localStorage.getItem('g4_english_paper_history') || '{}');
+      return { 2: g2, 3: g3, 4: g4 };
+    } catch (e) {
+      return { 2: {}, 3: {}, 4: {} };
+    }
+  });
 
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      audioChunksRef.current = [];
+  const savePaperResult = (grade, paperId, resultData) => {
+    const updatedGrade = {
+      ...(paperHistory[grade] || {}),
+      [paperId]: resultData
+    };
+    const updatedAll = {
+      ...paperHistory,
+      [grade]: updatedGrade
+    };
+    setPaperHistory(updatedAll);
+    try {
+      localStorage.setItem(`g${grade}_english_paper_history`, JSON.stringify(updatedGrade));
+    } catch (e) {}
+  };
 
-      mediaRecorderRef.current.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunksRef.current.push(e.data);
-      };
+  // Initialize Speech Recognition
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const reco = new SpeechRecognition();
+      reco.continuous = false;
+      reco.interimResults = true;
+      reco.lang = 'en-US';
 
-      mediaRecorderRef.current.onstop = async () => {
-        stream.getTracks().forEach(t => t.stop());
-
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        try {
-          const arrayBuffer = await audioBlob.arrayBuffer();
-          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          const audioBuffer = await Promise.race([
-            audioContext.decodeAudioData(arrayBuffer),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 3000))
-          ]);
-
-          const numOfChan = audioBuffer.numberOfChannels;
-          const length = audioBuffer.length * numOfChan * 2 + 44;
-          const buffer = new ArrayBuffer(length);
-          const view = new DataView(buffer);
-          const channels = [];
-          let pos = 0;
-
-          const setUint32 = (d) => { view.setUint32(pos, d, true); pos += 4; };
-          const setUint16 = (d) => { view.setUint16(pos, d, true); pos += 2; };
-          const writeStr = (s) => { for (let i = 0; i < s.length; i++) view.setUint8(pos++, s.charCodeAt(i)); };
-
-          writeStr('RIFF'); setUint32(length - 8); writeStr('WAVE'); writeStr('fmt ');
-          setUint32(16); setUint16(1); setUint16(numOfChan);
-          setUint32(audioBuffer.sampleRate);
-          setUint32(audioBuffer.sampleRate * 2 * numOfChan);
-          setUint16(numOfChan * 2); setUint16(16);
-          writeStr('data'); setUint32(length - pos - 4);
-
-          for (let i = 0; i < audioBuffer.numberOfChannels; i++) channels.push(audioBuffer.getChannelData(i));
-          for (let i = 0; i < audioBuffer.length; i++) {
-            for (let c = 0; c < numOfChan; c++) {
-              let sample = Math.max(-1, Math.min(1, channels[c][i]));
-              sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
-              view.setInt16(pos, sample, true); pos += 2;
-            }
-          }
-
-          const wavBlob = new Blob([buffer], { type: 'audio/wav' });
-          setAudioUrl(URL.createObjectURL(wavBlob));
-          const reader = new FileReader();
-          reader.readAsDataURL(wavBlob);
-          reader.onloadend = () => analyzeSpeech(reader.result.split(',')[1]);
-        } catch (e) {
-          const reader = new FileReader();
-          reader.readAsDataURL(audioBlob);
-          reader.onloadend = () => analyzeSpeech(reader.result.split(',')[1]);
+      reco.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          transcript += event.results[i][0].transcript;
+        }
+        setUserTranscript(transcript);
+        if (event.results[0].isFinal) {
+          handleEvaluateSpeech(transcript);
         }
       };
 
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-      setFeedback(null);
-      setAudioUrl(null);
-    } catch (err) {
-      alert("Please allow Microphone permissions to record your voice!");
-      setIsRecording(false);
+      reco.onerror = (event) => {
+        setIsListening(false);
+      };
+
+      reco.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = reco;
+    }
+  }, [currentQIndex, currentLevel, levelQuestions]);
+
+  // Pick 10 random questions for a specific level from the 100-question pool
+  const generateLevelQuestions = (grade, level) => {
+    const pool = POOLS[grade]?.questions || [];
+    const filtered = pool.filter(q => q.level === level);
+    // Shuffle and pick 10
+    const shuffled = [...filtered].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 10);
+  };
+
+  // Start a specific paper
+  const handleStartPaper = (pId) => {
+    playSound('click');
+    setActivePaperId(pId);
+    setCurrentLevel('easy');
+    setLevelHistory({ easy: [], medium: [], hard: [] });
+
+    const qList = generateLevelQuestions(selectedGrade, 'easy');
+    setLevelQuestions(qList);
+    setCurrentQIndex(0);
+    setUserTranscript('');
+    setRecordedAccuracy(null);
+    setIsAnswered(false);
+    setIsPassed(false);
+    setViewState('quiz');
+  };
+
+  // View saved paper report
+  const handleViewSavedPaperReport = (pId) => {
+    playSound('click');
+    const saved = paperHistory[selectedGrade]?.[pId];
+    if (saved) {
+      setActivePaperId(pId);
+      setLevelHistory(saved.levelHistory || { easy: [], medium: [], hard: [] });
+      setViewState('report');
+    } else {
+      handleStartPaper(pId);
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
-      mediaRecorderRef.current.stop();
-    }
-    setIsRecording(false);
-  };
-
-  const analyzeSpeech = async (base64Audio) => {
-    setIsAnalyzing(true);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // Increased to 60s for AI inference
-
-    try {
-      const response = await fetch('http://localhost:5000/api/english/assess', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          studentId: "student_primary_01",
-          audioBase64: base64Audio,
-          targetText,
-          videoFramesBase64: []
-        }),
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        const data = await response.json();
-        setFeedback(data);
+  // Toggle Microphone recording
+  const handleToggleMic = () => {
+    playSound('click');
+    if (isListening) {
+      if (recognitionRef.current) recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      setUserTranscript('');
+      setRecordedAccuracy(null);
+      setIsAnswered(false);
+      try {
+        if (recognitionRef.current) {
+          recognitionRef.current.start();
+          setIsListening(true);
+        } else {
+          // Fallback simulation for unsupported browsers
+          const currentQ = levelQuestions[currentQIndex];
+          setTimeout(() => {
+            const sim = currentQ ? currentQ.target_text : "test";
+            setUserTranscript(sim);
+            handleEvaluateSpeech(sim);
+          }, 2000);
+        }
+      } catch (err) {
+        setIsListening(false);
       }
-    } catch (err) {
-      clearTimeout(timeoutId);
-      console.error("Speaking analysis error:", err);
-    } finally {
-      setIsAnalyzing(false);
     }
   };
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    setAudioUrl(URL.createObjectURL(file));
-    setFeedback(null);
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => analyzeSpeech(reader.result.split(',')[1]);
+  // Evaluate spoken transcript against target
+  const handleEvaluateSpeech = (transcript) => {
+    const currentQ = levelQuestions[currentQIndex];
+    if (!currentQ) return;
+
+    const acc = calculateSimilarity(transcript, currentQ.target_text);
+    const passed = acc >= 75;
+
+    setRecordedAccuracy(acc);
+    setIsPassed(passed);
+    setIsAnswered(true);
+    setIsListening(false);
+
+    if (passed) {
+      playSound('correct');
+    } else {
+      playSound('click');
+    }
   };
 
-  const handleNextItem = () => {
-    setCurrentItemIndex(prev => (prev < filteredItems.length - 1 ? prev + 1 : 0));
-    setFeedback(null);
-    setAudioUrl(null);
+  // Move to next question or complete level
+  const handleNextQuestion = () => {
+    playSound('click');
+    const currentQ = levelQuestions[currentQIndex];
+    const entry = {
+      qNum: currentQIndex + 1,
+      id: currentQ.id,
+      level: currentLevel,
+      targetText: currentQ.target_text,
+      userTranscript: userTranscript || '(No speech detected)',
+      accuracy: recordedAccuracy !== null ? recordedAccuracy : 0,
+      isPassed: isPassed,
+      sinhalaMeaning: currentQ.sinhala_meaning,
+      phoneticHint: currentQ.phonetic_hint
+    };
+
+    const updatedHistory = [...(levelHistory[currentLevel] || []), entry];
+    const newAllHistory = {
+      ...levelHistory,
+      [currentLevel]: updatedHistory
+    };
+    setLevelHistory(newAllHistory);
+
+    if (currentQIndex < 9) {
+      // Next question in current level
+      setCurrentQIndex(prev => prev + 1);
+      setUserTranscript('');
+      setRecordedAccuracy(null);
+      setIsAnswered(false);
+      setIsPassed(false);
+    } else {
+      // Level Completed (10 questions finished)
+      const passedCount = updatedHistory.filter(h => h.isPassed).length;
+      const scorePct = Math.round((passedCount / 10) * 100);
+      setLevelScore(scorePct);
+      const levelSuccess = scorePct >= 75;
+      setLevelPassed(levelSuccess);
+
+      if (levelSuccess) {
+        playSound('unlock');
+      } else {
+        playSound('wrong');
+      }
+
+      setViewState('level_complete');
+    }
   };
 
-  const handlePrevItem = () => {
-    setCurrentItemIndex(prev => (prev > 0 ? prev - 1 : filteredItems.length - 1));
-    setFeedback(null);
-    setAudioUrl(null);
+  // Proceed to next level after scoring >= 75%
+  const handleProceedToNextLevel = () => {
+    playSound('click');
+    if (currentLevel === 'easy') {
+      setCurrentLevel('medium');
+      const nextQList = generateLevelQuestions(selectedGrade, 'medium');
+      setLevelQuestions(nextQList);
+      setCurrentQIndex(0);
+      setUserTranscript('');
+      setRecordedAccuracy(null);
+      setIsAnswered(false);
+      setIsPassed(false);
+      setViewState('quiz');
+    } else if (currentLevel === 'medium') {
+      setCurrentLevel('hard');
+      const nextQList = generateLevelQuestions(selectedGrade, 'hard');
+      setLevelQuestions(nextQList);
+      setCurrentQIndex(0);
+      setUserTranscript('');
+      setRecordedAccuracy(null);
+      setIsAnswered(false);
+      setIsPassed(false);
+      setViewState('quiz');
+    } else if (currentLevel === 'hard') {
+      // Entire 3-Level Paper Completed!
+      const allEntries = [
+        ...(levelHistory.easy || []),
+        ...(levelHistory.medium || []),
+        ...(levelHistory.hard || [])
+      ];
+      const totalPassed = allEntries.filter(h => h.isPassed).length;
+      const finalAccuracy = Math.round((totalPassed / allEntries.length) * 100);
+
+      savePaperResult(selectedGrade, activePaperId, {
+        paperId: activePaperId,
+        grade: selectedGrade,
+        totalQuestions: allEntries.length,
+        totalPassed,
+        overallAccuracy: finalAccuracy,
+        levelHistory,
+        completedAt: new Date().toLocaleDateString('si-LK')
+      });
+
+      playSound('correct');
+      setViewState('report');
+    }
   };
 
-  const scoreColor = (score) => {
-    if (score >= 80) return 'text-emerald-600';
-    if (score >= 60) return 'text-amber-500';
-    return 'text-rose-500';
+  // Retake current level if scored < 75%
+  const handleRetakeCurrentLevel = () => {
+    playSound('click');
+    const newQList = generateLevelQuestions(selectedGrade, currentLevel);
+    setLevelQuestions(newQList);
+    setLevelHistory(prev => ({ ...prev, [currentLevel]: [] }));
+    setCurrentQIndex(0);
+    setUserTranscript('');
+    setRecordedAccuracy(null);
+    setIsAnswered(false);
+    setIsPassed(false);
+    setViewState('quiz');
   };
 
-  const scoreBarColor = (score) => {
-    if (score >= 80) return 'bg-emerald-500';
-    if (score >= 60) return 'bg-amber-400';
-    return 'bg-rose-400';
-  };
+  const currentQ = levelQuestions[currentQIndex];
+
+  // Report calculations
+  const allHistoryItems = [
+    ...(levelHistory.easy || []),
+    ...(levelHistory.medium || []),
+    ...(levelHistory.hard || [])
+  ];
+  const totalPassedCount = allHistoryItems.filter(h => h.isPassed).length;
+  const overallReportAccuracy = allHistoryItems.length > 0
+    ? Math.round((totalPassedCount / allHistoryItems.length) * 100)
+    : 0;
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 w-full text-slate-800">
-
-      {/* Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <button
-          onClick={onExit}
-          className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold transition-all flex items-center gap-1.5 shadow-sm"
-        >
-          &larr; Dashboard
-        </button>
-
-        {/* Grade Tabs */}
-        <div className="flex items-center bg-slate-100 p-1.5 rounded-2xl shadow-inner border border-slate-200">
-          {[2, 3, 4].map(g => (
-            <button
-              key={g}
-              onClick={() => { setSelectedGrade(g); setCurrentItemIndex(0); setFeedback(null); }}
-              className={`px-5 py-1.5 rounded-xl font-black text-sm transition-all ${
-                selectedGrade === g ? 'bg-green-600 text-white shadow-md' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Grade {g}
-            </button>
-          ))}
-        </div>
-
-        {/* Mode Selector */}
-        <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm text-xs font-bold">
-          {[['practice','🟢','Practice'], ['progress','🟡','Check'], ['assessment','🔴','Exam']].map(([val, icon, label]) => (
-            <button
-              key={val}
-              onClick={() => setSelectedMode(val)}
-              className={`px-2.5 py-1 rounded-lg transition-all ${selectedMode === val ? 'bg-slate-100 font-black text-slate-900' : 'text-slate-400'}`}
-            >
-              {icon} {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Task Category Filter Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 scrollbar-hide">
-        <button
-          onClick={() => { setSelectedCategory('all'); setCurrentItemIndex(0); setFeedback(null); }}
-          className={`px-4 py-2 rounded-xl text-xs font-black tracking-wide whitespace-nowrap transition-all ${
-            selectedCategory === 'all' ? 'bg-slate-800 text-white shadow' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          🌟 All ({filteredItems.length})
-        </button>
-        {(curriculumData?.categories || []).map(cat => (
+    <div 
+      className="min-h-screen bg-cover bg-center bg-fixed font-sans select-none relative overflow-x-hidden pb-16"
+      style={{ backgroundImage: "url('/images/grade4_meadow_bg.jpg')" }}
+    >
+      <div className="max-w-4xl mx-auto relative z-10 p-4 sm:p-6">
+        
+        {/* Top Navigation */}
+        <div className="flex items-center justify-between mb-6">
           <button
-            key={cat.id}
-            onClick={() => { setSelectedCategory(cat.id); setCurrentItemIndex(0); setFeedback(null); }}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold tracking-wide whitespace-nowrap transition-all flex items-center gap-1.5 ${
-              selectedCategory === cat.id ? 'bg-green-600 text-white shadow' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
+            onClick={() => {
+              if (viewState === 'quiz' || viewState === 'level_complete') {
+                if (window.confirm("ඔබට මෙම ප්‍රශ්න පත්‍රයෙන් ඉවත් වීමට අවශ්‍යද?")) {
+                  setViewState('papers_hub');
+                }
+              } else if (viewState === 'report') {
+                setViewState('papers_hub');
+              } else if (viewState === 'papers_hub') {
+                setViewState('grades_hub');
+              } else {
+                onExit ? onExit() : navigate('/dashboard');
+              }
+            }}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-slate-200 hover:border-emerald-400 text-slate-700 font-bold rounded-2xl shadow-sm hover:shadow transition-all cursor-pointer"
           >
-            <span>{cat.icon}</span>
-            <span>{cat.title}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Main Card */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-8">
-
-        {/* Task Header */}
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full font-black text-xs uppercase tracking-wider">
-              {currentItem?.category?.replace(/_/g, ' ')}
-            </span>
-            <span className="text-xs font-bold text-slate-400">
-              {currentItem?.topic}
-            </span>
-          </div>
-          <span className="text-xs font-black text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-            {currentItemIndex + 1} / {filteredItems.length}
-          </span>
-        </div>
-
-        {/* Target Speech Card */}
-        <div className="p-8 border-2 border-dashed border-emerald-300 rounded-2xl bg-emerald-50/50 flex flex-col justify-center items-center text-center mb-8 min-h-[200px]">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-600 mb-3">Speak Clearly:</span>
-
-          {currentItem?.image_emoji && (
-            <div className="text-4xl mb-3 tracking-widest">{currentItem.image_emoji}</div>
-          )}
-
-          <h3 className="text-4xl sm:text-6xl font-black text-slate-800 tracking-wide mb-4">
-            "{currentItem?.display_text || targetText}"
-          </h3>
-
-          {currentItem?.phonetic_target && (
-            <div className="px-3 py-1 bg-white border border-emerald-200 rounded-lg text-xs font-bold text-emerald-800 font-mono shadow-sm mb-3">
-              Target: {currentItem.phonetic_target}
-            </div>
-          )}
-
-          {currentItem?.hint && (
-            <p className="text-xs font-semibold text-slate-500 max-w-sm leading-relaxed">
-              💡 {currentItem.hint}
-            </p>
-          )}
-        </div>
-
-        {/* Record Controls */}
-        <div className="flex flex-wrap justify-center items-center gap-6 mb-8">
-          <button
-            onClick={() => isRecording ? stopRecording() : startRecording()}
-            disabled={isAnalyzing}
-            className={`w-28 h-28 rounded-full flex flex-col items-center justify-center text-4xl shadow-xl transition-all transform hover:scale-105 active:scale-95 font-bold ${
-              isRecording ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' :
-              isAnalyzing ? 'bg-amber-400 text-white cursor-wait' :
-              'bg-emerald-600 hover:bg-emerald-700 text-white'
-            }`}
-          >
-            <div>{isRecording ? '⏹️' : isAnalyzing ? '⏳' : '🎙️'}</div>
-            <span className="text-xs font-black uppercase mt-1 tracking-wide">
-              {isRecording ? 'Stop' : isAnalyzing ? 'Wait...' : 'Speak'}
+            <span>⬅</span>
+            <span>
+              {viewState === 'grades_hub'
+                ? 'Dashboard එකට'
+                : viewState === 'papers_hub'
+                ? 'ශ්‍රේණිය තෝරන්න'
+                : 'ප්‍රශ්න පත්‍ර තෝරන්න'}
             </span>
           </button>
 
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-slate-300 font-bold text-xs">OR</span>
-            <input type="file" accept="audio/*" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
-            <button
-              onClick={() => fileInputRef.current.click()}
-              disabled={isAnalyzing || isRecording}
-              className="px-4 py-2.5 bg-white border border-slate-300 hover:border-slate-400 text-slate-700 font-bold rounded-xl shadow-sm text-xs transition-all flex items-center gap-1.5"
-            >
-              📂 Upload Audio File
-            </button>
-          </div>
-
-          {/* Navigation */}
-          <div className="flex gap-2">
-            <button onClick={handlePrevItem} className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-black flex items-center justify-center transition-all">
-              ‹
-            </button>
-            <button onClick={handleNextItem} className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-black flex items-center justify-center transition-all">
-              ›
-            </button>
-          </div>
+          {viewState === 'quiz' && (
+            <div className="flex items-center gap-2">
+              <span className={`text-white font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm ${
+                currentLevel === 'easy' ? 'bg-emerald-600' : currentLevel === 'medium' ? 'bg-blue-600' : 'bg-purple-600'
+              }`}>
+                {currentLevel === 'easy' ? 'Level 1: Easy (වචන)' : currentLevel === 'medium' ? 'Level 2: Medium (කෙටි වාක්‍ය)' : 'Level 3: Hard (දිගු වාක්‍ය)'}
+              </span>
+              <span className="bg-white/90 backdrop-blur border border-slate-200 text-slate-800 font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm">
+                ප්‍රශ්න {currentQIndex + 1} / 10
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* 5-Dimensional AI Scorecard */}
-        {feedback && feedback.overall_score === 0 ? (
-          <div className="bg-amber-50 border-2 border-dashed border-amber-300 p-6 sm:p-8 rounded-3xl animate-fade-in text-center">
-            <div className="text-4xl mb-2">🔇</div>
-            <h4 className="text-xl font-black text-amber-900 mb-1">No Speech Detected</h4>
-            <p className="text-amber-800 font-semibold text-sm max-w-md mx-auto mb-4">
-              {feedback.feedback?.learner_message || "We couldn't hear your voice clearly. Please press Speak and say the target word clearly into your microphone!"}
-            </p>
-            {audioUrl && (
-              <div className="max-w-md mx-auto mb-4 bg-white p-3 rounded-2xl border border-amber-200">
-                <span className="block text-center text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1">
-                  Recorded Audio
-                </span>
-                <audio controls src={audioUrl} className="w-full h-8 outline-none"></audio>
+        {/* ── SCREEN 1: GRADE SELECTOR HUB ── */}
+        {viewState === 'grades_hub' && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl text-center relative overflow-hidden">
+              <div className="inline-block bg-emerald-100 text-emerald-800 font-black text-xs px-4 py-1.5 rounded-full mb-3 uppercase tracking-wider">
+                English Speech & Fluency AI • ඉංග්‍රීසි කථන පුහුණුව
               </div>
-            )}
-            <button
-              onClick={() => { setFeedback(null); setAudioUrl(null); }}
-              className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm rounded-xl shadow transition-all"
-            >
-              🔄 Try Again
-            </button>
-          </div>
-        ) : feedback && (
-          <div className="bg-slate-50 border border-slate-200 p-6 sm:p-8 rounded-3xl animate-fade-in">
-
-            {/* Header */}
-            <div className="flex items-start justify-between mb-6 pb-4 border-b border-slate-200">
-              <div>
-                <span className="text-xs font-extrabold uppercase tracking-widest text-slate-400">Multi-Stage Assessment</span>
-                <h4 className="text-xl font-black text-slate-900 mt-0.5">AI Speaking Report</h4>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">Overall Score</div>
-                <div className={`text-4xl font-black ${scoreColor(feedback.overall_score)}`}>
-                  {feedback.overall_score}
-                  <span className="text-lg font-bold text-slate-400">/100</span>
-                </div>
-              </div>
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2 font-sinhala">
+                ඉංග්‍රීසි කථන අනුවර්තී පද්ධතිය
+              </h1>
+              <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
+                2, 3 සහ 4 ශ්‍රේණි සඳහා සකස් කළ කථන ප්‍රශ්න 100 බැගින් යුත් ප්‍රශ්න පත්‍ර පද්ධතිය. ඔබේ ශ්‍රේණිය තෝරන්න.
+              </p>
             </div>
 
-            {/* Audio Replay */}
-            {audioUrl && (
-              <div className="mb-5 bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200">
-                <span className="block text-center text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
-                  Your Recording
-                </span>
-                <audio controls src={audioUrl} className="w-full h-9 outline-none"></audio>
-              </div>
-            )}
-
-            {/* 5 Score Bars */}
-            <div className="space-y-3 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                ['Pronunciation', 'pronunciation', '🔤'],
-                ['Fluency', 'fluency', '⏱️'],
-                ['Prosody', 'prosody', '🎵'],
-                ['Completeness', 'completeness', '✅'],
-                ['Intelligibility', 'intelligibility', '💡'],
-              ].map(([label, key, icon]) => {
-                const val = feedback.diagnostics?.[key] || 0;
-                return (
-                  <div key={key}>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
-                        <span>{icon}</span>{label}
+                { grade: 2, icon: '🌱', title: '2 ශ්‍රේණිය', desc: 'මූලික ඉංග්‍රීසි වචන සහ සරල වාක්‍ය උච්චාරණය', color: 'from-emerald-500 to-teal-600' },
+                { grade: 3, icon: '🎯', title: '3 ශ්‍රේණිය', desc: 'විස්තීර්ණ වචන මාලාව, වාක්‍ය කියවීම සහ රිද්මය', color: 'from-blue-500 to-indigo-600' },
+                { grade: 4, icon: '🚀', title: '4 ශ්‍රේණිය', desc: 'උසස් වාග්කෝෂය, චතුර කථනය සහ ප්‍රකාශන හැකියාව', color: 'from-purple-500 to-pink-600' }
+              ].map(g => (
+                <div
+                  key={g.grade}
+                  onClick={() => { setSelectedGrade(g.grade); setViewState('papers_hub'); }}
+                  className="bg-white rounded-3xl p-7 border-2 border-slate-200 hover:border-emerald-400 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col justify-between"
+                >
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-4xl">{g.icon}</span>
+                      <span className="bg-slate-100 text-slate-700 text-xs font-black px-3 py-1 rounded-full">
+                        ප්‍රශ්න 100 කෝෂය
                       </span>
-                      <span className={`text-sm font-black ${scoreColor(val)}`}>{val}%</span>
                     </div>
-                    <div className="h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                    <h2 className="text-2xl font-black text-slate-800 font-sinhala">{g.title}</h2>
+                    <p className="text-xs text-slate-600 font-medium leading-relaxed">{g.desc}</p>
+                    <div className="pt-2 text-xs font-bold text-slate-500 space-y-1">
+                      <div>✓ Easy: Single Words (10 Qs)</div>
+                      <div>✓ Medium: Short Sentences (10 Qs)</div>
+                      <div>✓ Hard: Long Sentences (10 Qs)</div>
+                    </div>
+                  </div>
+
+                  <div className="pt-6">
+                    <button className={`w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white shadow-md bg-gradient-to-r ${g.color} cursor-pointer`}>
+                      ප්‍රශ්න පත්‍ර වෙත ➔
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── SCREEN 2: 3 PAPERS HUB ── */}
+        {viewState === 'papers_hub' && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl text-center relative overflow-hidden">
+              <div className="inline-block bg-emerald-100 text-emerald-800 font-black text-xs px-4 py-1.5 rounded-full mb-3 uppercase tracking-wider">
+                Grade {selectedGrade} • {selectedGrade} ශ්‍රේණිය ඉංග්‍රීසි
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2 font-sinhala">
+                අනුවර්තී කථන ප්‍රශ්න පත්‍ර 3
+              </h1>
+              <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
+                සෑම ප්‍රශ්න පත්‍රයකම පහසු, මධ්‍යම සහ උසස් මට්ටම් 3ක් අඩංගු වේ. ඊළඟ මට්ටමට යාමට 75% කට වඩා ලකුණු ලබා ගත යුතුය.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {PAPERS_CONFIG.map(p => {
+                const result = paperHistory[selectedGrade]?.[p.id];
+                const isCompleted = !!result;
+
+                return (
+                  <div 
+                    key={p.id}
+                    className={`bg-white rounded-3xl p-6 border-2 transition-all duration-300 shadow-lg flex flex-col justify-between hover:shadow-2xl hover:-translate-y-1 relative overflow-hidden ${
+                      isCompleted ? 'border-emerald-300 bg-emerald-50/20' : 'border-slate-200'
+                    }`}
+                  >
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-start">
+                        <span className="text-4xl">{p.icon}</span>
+                        {isCompleted ? (
+                          <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1">
+                            ✓ සම්පූර්ණයි
+                          </span>
+                        ) : (
+                          <span className="bg-slate-100 text-slate-600 text-xs font-black px-3 py-1 rounded-full">
+                            නව ප්‍රශ්න පත්‍රය
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-xl font-black text-slate-800 font-sinhala leading-snug">
+                        {p.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                        {p.subtitle}
+                      </p>
+
+                      <div className="pt-2">
+                        <span className="inline-block text-xs font-black bg-slate-100 text-slate-700 px-3 py-1 rounded-lg">
+                          {p.badge}
+                        </span>
+                      </div>
+
+                      {isCompleted && (
+                        <div className="mt-4 p-3 bg-white rounded-2xl border border-emerald-200 flex items-center justify-between">
+                          <span className="text-xs font-bold text-slate-600">පෙර ලකුණු:</span>
+                          <span className="text-sm font-black text-emerald-700">
+                            {result.totalPassed}/{result.totalQuestions} ({result.overallAccuracy}%)
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-6 space-y-2">
+                      <button
+                        onClick={() => handleStartPaper(p.id)}
+                        className={`w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white shadow-md transition-all cursor-pointer bg-gradient-to-r ${p.color} hover:opacity-95 active:scale-95`}
+                      >
+                        {isCompleted ? '🔄 නැවත කරන්න' : 'ආරම්භ කරන්න ➔'}
+                      </button>
+                      {isCompleted && (
+                        <button
+                          onClick={() => handleViewSavedPaperReport(p.id)}
+                          className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors cursor-pointer"
+                        >
+                          📊 වාර්තාව බලන්න
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── SCREEN 3: ACTIVE SPEAKING QUIZ ── */}
+        {viewState === 'quiz' && currentQ && (
+          <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl animate-scale-up space-y-6">
+            
+            {/* Level Stepper and Progress */}
+            <div>
+              <div className="flex justify-between items-center text-xs font-black text-slate-600 mb-2">
+                <span>{currentQ.level_name_si}</span>
+                <span>ප්‍රශ්න {currentQIndex + 1} / 10</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+                <div 
+                  className={`h-3 rounded-full transition-all duration-300 ${
+                    currentLevel === 'easy' ? 'bg-emerald-500' : currentLevel === 'medium' ? 'bg-blue-500' : 'bg-purple-500'
+                  }`}
+                  style={{ width: `${((currentQIndex + 1) / 10) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Speaking Activity Card */}
+            <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6 text-center">
+              
+              <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-200">
+                <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700">
+                  {currentLevel === 'easy' ? '🔤 Single Word' : currentLevel === 'medium' ? '📖 Short Sentence' : '🎙️ Long Sentence'}
+                </span>
+                <span className="text-xs font-bold text-slate-500">
+                  තේරුම: <strong className="text-slate-800">{currentQ.sinhala_meaning}</strong>
+                </span>
+              </div>
+
+              {/* Target Prompt Display */}
+              <div className="py-4">
+                <h2 className="text-2xl sm:text-4xl font-black text-slate-800 tracking-wide font-sans mb-2">
+                  {currentQ.display_text}
+                </h2>
+                {currentQ.phonetic_hint && (
+                  <p className="text-sm font-bold text-emerald-600 font-mono">
+                    {currentQ.phonetic_hint}
+                  </p>
+                )}
+                {currentQ.tip && (
+                  <p className="text-xs text-slate-500 font-medium mt-2">
+                    💡 {currentQ.tip}
+                  </p>
+                )}
+              </div>
+
+              {/* Interactive Audio & Mic Controls */}
+              <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+                <button
+                  onClick={() => speakEnglish(currentQ.target_text)}
+                  className="px-5 py-3 rounded-2xl font-black text-sm bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-200 shadow-sm hover:shadow transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <span>🔊</span> හඬට සවන් දෙන්න (Listen)
+                </button>
+
+                <button
+                  onClick={handleToggleMic}
+                  className={`px-8 py-3.5 rounded-2xl font-black text-base transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
+                    isListening
+                      ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  }`}
+                >
+                  <span>{isListening ? '⏹️ නවත්වන්න' : '🎤 කතා කරන්න (Speak)'}</span>
+                </button>
+              </div>
+
+              {/* Live Transcript and Accuracy Feedback */}
+              {userTranscript && (
+                <div className="p-4 rounded-2xl bg-white border-2 border-slate-200 space-y-2 animate-fade-in">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">ඔබ පැවසූ දෙය (Recognized Speech):</p>
+                  <p className="text-lg font-black text-slate-800 font-sans">
+                    "{userTranscript}"
+                  </p>
+                  {recordedAccuracy !== null && (
+                    <div className="flex justify-center items-center gap-2 pt-2">
+                      <span className={`text-xs font-black px-3 py-1 rounded-full ${
+                        recordedAccuracy >= 75
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                          : 'bg-amber-100 text-amber-800 border border-amber-300'
+                      }`}>
+                        නිරවද්‍යතාව: {recordedAccuracy}% {recordedAccuracy >= 75 ? '✓ (Passed)' : '✗ (Needs 75%)'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Next Question Action */}
+              <div className="flex justify-end pt-4 border-t border-slate-200">
+                <button
+                  disabled={!isAnswered}
+                  onClick={handleNextQuestion}
+                  className={`px-8 py-3.5 rounded-2xl font-black text-base border-2 transition-all flex items-center gap-2 ${
+                    isAnswered
+                      ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white shadow-lg cursor-pointer active:scale-95'
+                      : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-75 shadow-none'
+                  }`}
+                >
+                  <span>{currentQIndex >= 9 ? 'මට්ටම අවසන් කරන්න ➔' : 'ඊළඟ ප්‍රශ්නය ➔'}</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* ── SCREEN 4: LEVEL COMPLETION / 75% UNLOCK MODAL ── */}
+        {viewState === 'level_complete' && (
+          <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-emerald-200 shadow-2xl space-y-6 text-center animate-scale-up">
+            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center text-4xl text-white mx-auto shadow-lg ${
+              levelPassed ? 'bg-gradient-to-tr from-emerald-400 to-teal-600' : 'bg-gradient-to-tr from-amber-400 to-orange-500'
+            }`}>
+              {levelPassed ? '🎉' : '🎯'}
+            </div>
+
+            <h2 className="text-3xl font-black text-slate-800 font-sinhala">
+              {levelPassed ? 'මට්ටම සාර්ථකව නිම කළා!' : 'තවදුරටත් පුහුණු වෙමු!'}
+            </h2>
+
+            <p className="text-slate-600 font-bold text-sm sm:text-base max-w-md mx-auto">
+              {levelPassed
+                ? `ඔබ ${currentLevel === 'easy' ? 'පහසු (Easy)' : currentLevel === 'medium' ? 'මධ්‍යම (Medium)' : 'උසස් (Hard)'} මට්ටමේදී ${levelScore}% ක ලකුණක් ලබා ගෙන ඇත! ඊළඟ මට්ටම විවෘත විය.`
+                : `ඊළඟ මට්ටමට පිවිසීමට අවම වශයෙන් 75% ක ලකුණක් අවශ්‍ය වේ. ඔබ ලබාගත් ලකුණ: ${levelScore}%. නැවත උත්සාහ කරන්න.`}
+            </p>
+
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 max-w-xs mx-auto">
+              <span className="text-xs font-bold text-slate-500">ලබාගත් නිරවද්‍යතාව:</span>
+              <p className={`text-3xl font-black ${levelPassed ? 'text-emerald-700' : 'text-amber-700'}`}>
+                {levelScore}%
+              </p>
+              <span className="text-xs font-bold text-slate-400">අවශ්‍ය ප්‍රමාණය: 75%</span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-200 justify-center">
+              {levelPassed ? (
+                <button
+                  onClick={handleProceedToNextLevel}
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black py-3.5 px-8 rounded-2xl shadow-md transition-all cursor-pointer text-center"
+                >
+                  {currentLevel === 'hard' ? 'සම්පූර්ණ වාර්තාව බලන්න ➔' : 'ඊළඟ මට්ටමට පිවිසෙන්න ➔'}
+                </button>
+              ) : (
+                <button
+                  onClick={handleRetakeCurrentLevel}
+                  className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black py-3.5 px-8 rounded-2xl shadow-md transition-all cursor-pointer text-center"
+                >
+                  🔄 නැවත පුහුණු වන්න (Retake Level)
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── SCREEN 5: COMPREHENSIVE PAPER REPORT ── */}
+        {viewState === 'report' && (
+          <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-emerald-200 shadow-2xl space-y-8 animate-scale-up">
+            
+            <div className="text-center pb-6 border-b border-slate-200">
+              <h2 className="text-3xl font-black text-slate-800 mb-1 font-sinhala">
+                {selectedGrade} ශ්‍රේණිය — ප්‍රශ්න පත්‍රය 0{activePaperId} කථන වාර්තාව
+              </h2>
+              <p className="text-sm text-slate-500 font-bold">
+                මට්ටම් 3ක (Easy, Medium, Hard) සමස්ත ඇගයීම් සමාලෝචනය
+              </p>
+            </div>
+
+            {/* Score Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
+                <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">සාර්ථක උච්චාරණ</p>
+                <p className="text-3xl font-black text-emerald-700">{totalPassedCount} / {allHistoryItems.length || 30}</p>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-center">
+                <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">නිරවද්‍යතා ප්‍රතිශතය</p>
+                <p className="text-3xl font-black text-blue-700">{overallReportAccuracy}%</p>
+              </div>
+              <div className="col-span-2 sm:col-span-1 bg-purple-50 border border-purple-200 rounded-2xl p-5 text-center">
+                <p className="text-xs font-bold text-purple-600 uppercase tracking-widest mb-1">ළඟා වූ මට්ටම</p>
+                <p className="text-2xl font-black text-purple-700">Level 3 (Mastery)</p>
+              </div>
+            </div>
+
+            {/* 3 Level Progress Breakdown */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
+                <span>📊</span> මට්ටම් 3 හි ප්‍රවීණතා විස්තරය
+              </h3>
+              {[
+                { key: 'easy', name: 'Level 1: Easy (තනි වචන)', items: levelHistory.easy || [], color: 'from-emerald-500 to-teal-600' },
+                { key: 'medium', name: 'Level 2: Medium (කෙටි වාක්‍ය)', items: levelHistory.medium || [], color: 'from-blue-500 to-indigo-600' },
+                { key: 'hard', name: 'Level 3: Hard (දිගු වාක්‍ය)', items: levelHistory.hard || [], color: 'from-purple-500 to-pink-600' }
+              ].map(lvl => {
+                const passed = lvl.items.filter(i => i.isPassed).length;
+                const total = lvl.items.length || 10;
+                const pct = Math.round((passed / total) * 100);
+
+                return (
+                  <div key={lvl.key} className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-black text-sm text-slate-800">{lvl.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-2.5 py-0.5 rounded-lg">
+                          ✓ {passed}/{total}
+                        </span>
+                        <span className="font-black text-sm text-slate-700">{pct}%</span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all duration-700 ${scoreBarColor(val)}`}
-                        style={{ width: `${val}%` }}
-                      />
+                        className={`bg-gradient-to-r ${lvl.color} h-3 rounded-full transition-all duration-700`}
+                        style={{ width: `${pct}%` }}
+                      ></div>
                     </div>
                   </div>
                 );
               })}
             </div>
 
-            {/* Fluency Metrics Grid */}
-            {feedback.fluency_metrics && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                {[
-                  ['Speech Rate', feedback.fluency_metrics.speech_rate_wpm + ' WPM', '⏱️'],
-                  ['Long Pauses (>0.5s)', feedback.fluency_metrics.long_pauses_500ms, '⏸️'],
-                  ['Intonation', feedback.fluency_metrics.intonation_slope, '📈'],
-                  ['Monotone', feedback.fluency_metrics.is_monotone ? 'Yes' : 'No', '🔔'],
-                ].map(([label, val, icon]) => (
-                  <div key={label} className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm text-center">
-                    <div className="text-[10px] text-slate-400 font-black uppercase tracking-wider mb-0.5">{icon} {label}</div>
-                    <div className="text-sm font-black text-slate-800">{val}</div>
+            {/* Detailed Question Review */}
+            <div>
+              <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
+                <span>📋</span> සියලුම කථන ප්‍රශ්න සමාලෝචනය
+              </h3>
+              <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                {allHistoryItems.map((h, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`p-4 rounded-2xl border-2 ${
+                      h.isPassed ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="font-bold text-slate-800 text-sm font-sans">
+                        Target: <strong>"{h.targetText}"</strong>
+                      </span>
+                      <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${
+                        h.isPassed ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {h.accuracy}% {h.isPassed ? '✓ Passed' : '✗ Needs Practice'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 font-bold">
+                      ඔබ පැවසූ දෙය: <span className="font-sans text-slate-800">"{h.userTranscript}"</span>
+                    </p>
+                    <p className="text-[11px] text-slate-500 font-medium mt-1">
+                      තේරුම: {h.sinhalaMeaning}
+                    </p>
                   </div>
                 ))}
               </div>
-            )}
-
-            {/* MTI Pattern Alert */}
-            {feedback.l1_contrast_flag && (
-              <div className="p-4 bg-amber-50 border border-amber-300 rounded-2xl mb-5 shadow-sm">
-                <div className="font-black text-amber-800 text-xs uppercase tracking-wider flex items-center gap-1.5 mb-1">
-                  ⚠️ Sri Lankan MTI Pattern Detected
-                </div>
-                <div className="text-amber-900 font-bold text-sm">{feedback.l1_contrast_flag}</div>
-                {feedback.mti_patterns?.[0]?.evidence && (
-                  <div className="mt-1.5 text-xs text-amber-700 font-medium">
-                    Expected: <strong>{feedback.mti_patterns[0].evidence.expected}</strong>
-                    {' → '}
-                    Heard: <strong>{feedback.mti_patterns[0].evidence.heard}</strong>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Pedagogical Feedback */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm mb-5">
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Tutor Feedback</div>
-              <p className="text-slate-800 font-semibold text-sm sm:text-base leading-relaxed">
-                {feedback.feedback?.learner_message || "Assessment complete."}
-              </p>
             </div>
 
-            {/* Next Button */}
-            <div className="flex justify-end">
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-200">
               <button
-                onClick={handleNextItem}
-                className="px-7 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-md transition-all hover:scale-105 flex items-center gap-2"
+                onClick={() => handleStartPaper(activePaperId)}
+                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black py-3.5 px-6 rounded-2xl shadow-md transition-all cursor-pointer text-center"
               >
-                Next Exercise &rarr;
+                🔄 නැවත කරන්න (ප්‍රශ්න පත්‍රය 0{activePaperId})
+              </button>
+              <button
+                onClick={() => setViewState('papers_hub')}
+                className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-black py-3.5 px-6 rounded-2xl transition-all cursor-pointer text-center"
+              >
+                📑 වෙනත් ප්‍රශ්න පත්‍රයක් තෝරන්න
+              </button>
+              <button
+                onClick={onExit || (() => navigate('/dashboard'))}
+                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black py-3.5 px-6 rounded-2xl transition-all cursor-pointer text-center"
+              >
+                🏠 Dashboard
               </button>
             </div>
+
           </div>
         )}
+
       </div>
     </div>
   );
-};
-
-export default EnglishModule;
+}
