@@ -243,11 +243,11 @@ const Dashboard = () => {
 
               {/* Grade 4 Math */}
               <div 
-                onClick={() => navigateToModule('math')}
+                onClick={() => navigate('/module/math/grade4')}
                 className="bg-gradient-to-br from-blue-50 via-indigo-50 to-emerald-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-8 cursor-pointer border-3 border-blue-400 hover:border-blue-600 group transform hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between ring-2 ring-blue-400/30"
               >
                 <div className="absolute -top-3 -right-3 bg-gradient-to-r from-blue-600 to-emerald-600 text-white font-extrabold text-xs px-5 py-1.5 rounded-full shadow-md transform rotate-12">
-                  Grade 4 Adaptive ⭐
+                  Adaptive AI ⭐
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-4">
@@ -257,13 +257,13 @@ const Dashboard = () => {
                     </div>
                   </div>
                   <p className="text-slate-600 mb-5 text-sm leading-relaxed font-sinhala">
-                    4 ශ්‍රේණිය සම්පූර්ණ විෂය නිර්දේශය — වාර 3ක පරිච්ඡේද 36ක්, Adaptive AI දුෂ්කරතා මට්ටම්.
+                    අනුවර්තී ගණිත ඇගයීම් පද්ධතිය — ප්‍රධාන ක්ෂේත්‍ර 4ක්, කුසලතා 20ක් සහ අපහසුතා මට්ටම් 5ක් ඔස්සේ තනි පුද්ගල ඇගයීම.
                   </p>
                 </div>
                 <div className="space-y-2 pt-4 border-t border-blue-200">
                   <div className="flex justify-between items-center text-xs font-bold text-blue-900">
-                    <span>වාර 3ක් · පරිච්ඡේද 36ක්</span>
-                    <span className="bg-emerald-100 text-emerald-800 px-3 py-0.5 rounded-full font-black">All Active ➔</span>
+                    <span>4 Domains · 20 Skills</span>
+                    <span className="bg-blue-200 text-blue-900 px-3 py-0.5 rounded-full font-black">Adaptive Test ➔</span>
                   </div>
                 </div>
               </div>

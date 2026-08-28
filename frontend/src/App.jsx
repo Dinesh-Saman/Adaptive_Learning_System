@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 
 // Layout
@@ -17,6 +17,7 @@ import TeacherDashboard from './pages/TeacherDashboard';
 import MathModule from './components/math/MathModule';
 import MathGrade2AdaptiveModule from './components/math/MathGrade2AdaptiveModule';
 import MathGrade3AdaptiveModule from './components/math/MathGrade3AdaptiveModule';
+import MathGrade4AdaptiveModule from './components/math/MathGrade4AdaptiveModule';
 
 // ── Pillar 2: English Speech & Pronunciation ──
 import EnglishModule from './components/english/EnglishModule';
@@ -57,11 +58,15 @@ function App() {
           <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
           
           {/* Math Module Routes */}
-          <Route path="/module/math" element={<ModuleWrapper Component={MathModule} />} />
+          <Route path="/module/math" element={<ModuleWrapper Component={MathGrade4AdaptiveModule} />} />
           <Route path="/module/math/grade2" element={<ModuleWrapper Component={MathGrade2AdaptiveModule} />} />
           <Route path="/module/math/grade2-adaptive" element={<ModuleWrapper Component={MathGrade2AdaptiveModule} />} />
           <Route path="/module/math/grade3" element={<ModuleWrapper Component={MathGrade3AdaptiveModule} />} />
           <Route path="/module/math/grade3-adaptive" element={<ModuleWrapper Component={MathGrade3AdaptiveModule} />} />
+          <Route path="/module/math/grade4" element={<ModuleWrapper Component={MathGrade4AdaptiveModule} />} />
+          <Route path="/module/math/grade4-adaptive" element={<ModuleWrapper Component={MathGrade4AdaptiveModule} />} />
+          <Route path="/module/math/grade4-3papers" element={<ModuleWrapper Component={MathGrade4AdaptiveModule} />} />
+          <Route path="/module/math/affect-tracker" element={<ModuleWrapper Component={MathModule} />} />
           
           {/* English & Preschool Routes */}
           <Route path="/module/english" element={<ModuleWrapper Component={EnglishModule} />} />

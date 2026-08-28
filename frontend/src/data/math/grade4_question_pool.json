@@ -1,0 +1,1507 @@
+{
+  "version": "1.0",
+  "grade": 4,
+  "total_questions": 100,
+  "questions": [
+    {
+      "id": "G4_Q001",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S1_PLACE_VALUE_10000",
+      "difficulty_tier": 1,
+      "text_si": "4,520 සංඛ්‍යාවේ '5' ඉලක්කමේ ස්ථානීය අගය කීයද?",
+      "options": [
+        "50",
+        "500",
+        "5000",
+        "5"
+      ],
+      "answer": "500",
+      "explanation_si": "4,520 හි 5 පිහිටා ඇත්තේ සියයේ ස්ථානයේ බැවින් එහි ස්ථානීය අගය 500 වේ."
+    },
+    {
+      "id": "G4_Q002",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S1_PLACE_VALUE_10000",
+      "difficulty_tier": 2,
+      "text_si": "'හත් දහස් තුන්සිය විසි අට' සම්මත අංකනයෙන් ලියූ විට ලැබෙන්නේ කුමක්ද?",
+      "options": [
+        "7,328",
+        "7,382",
+        "7,238",
+        "7,832"
+      ],
+      "answer": "7,328",
+      "explanation_si": "හත් දහස් තුන්සිය විසි අට = 7,000 + 300 + 20 + 8 = 7,328 වේ."
+    },
+    {
+      "id": "G4_Q003",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S1_PLACE_VALUE_10000",
+      "difficulty_tier": 3,
+      "text_si": "6,000 + 400 + 9 විස්තීරණ ආකාරයෙන් ලියූ සංඛ්‍යාව කුමක්ද?",
+      "options": [
+        "6,409",
+        "6,490",
+        "6,049",
+        "6,499"
+      ],
+      "answer": "6,409",
+      "explanation_si": "දහයේ ස්ථානයේ අගය 0 වන බැවින් සංඛ්‍යාව 6,409 වේ."
+    },
+    {
+      "id": "G4_Q004",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S1_PLACE_VALUE_10000",
+      "difficulty_tier": 4,
+      "text_si": "8,745 සංඛ්‍යාවේ දහයේ ස්ථානයේ අගය සහ දහසේ ස්ථානයේ අගය අතර වෙනස කීයද?",
+      "options": [
+        "7,960",
+        "8,000",
+        "7,200",
+        "7,940"
+      ],
+      "answer": "7,960",
+      "explanation_si": "දහසේ අගය 8,000 වන අතර දහයේ අගය 40 වේ. වෙනස = 8,000 - 40 = 7,960 වේ."
+    },
+    {
+      "id": "G4_Q005",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S1_PLACE_VALUE_10000",
+      "difficulty_tier": 5,
+      "text_si": "0, 3, 7, 9 යන ඉලක්කම් හතරම එක් වරක් පමණක් භාවිත කර සෑදිය හැකි විශාලතම සහ කුඩාතම සංඛ්‍යා අතර වෙනස කීයද?",
+      "options": [
+        "6,651",
+        "6,751",
+        "6,561",
+        "6,741"
+      ],
+      "answer": "6,651",
+      "explanation_si": "විශාලතම සංඛ්‍යාව = 9,730. කුඩාතම සංඛ්‍යාව = 3,079. වෙනස = 9,730 - 3,079 = 6,651 වේ."
+    },
+    {
+      "id": "G4_Q006",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S2_ROMAN_NUMERALS",
+      "difficulty_tier": 1,
+      "text_si": "රෝම ඉලක්කම් 'V' මඟින් නිරූපණය වන හින්දු අරාබි අංකය කුමක්ද?",
+      "options": [
+        "5",
+        "10",
+        "1",
+        "4"
+      ],
+      "answer": "5",
+      "explanation_si": "රෝම සංඛ්‍යාංක ක්‍රමයේ V මඟින් 5 නිරූපණය වේ."
+    },
+    {
+      "id": "G4_Q007",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S2_ROMAN_NUMERALS",
+      "difficulty_tier": 2,
+      "text_si": "14 සංඛ්‍යාව රෝම ඉලක්කමෙන් ලියූ විට නිවැරදි වන්නේ කුමක්ද?",
+      "options": [
+        "XIV",
+        "XVI",
+        "XIIII",
+        "VIX"
+      ],
+      "answer": "XIV",
+      "explanation_si": "14 = 10 + 4 = X + IV = XIV වේ."
+    },
+    {
+      "id": "G4_Q008",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S2_ROMAN_NUMERALS",
+      "difficulty_tier": 3,
+      "text_si": "'XIX' යන රෝම සංඛ්‍යාව නිරූපණය කරන අගය කීයද?",
+      "options": [
+        "19",
+        "21",
+        "18",
+        "16"
+      ],
+      "answer": "19",
+      "explanation_si": "X (10) + IX (9) = 19 වේ."
+    },
+    {
+      "id": "G4_Q009",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S2_ROMAN_NUMERALS",
+      "difficulty_tier": 4,
+      "text_si": "IX + VII හි අගය රෝම ඉලක්කමෙන් දක්වන්න.",
+      "options": [
+        "XVI",
+        "XV",
+        "XVII",
+        "XIV"
+      ],
+      "answer": "XVI",
+      "explanation_si": "IX = 9, VII = 7. 9 + 7 = 16 වේ. 16 රෝම ඉලක්කමෙන් XVI වේ."
+    },
+    {
+      "id": "G4_Q010",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S2_ROMAN_NUMERALS",
+      "difficulty_tier": 5,
+      "text_si": "XX - IX + IV හි අවසාන අගය කීයද?",
+      "options": [
+        "15",
+        "16",
+        "14",
+        "17"
+      ],
+      "answer": "15",
+      "explanation_si": "XX = 20, IX = 9, IV = 4. 20 - 9 + 4 = 11 + 4 = 15 වේ."
+    },
+    {
+      "id": "G4_Q011",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S3_ROUNDING_COMPARING",
+      "difficulty_tier": 1,
+      "text_si": "47 සංඛ්‍යාව ළඟම 10ට වැටයූ විට ලැබෙන්නේ කුමක්ද?",
+      "options": [
+        "50",
+        "40",
+        "45",
+        "60"
+      ],
+      "answer": "50",
+      "explanation_si": "එකස්ථානයේ 7 ඇති බැවින් (5 හෝ ඊට වැඩි) ළඟම දහය 50 වේ."
+    },
+    {
+      "id": "G4_Q012",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S3_ROUNDING_COMPARING",
+      "difficulty_tier": 2,
+      "text_si": "342 සංඛ්‍යාව ළඟම 100ට වැටයූ විට ලැබෙන්නේ කුමක්ද?",
+      "options": [
+        "300",
+        "400",
+        "350",
+        "340"
+      ],
+      "answer": "300",
+      "explanation_si": "දහයේ ස්ථානයේ 4 ඇති බැවින් (5ට අඩු) ළඟම සියය 300 වේ."
+    },
+    {
+      "id": "G4_Q013",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S3_ROUNDING_COMPARING",
+      "difficulty_tier": 3,
+      "text_si": "පහත සංඛ්‍යා ආරෝහණ (කුඩා සිට විශාල) පිළිවෙළට නිවැරදිව ඇත්තේ කුමක්ද?",
+      "options": [
+        "4,215, 4,251, 4,512, 4,521",
+        "4,251, 4,215, 4,512, 4,521",
+        "4,521, 4,512, 4,251, 4,215",
+        "4,215, 4,512, 4,251, 4,521"
+      ],
+      "answer": "4,215, 4,251, 4,512, 4,521",
+      "explanation_si": "කුඩාම අගයේ සිට විශාල අගයට අනුපිළිවෙළින් පෙළගැස්වීම ආරෝහණ අනුපිළිවෙළ වේ."
+    },
+    {
+      "id": "G4_Q014",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S3_ROUNDING_COMPARING",
+      "difficulty_tier": 4,
+      "text_si": "ළඟම 100ට වැටයූ විට 800 ලැබෙන කුඩාතම පූර්ණ සංඛ්‍යාව කුමක්ද?",
+      "options": [
+        "750",
+        "749",
+        "755",
+        "795"
+      ],
+      "answer": "750",
+      "explanation_si": "750 සිට 849 දක්වා සියලු සංඛ්‍යා ළඟම 100ට වැටයූ විට 800 ලැබේ. කුඩාතම සංඛ්‍යාව 750 වේ."
+    },
+    {
+      "id": "G4_Q015",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S3_ROUNDING_COMPARING",
+      "difficulty_tier": 5,
+      "text_si": "පාසලක සිසුන් 1,485ක් සහ ගුරුවරුන් 68ක් සිටී. මුළු සාමාජික සංඛ්‍යාව ළඟම 100ට වැටයූ විට කීයද?",
+      "options": [
+        "1,600",
+        "1,500",
+        "1,550",
+        "1,700"
+      ],
+      "answer": "1,600",
+      "explanation_si": "මුළු එකතුව = 1,485 + 68 = 1,553. 1,553 ළඟම 100ට වැටයූ විට 1,600 වේ."
+    },
+    {
+      "id": "G4_Q016",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S4_FACTORS_MULTIPLES",
+      "difficulty_tier": 1,
+      "text_si": "පහත සංඛ්‍යාවලින් 4 හි ගුණාකාරයක් වන්නේ කුමක්ද?",
+      "options": [
+        "24",
+        "18",
+        "21",
+        "25"
+      ],
+      "answer": "24",
+      "explanation_si": "4 x 6 = 24 බැවින් 24 යනු 4 හි ගුණාකාරයකි."
+    },
+    {
+      "id": "G4_Q017",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S4_FACTORS_MULTIPLES",
+      "difficulty_tier": 2,
+      "text_si": "12 සංඛ්‍යාවේ සියලුම සාධක නිවැරදිව දක්වා ඇත්තේ කුමක්ද?",
+      "options": [
+        "1, 2, 3, 4, 6, 12",
+        "1, 2, 4, 6, 12",
+        "2, 3, 4, 6",
+        "1, 2, 3, 6, 12"
+      ],
+      "answer": "1, 2, 3, 4, 6, 12",
+      "explanation_si": "12 ඉතිරි නැතිව බෙදිය හැකි සංඛ්‍යා 1, 2, 3, 4, 6, 12 වේ."
+    },
+    {
+      "id": "G4_Q018",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S4_FACTORS_MULTIPLES",
+      "difficulty_tier": 3,
+      "text_si": "3 හි සහ 5 හි පොදු ගුණාකාරයක් වන 20ට අඩු සංඛ්‍යාව කුමක්ද?",
+      "options": [
+        "15",
+        "10",
+        "12",
+        "18"
+      ],
+      "answer": "15",
+      "explanation_si": "15 යනු 3 x 5 = 15 වන අතර එය 3 සහ 5 දෙකෙහිම ගුණාකාරයකි."
+    },
+    {
+      "id": "G4_Q019",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S4_FACTORS_MULTIPLES",
+      "difficulty_tier": 4,
+      "text_si": "18 සහ 24 යන සංඛ්‍යා දෙකෙහිම විශාලතම පොදු සාධකය (ම.පො.සා) කීයද?",
+      "options": [
+        "6",
+        "3",
+        "4",
+        "8"
+      ],
+      "answer": "6",
+      "explanation_si": "18 හි සාධක: 1,2,3,6,9,18. 24 හි සාධක: 1,2,3,4,6,8,12,24. විශාලතම පොදු සාධකය 6 වේ."
+    },
+    {
+      "id": "G4_Q020",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S4_FACTORS_MULTIPLES",
+      "difficulty_tier": 5,
+      "text_si": "4, 6 සහ 8 යන සංඛ්‍යා තුනෙහිම කුඩාතම පොදු ගුණාකාරය (කු.පො.ගු) කීයද?",
+      "options": [
+        "24",
+        "16",
+        "48",
+        "12"
+      ],
+      "answer": "24",
+      "explanation_si": "24 යනු 4, 6 සහ 8 යන සංඛ්‍යා තුනෙන්ම ඉතිරි නැතිව බෙදෙන කුඩාම සංඛ්‍යාවයි."
+    },
+    {
+      "id": "G4_Q021",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S5_NUMBER_PATTERNS",
+      "difficulty_tier": 1,
+      "text_si": "පහත සංඛ්‍යාවලින් ඉරට්ටේ සංඛ්‍යාවක් වන්නේ කුමක්ද?",
+      "options": [
+        "256",
+        "317",
+        "409",
+        "185"
+      ],
+      "answer": "256",
+      "explanation_si": "අවසාන ඉලක්කම 0, 2, 4, 6, 8 වන සංඛ්‍යා ඉරට්ටේ සංඛ්‍යා වේ."
+    },
+    {
+      "id": "G4_Q022",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S5_NUMBER_PATTERNS",
+      "difficulty_tier": 2,
+      "text_si": "12, 16, 20, 24, ___ හි හිස්තැනට ගැළපෙන ඊළඟ සංඛ්‍යාව කුමක්ද?",
+      "options": [
+        "28",
+        "26",
+        "30",
+        "32"
+      ],
+      "answer": "28",
+      "explanation_si": "සෑම පදයකටම 4 බැගින් එකතු වන රටාවකි. 24 + 4 = 28 වේ."
+    },
+    {
+      "id": "G4_Q023",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S5_NUMBER_PATTERNS",
+      "difficulty_tier": 3,
+      "text_si": "1, 4, 9, 16, ___ යන සමචතුරස්‍ර සංඛ්‍යා රටාවේ 5 වන පදය කීයද?",
+      "options": [
+        "25",
+        "20",
+        "24",
+        "36"
+      ],
+      "answer": "25",
+      "explanation_si": "5 x 5 = 25 බැවින් 5 වන සමචතුරස්‍ර සංඛ්‍යාව 25 වේ."
+    },
+    {
+      "id": "G4_Q024",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S5_NUMBER_PATTERNS",
+      "difficulty_tier": 4,
+      "text_si": "1, 3, 6, 10, ___ යන ත්‍රිකෝණ සංඛ්‍යා රටාවේ 5 වන සංඛ්‍යාව කුමක්ද?",
+      "options": [
+        "15",
+        "14",
+        "16",
+        "18"
+      ],
+      "answer": "15",
+      "explanation_si": "1 (+2) 3 (+3) 6 (+4) 10 (+5) 15 වේ."
+    },
+    {
+      "id": "G4_Q025",
+      "domain_id": "D1_NUMBER_SENSE",
+      "skill_id": "G4_D1_S5_NUMBER_PATTERNS",
+      "difficulty_tier": 5,
+      "text_si": "3, 6, 12, 24, 48, ___ රටාවේ ඊළඟ සංඛ්‍යාව කීයද?",
+      "options": [
+        "96",
+        "72",
+        "84",
+        "108"
+      ],
+      "answer": "96",
+      "explanation_si": "සෑම පදයක්ම 2න් ගුණ වන රටාවකි. 48 x 2 = 96 වේ."
+    },
+    {
+      "id": "G4_Q026",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S1_ADDITION_4DIGIT",
+      "difficulty_tier": 1,
+      "text_si": "3,240 + 1,430 හි එකතුව කීයද?",
+      "options": [
+        "4,670",
+        "4,570",
+        "4,770",
+        "4,680"
+      ],
+      "answer": "4,670",
+      "explanation_si": "3,240 + 1,430 = 4,670 වේ."
+    },
+    {
+      "id": "G4_Q027",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S1_ADDITION_4DIGIT",
+      "difficulty_tier": 2,
+      "text_si": "4,568 + 2,374 හි එකතුව කීයද?",
+      "options": [
+        "6,942",
+        "6,842",
+        "6,932",
+        "7,042"
+      ],
+      "answer": "6,942",
+      "explanation_si": "4,568 + 2,374 = 6,942 වේ."
+    },
+    {
+      "id": "G4_Q028",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S1_ADDITION_4DIGIT",
+      "difficulty_tier": 3,
+      "text_si": "2,845 + 3,678 + 420 හි මුළු එකතුව කීයද?",
+      "options": [
+        "6,943",
+        "6,843",
+        "6,953",
+        "7,043"
+      ],
+      "answer": "6,943",
+      "explanation_si": "2,845 + 3,678 + 420 = 6,943 වේ."
+    },
+    {
+      "id": "G4_Q029",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S1_ADDITION_4DIGIT",
+      "difficulty_tier": 4,
+      "text_si": "පොත්හලක පළමු දිනයේ පොත් 1,350ක්ද, දෙවන දිනයේ 2,480ක්ද, තෙවන දිනයේ 1,890ක්ද විකිණිණි. විකිණු මුළු පොත් ගණන කීයද?",
+      "options": [
+        "5,720",
+        "5,620",
+        "5,820",
+        "5,710"
+      ],
+      "answer": "5,720",
+      "explanation_si": "1,350 + 2,480 + 1,890 = 5,720 වේ."
+    },
+    {
+      "id": "G4_Q030",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S1_ADDITION_4DIGIT",
+      "difficulty_tier": 5,
+      "text_si": "සංඛ්‍යාවකට 3,456ක් එකතු කළ විට 8,210ක් ලැබේ නම්, එම සංඛ්‍යාව කුමක්ද?",
+      "options": [
+        "4,754",
+        "4,854",
+        "4,744",
+        "4,654"
+      ],
+      "answer": "4,754",
+      "explanation_si": "සංඛ්‍යාව = 8,210 - 3,456 = 4,754 වේ."
+    },
+    {
+      "id": "G4_Q031",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S2_SUBTRACTION_4DIGIT",
+      "difficulty_tier": 1,
+      "text_si": "5,890 - 2,430 හි අගය කීයද?",
+      "options": [
+        "3,460",
+        "3,450",
+        "3,360",
+        "3,560"
+      ],
+      "answer": "3,460",
+      "explanation_si": "5,890 - 2,430 = 3,460 වේ."
+    },
+    {
+      "id": "G4_Q032",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S2_SUBTRACTION_4DIGIT",
+      "difficulty_tier": 2,
+      "text_si": "7,000 - 3,456 හි අගය කීයද?",
+      "options": [
+        "3,544",
+        "3,644",
+        "3,554",
+        "4,544"
+      ],
+      "answer": "3,544",
+      "explanation_si": "7,000 - 3,456 = 3,544 වේ."
+    },
+    {
+      "id": "G4_Q033",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S2_SUBTRACTION_4DIGIT",
+      "difficulty_tier": 3,
+      "text_si": "8,204 - 4,789 හි අගය කීයද?",
+      "options": [
+        "3,415",
+        "3,515",
+        "3,425",
+        "4,415"
+      ],
+      "answer": "3,415",
+      "explanation_si": "8,204 - 4,789 = 3,415 වේ."
+    },
+    {
+      "id": "G4_Q034",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S2_SUBTRACTION_4DIGIT",
+      "difficulty_tier": 4,
+      "text_si": "ගමක සිටින මුළු ජනගහනය 9,450කි. ඉන් 4,875ක් පිරිමි අය නම්, ගැහැණු අය සංඛ්‍යාව කීයද?",
+      "options": [
+        "4,575",
+        "4,675",
+        "4,475",
+        "5,575"
+      ],
+      "answer": "4,575",
+      "explanation_si": "ගැහැණු අය = 9,450 - 4,875 = 4,575 වේ."
+    },
+    {
+      "id": "G4_Q035",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S2_SUBTRACTION_4DIGIT",
+      "difficulty_tier": 5,
+      "text_si": "9,005 න් යම් සංඛ්‍යාවක් අඩු කළ විට 3,847ක් ලැබේ නම් එම අඩු කළ සංඛ්‍යාව කීයද?",
+      "options": [
+        "5,158",
+        "5,258",
+        "5,148",
+        "6,158"
+      ],
+      "answer": "5,158",
+      "explanation_si": "අඩු කළ සංඛ්‍යාව = 9,005 - 3,847 = 5,158 වේ."
+    },
+    {
+      "id": "G4_Q036",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S3_MULTIPLICATION",
+      "difficulty_tier": 1,
+      "text_si": "45 x 10 හි ගුණිතය කීයද?",
+      "options": [
+        "450",
+        "405",
+        "4500",
+        "540"
+      ],
+      "answer": "450",
+      "explanation_si": "සංඛ්‍යාවක් 10න් ගුණ කළ විට අගට බිංදුවක් එකතු වේ. 45 x 10 = 450 වේ."
+    },
+    {
+      "id": "G4_Q037",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S3_MULTIPLICATION",
+      "difficulty_tier": 2,
+      "text_si": "124 x 6 හි ගුණිතය කීයද?",
+      "options": [
+        "744",
+        "724",
+        "644",
+        "754"
+      ],
+      "answer": "744",
+      "explanation_si": "124 x 6 = (100 x 6) + (20 x 6) + (4 x 6) = 600 + 120 + 24 = 744 වේ."
+    },
+    {
+      "id": "G4_Q038",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S3_MULTIPLICATION",
+      "difficulty_tier": 3,
+      "text_si": "35 x 24 හි අගය කීයද?",
+      "options": [
+        "840",
+        "820",
+        "860",
+        "740"
+      ],
+      "answer": "840",
+      "explanation_si": "35 x 24 = 35 x 20 + 35 x 4 = 700 + 140 = 840 වේ."
+    },
+    {
+      "id": "G4_Q039",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S3_MULTIPLICATION",
+      "difficulty_tier": 4,
+      "text_si": "එක් පෙට්ටියක ඇපල් ගෙඩි 48ක් අසුරා ඇත. එවැනි පෙට්ටි 15ක ඇති මුළු ඇපල් ගණන කීයද?",
+      "options": [
+        "720",
+        "680",
+        "740",
+        "700"
+      ],
+      "answer": "720",
+      "explanation_si": "මුළු ඇපල් = 48 x 15 = 720 වේ."
+    },
+    {
+      "id": "G4_Q040",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S3_MULTIPLICATION",
+      "difficulty_tier": 5,
+      "text_si": "248 x 35 හි නිවැරදි ගුණිතය සොයන්න.",
+      "options": [
+        "8,680",
+        "8,580",
+        "8,780",
+        "8,480"
+      ],
+      "answer": "8,680",
+      "explanation_si": "248 x 35 = 8,680 වේ."
+    },
+    {
+      "id": "G4_Q041",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S4_DIVISION",
+      "difficulty_tier": 1,
+      "text_si": "84 ÷ 4 හි පිළිතුර කීයද?",
+      "options": [
+        "21",
+        "22",
+        "20",
+        "19"
+      ],
+      "answer": "21",
+      "explanation_si": "84 ÷ 4 = 21 වේ."
+    },
+    {
+      "id": "G4_Q042",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S4_DIVISION",
+      "difficulty_tier": 2,
+      "text_si": "95 ÷ 3 හි ලබ්ධිය (බෙදූ අගය) සහ ශේෂය කීයද?",
+      "options": [
+        "ලබ්ධිය 31, ශේෂය 2",
+        "ලබ්ධිය 30, ශේෂය 5",
+        "ලබ්ධිය 31, ශේෂය 1",
+        "ලබ්ධිය 32, ශේෂය 1"
+      ],
+      "answer": "ලබ්ධිය 31, ශේෂය 2",
+      "explanation_si": "95 = (31 x 3) + 2 බැවින් ලබ්ධිය 31 සහ ශේෂය 2 වේ."
+    },
+    {
+      "id": "G4_Q043",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S4_DIVISION",
+      "difficulty_tier": 3,
+      "text_si": "432 ÷ 6 හි පිළිතුර කීයද?",
+      "options": [
+        "72",
+        "68",
+        "74",
+        "76"
+      ],
+      "answer": "72",
+      "explanation_si": "432 ÷ 6 = 72 වේ."
+    },
+    {
+      "id": "G4_Q044",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S4_DIVISION",
+      "difficulty_tier": 4,
+      "text_si": "පැන්සල් 325ක් ළමුන් 5 දෙනෙකු අතර සමානව බෙදූ විට එක් අයෙකුට ලැබෙන පැන්සල් ගණන කීයද?",
+      "options": [
+        "65",
+        "60",
+        "75",
+        "55"
+      ],
+      "answer": "65",
+      "explanation_si": "325 ÷ 5 = 65 වේ."
+    },
+    {
+      "id": "G4_Q045",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S4_DIVISION",
+      "difficulty_tier": 5,
+      "text_si": "748 ÷ 12 හි ලබ්ධිය සහ ශේෂය නිවැරදිව දක්වන්න.",
+      "options": [
+        "ලබ්ධිය 62, ශේෂය 4",
+        "ලබ්ධිය 61, ශේෂය 6",
+        "ලබ්ධිය 62, ශේෂය 2",
+        "ලබ්ධිය 63, ශේෂය 2"
+      ],
+      "answer": "ලබ්ධිය 62, ශේෂය 4",
+      "explanation_si": "62 x 12 = 744. 748 - 744 = 4. එබැවින් ලබ්ධිය 62 ද ශේෂය 4 ද වේ."
+    },
+    {
+      "id": "G4_Q046",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S5_FRACTIONS_DECIMALS",
+      "difficulty_tier": 1,
+      "text_si": "2/5 + 1/5 හි එකතුව කීයද?",
+      "options": [
+        "3/5",
+        "3/10",
+        "2/10",
+        "1/5"
+      ],
+      "answer": "3/5",
+      "explanation_si": "හරය සමාන බැවින් අංශ එකතු වේ: 2/5 + 1/5 = 3/5 වේ."
+    },
+    {
+      "id": "G4_Q047",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S5_FRACTIONS_DECIMALS",
+      "difficulty_tier": 2,
+      "text_si": "0.4 + 0.3 හි අගය කීයද?",
+      "options": [
+        "0.7",
+        "0.07",
+        "7.0",
+        "0.12"
+      ],
+      "answer": "0.7",
+      "explanation_si": "0.4 + 0.3 = 0.7 වේ."
+    },
+    {
+      "id": "G4_Q048",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S5_FRACTIONS_DECIMALS",
+      "difficulty_tier": 3,
+      "text_si": "7/8 - 3/8 හි අගය සරල කළ විට ලැබෙන්නේ කුමක්ද?",
+      "options": [
+        "1/2",
+        "4/8",
+        "4/0",
+        "1/4"
+      ],
+      "answer": "1/2",
+      "explanation_si": "7/8 - 3/8 = 4/8 වේ. 4/8 සරල කළ විට 1/2 ලැබේ."
+    },
+    {
+      "id": "G4_Q049",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S5_FRACTIONS_DECIMALS",
+      "difficulty_tier": 4,
+      "text_si": "1.8 + 2.5 හි අගය කීයද?",
+      "options": [
+        "4.3",
+        "3.13",
+        "4.2",
+        "4.5"
+      ],
+      "answer": "4.3",
+      "explanation_si": "1.8 + 2.5 = 4.3 වේ."
+    },
+    {
+      "id": "G4_Q050",
+      "domain_id": "D2_OPERATIONS",
+      "skill_id": "G4_D2_S5_FRACTIONS_DECIMALS",
+      "difficulty_tier": 5,
+      "text_si": "කේක් ගෙඩියකින් අමල් 1/4ක්ද කමල් 3/8ක්ද කෑවේ නම්, දෙදෙනාම කෑ මුළු ප්‍රමාණය කීයද?",
+      "options": [
+        "5/8",
+        "4/12",
+        "4/8",
+        "7/8"
+      ],
+      "answer": "5/8",
+      "explanation_si": "1/4 = 2/8 වේ. 2/8 + 3/8 = 5/8 වේ."
+    },
+    {
+      "id": "G4_Q051",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S1_LENGTH_PERIMETER",
+      "difficulty_tier": 1,
+      "text_si": "මීටර 1ක (1 m) සෙන්ටිමීටර (cm) කීයක් තිබේද?",
+      "options": [
+        "100 cm",
+        "10 cm",
+        "1000 cm",
+        "50 cm"
+      ],
+      "answer": "100 cm",
+      "explanation_si": "මීටර 1ක් = සෙන්ටිමීටර 100කි."
+    },
+    {
+      "id": "G4_Q052",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S1_LENGTH_PERIMETER",
+      "difficulty_tier": 2,
+      "text_si": "කිලෝමීටර 3ක් සහ මීටර 450ක් (3 km 450 m) මීටරවලින් දැක්වූ විට කීයද?",
+      "options": [
+        "3,450 m",
+        "345 m",
+        "30,450 m",
+        "3,045 m"
+      ],
+      "answer": "3,450 m",
+      "explanation_si": "3 km = 3,000 m. 3,000 m + 450 m = 3,450 m වේ."
+    },
+    {
+      "id": "G4_Q053",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S1_LENGTH_PERIMETER",
+      "difficulty_tier": 3,
+      "text_si": "පැත්තක දිග 8 cm වන සමචතුරස්‍රයක පරිමිතිය කීයද?",
+      "options": [
+        "32 cm",
+        "16 cm",
+        "64 cm",
+        "24 cm"
+      ],
+      "answer": "32 cm",
+      "explanation_si": "සමචතුරස්‍රයේ පරිමිතිය = 4 x පැත්තක දිග = 4 x 8 = 32 cm වේ."
+    },
+    {
+      "id": "G4_Q054",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S1_LENGTH_PERIMETER",
+      "difficulty_tier": 4,
+      "text_si": "දිග 12 m සහ පළල 7 m වන සෘජුකෝණාස්‍රාකාර ක්‍රීඩා පිටියක පරිමිතිය කීයද?",
+      "options": [
+        "38 m",
+        "84 m",
+        "19 m",
+        "36 m"
+      ],
+      "answer": "38 m",
+      "explanation_si": "පරිමිතිය = 2 x (දිග + පළල) = 2 x (12 + 7) = 2 x 19 = 38 m වේ."
+    },
+    {
+      "id": "G4_Q055",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S1_LENGTH_PERIMETER",
+      "difficulty_tier": 5,
+      "text_si": "රෙදි පටියක දිග 5 m 20 cm කි. ඉන් 2 m 75 cm ක් කපා ඉවත් කළ පසු ඉතිරි දිග කීයද?",
+      "options": [
+        "2 m 45 cm",
+        "3 m 45 cm",
+        "2 m 55 cm",
+        "3 m 55 cm"
+      ],
+      "answer": "2 m 45 cm",
+      "explanation_si": "520 cm - 275 cm = 245 cm = 2 m 45 cm වේ."
+    },
+    {
+      "id": "G4_Q056",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S2_WEIGHT_MASS",
+      "difficulty_tier": 1,
+      "text_si": "කිලෝග්‍රෑම් 1ක (1 kg) ග්‍රෑම් (g) කීයක් අඩංගුද?",
+      "options": [
+        "1000 g",
+        "100 g",
+        "500 g",
+        "10 g"
+      ],
+      "answer": "1000 g",
+      "explanation_si": "1 kg = 1,000 g වේ."
+    },
+    {
+      "id": "G4_Q057",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S2_WEIGHT_MASS",
+      "difficulty_tier": 2,
+      "text_si": "2 kg 350 g ග්‍රෑම්වලින් ලිවූ විට ලැබෙන්නේ කුමක්ද?",
+      "options": [
+        "2,350 g",
+        "235 g",
+        "2,035 g",
+        "23,500 g"
+      ],
+      "answer": "2,350 g",
+      "explanation_si": "2 kg = 2,000 g. 2,000 g + 350 g = 2,350 g වේ."
+    },
+    {
+      "id": "G4_Q058",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S2_WEIGHT_MASS",
+      "difficulty_tier": 3,
+      "text_si": "සීනි 1 kg 500 g සහ පිටි 2 kg 750 g එකතු කළ විට මුළු බර කීයද?",
+      "options": [
+        "4 kg 250 g",
+        "3 kg 250 g",
+        "4 kg 150 g",
+        "3 kg 1250 g"
+      ],
+      "answer": "4 kg 250 g",
+      "explanation_si": "1,500 g + 2,750 g = 4,250 g = 4 kg 250 g වේ."
+    },
+    {
+      "id": "G4_Q059",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S2_WEIGHT_MASS",
+      "difficulty_tier": 4,
+      "text_si": "සහල් 5 kg ක මල්ලකින් 1 kg 800 g ක් භාවිත කළ විට ඉතිරි සහල් බර කීයද?",
+      "options": [
+        "3 kg 200 g",
+        "4 kg 200 g",
+        "3 kg 800 g",
+        "2 kg 800 g"
+      ],
+      "answer": "3 kg 200 g",
+      "explanation_si": "5,000 g - 1,800 g = 3,200 g = 3 kg 200 g වේ."
+    },
+    {
+      "id": "G4_Q060",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S2_WEIGHT_MASS",
+      "difficulty_tier": 5,
+      "text_si": "බිස්කට් පැකට්ටුවක බර 250 g කි. එවැනි පැකට් 8ක මුළු බර කිලෝග්‍රෑම් කීයද?",
+      "options": [
+        "2 kg",
+        "1.5 kg",
+        "2.5 kg",
+        "3 kg"
+      ],
+      "answer": "2 kg",
+      "explanation_si": "250 g x 8 = 2,000 g = 2 kg වේ."
+    },
+    {
+      "id": "G4_Q061",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S3_CAPACITY_VOLUME",
+      "difficulty_tier": 1,
+      "text_si": "ලීටර 1ක (1 L) මිලිලීටර (ml) කීයක් තිබේද?",
+      "options": [
+        "1000 ml",
+        "100 ml",
+        "500 ml",
+        "10 ml"
+      ],
+      "answer": "1000 ml",
+      "explanation_si": "1 L = 1,000 ml වේ."
+    },
+    {
+      "id": "G4_Q062",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S3_CAPACITY_VOLUME",
+      "difficulty_tier": 2,
+      "text_si": "3 L 750 ml මිලිලීටරවලින් දැක්වූ විට කීයද?",
+      "options": [
+        "3,750 ml",
+        "375 ml",
+        "30,750 ml",
+        "3,075 ml"
+      ],
+      "answer": "3,750 ml",
+      "explanation_si": "3,000 ml + 750 ml = 3,750 ml වේ."
+    },
+    {
+      "id": "G4_Q063",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S3_CAPACITY_VOLUME",
+      "difficulty_tier": 3,
+      "text_si": "වතුර බෝතලයක 1 L 250 ml ද, තවත් බෝතලයක 850 ml ද ඇත. බෝතල් දෙකෙහිම ඇති මුළු ජල පරිමාව කීයද?",
+      "options": [
+        "2 L 100 ml",
+        "2 L",
+        "1 L 950 ml",
+        "2 L 200 ml"
+      ],
+      "answer": "2 L 100 ml",
+      "explanation_si": "1,250 ml + 850 ml = 2,100 ml = 2 L 100 ml වේ."
+    },
+    {
+      "id": "G4_Q064",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S3_CAPACITY_VOLUME",
+      "difficulty_tier": 4,
+      "text_si": "තෙල් 10 L ක භාජනයකින් 4 L 350 ml ක් ලබාගත් පසු ඉතිරි තෙල් ප්‍රමාණය කීයද?",
+      "options": [
+        "5 L 650 ml",
+        "6 L 650 ml",
+        "5 L 750 ml",
+        "6 L 350 ml"
+      ],
+      "answer": "5 L 650 ml",
+      "explanation_si": "10,000 ml - 4,350 ml = 5,650 ml = 5 L 650 ml වේ."
+    },
+    {
+      "id": "G4_Q065",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S3_CAPACITY_VOLUME",
+      "difficulty_tier": 5,
+      "text_si": "200 ml කෝප්පයකින් 2 L බඳුනක් සම්පූර්ණයෙන්ම පිරවීමට කෝප්ප කීයක් වත් කළ යුතුද?",
+      "options": [
+        "10",
+        "8",
+        "12",
+        "15"
+      ],
+      "answer": "10",
+      "explanation_si": "2 L = 2,000 ml. 2,000 ÷ 200 = 10 කෝප්ප වේ."
+    },
+    {
+      "id": "G4_Q066",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S4_TIME_CALENDAR",
+      "difficulty_tier": 1,
+      "text_si": "පැය 1ක (1 hour) මිනිත්තු කීයක් තිබේද?",
+      "options": [
+        "මිනිත්තු 60",
+        "මිනිත්තු 100",
+        "මිනිත්තු 24",
+        "මිනිත්තු 30"
+      ],
+      "answer": "මිනිත්තු 60",
+      "explanation_si": "පැය 1ක් = මිනිත්තු 60කි."
+    },
+    {
+      "id": "G4_Q067",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S4_TIME_CALENDAR",
+      "difficulty_tier": 2,
+      "text_si": "පැය 2යි මිනිත්තු 30 මිනිත්තුවලින් දැක්වූ විට කීයද?",
+      "options": [
+        "මිනිත්තු 150",
+        "මිනිත්තු 120",
+        "මිනිත්තු 130",
+        "මිනිත්තු 230"
+      ],
+      "answer": "මිනිත්තු 150",
+      "explanation_si": "(2 x 60) + 30 = 120 + 30 = මිනිත්තු 150 වේ."
+    },
+    {
+      "id": "G4_Q068",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S4_TIME_CALENDAR",
+      "difficulty_tier": 3,
+      "text_si": "චිත්‍රපටයක් පෙ.ව. 10.15ට ආරම්භ වී පැය 2යි මිනිත්තු 20ක් පැවතුණි. එය අවසන් වූ වේලාව කුමක්ද?",
+      "options": [
+        "ප.ව. 12.35",
+        "ප.ව. 12.15",
+        "ප.ව. 1.35",
+        "පෙ.ව. 12.35"
+      ],
+      "answer": "ප.ව. 12.35",
+      "explanation_si": "10.15 + පැය 2 = 12.15. 12.15 + මිනිත්තු 20 = ප.ව. 12.35 වේ."
+    },
+    {
+      "id": "G4_Q069",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S4_TIME_CALENDAR",
+      "difficulty_tier": 4,
+      "text_si": "අධික අවුරුද්දක (Leap Year) පෙබරවාරි මාසයට දින කීයක් තිබේද?",
+      "options": [
+        "දින 29",
+        "දින 28",
+        "දින 30",
+        "දින 31"
+      ],
+      "answer": "දින 29",
+      "explanation_si": "අධික අවුරුද්දකදී පෙබරවාරි මාසයට දින 29ක් ඇත."
+    },
+    {
+      "id": "G4_Q070",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S4_TIME_CALENDAR",
+      "difficulty_tier": 5,
+      "text_si": "මාසයක 3 වන දින සඳුදා නම්, එම මාසයේ 24 වන දින කුමන දිනයක් වේද?",
+      "options": [
+        "සඳුදා",
+        "අඟහරුවාදා",
+        "ඉරිදා",
+        "බදාදා"
+      ],
+      "answer": "සඳුදා",
+      "explanation_si": "සෑම දින 7කට වරක් එකම දිනය යෙදේ: 3+7=10, 10+7=17, 17+7=24. එබැවින් 24 වන දිනද සඳුදා වේ."
+    },
+    {
+      "id": "G4_Q071",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S5_MONEY_BILLS",
+      "difficulty_tier": 1,
+      "text_si": "රුපියල් 1000 නෝට්ටුවක් මාරු කිරීමට රුපියල් 100 නෝට්ටු කීයක් අවශ්‍යද?",
+      "options": [
+        "10",
+        "5",
+        "20",
+        "100"
+      ],
+      "answer": "10",
+      "explanation_si": "1000 ÷ 100 = 10 නෝට්ටු වේ."
+    },
+    {
+      "id": "G4_Q072",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S5_MONEY_BILLS",
+      "difficulty_tier": 2,
+      "text_si": "රු. 120ක පොතක් සහ රු. 45ක පෑනක් මිලදී ගත් විට මුළු වියදම කීයද?",
+      "options": [
+        "රු. 165",
+        "රු. 155",
+        "රු. 175",
+        "රු. 145"
+      ],
+      "answer": "රු. 165",
+      "explanation_si": "120 + 45 = රු. 165 වේ."
+    },
+    {
+      "id": "G4_Q073",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S5_MONEY_BILLS",
+      "difficulty_tier": 3,
+      "text_si": "රු. 500 නෝට්ටුවක් දී රු. 340ක භාණ්ඩ මිලදී ගත් විට ලැබෙන ඉතිරි මුදල කීයද?",
+      "options": [
+        "රු. 160",
+        "රු. 140",
+        "රු. 260",
+        "රු. 150"
+      ],
+      "answer": "රු. 160",
+      "explanation_si": "500 - 340 = රු. 160 වේ."
+    },
+    {
+      "id": "G4_Q074",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S5_MONEY_BILLS",
+      "difficulty_tier": 4,
+      "text_si": "පැන්සල් 1ක මිල රු. 35කි. එවැනි පැන්සල් 6ක් ගෙන රු. 500 නෝට්ටුවක් දුන් විට ලැබෙන ඉතිරි මුදල කීයද?",
+      "options": [
+        "රු. 290",
+        "රු. 210",
+        "රු. 310",
+        "රු. 280"
+      ],
+      "answer": "රු. 290",
+      "explanation_si": "පැන්සල් වියදම = 35 x 6 = රු. 210. ඉතිරි මුදල = 500 - 210 = රු. 290 වේ."
+    },
+    {
+      "id": "G4_Q075",
+      "domain_id": "D3_MEASUREMENT",
+      "skill_id": "G4_D3_S5_MONEY_BILLS",
+      "difficulty_tier": 5,
+      "text_si": "වෙළෙන්දෙක් රු. 450ට ගත් සෙල්ලම් බඩුවක් රු. 620ට විකුණුවේ නම් ඔහු ලැබූ ලාභය කීයද?",
+      "options": [
+        "රු. 170",
+        "රු. 150",
+        "රු. 180",
+        "රු. 270"
+      ],
+      "answer": "රු. 170",
+      "explanation_si": "ලාභය = විකුණුම් මිල - ගැනුම් මිල = 620 - 450 = රු. 170 වේ."
+    },
+    {
+      "id": "G4_Q076",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S1_ANGLES_LINES",
+      "difficulty_tier": 1,
+      "text_si": "අංශක 90ක කෝණයක් හඳුන්වන්නේ කුමන නමකින්ද?",
+      "options": [
+        "සෘජු කෝණය",
+        "සුළු කෝණය",
+        "මහා කෝණය",
+        "සරල කෝණය"
+      ],
+      "answer": "සෘජු කෝණය",
+      "explanation_si": "අංශක 90ක අගයක් ගන්නා කෝණය සෘජු කෝණය (Right Angle) වේ."
+    },
+    {
+      "id": "G4_Q077",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S1_ANGLES_LINES",
+      "difficulty_tier": 2,
+      "text_si": "සෘජු කෝණයකට වඩා කුඩා කෝණයක් හඳුන්වන්නේ කෙසේද?",
+      "options": [
+        "සුළු කෝණය",
+        "මහා කෝණය",
+        "ප්‍රත්‍යාවර්ත කෝණය",
+        "බද්ධ කෝණය"
+      ],
+      "answer": "සුළු කෝණය",
+      "explanation_si": "අංශක 90ට වඩා කුඩා කෝණ සුළු කෝණ (Acute Angles) නම් වේ."
+    },
+    {
+      "id": "G4_Q078",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S1_ANGLES_LINES",
+      "difficulty_tier": 3,
+      "text_si": "එකිනෙක කිසිවිටෙකත් ඡේදනය නොවන (හමු නොවන) සමාන දුරකින් පිහිටි රේඛා යුගලක් හඳුන්වන්නේ කුමක් ලෙසද?",
+      "options": [
+        "සමාන්තර රේඛා",
+        "ලම්බක රේඛා",
+        "තිරස් රේඛා",
+        "ඡේදක රේඛා"
+      ],
+      "answer": "සමාන්තර රේඛා",
+      "explanation_si": "දුම්රිය පීලි මෙන් එකිනෙක හමු නොවන රේඛා සමාන්තර රේඛා (Parallel Lines) වේ."
+    },
+    {
+      "id": "G4_Q079",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S1_ANGLES_LINES",
+      "difficulty_tier": 4,
+      "text_si": "ඔරලෝසුවක වේලාව ප.ව. 3.00 වන විට කටු දෙක අතර සෑදෙන කෝණය කුමක්ද?",
+      "options": [
+        "සෘජු කෝණයක්",
+        "සුළු කෝණයක්",
+        "මහා කෝණයක්",
+        "සරල කෝණයක්"
+      ],
+      "answer": "සෘජු කෝණයක්",
+      "explanation_si": "වේලාව 3.00 වන විට පැය කටුව සහ මිනිත්තු කටුව අතර 90° ක සෘජු කෝණයක් නිර්මාණය වේ."
+    },
+    {
+      "id": "G4_Q080",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S1_ANGLES_LINES",
+      "difficulty_tier": 5,
+      "text_si": "සෘජුකෝණාස්‍රයක අභ්‍යන්තරයේ ඇති සියලුම සෘජුකෝණ සංඛ්‍යාව කීයද?",
+      "options": [
+        "4",
+        "2",
+        "3",
+        "8"
+      ],
+      "answer": "4",
+      "explanation_si": "සෘජුකෝණාස්‍රයක කොන් හතරෙහිම 90° බැගින් වූ සෘජු කෝණ 4ක් ඇත."
+    },
+    {
+      "id": "G4_Q081",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S2_2D_AREA_SHAPES",
+      "difficulty_tier": 1,
+      "text_si": "පාද 3ක් සහ ශීර්ෂ 3ක් ඇති ද්විමාන හැඩතලය කුමක්ද?",
+      "options": [
+        "ත්‍රිකෝණය",
+        "සමචතුරස්‍රය",
+        "පංචාස්‍රය",
+        "වෘත්තය"
+      ],
+      "answer": "ත්‍රිකෝණය",
+      "explanation_si": "පාද 3ක් සහ ශීර්ෂ 3ක් ඇති සංවෘත තල රූපය ත්‍රිකෝණයකි."
+    },
+    {
+      "id": "G4_Q082",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S2_2D_AREA_SHAPES",
+      "difficulty_tier": 2,
+      "text_si": "පැත්තක දිග 5 cm වන සමචතුරස්‍රයක වර්ගඵලය කීයද?",
+      "options": [
+        "25 වර්ග සෙ.මී.",
+        "20 වර්ග සෙ.මී.",
+        "10 වර්ග සෙ.මී.",
+        "15 වර්ග සෙ.මී."
+      ],
+      "answer": "25 වර්ග සෙ.මී.",
+      "explanation_si": "සමචතුරස්‍රයේ වර්ගඵලය = දිග x පළල = 5 x 5 = 25 cm² වේ."
+    },
+    {
+      "id": "G4_Q083",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S2_2D_AREA_SHAPES",
+      "difficulty_tier": 3,
+      "text_si": "දිග 8 cm සහ පළල 4 cm වන සෘජුකෝණාස්‍රයක වර්ගඵලය කීයද?",
+      "options": [
+        "32 වර්ග සෙ.මී.",
+        "24 වර්ග සෙ.මී.",
+        "16 වර්ග සෙ.මී.",
+        "28 වර්ග සෙ.මී."
+      ],
+      "answer": "32 වර්ග සෙ.මී.",
+      "explanation_si": "වර්ගඵලය = දිග x පළල = 8 x 4 = 32 වර්ග සෙ.මී. වේ."
+    },
+    {
+      "id": "G4_Q084",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S2_2D_AREA_SHAPES",
+      "difficulty_tier": 4,
+      "text_si": "වර්ගඵලය 36 වර්ග සෙ.මී. වන සමචතුරස්‍රයක එක පැත්තක දිග කීයද?",
+      "options": [
+        "6 cm",
+        "9 cm",
+        "18 cm",
+        "4 cm"
+      ],
+      "answer": "6 cm",
+      "explanation_si": "6 x 6 = 36 බැවින් එක පැත්තක දිග 6 cm වේ."
+    },
+    {
+      "id": "G4_Q085",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S2_2D_AREA_SHAPES",
+      "difficulty_tier": 5,
+      "text_si": "වර්ගඵලය 40 වර්ග සෙ.මී. සහ දිග 8 cm වන සෘජුකෝණාස්‍රයක පරිමිතිය කීයද?",
+      "options": [
+        "26 cm",
+        "13 cm",
+        "24 cm",
+        "28 cm"
+      ],
+      "answer": "26 cm",
+      "explanation_si": "පළල = 40 ÷ 8 = 5 cm. පරිමිතිය = 2 x (8 + 5) = 2 x 13 = 26 cm වේ."
+    },
+    {
+      "id": "G4_Q086",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S3_3D_SOLIDS",
+      "difficulty_tier": 1,
+      "text_si": "ඝනකයක (Cube) ඇති මුළු මුහුණත් (Faces) ගණන කීයද?",
+      "options": [
+        "6",
+        "8",
+        "12",
+        "4"
+      ],
+      "answer": "6",
+      "explanation_si": "ඝනකයක සමචතුරස්‍රාකාර මුහුණත් 6ක් ඇත."
+    },
+    {
+      "id": "G4_Q087",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S3_3D_SOLIDS",
+      "difficulty_tier": 2,
+      "text_si": "ඝනකාභයක (Cuboid) ඇති ශීර්ෂ (Vertices) ගණන කීයද?",
+      "options": [
+        "8",
+        "6",
+        "12",
+        "4"
+      ],
+      "answer": "8",
+      "explanation_si": "ඝනකාභයක ශීර්ෂ (කොන්) 8ක් ඇත."
+    },
+    {
+      "id": "G4_Q088",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S3_3D_SOLIDS",
+      "difficulty_tier": 3,
+      "text_si": "සිලින්ඩරයක (Cylinder) ඇති තල මුහුණත් ගණන කීයද?",
+      "options": [
+        "2",
+        "1",
+        "3",
+        "0"
+      ],
+      "answer": "2",
+      "explanation_si": "සිලින්ඩරයක වෘත්තාකාර තල මුහුණත් 2ක් සහ එක් වක්‍ර මුහුණතක් ඇත."
+    },
+    {
+      "id": "G4_Q089",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S3_3D_SOLIDS",
+      "difficulty_tier": 4,
+      "text_si": "ඝනකයක දාර (Edges) ගණන කීයද?",
+      "options": [
+        "12",
+        "8",
+        "6",
+        "10"
+      ],
+      "answer": "12",
+      "explanation_si": "ඝනකයක සහ ඝනකාභයක දාර 12ක් බැගින් ඇත."
+    },
+    {
+      "id": "G4_Q090",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S3_3D_SOLIDS",
+      "difficulty_tier": 5,
+      "text_si": "චතුරස්‍රාකාර පිරමිඩයක (Square Pyramid) ඇති මුහුණත් ගණන සහ දාර ගණන පිළිවෙළින් කීයද?",
+      "options": [
+        "මුහුණත් 5, දාර 8",
+        "මුහුණත් 4, දාර 6",
+        "මුහුණත් 5, දාර 6",
+        "මුහුණත් 6, දාර 8"
+      ],
+      "answer": "මුහුණත් 5, දාර 8",
+      "explanation_si": "චතුරස්‍රාකාර පිරමිඩයක මුහුණත් 5ක් (1 සමචතුරස්‍ර + 4 ත්‍රිකෝණ) සහ දාර 8ක් ඇත."
+    },
+    {
+      "id": "G4_Q091",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S4_SYMMETRY",
+      "difficulty_tier": 1,
+      "text_si": "පහත ඉංග්‍රීසි අකුරුවලින් සමමිතික අක්ෂයක් (Line of symmetry) ඇත්තේ කුමකටද?",
+      "options": [
+        "A",
+        "F",
+        "G",
+        "R"
+      ],
+      "answer": "A",
+      "explanation_si": "'A' අකුර මැදින් සිරස්ව නැමූ විට දෙපස එකිනෙක සමපාත වේ."
+    },
+    {
+      "id": "G4_Q092",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S4_SYMMETRY",
+      "difficulty_tier": 2,
+      "text_si": "සෘජුකෝණාස්‍රයකට අඳින්නට හැකි සමමිතික අක්ෂ ගණන කීයද?",
+      "options": [
+        "2",
+        "4",
+        "1",
+        "3"
+      ],
+      "answer": "2",
+      "explanation_si": "සෘජුකෝණාස්‍රයකට සිරස් සහ තිරස් ලෙස සමමිතික අක්ෂ 2ක් ඇත (විකර්ණ සමමිතික නොවේ)."
+    },
+    {
+      "id": "G4_Q093",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S4_SYMMETRY",
+      "difficulty_tier": 3,
+      "text_si": "සමචතුරස්‍රයක ඇති මුළු සමමිතික අක්ෂ ගණන කීයද?",
+      "options": [
+        "4",
+        "2",
+        "6",
+        "8"
+      ],
+      "answer": "4",
+      "explanation_si": "සමචතුරස්‍රයකට සිරස්, තිරස් සහ විකර්ණ 2ක් ඇතුළුව සමමිතික අක්ෂ 4ක් ඇත."
+    },
+    {
+      "id": "G4_Q094",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S4_SYMMETRY",
+      "difficulty_tier": 4,
+      "text_si": "සමපාද ත්‍රිකෝණයක (Equilateral Triangle) ඇති සමමිතික අක්ෂ ගණන කීයද?",
+      "options": [
+        "3",
+        "1",
+        "2",
+        "0"
+      ],
+      "answer": "3",
+      "explanation_si": "සමපාද ත්‍රිකෝණයක ශීර්ෂ 3 හරහා අඳින සමමිතික අක්ෂ 3ක් ඇත."
+    },
+    {
+      "id": "G4_Q095",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S4_SYMMETRY",
+      "difficulty_tier": 5,
+      "text_si": "වෘත්තයකට අඳින්නට හැකි සමමිතික අක්ෂ ගණන පිළිබඳ නිවැරදි ප්‍රකාශය කුමක්ද?",
+      "options": [
+        "අනන්ත සංඛ්‍යාවක් ඇත",
+        "4ක් පමණක් ඇත",
+        "2ක් පමණක් ඇත",
+        "100ක් ඇත"
+      ],
+      "answer": "අනන්ත සංඛ්‍යාවක් ඇත",
+      "explanation_si": "වෘත්තයේ කේන්ද්‍රය හරහා අඳින ඕනෑම විෂ්කම්භයක් සමමිතික අක්ෂයක් බැවින් අනන්ත ගණනක් ඇත."
+    },
+    {
+      "id": "G4_Q096",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S5_DATA_BAR_GRAPHS",
+      "difficulty_tier": 1,
+      "text_si": "පින්තූර ප්‍රස්තාරයක එක් ⭐ රූපයකින් සිසුන් 5 දෙනෙකු නිරූපණය වේ නම්, ⭐⭐⭐ රූප 3කින් නිරූපණය වන සිසුන් ගණන කීයද?",
+      "options": [
+        "15",
+        "10",
+        "20",
+        "8"
+      ],
+      "answer": "15",
+      "explanation_si": "3 x 5 = 15 සිසුන් වේ."
+    },
+    {
+      "id": "G4_Q097",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S5_DATA_BAR_GRAPHS",
+      "difficulty_tier": 2,
+      "text_si": "තීරු ප්‍රස්තාරයක එක් තීරුවක උස 25 දක්වා විහිදේ නම්, එම තීරුවෙන් නිරූපණය වන අගය කීයද?",
+      "options": [
+        "25",
+        "20",
+        "30",
+        "50"
+      ],
+      "answer": "25",
+      "explanation_si": "තීරුවේ උස අක්ෂයේ අගය 25 බැවින් නිරූපිත අගය 25 වේ."
+    },
+    {
+      "id": "G4_Q098",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S5_DATA_BAR_GRAPHS",
+      "difficulty_tier": 3,
+      "text_si": "පන්තියක සිසුන් කැමති පළතුරු: අඹ (12), කෙසෙල් (8), ඇපල් (15). වැඩිම පිරිසක් කැමති පළතුර කුමක්ද?",
+      "options": [
+        "ඇපල්",
+        "අඹ",
+        "කෙසෙල්",
+        "සියල්ල සමානයි"
+      ],
+      "answer": "ඇපල්",
+      "explanation_si": "15 වැඩිම සංඛ්‍යාව බැවින් වැඩිම පිරිසක් කැමති ඇපල්වලටය."
+    },
+    {
+      "id": "G4_Q099",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S5_DATA_BAR_GRAPHS",
+      "difficulty_tier": 4,
+      "text_si": "ප්‍රස්තාරයක රතු පාටට කැමති 18ක් සහ නිල් පාටට කැමති 10ක් සිටී නම්, රතු පාටට කැමති අය නිල් පාටට වඩා කීයකින් වැඩියිද?",
+      "options": [
+        "8",
+        "10",
+        "12",
+        "6"
+      ],
+      "answer": "8",
+      "explanation_si": "18 - 10 = 8 කින් වැඩිය."
+    },
+    {
+      "id": "G4_Q100",
+      "domain_id": "D4_GEOMETRY_DATA",
+      "skill_id": "G4_D4_S5_DATA_BAR_GRAPHS",
+      "difficulty_tier": 5,
+      "text_si": "සතියක දින 5ක් තුළ පාසලට පැමිණි සිසුන්: සඳුදා 40, අඟහරුවාදා 38, බදාදා 42, බ්‍රහස්පතින්දා 35, සිකුරාදා 45. දින 5 තුළ සාමාන්‍ය පැමිණීම කීයද?",
+      "options": [
+        "40",
+        "38",
+        "42",
+        "39"
+      ],
+      "answer": "40",
+      "explanation_si": "මුළු එකතුව = 40+38+42+35+45 = 200. සාමාන්‍යය = 200 ÷ 5 = 40 වේ."
+    }
+  ]
+}
