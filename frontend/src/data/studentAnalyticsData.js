@@ -63,10 +63,9 @@ export const CORE_SUBJECTS = {
     gradient: 'from-amber-500 to-orange-600',
     lightBg: 'bg-amber-50 text-amber-800 border-amber-200',
     categories: [
-      { id: 'P1', name: 'Line Tracing & Fine Motor (රේඛා ඇඳීම)', weight: 0.30 },
-      { id: 'P2', name: 'Digital Coloring & Boundaries (පාට කිරීම)', weight: 0.25 },
-      { id: 'P3', name: 'Paper Craft & Origami Steps (කඩදාසි නිර්මාණ)', weight: 0.25 },
-      { id: 'P4', name: 'Story Drawing & Comprehension (චිත්‍ර ඇඳීම)', weight: 0.20 }
+      { id: 'P1', name: 'Line Tracing & Fine Motor (රේඛා ඇඳීම)', weight: 0.35 },
+      { id: 'P2', name: 'Digital Coloring & Boundaries (පාට කිරීම)', weight: 0.35 },
+      { id: 'P3', name: 'Story Drawing & Comprehension (චිත්‍ර ඇඳීම)', weight: 0.30 }
     ]
   }
 };
@@ -107,8 +106,7 @@ export const createBlankStudentProfile = (studentId, name, grade) => ({
     preschool: [
       { code: 'P1', name: 'Line Tracing & Fine Motor', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
       { code: 'P2', name: 'Digital Coloring & Boundaries', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
-      { code: 'P3', name: 'Paper Craft & Origami Steps', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
-      { code: 'P4', name: 'Story Drawing & Comprehension', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' }
+      { code: 'P3', name: 'Story Drawing & Comprehension', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' }
     ]
   },
   recommendation: null

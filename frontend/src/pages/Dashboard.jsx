@@ -379,57 +379,62 @@ const Dashboard = () => {
               </div>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               <div 
                 onClick={() => navigateToModule('motor')}
-                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-purple-400 group transform hover:-translate-y-1"
+                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-purple-400 group transform hover:-translate-y-1 flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-slate-800 group-hover:text-purple-600 transition-colors">Line Tracing</h2>
-                  <div className="p-3 bg-purple-50 rounded-2xl group-hover:bg-purple-100 transition-colors">
-                    <span className="text-4xl">🖐️</span>
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-bold text-slate-800 group-hover:text-purple-600 transition-colors">Line Tracing</h2>
+                    <div className="p-3 bg-purple-50 rounded-2xl group-hover:bg-purple-100 transition-colors">
+                      <span className="text-4xl">🖐️</span>
+                    </div>
                   </div>
+                  <p className="text-slate-500 mb-6 text-sm leading-relaxed">Interactive dotted line tracing for fine motor skills development.</p>
                 </div>
-                <p className="text-slate-500 mb-6 text-sm leading-relaxed">Interactive dotted line tracing for fine motor skills development.</p>
+                <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-purple-700">
+                  <span>Fine Motor</span>
+                  <span className="bg-purple-50 px-3 py-1 rounded-full">Start Tracing ➔</span>
+                </div>
               </div>
 
               <div 
                 onClick={() => navigateToModule('coloring')}
-                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-pink-400 group transform hover:-translate-y-1"
+                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-pink-400 group transform hover:-translate-y-1 flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-slate-800 group-hover:text-pink-600 transition-colors">Digital Coloring</h2>
-                  <div className="p-3 bg-pink-50 rounded-2xl group-hover:bg-pink-100 transition-colors">
-                    <span className="text-4xl">🎨</span>
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-bold text-slate-800 group-hover:text-pink-600 transition-colors">Digital Coloring</h2>
+                    <div className="p-3 bg-pink-50 rounded-2xl group-hover:bg-pink-100 transition-colors">
+                      <span className="text-4xl">🎨</span>
+                    </div>
                   </div>
+                  <p className="text-slate-500 mb-6 text-sm leading-relaxed">Interactive boundary-aware coloring book with AI region masking.</p>
                 </div>
-                <p className="text-slate-500 mb-6 text-sm leading-relaxed">Interactive boundary-aware coloring book with AI region masking.</p>
-              </div>
-
-              <div 
-                onClick={() => navigateToModule('papercraft')}
-                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-teal-400 group transform hover:-translate-y-1"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-slate-800 group-hover:text-teal-600 transition-colors">Paper Craft AI</h2>
-                  <div className="p-3 bg-teal-50 rounded-2xl group-hover:bg-teal-100 transition-colors">
-                    <span className="text-4xl">📹</span>
-                  </div>
+                <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-pink-700">
+                  <span>Coloring</span>
+                  <span className="bg-pink-50 px-3 py-1 rounded-full">Start Coloring ➔</span>
                 </div>
-                <p className="text-slate-500 mb-6 text-sm leading-relaxed">Upload a video of your paper craft and get AI-powered step evaluation.</p>
               </div>
 
               <div 
                 onClick={() => navigateToModule('storydrawing')}
-                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-orange-400 group transform hover:-translate-y-1"
+                className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all p-8 cursor-pointer border-2 border-transparent hover:border-orange-400 group transform hover:-translate-y-1 flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-slate-800 group-hover:text-orange-600 transition-colors">Story Drawing</h2>
-                  <div className="p-3 bg-orange-50 rounded-2xl group-hover:bg-orange-100 transition-colors">
-                    <span className="text-4xl">📖</span>
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-bold text-slate-800 group-hover:text-orange-600 transition-colors">Story Drawing</h2>
+                    <div className="p-3 bg-orange-50 rounded-2xl group-hover:bg-orange-100 transition-colors">
+                      <span className="text-4xl">📖</span>
+                    </div>
                   </div>
+                  <p className="text-slate-500 mb-6 text-sm leading-relaxed">Listen to a story and draw it! Upload your drawing for AI evaluation.</p>
                 </div>
-                <p className="text-slate-500 mb-6 text-sm leading-relaxed">Listen to a story and draw it! Upload your drawing for AI evaluation.</p>
+                <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-orange-700">
+                  <span>Creative Arts</span>
+                  <span className="bg-orange-50 px-3 py-1 rounded-full">Start Drawing ➔</span>
+                </div>
               </div>
             </div>
           </>
