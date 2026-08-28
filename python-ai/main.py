@@ -1303,20 +1303,20 @@ def evaluate_story_drawing(data: StoryDrawingData):
             missing.append(el)
 
     # --- Score & Feedback Calculation ---
-    score = round((len(detected) / len(data.expected_elements)) * 100) if data.expected_elements else 0
+    # If at least one character from the story is drawn, it is correct!
+    is_correct = len(detected) > 0
+    score = 100 if is_correct else 0
 
-    if len(detected) == len(data.expected_elements) and len(detected) > 0:
-        feedback_sinhala = "ඔබ කතාවට අනුව සියලු චරිත නිවැරදිව ඇඳ ඇත! ඉතා විශිෂ්ටයි! 🌟"
-        feedback_english = "You correctly drew all characters according to the story! Excellent!"
-    elif len(detected) > 0:
-        feedback_sinhala = f"කතාවේ සමහර චරිත ({', '.join(detected)}) හඳුනාගැනිණි. නමුත් අනෙක් චරිතද ඇතුළත් කිරීමට උත්සාහ කරන්න!"
-        feedback_english = f"Some characters ({', '.join(detected)}) were detected. Try to include the remaining characters as well!"
+    if is_correct:
+        feedback_sinhala = "ඔබ කතාවට අනුව චිත්‍රය නිවැරදිව ඇඳ ඇත!"
+        feedback_english = "You correctly drew the drawing according to the story!"
     else:
-        feedback_sinhala = "කතාවට අදාළ චරිත චිත්‍රයේ දක්නට නැත. කරුණාකර කතාවේ චරිත (සතුන් / සිදුවීම්) නිවැරදිව අඳින්න!"
-        feedback_english = "The story characters were not found in the drawing. Please draw the characters from the story!"
+        feedback_sinhala = "කතාවේ චරිත චිත්‍රයේ පැහැදිලිව දක්නට නැත. නැවත උත්සාහ කරන්න!"
+        feedback_english = "The characters of the story are not clearly visible in the drawing. Try again!"
 
     return {
         "score": score,
+        "is_correct": is_correct,
         "detected_elements": detected,
         "missing_elements": missing,
         "feedback_sinhala": feedback_sinhala,
