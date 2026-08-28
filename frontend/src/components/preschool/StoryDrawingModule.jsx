@@ -183,7 +183,7 @@ const StoryDrawingModule = ({ onExit }) => {
                   </div>
                   <button 
                     onClick={() => { setActiveStory(null); setSelectedImage(null); setEvaluationResult(null); }}
-                    className="text-sm font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl transition-all font-sinhala"
+                    className="text-sm font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl transition-all font-sinhala cursor-pointer shadow-sm active:scale-95"
                   >
                     කතාව වෙනස් කරන්න
                   </button>
