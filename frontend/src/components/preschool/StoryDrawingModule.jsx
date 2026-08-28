@@ -268,14 +268,37 @@ const StoryDrawingModule = ({ onExit }) => {
             )}
 
             {evaluationResult && (
-              <div className="mt-6 bg-slate-50 rounded-2xl p-6 border border-slate-200 animate-fade-in-up">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-slate-800 text-lg">AI Feedback</h3>
+              <div className={`mt-6 rounded-2xl p-6 border-2 animate-fade-in-up ${
+                evaluationResult.score >= 80 
+                  ? 'bg-emerald-50 border-emerald-300' 
+                  : evaluationResult.score > 0 
+                  ? 'bg-amber-50 border-amber-300' 
+                  : 'bg-rose-50 border-rose-300'
+              }`}>
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">
+                      {evaluationResult.score >= 80 ? '🌟' : evaluationResult.score > 0 ? '⚠️' : '❌'}
+                    </span>
+                    <h3 className="font-black text-slate-800 text-lg">AI Feedback</h3>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-black ${
+                    evaluationResult.score >= 80 ? 'bg-emerald-200 text-emerald-900' :
+                    evaluationResult.score > 0 ? 'bg-amber-200 text-amber-900' :
+                    'bg-rose-200 text-rose-900'
+                  }`}>
+                    {evaluationResult.score}% Match
+                  </span>
                 </div>
                 
-                <p className="text-slate-700 font-sinhala text-lg">
+                <p className="text-slate-800 font-sinhala text-base font-medium mb-2 leading-relaxed">
                   {evaluationResult.feedback_sinhala}
                 </p>
+                {evaluationResult.feedback_english && (
+                  <p className="text-slate-500 text-xs italic">
+                    {evaluationResult.feedback_english}
+                  </p>
+                )}
               </div>
             )}
 

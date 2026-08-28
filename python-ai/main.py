@@ -1129,105 +1129,107 @@ def get_clip_model():
 @app.post("/api/ai/story-drawing/evaluate")
 def evaluate_story_drawing(data: StoryDrawingData):
     """
-    Uses CLIP with FEATURE-BASED descriptions to detect story elements.
-    Instead of generic labels like 'rabbit', we describe specific physical
-    features (long ears, shell, trunk) so CLIP can discriminate between animals.
+    Discriminative CLIP Vision Classifier for Story Drawing with Negative Confusers.
+    Prevents false positives from non-story objects (vehicles, buildings, electronics)
+    and accurately validates expected story characters.
     """
     import base64
     import io
 
-    # --- Feature-based descriptions for each animal ---
-    # Key idea: describe what makes each animal UNIQUE so CLIP doesn't confuse them
-    # Also include line-drawing and coloring page styles!
-    FEATURE_DESCRIPTIONS = {
-        "rabbit": [
-            "a small animal with long floppy ears and a short fluffy tail",
-            "a bunny with big upright ears hopping",
-            "a rabbit with long ears sitting or running",
-            "a black and white line drawing of a rabbit",
-            "a children's coloring page of a bunny",
+    # Detailed descriptions for all story characters across the 8 curriculum stories
+    STORY_FEATURE_DESCRIPTIONS = {
+        "ant": [
+            "a small black ant crawling on the ground or water or leaf",
+            "a tiny black insect ant with legs and antennae",
+            "a drawing of an ant in a story",
+            "a cartoon black ant"
         ],
-        "tortoise": [
-            "a reptile with a large hard round shell on its back and four short legs",
-            "a turtle or tortoise with a dome-shaped shell crawling slowly",
-            "a shelled reptile with a patterned shell on its body",
-            "a black and white line drawing of a tortoise or turtle",
-            "a children's coloring page of a turtle with a shell",
-        ],
-        "elephant": [
-            "a very large gray animal with a long trunk and big floppy ears",
-            "an elephant with tusks and a long nose trunk",
-            "a line drawing of an elephant with a trunk",
-        ],
-        "deer": [
-            "a slender brown animal with spots on its body and thin long legs",
-            "a deer or fawn with antlers or spotted fur",
-            "a line drawing of a deer",
-            "a children's coloring page of a deer",
-            "a cartoon drawing of a brown deer",
-            "a watercolor painting of a deer",
-        ],
-        "duck": [
-            "a bird swimming on water with an orange beak",
-            "a duck or goose with webbed feet near water",
-            "a line drawing of a duck",
+        "dove": [
+            "a white dove or pigeon bird with wings and feathers",
+            "a white bird perched on a tree branch or flying",
+            "a drawing of a white dove bird",
+            "a cartoon white pigeon or dove"
         ],
         "lion": [
-            "a large wild cat with a thick furry mane around its face",
-            "a lion with a golden mane roaring",
-            "a line drawing of a lion with a mane",
-            "a children's coloring page of a lion",
+            "a large lion with a thick golden furry mane around its head",
+            "a cartoon or drawing of a lion with a mane in the jungle",
+            "a golden lion resting or roaring"
         ],
         "mouse": [
-            "a tiny rodent with round ears and a long thin tail",
-            "a small mouse looking up",
-            "a black and white line drawing of a mouse",
-            "a children's coloring page of a mouse",
+            "a tiny rodent mouse with round ears, whiskers, and a long thin tail",
+            "a small cartoon mouse on the ground or in a net",
+            "a drawing of a little gray or brown mouse"
+        ],
+        "rabbit": [
+            "a small rabbit or bunny with long upright ears and a fluffy tail",
+            "a cartoon bunny running or sitting in the grass",
+            "a drawing of a rabbit with big ears"
+        ],
+        "tortoise": [
+            "a reptile tortoise or turtle with a hard dome-shaped patterned shell on its back",
+            "a cartoon turtle crawling slowly with a green or brown shell",
+            "a drawing of a tortoise"
+        ],
+        "crow": [
+            "a black crow or raven bird with black feathers and a sharp beak",
+            "a cartoon black crow perched on a tree branch with cheese",
+            "a drawing of a black bird or crow"
         ],
         "fox": [
-            "an orange-red animal with a long bushy tail and pointed snout",
-            "a fox with a pointed face and fluffy tail",
+            "an orange-red fox animal with pointed ears, long bushy tail, and pointed snout",
+            "a cartoon red fox looking up at a tree",
+            "a drawing of a red fox"
         ],
-        "bear": [
-            "a large round furry animal standing on four legs or two legs",
-            "a bear with thick brown or black fur",
+        "deer": [
+            "a slender brown deer or fawn with thin long legs and spots or antlers",
+            "a cartoon deer in a forest",
+            "a drawing of a brown deer animal"
         ],
-        "cat": [
-            "a small furry animal with whiskers and pointed ears",
-            "a cat or kitten with a long tail and whiskers",
+        "monkey": [
+            "a monkey with a long tail in a tree eating fruit",
+            "a brown cartoon monkey swinging on branches",
+            "a drawing of a monkey"
         ],
-        "dog": [
-            "a domesticated animal with floppy or pointed ears and a wagging tail",
-            "a dog or puppy playing or sitting",
+        "crocodile": [
+            "a large green crocodile or alligator with sharp teeth and scaly skin in water",
+            "a cartoon green crocodile swimming in a river",
+            "a drawing of a crocodile"
         ],
-        "frog": [
-            "a small green amphibian with big bulging eyes and long back legs",
-            "a frog sitting on a lily pad or jumping",
+        "rooster": [
+            "a colorful rooster or cockerel with a bright red comb and tail feathers",
+            "a farm rooster or chicken standing on the ground",
+            "a drawing of a rooster"
         ],
-        "fish": [
-            "an aquatic animal with fins and scales swimming in water",
-            "a fish with a tail fin swimming underwater",
+        "jewel": [
+            "a shiny sparkling gemstone, diamond, crystal, or ruby jewel",
+            "a glittering precious gemstone jewel",
+            "a drawing of a sparkling diamond jewel"
         ],
+        "farmer": [
+            "a human farmer or person wearing farm clothes or a hat",
+            "a cartoon person or man standing on a farm",
+            "a drawing of a farmer"
+        ],
+        "owl": [
+            "an owl bird with large round eyes and feathers perched on a tree at night",
+            "a cartoon owl with big round eyes",
+            "a drawing of an owl"
+        ],
+        "bird": [
+            "a small bird with wings and beak perched in a nest or flying",
+            "a cartoon baby bird",
+            "a drawing of a little bird"
+        ]
     }
 
-    # Confuser descriptions - things that are NOT the target animal
-    CONFUSER_DESCRIPTIONS = [
-        "a person or child standing or walking",
-        "a very large gray animal with a long trunk and big floppy ears",
-        "a slender brown animal with spots and thin long legs",
-        "a bird flying in the sky",
-        "a small furry animal with whiskers",
-        "a large wild cat with a thick furry mane",
-        "a reptile with a hard shell on its back",
-        "a small animal with long floppy ears",
-        "a colorful rooster or chicken with a red comb",
-        "a drawing of a shiny jewel or diamond",
-        "a small black ant or insect",
-        "a green crocodile or alligator with sharp teeth",
-        "a monkey with a long tail",
-        "a black crow or raven",
-        "a white dove or pigeon",
-        "a drawing of an owl with big eyes",
+    # General Non-Story Negative Confusers (Crucial: prevents vehicles, buildings, random items from scoring)
+    GENERAL_NEGATIVE_CONFUSERS = [
+        "a car, van, truck, bus, camper, or motor vehicle",
+        "an automobile, vehicle, or transport on wheels",
+        "a building, house, room interior, city street, or road with no animals",
+        "furniture, chair, table, appliance, or household electronics",
+        "a scribble, text document, chart diagram, or abstract geometric shape",
+        "food, pizza, cake, burger, or meal plate"
     ]
 
     detected = []
@@ -1238,7 +1240,6 @@ def evaluate_story_drawing(data: StoryDrawingData):
         import torch
 
         model, processor = get_clip_model()
-
         if model is None or processor is None:
             raise RuntimeError("CLIP model not available")
 
@@ -1250,66 +1251,21 @@ def evaluate_story_drawing(data: StoryDrawingData):
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
         image.thumbnail((512, 512))
 
-        # --- For each expected element, run a focused feature-based comparison ---
-        # 0.025 threshold allows elements to be detected even if a strong background (e.g. river 0.80) suppresses the softmax.
-        DETECTION_THRESHOLD = 0.10
+        expected_keys = [e.lower().strip() for e in data.expected_elements]
 
         for element in data.expected_elements:
             element_key = element.lower().strip()
-            positive_descs = FEATURE_DESCRIPTIONS.get(element_key, [
-                "a drawing of a " + element_key,
-            ])
+            pos_prompts = STORY_FEATURE_DESCRIPTIONS.get(element_key, [f"a drawing of a {element_key}"])
 
-            # Build comparison: positive feature descriptions vs confusers
-            # Remove confusers that describe the target animal itself
-            filtered_confusers = []
-            for c in CONFUSER_DESCRIPTIONS:
-                # Skip confusers that match the target element
-                if element_key in c.lower():
-                    continue
-                # Skip confusers with matching keywords
-                skip = False
-                if element_key == "rabbit" and ("long floppy ears" in c or "bunny" in c):
-                    skip = True
-                elif element_key == "tortoise" and ("shell" in c or "turtle" in c):
-                    skip = True
-                elif element_key == "elephant" and "trunk" in c:
-                    skip = True
-                elif element_key == "deer" and ("spots" in c or "slender" in c):
-                    skip = True
-                elif element_key == "lion" and "mane" in c:
-                    skip = True
-                elif element_key == "mouse" and "small furry animal" in c:
-                    skip = True
-                elif element_key == "crow" and "bird" in c:
-                    skip = True
-                elif element_key == "rooster" and "bird" in c:
-                    skip = True
-                elif element_key == "fox" and "small furry animal" in c:
-                    skip = True
-                elif element_key == "ant" and ("small" in c or "insect" in c):
-                    skip = True
-                elif element_key == "dove" and "bird" in c:
-                    skip = True
-                elif element_key == "monkey" and "slender brown animal" in c:
-                    skip = True
-                elif element_key == "crocodile" and "reptile" in c:
-                    skip = True
-                elif element_key == "rooster" and ("bird" in c or "person" in c):
-                    skip = True
-                elif element_key == "jewel" and ("person" in c or "bird" in c or "reptile" in c):
-                    skip = True
-                elif element_key == "owl" and "bird" in c:
-                    skip = True
-                elif element_key == "bird" and "bird" in c:
-                    skip = True
-                elif element_key == "farmer" and "person" in c:
-                    skip = True
-                if not skip:
-                    filtered_confusers.append(c)
+            # Confusers: Non-story objects + other animals NOT part of this story
+            other_animals = []
+            for k, v in STORY_FEATURE_DESCRIPTIONS.items():
+                if k not in expected_keys:
+                    other_animals.append(v[0])
 
-            all_texts = positive_descs + filtered_confusers
-            num_positive = len(positive_descs)
+            all_texts = pos_prompts + GENERAL_NEGATIVE_CONFUSERS + other_animals
+            num_pos = len(pos_prompts)
+            num_neg_general = len(GENERAL_NEGATIVE_CONFUSERS)
 
             inputs = processor(
                 text=all_texts,
@@ -1320,49 +1276,44 @@ def evaluate_story_drawing(data: StoryDrawingData):
 
             with torch.no_grad():
                 outputs = model(**inputs)
-                logits = outputs.logits_per_image
-                probs = logits.softmax(dim=1)[0]
+                probs = outputs.logits_per_image.softmax(dim=1)[0]
 
-            # Sum probabilities for positive (feature) descriptions
-            positive_score = sum(probs[i].item() for i in range(num_positive))
-            # Find highest single positive description
-            best_positive_idx = max(range(num_positive), key=lambda i: probs[i].item())
-            best_positive_score = probs[best_positive_idx].item()
+            pos_sum = sum(probs[i].item() for i in range(num_pos))
+            best_pos = max(probs[i].item() for i in range(num_pos))
 
-            # Also get the top overall prediction
-            all_scores = [(all_texts[i], probs[i].item()) for i in range(len(all_texts))]
-            all_scores.sort(key=lambda x: x[1], reverse=True)
-            top3_str = str([(t[:50], round(s, 3)) for t, s in all_scores[:3]])
+            neg_general_sum = sum(probs[num_pos + i].item() for i in range(num_neg_general))
+            best_neg_general = max(probs[num_pos + i].item() for i in range(num_neg_general))
 
-            found = best_positive_score >= 0.25
+            top_idx = torch.argmax(probs).item()
 
-            print("  '" + element + "': positive_sum=" + str(round(positive_score, 3))
-                  + " best=" + str(round(best_positive_score, 3))
-                  + " => " + ("DETECTED" if found else "MISSING")
-                  + " | top3: " + top3_str)
+            # Discriminative Detection Criteria:
+            # 1. Best positive score must be at least 0.15
+            # 2. General negative confusers (vehicles, buildings) must NOT dominate
+            # 3. Positive sum must be higher than general negative sum
+            found = (best_pos >= 0.15 and pos_sum > neg_general_sum and best_pos > best_neg_general * 0.7)
 
             if found:
                 detected.append(element)
             else:
                 missing.append(element)
 
-        print("Final: detected=" + str(detected) + ", missing=" + str(missing))
-
     except Exception as e:
-        print("CLIP detection failed: " + str(e))
-        # If CLIP fails, mark ALL elements as missing (never fake success)
+        print(f"CLIP detection notice: {e}")
         for el in data.expected_elements:
             missing.append(el)
 
-    # --- Score & Feedback ---
-    score = round((len(detected) / len(data.expected_elements)) * 100) if data.expected_elements else 100
+    # --- Score & Feedback Calculation ---
+    score = round((len(detected) / len(data.expected_elements)) * 100) if data.expected_elements else 0
 
-    if score > 0:
-        feedback_sinhala = "ඔබ කතාවට අනුව චිත්‍රය නිවැරදිව ඇඳ ඇත!"
-        feedback_english  = "You correctly drew the drawing according to the story!"
+    if len(detected) == len(data.expected_elements) and len(detected) > 0:
+        feedback_sinhala = "ඔබ කතාවට අනුව සියලු චරිත නිවැරදිව ඇඳ ඇත! ඉතා විශිෂ්ටයි! 🌟"
+        feedback_english = "You correctly drew all characters according to the story! Excellent!"
+    elif len(detected) > 0:
+        feedback_sinhala = f"කතාවේ සමහර චරිත ({', '.join(detected)}) හඳුනාගැනිණි. නමුත් අනෙක් චරිතද ඇතුළත් කිරීමට උත්සාහ කරන්න!"
+        feedback_english = f"Some characters ({', '.join(detected)}) were detected. Try to include the remaining characters as well!"
     else:
-        feedback_sinhala = "කතාවේ චරිත චිත්‍රයේ පැහැදිලිව දක්නට නැත. නැවත උත්සාහ කරන්න!"
-        feedback_english  = "The characters of the story are not clearly visible in the drawing. Try again!"
+        feedback_sinhala = "කතාවට අදාළ චරිත චිත්‍රයේ දක්නට නැත. කරුණාකර කතාවේ චරිත (සතුන් / සිදුවීම්) නිවැරදිව අඳින්න!"
+        feedback_english = "The story characters were not found in the drawing. Please draw the characters from the story!"
 
     return {
         "score": score,
