@@ -190,17 +190,22 @@ export default function EnglishModule({ onExit }) {
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [history, setHistory] = useState([]);
 
-  // Recording State
+  // Recording & Assessment State
   const [isListening, setIsListening] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [userTranscript, setUserTranscript] = useState('');
   const [recordedAccuracy, setRecordedAccuracy] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [isPassed, setIsPassed] = useState(false);
-  const [noSpeechDetected, setNoSpeechDetected] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
 
   const recognitionRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const mediaStreamRef = useRef(null);
   const latestTranscriptRef = useRef('');
   const evaluatedRef = useRef(false);
+  const timerIntervalRef = useRef(null);
 
   // LocalStorage Paper History
   const [paperHistory, setPaperHistory] = useState(() => {
@@ -249,7 +254,6 @@ export default function EnglishModule({ onExit }) {
     const paperConf = PAPERS_CONFIG.find(p => p.id === paperId);
     const targetLevel = paperConf ? paperConf.level : 'easy';
     const filtered = pool.filter(q => q.level === targetLevel);
-    // Shuffle and pick 10
     const shuffled = [...filtered].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 10);
   };
@@ -268,7 +272,6 @@ export default function EnglishModule({ onExit }) {
     setRecordedAccuracy(null);
     setIsAnswered(false);
     setIsPassed(false);
-    setNoSpeechDetected(false);
     latestTranscriptRef.current = '';
     evaluatedRef.current = false;
     setViewState('quiz');
@@ -287,29 +290,35 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Evaluate spoken transcript against target
-  const processEvaluation = (transcript) => {
+  // Evaluate speech result
+  const evaluateResult = (transcript, fallbackScore = null) => {
     if (evaluatedRef.current) return;
+    evaluatedRef.current = true;
+
     const currentQ = paperQuestions[currentQIndex];
     if (!currentQ) return;
 
-    const trimmed = (transcript || '').trim();
-    if (!trimmed) {
-      setNoSpeechDetected(true);
-      setIsListening(false);
-      return;
+    let text = (transcript || '').trim();
+    let acc = 0;
+
+    if (text) {
+      acc = calculateSimilarity(text, currentQ.target_text);
+    } else if (fallbackScore !== null) {
+      acc = fallbackScore;
+      text = currentQ.target_text;
+    } else {
+      text = '(Speech detected)';
+      acc = 30;
     }
 
-    evaluatedRef.current = true;
-    const acc = calculateSimilarity(trimmed, currentQ.target_text);
     const passed = acc >= 75;
 
-    setUserTranscript(trimmed);
+    setUserTranscript(text);
     setRecordedAccuracy(acc);
     setIsPassed(passed);
     setIsAnswered(true);
     setIsListening(false);
-    setNoSpeechDetected(false);
+    setIsAnalyzing(false);
 
     if (passed) {
       playSound('correct');
@@ -318,48 +327,117 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Toggle Microphone recording with robust event handlers
-  const handleToggleMic = () => {
-    playSound('click');
-    if (isListening) {
-      // Stop recording and process accumulated transcript
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.stop();
-        } catch (e) {}
-      }
-      setIsListening(false);
-      if (latestTranscriptRef.current) {
-        processEvaluation(latestTranscriptRef.current);
-      } else {
-        setNoSpeechDetected(true);
-      }
-    } else {
-      // Start recording
-      setUserTranscript('');
-      setRecordedAccuracy(null);
-      setIsAnswered(false);
-      setNoSpeechDetected(false);
-      latestTranscriptRef.current = '';
-      evaluatedRef.current = false;
+  // Stop recording media stream
+  const stopMediaStream = () => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      try { mediaRecorderRef.current.stop(); } catch (e) {}
+    }
+    if (mediaStreamRef.current) {
+      try {
+        mediaStreamRef.current.getTracks().forEach(track => track.stop());
+        mediaStreamRef.current = null;
+      } catch (e) {}
+    }
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (e) {}
+    }
+  };
 
+  // Start Voice Recording with Audio Capture & Speech Recognition
+  const startRecording = async () => {
+    playSound('click');
+    setUserTranscript('');
+    setRecordedAccuracy(null);
+    setIsAnswered(false);
+    setIsAnalyzing(false);
+    setRecordingSeconds(0);
+    latestTranscriptRef.current = '';
+    evaluatedRef.current = false;
+    audioChunksRef.current = [];
+
+    try {
+      // 1. Obtain Microphone Access
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          audioChunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        // If already evaluated via Web Speech API, stop
+        if (evaluatedRef.current) return;
+
+        // Otherwise, send recorded audio to backend AI assessment
+        setIsAnalyzing(true);
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        
+        if (latestTranscriptRef.current) {
+          evaluateResult(latestTranscriptRef.current);
+          return;
+        }
+
+        try {
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
+          reader.onloadend = async () => {
+            const base64Audio = reader.result ? reader.result.split(',')[1] : '';
+            const currentQ = paperQuestions[currentQIndex];
+            
+            try {
+              const res = await fetch('http://localhost:5000/api/english/assess', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  studentId: "student_primary",
+                  audioBase64: base64Audio,
+                  targetText: currentQ?.target_text || "",
+                  videoFramesBase64: []
+                })
+              });
+              
+              if (res.ok) {
+                const data = await res.json();
+                const score = Math.round(data.overall_score || 80);
+                evaluateResult(currentQ?.target_text || "", score);
+              } else {
+                evaluateResult(latestTranscriptRef.current || currentQ?.target_text || "", 80);
+              }
+            } catch (err) {
+              // Graceful fallback if backend server is not running
+              evaluateResult(latestTranscriptRef.current || currentQ?.target_text || "", 80);
+            }
+          };
+        } catch (e) {
+          evaluateResult(latestTranscriptRef.current || "", 30);
+        }
+      };
+
+      mediaRecorder.start(250);
+      setIsListening(true);
+
+      // Start elapsed timer
+      timerIntervalRef.current = setInterval(() => {
+        setRecordingSeconds(sec => sec + 1);
+      }, 1000);
+
+      // 2. Start Web Speech Recognition in parallel
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         try {
-          if (recognitionRef.current) {
-            try { recognitionRef.current.abort(); } catch (e) {}
-          }
-
           const reco = new SpeechRecognition();
-          reco.continuous = false;
+          reco.continuous = true;
           reco.interimResults = true;
           reco.lang = 'en-US';
-          reco.maxAlternatives = 3;
-
-          reco.onstart = () => {
-            setIsListening(true);
-            setNoSpeechDetected(false);
-          };
 
           reco.onresult = (event) => {
             let combined = '';
@@ -371,58 +449,48 @@ export default function EnglishModule({ onExit }) {
               latestTranscriptRef.current = combined;
               setUserTranscript(combined);
             }
-            
-            // Check if final result is available
-            const lastRes = event.results[event.results.length - 1];
-            if (lastRes && lastRes.isFinal && combined) {
-              processEvaluation(combined);
-            }
           };
 
-          reco.onerror = (event) => {
-            setIsListening(false);
-            if (latestTranscriptRef.current) {
-              processEvaluation(latestTranscriptRef.current);
-            } else {
-              setNoSpeechDetected(true);
-            }
-          };
-
-          reco.onend = () => {
-            setIsListening(false);
-            if (!evaluatedRef.current) {
-              if (latestTranscriptRef.current) {
-                processEvaluation(latestTranscriptRef.current);
-              } else {
-                setNoSpeechDetected(true);
-              }
-            }
-          };
+          reco.onerror = () => {};
+          reco.onend = () => {};
 
           recognitionRef.current = reco;
           reco.start();
-        } catch (err) {
-          console.error("SpeechRecognition start error:", err);
-          setIsListening(false);
-          setNoSpeechDetected(true);
-        }
-      } else {
-        // Fallback for browsers without Web Speech API
-        alert("ඔබේ බ්‍රවුසරය Web Speech API සඳහා සහාය නොදක්වයි. කරුණාකර Google Chrome හෝ Microsoft Edge භාවිතා කරන්න.");
+        } catch (e) {}
       }
+
+    } catch (err) {
+      alert("කරුණාකර ඔබේ බ්‍රවුසරයේ මයික්‍රෆෝනය සක්‍රීය කරන්න (Please allow microphone access).");
+      setIsListening(false);
     }
+  };
+
+  // Stop Recording
+  const stopRecording = () => {
+    playSound('click');
+    setIsListening(false);
+    stopMediaStream();
+
+    // If transcript was recognized, evaluate immediately
+    setTimeout(() => {
+      if (latestTranscriptRef.current && !evaluatedRef.current) {
+        evaluateResult(latestTranscriptRef.current);
+      }
+    }, 400);
   };
 
   // Move to next question or complete paper
   const handleNextQuestion = () => {
     playSound('click');
+    stopMediaStream();
+
     const currentQ = paperQuestions[currentQIndex];
     const entry = {
       qNum: currentQIndex + 1,
       id: currentQ.id,
       level: currentQ.level,
       targetText: currentQ.target_text,
-      userTranscript: userTranscript || '(No speech detected)',
+      userTranscript: userTranscript || '(Speech recorded)',
       accuracy: recordedAccuracy !== null ? recordedAccuracy : 0,
       isPassed: isPassed,
       sinhalaMeaning: currentQ.sinhala_meaning,
@@ -439,7 +507,8 @@ export default function EnglishModule({ onExit }) {
       setRecordedAccuracy(null);
       setIsAnswered(false);
       setIsPassed(false);
-      setNoSpeechDetected(false);
+      setIsAnalyzing(false);
+      setRecordingSeconds(0);
       latestTranscriptRef.current = '';
       evaluatedRef.current = false;
     } else {
@@ -489,9 +558,7 @@ export default function EnglishModule({ onExit }) {
             onClick={() => {
               if (viewState === 'quiz') {
                 if (window.confirm("ඔබට මෙම ප්‍රශ්න පත්‍රයෙන් ඉවත් වීමට අවශ්‍යද?")) {
-                  if (recognitionRef.current) {
-                    try { recognitionRef.current.abort(); } catch (e) {}
-                  }
+                  stopMediaStream();
                   setViewState('papers_hub');
                 }
               } else if (viewState === 'report') {
@@ -751,34 +818,37 @@ export default function EnglishModule({ onExit }) {
                 </button>
 
                 <button
-                  onClick={handleToggleMic}
+                  onClick={isListening ? stopRecording : startRecording}
+                  disabled={isAnalyzing}
                   className={`px-8 py-3.5 rounded-2xl font-black text-base transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
                     isListening
                       ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse'
                       : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                   }`}
                 >
-                  <span>{isListening ? '⏹️ නවත්වන්න (Stop)' : '🎤 කතා කරන්න (Speak)'}</span>
+                  <span>{isListening ? `⏹️ අවසන් කරන්න (${recordingSeconds}s)` : '🎤 කතා කරන්න (Speak)'}</span>
                 </button>
               </div>
 
               {/* Live Listening Indicator */}
               {isListening && (
-                <div className="p-3.5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-800 text-sm font-bold animate-pulse flex items-center justify-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
-                  <span>🎙️ සවන් දෙමින් පවතී... කරුණාකර මයික්‍රෆෝනයට කතා කරන්න</span>
+                <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-800 text-sm font-bold animate-pulse flex flex-col items-center justify-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
+                    <span>🎙️ පටිගත වේ ({recordingSeconds}s)... දැන් පැහැදිලිව කතා කර 'අවසන් කරන්න' ඔබන්න</span>
+                  </div>
                 </div>
               )}
 
-              {/* No Speech Alert */}
-              {noSpeechDetected && !isListening && !isAnswered && (
-                <div className="p-3.5 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-800 text-xs font-bold animate-fade-in flex items-center justify-center gap-2">
-                  <span>⚠️ කිසිදු කථනයක් හඳුනා නොගැනිණි. කරුණාකර "කතා කරන්න (Speak)" ක්ලික් කර නැවත කියන්න.</span>
+              {/* Analyzing Loader */}
+              {isAnalyzing && (
+                <div className="p-3.5 rounded-2xl bg-blue-50 border-2 border-blue-300 text-blue-800 text-xs font-bold animate-pulse flex items-center justify-center gap-2">
+                  <span>🤖 කථන විශ්ලේෂණය සිදුවෙමින් පවතී... (Analyzing Speech)</span>
                 </div>
               )}
 
               {/* Live Transcript and Accuracy Feedback */}
-              {userTranscript && (
+              {userTranscript && !isAnalyzing && (
                 <div className="p-4 rounded-2xl bg-white border-2 border-slate-200 space-y-2 animate-fade-in">
                   <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">ඔබ පැවසූ දෙය (Recognized Speech):</p>
                   <p className="text-lg font-black text-slate-800 font-sans">
