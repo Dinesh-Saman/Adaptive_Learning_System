@@ -1373,4 +1373,7 @@ def evaluate_story_drawing(data: StoryDrawingData):
     }
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", 8000))
+    print(f"Starting LearnAI Python Microservice on http://{host}:{port}...")
+    uvicorn.run("main:app", host=host, port=port, reload=True)
