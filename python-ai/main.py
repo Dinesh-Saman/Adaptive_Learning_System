@@ -1130,105 +1130,110 @@ def get_clip_model():
 def evaluate_story_drawing(data: StoryDrawingData):
     """
     Discriminative CLIP Vision Classifier for Story Drawing with Negative Confusers.
-    Prevents false positives from non-story objects (vehicles, buildings, electronics)
-    and accurately validates expected story characters.
+    Prevents false positives from pure landscapes, scenery without animals, vehicles,
+    buildings, and non-story objects. Accepts drawing if any story character is present.
     """
     import base64
     import io
 
-    # Detailed descriptions for all story characters across the 8 curriculum stories
+    # Pure physical feature descriptions for all 16 story characters (NO generic background noise)
     STORY_FEATURE_DESCRIPTIONS = {
         "ant": [
-            "a small black ant crawling on the ground or water or leaf",
-            "a tiny black insect ant with legs and antennae",
-            "a drawing of an ant in a story",
-            "a cartoon black ant"
+            "a drawing of a black ant insect with six legs and antennae",
+            "a tiny black ant crawling",
+            "a cartoon sketch of an ant insect"
         ],
         "dove": [
-            "a white dove or pigeon bird with wings and feathers",
-            "a white bird perched on a tree branch or flying",
-            "a drawing of a white dove bird",
-            "a cartoon white pigeon or dove"
+            "a drawing of a white dove bird with wings and beak",
+            "a white pigeon or dove bird",
+            "a cartoon white bird with wings"
         ],
         "lion": [
-            "a large lion with a thick golden furry mane around its head",
-            "a cartoon or drawing of a lion with a mane in the jungle",
-            "a golden lion resting or roaring"
+            "a drawing of a wild cat lion with a large thick furry mane",
+            "a golden lion animal with a mane",
+            "a cartoon lion with mane and tail"
         ],
         "mouse": [
-            "a tiny rodent mouse with round ears, whiskers, and a long thin tail",
-            "a small cartoon mouse on the ground or in a net",
-            "a drawing of a little gray or brown mouse"
+            "a drawing of a small rodent mouse with round ears, whiskers, and a long tail",
+            "a tiny gray or brown mouse animal",
+            "a cartoon little mouse"
         ],
         "rabbit": [
-            "a small rabbit or bunny with long upright ears and a fluffy tail",
-            "a cartoon bunny running or sitting in the grass",
-            "a drawing of a rabbit with big ears"
+            "a drawing of a rabbit with long upright ears and fluffy tail",
+            "a bunny or rabbit animal",
+            "a cartoon rabbit with long ears"
         ],
         "tortoise": [
-            "a reptile tortoise or turtle with a hard dome-shaped patterned shell on its back",
-            "a cartoon turtle crawling slowly with a green or brown shell",
-            "a drawing of a tortoise"
+            "a drawing of a tortoise or turtle with a hard dome shell on its back",
+            "a reptile turtle with a patterned shell and four short legs",
+            "a cartoon tortoise with shell"
         ],
         "crow": [
-            "a black crow or raven bird with black feathers and a sharp beak",
-            "a cartoon black crow perched on a tree branch with cheese",
-            "a drawing of a black bird or crow"
+            "a drawing of a black crow or raven with black feathers and sharp beak",
+            "a black crow bird",
+            "a cartoon black raven bird"
         ],
         "fox": [
-            "an orange-red fox animal with pointed ears, long bushy tail, and pointed snout",
-            "a cartoon red fox looking up at a tree",
-            "a drawing of a red fox"
+            "a drawing of an orange-red fox animal with pointed ears and a long bushy tail",
+            "a red fox with pointed snout and fluffy tail",
+            "a cartoon orange fox"
         ],
         "deer": [
-            "a slender brown deer or fawn with thin long legs and spots or antlers",
-            "a cartoon deer in a forest",
-            "a drawing of a brown deer animal"
+            "a drawing of a brown deer or fawn with thin slender legs and spots or antlers",
+            "a deer animal with antlers",
+            "a cartoon brown deer"
         ],
         "monkey": [
-            "a monkey with a long tail in a tree eating fruit",
-            "a brown cartoon monkey swinging on branches",
-            "a drawing of a monkey"
+            "a drawing of a brown monkey with a long tail",
+            "a monkey animal with long arms and tail",
+            "a cartoon monkey"
         ],
         "crocodile": [
-            "a large green crocodile or alligator with sharp teeth and scaly skin in water",
-            "a cartoon green crocodile swimming in a river",
-            "a drawing of a crocodile"
+            "a drawing of a green crocodile or alligator with sharp teeth and long snout",
+            "a large scaly green crocodile reptile",
+            "a cartoon green crocodile"
         ],
         "rooster": [
-            "a colorful rooster or cockerel with a bright red comb and tail feathers",
-            "a farm rooster or chicken standing on the ground",
-            "a drawing of a rooster"
+            "a drawing of a rooster chicken with a bright red comb and tail feathers",
+            "a colorful rooster bird",
+            "a cartoon farm rooster"
         ],
         "jewel": [
-            "a shiny sparkling gemstone, diamond, crystal, or ruby jewel",
-            "a glittering precious gemstone jewel",
-            "a drawing of a sparkling diamond jewel"
+            "a drawing of a shiny sparkling gemstone, crystal, ruby, or diamond jewel",
+            "a glittering precious gem jewel",
+            "a sparkling jewel diamond"
         ],
         "farmer": [
-            "a human farmer or person wearing farm clothes or a hat",
-            "a cartoon person or man standing on a farm",
-            "a drawing of a farmer"
+            "a drawing of a human farmer person wearing farm clothes or hat",
+            "a human person or farmer man",
+            "a cartoon farmer"
         ],
         "owl": [
-            "an owl bird with large round eyes and feathers perched on a tree at night",
-            "a cartoon owl with big round eyes",
-            "a drawing of an owl"
+            "a drawing of an owl bird with large round eyes and feathers",
+            "a nocturnal owl bird with big eyes",
+            "a cartoon owl"
         ],
         "bird": [
-            "a small bird with wings and beak perched in a nest or flying",
-            "a cartoon baby bird",
-            "a drawing of a little bird"
+            "a drawing of a small bird with wings, feathers, and beak",
+            "a little bird",
+            "a cartoon baby bird"
         ]
     }
 
-    # General Non-Story Negative Confusers (Crucial: prevents vehicles, buildings, random items from scoring)
+    # Comprehensive negative non-story & pure-scenery confusers
     GENERAL_NEGATIVE_CONFUSERS = [
+        # Scenery / Nature / Landscape WITHOUT animals
+        "a scenic landscape painting of trees, waterfall, lake, or mountains with no animals",
+        "a nature scenery painting of a forest, river, flowers, or sky with no animals or creatures",
+        "a watercolor landscape painting of scenery without any animals or people",
+        "a background scenery, landscape view, or nature background with no animals",
+        # Vehicles & Machines
         "a car, van, truck, bus, camper, or motor vehicle",
         "an automobile, vehicle, or transport on wheels",
-        "a building, house, room interior, city street, or road with no animals",
+        # Buildings, Rooms & Objects
+        "a building, house, room interior, city street, or road",
         "furniture, chair, table, appliance, or household electronics",
-        "a scribble, text document, chart diagram, or abstract geometric shape",
+        "a scribble, text document, diagram, or abstract pattern",
         "food, pizza, cake, burger, or meal plate"
     ]
 
@@ -1257,7 +1262,7 @@ def evaluate_story_drawing(data: StoryDrawingData):
             element_key = element.lower().strip()
             pos_prompts = STORY_FEATURE_DESCRIPTIONS.get(element_key, [f"a drawing of a {element_key}"])
 
-            # Confusers: Non-story objects + other animals NOT part of this story
+            # Other animals excluding this story's characters
             other_animals = []
             for k, v in STORY_FEATURE_DESCRIPTIONS.items():
                 if k not in expected_keys:
@@ -1284,12 +1289,9 @@ def evaluate_story_drawing(data: StoryDrawingData):
             neg_general_sum = sum(probs[num_pos + i].item() for i in range(num_neg_general))
             best_neg_general = max(probs[num_pos + i].item() for i in range(num_neg_general))
 
-            top_idx = torch.argmax(probs).item()
-
             # Discriminative Detection Criteria:
-            # 1. Best positive score must be at least 0.15
-            # 2. General negative confusers (vehicles, buildings) must NOT dominate
-            # 3. Positive sum must be higher than general negative sum
+            # Positive match must be significant (>= 0.15), higher than negative general/scenery sum,
+            # and not dominated by non-animal/scenery confusers
             found = (best_pos >= 0.15 and pos_sum > neg_general_sum and best_pos > best_neg_general * 0.7)
 
             if found:
