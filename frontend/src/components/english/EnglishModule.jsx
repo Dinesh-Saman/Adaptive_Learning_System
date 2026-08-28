@@ -136,7 +136,7 @@ function calculateSimilarity(spokenText, targetText) {
     }
 
     // If the word was pronounced incorrectly (e.g. "and" instead of "hand", "cat" instead of "hat")
-    // A wrong single word MUST NOT pass (cap score strictly at 25-35% maximum)
+    // A wrong single word MUST NOT pass (cap score strictly at 25-30% maximum)
     const matrix = [];
     for (let i = 0; i <= spokenClean.length; i++) matrix[i] = [i];
     for (let j = 0; j <= targetClean.length; j++) matrix[0][j] = j;
@@ -153,7 +153,6 @@ function calculateSimilarity(spokenText, targetText) {
     const dist = matrix[spokenClean.length][targetClean.length];
     const maxLen = Math.max(spokenClean.length, targetClean.length);
     const rawSim = (maxLen - dist) / maxLen;
-    // Scale wrong single word to at most 30%
     return Math.round(rawSim * 30);
   }
 
@@ -197,7 +196,11 @@ export default function EnglishModule({ onExit }) {
   const [recordedAccuracy, setRecordedAccuracy] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [isPassed, setIsPassed] = useState(false);
+  const [noSpeechDetected, setNoSpeechDetected] = useState(false);
+
   const recognitionRef = useRef(null);
+  const latestTranscriptRef = useRef('');
+  const evaluatedRef = useRef(false);
 
   // LocalStorage Paper History
   const [paperHistory, setPaperHistory] = useState(() => {
@@ -226,7 +229,7 @@ export default function EnglishModule({ onExit }) {
     } catch (e) {}
   };
 
-  // Check if a paper is unlocked (Paper 1 is unlocked, Paper 2 needs Paper 1 >= 75%, Paper 3 needs Paper 2 >= 75%)
+  // Check if a paper is unlocked
   const isPaperUnlocked = (pId) => {
     if (pId === 1) return true;
     if (pId === 2) {
@@ -239,38 +242,6 @@ export default function EnglishModule({ onExit }) {
     }
     return false;
   };
-
-  // Initialize Speech Recognition
-  useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const reco = new SpeechRecognition();
-      reco.continuous = false;
-      reco.interimResults = true;
-      reco.lang = 'en-US';
-
-      reco.onresult = (event) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          transcript += event.results[i][0].transcript;
-        }
-        setUserTranscript(transcript);
-        if (event.results[0].isFinal) {
-          handleEvaluateSpeech(transcript);
-        }
-      };
-
-      reco.onerror = (event) => {
-        setIsListening(false);
-      };
-
-      reco.onend = () => {
-        setIsListening(false);
-      };
-
-      recognitionRef.current = reco;
-    }
-  }, [currentQIndex, paperQuestions]);
 
   // Pick 10 random questions for a specific paper from the 100-question pool
   const generatePaperQuestions = (grade, paperId) => {
@@ -297,6 +268,9 @@ export default function EnglishModule({ onExit }) {
     setRecordedAccuracy(null);
     setIsAnswered(false);
     setIsPassed(false);
+    setNoSpeechDetected(false);
+    latestTranscriptRef.current = '';
+    evaluatedRef.current = false;
     setViewState('quiz');
   };
 
@@ -313,52 +287,129 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Toggle Microphone recording
-  const handleToggleMic = () => {
-    playSound('click');
-    if (isListening) {
-      if (recognitionRef.current) recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      setUserTranscript('');
-      setRecordedAccuracy(null);
-      setIsAnswered(false);
-      try {
-        if (recognitionRef.current) {
-          recognitionRef.current.start();
-          setIsListening(true);
-        } else {
-          // Fallback simulation for unsupported browsers
-          const currentQ = paperQuestions[currentQIndex];
-          setTimeout(() => {
-            const sim = currentQ ? currentQ.target_text : "test";
-            setUserTranscript(sim);
-            handleEvaluateSpeech(sim);
-          }, 2000);
-        }
-      } catch (err) {
-        setIsListening(false);
-      }
-    }
-  };
-
   // Evaluate spoken transcript against target
-  const handleEvaluateSpeech = (transcript) => {
+  const processEvaluation = (transcript) => {
+    if (evaluatedRef.current) return;
     const currentQ = paperQuestions[currentQIndex];
     if (!currentQ) return;
 
-    const acc = calculateSimilarity(transcript, currentQ.target_text);
+    const trimmed = (transcript || '').trim();
+    if (!trimmed) {
+      setNoSpeechDetected(true);
+      setIsListening(false);
+      return;
+    }
+
+    evaluatedRef.current = true;
+    const acc = calculateSimilarity(trimmed, currentQ.target_text);
     const passed = acc >= 75;
 
+    setUserTranscript(trimmed);
     setRecordedAccuracy(acc);
     setIsPassed(passed);
     setIsAnswered(true);
     setIsListening(false);
+    setNoSpeechDetected(false);
 
     if (passed) {
       playSound('correct');
     } else {
-      playSound('click');
+      playSound('wrong');
+    }
+  };
+
+  // Toggle Microphone recording with robust event handlers
+  const handleToggleMic = () => {
+    playSound('click');
+    if (isListening) {
+      // Stop recording and process accumulated transcript
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {}
+      }
+      setIsListening(false);
+      if (latestTranscriptRef.current) {
+        processEvaluation(latestTranscriptRef.current);
+      } else {
+        setNoSpeechDetected(true);
+      }
+    } else {
+      // Start recording
+      setUserTranscript('');
+      setRecordedAccuracy(null);
+      setIsAnswered(false);
+      setNoSpeechDetected(false);
+      latestTranscriptRef.current = '';
+      evaluatedRef.current = false;
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        try {
+          if (recognitionRef.current) {
+            try { recognitionRef.current.abort(); } catch (e) {}
+          }
+
+          const reco = new SpeechRecognition();
+          reco.continuous = false;
+          reco.interimResults = true;
+          reco.lang = 'en-US';
+          reco.maxAlternatives = 3;
+
+          reco.onstart = () => {
+            setIsListening(true);
+            setNoSpeechDetected(false);
+          };
+
+          reco.onresult = (event) => {
+            let combined = '';
+            for (let i = 0; i < event.results.length; ++i) {
+              combined += event.results[i][0].transcript + ' ';
+            }
+            combined = combined.trim();
+            if (combined) {
+              latestTranscriptRef.current = combined;
+              setUserTranscript(combined);
+            }
+            
+            // Check if final result is available
+            const lastRes = event.results[event.results.length - 1];
+            if (lastRes && lastRes.isFinal && combined) {
+              processEvaluation(combined);
+            }
+          };
+
+          reco.onerror = (event) => {
+            setIsListening(false);
+            if (latestTranscriptRef.current) {
+              processEvaluation(latestTranscriptRef.current);
+            } else {
+              setNoSpeechDetected(true);
+            }
+          };
+
+          reco.onend = () => {
+            setIsListening(false);
+            if (!evaluatedRef.current) {
+              if (latestTranscriptRef.current) {
+                processEvaluation(latestTranscriptRef.current);
+              } else {
+                setNoSpeechDetected(true);
+              }
+            }
+          };
+
+          recognitionRef.current = reco;
+          reco.start();
+        } catch (err) {
+          console.error("SpeechRecognition start error:", err);
+          setIsListening(false);
+          setNoSpeechDetected(true);
+        }
+      } else {
+        // Fallback for browsers without Web Speech API
+        alert("ඔබේ බ්‍රවුසරය Web Speech API සඳහා සහාය නොදක්වයි. කරුණාකර Google Chrome හෝ Microsoft Edge භාවිතා කරන්න.");
+      }
     }
   };
 
@@ -388,6 +439,9 @@ export default function EnglishModule({ onExit }) {
       setRecordedAccuracy(null);
       setIsAnswered(false);
       setIsPassed(false);
+      setNoSpeechDetected(false);
+      latestTranscriptRef.current = '';
+      evaluatedRef.current = false;
     } else {
       // Paper Completed (10 questions finished)
       const passedCount = updatedHistory.filter(h => h.isPassed).length;
@@ -435,6 +489,9 @@ export default function EnglishModule({ onExit }) {
             onClick={() => {
               if (viewState === 'quiz') {
                 if (window.confirm("ඔබට මෙම ප්‍රශ්න පත්‍රයෙන් ඉවත් වීමට අවශ්‍යද?")) {
+                  if (recognitionRef.current) {
+                    try { recognitionRef.current.abort(); } catch (e) {}
+                  }
                   setViewState('papers_hub');
                 }
               } else if (viewState === 'report') {
@@ -701,9 +758,24 @@ export default function EnglishModule({ onExit }) {
                       : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                   }`}
                 >
-                  <span>{isListening ? '⏹️ නවත්වන්න' : '🎤 කතා කරන්න (Speak)'}</span>
+                  <span>{isListening ? '⏹️ නවත්වන්න (Stop)' : '🎤 කතා කරන්න (Speak)'}</span>
                 </button>
               </div>
+
+              {/* Live Listening Indicator */}
+              {isListening && (
+                <div className="p-3.5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-800 text-sm font-bold animate-pulse flex items-center justify-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
+                  <span>🎙️ සවන් දෙමින් පවතී... කරුණාකර මයික්‍රෆෝනයට කතා කරන්න</span>
+                </div>
+              )}
+
+              {/* No Speech Alert */}
+              {noSpeechDetected && !isListening && !isAnswered && (
+                <div className="p-3.5 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-800 text-xs font-bold animate-fade-in flex items-center justify-center gap-2">
+                  <span>⚠️ කිසිදු කථනයක් හඳුනා නොගැනිණි. කරුණාකර "කතා කරන්න (Speak)" ක්ලික් කර නැවත කියන්න.</span>
+                </div>
+              )}
 
               {/* Live Transcript and Accuracy Feedback */}
               {userTranscript && (
@@ -714,10 +786,10 @@ export default function EnglishModule({ onExit }) {
                   </p>
                   {recordedAccuracy !== null && (
                     <div className="flex justify-center items-center gap-2 pt-2">
-                      <span className={`text-xs font-black px-3 py-1 rounded-full ${
+                      <span className={`text-xs font-black px-3.5 py-1.5 rounded-full ${
                         recordedAccuracy >= 75
                           ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                          : 'bg-amber-100 text-amber-800 border border-amber-300'
+                          : 'bg-rose-100 text-rose-800 border border-rose-300'
                       }`}>
                         නිරවද්‍යතාව: {recordedAccuracy}% {recordedAccuracy >= 75 ? '✓ (Passed)' : '✗ (Needs 75%)'}
                       </span>
@@ -811,7 +883,7 @@ export default function EnglishModule({ onExit }) {
                   <div 
                     key={idx} 
                     className={`p-4 rounded-2xl border-2 ${
-                      h.isPassed ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'
+                      h.isPassed ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'
                     }`}
                   >
                     <div className="flex justify-between items-start mb-1">
@@ -819,7 +891,7 @@ export default function EnglishModule({ onExit }) {
                         Target: <strong>"{h.targetText}"</strong>
                       </span>
                       <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${
-                        h.isPassed ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        h.isPassed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                       }`}>
                         {h.accuracy}% {h.isPassed ? '✓ Passed' : '✗ Needs Practice'}
                       </span>
