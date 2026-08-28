@@ -1,42 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, 
   Award, 
-  BookOpen, 
   CheckCircle2, 
-  AlertCircle, 
   Brain, 
   Compass, 
-  ChevronRight, 
   BarChart3, 
-  Calendar,
-  Sparkles,
-  Layers,
+  ChevronRight, 
   ArrowUpRight,
-  Database,
-  RefreshCw,
-  UserCheck,
   UserX
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { 
   CORE_SUBJECTS, 
-  createBlankStudentProfile, 
-  fetchStudentsAnalyticsFromApi 
+  fetchStudentsAnalyticsFromApi, 
+  createBlankStudentProfile 
 } from '../../data/studentAnalyticsData';
+import { isPreSchoolOrGrade1 } from './CategoryStudentTable';
 
-const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) => {
+const StudentAnalyticsOverview = ({ initialStudentId = '', isTeacherView = false }) => {
   const navigate = useNavigate();
-  const loggedInStudentName = localStorage.getItem('studentName') || '';
-  const loggedInStudentGrade = localStorage.getItem('studentGrade') || 'Grade 4';
-  const loggedInStudentId = localStorage.getItem('studentId') || initialStudentId || '';
 
   const [studentsList, setStudentsList] = useState([]);
-  const [selectedStudentId, setSelectedStudentId] = useState(loggedInStudentId);
-  const [activeSubjectTab, setActiveSubjectTab] = useState('all');
+  const [selectedStudentId, setSelectedStudentId] = useState(initialStudentId);
   const [activeCategoryTab, setActiveCategoryTab] = useState('math');
+  const [activeSubjectTab, setActiveSubjectTab] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [dataSource, setDataSource] = useState('MongoDB');
+
+  const loggedInStudentName = localStorage.getItem('studentName') || '';
+  const loggedInStudentId = localStorage.getItem('studentId') || '';
+  const loggedInStudentGrade = localStorage.getItem('studentGrade') || 'Grade 4';
 
   // Load real students from MongoDB API
   useEffect(() => {
@@ -47,7 +40,6 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
         const data = await fetchStudentsAnalyticsFromApi();
         if (isMounted && data && Array.isArray(data)) {
           setStudentsList(data);
-          setDataSource('MongoDB Active');
           
           if (!isTeacherView && loggedInStudentName) {
             const found = data.find(s => 
@@ -92,7 +84,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
         </div>
         <h3 className="text-xl font-bold text-slate-800">No Students Registered Yet in MongoDB</h3>
         <p className="text-slate-500 text-sm max-w-md mx-auto">
-          When students register and begin taking primary mathematics, Sinhala, English, or preschool activities, their live performance graphs and diagnostic recommendations will appear here automatically.
+          When students register and complete activities, their diagnostic performance reports will appear here automatically.
         </p>
       </div>
     );
@@ -115,12 +107,32 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
     }
   }
 
+  // Grade-based subject access rule
+  const isPreSchool = isPreSchoolOrGrade1(student.grade);
+  const eligibleSubjectKeys = isPreSchool 
+    ? ['preschool'] 
+    : ['math', 'sinhala', 'english'];
+
+  const currentActiveCategoryTab = eligibleSubjectKeys.includes(activeCategoryTab)
+    ? activeCategoryTab
+    : eligibleSubjectKeys[0];
+
+  const currentActiveSubjectTab = (activeSubjectTab === 'all' || eligibleSubjectKeys.includes(activeSubjectTab))
+    ? activeSubjectTab
+    : eligibleSubjectKeys[0];
+
   // Subject KPI metrics
   const getSubjectAverage = (subjectKey) => {
     if (!student.categoryMarks || !student.categoryMarks[subjectKey]) return 0;
     const items = student.categoryMarks[subjectKey];
     const total = items.reduce((acc, curr) => acc + curr.pct, 0);
     return Math.round(total / items.length);
+  };
+
+  const getSubCategoryScore = (subKey, code) => {
+    if (!student.categoryMarks || !student.categoryMarks[subKey]) return 0;
+    const cat = student.categoryMarks[subKey].find(c => c.code === code);
+    return cat ? cat.pct : 0;
   };
 
   // SVG Chart Geometry Constants
@@ -133,7 +145,14 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
   const weeklyData = student.weeklyProgress && student.weeklyProgress.length > 0 
     ? student.weeklyProgress 
     : [
-        { week: 'Week 1', math: getSubjectAverage('math'), sinhala: getSubjectAverage('sinhala'), english: getSubjectAverage('english'), preschool: getSubjectAverage('preschool'), average: student.overallAverage || 0 }
+        { 
+          week: 'Week 1', 
+          math: getSubjectAverage('math'), 
+          sinhala: getSubjectAverage('sinhala'), 
+          english: getSubjectAverage('english'), 
+          preschool: getSubjectAverage('preschool'), 
+          average: student.overallAverage || 0 
+        }
       ];
 
   const weeks = weeklyData.map(w => w.week);
@@ -155,12 +174,18 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
     return `${line} L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`;
   };
 
-  // Radar chart calculation for the 4 pillars
-  const radarPoints = [
+  // Radar chart calculation:
+  // If Pre-School: Show 4 Pre-School Foundation Domains
+  // If Grade 2-4: Show 3 Primary Subject Domains
+  const radarPoints = isPreSchool ? [
+    { label: 'Fine Motor', val: getSubCategoryScore('preschool', 'PRE_MOTOR'), angle: -Math.PI / 2 },
+    { label: 'Coloring', val: getSubCategoryScore('preschool', 'PRE_COLOR'), angle: 0 },
+    { label: 'Paper Craft', val: getSubCategoryScore('preschool', 'PRE_CRAFT'), angle: Math.PI / 2 },
+    { label: 'Story Drawing', val: getSubCategoryScore('preschool', 'PRE_STORY'), angle: Math.PI }
+  ] : [
     { label: 'ගණිතය', val: getSubjectAverage('math'), angle: -Math.PI / 2 },
-    { label: 'සිංහල', val: getSubjectAverage('sinhala'), angle: 0 },
-    { label: 'English', val: getSubjectAverage('english'), angle: Math.PI / 2 },
-    { label: 'Pre-School', val: getSubjectAverage('preschool'), angle: Math.PI }
+    { label: 'සිංහල', val: getSubjectAverage('sinhala'), angle: Math.PI / 6 },
+    { label: 'English', val: getSubjectAverage('english'), angle: (5 * Math.PI) / 6 }
   ];
 
   const radarCenter = { x: 150, y: 150 };
@@ -184,9 +209,8 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
   return (
     <div className="space-y-8 animate-fade-in text-slate-800">
       
-      {/* Student Profile & Selector Header */}
-      <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
+      {/* ── TOP HERO PROFILE BANNER ── */}
+      <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
             <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-white/20">
@@ -196,7 +220,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
               <div className="flex flex-wrap items-center gap-3">
                 <h1 className="text-2xl sm:text-3xl font-black">{student.name}</h1>
                 <span className="bg-indigo-500/40 text-indigo-200 border border-indigo-300/30 px-3 py-0.5 rounded-full text-xs font-bold">
-                  {student.grade || 'Grade 4'}
+                  {student.grade || (isPreSchool ? 'Pre-School' : 'Grade 4')}
                 </span>
               </div>
               <p className="text-indigo-200 text-sm mt-1">
@@ -213,39 +237,34 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
             </div>
           </div>
 
-          {/* Student Switcher in Teacher View OR Current Student Indicator in Learner View */}
-          {isTeacherView ? (
+          {/* Student Switcher in Teacher View */}
+          {isTeacherView && studentsList.length > 1 && (
             <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/20 self-start md:self-auto min-w-[220px]">
               <label className="block text-xs font-bold text-indigo-200 mb-1.5">
-                Select Real Student (MongoDB Records):
+                Select Student:
               </label>
               <select
                 value={selectedStudentId}
-                onChange={(e) => setSelectedStudentId(e.target.value)}
-                className="bg-slate-900/80 text-white font-bold text-sm rounded-xl px-4 py-2 border border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer w-full"
+                onChange={(e) => {
+                  setSelectedStudentId(e.target.value);
+                  setActiveSubjectTab('all');
+                }}
+                className="w-full bg-slate-900/90 text-white font-bold text-xs rounded-xl px-3 py-2 border border-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               >
-                {studentsList.map((st) => (
-                  <option key={st.studentId || st.id} value={st.studentId || st.id}>
-                    {st.name} ({st.grade})
+                {studentsList.map((s) => (
+                  <option key={s.studentId || s.id} value={s.studentId || s.id}>
+                    {s.name} ({s.grade || 'Student'})
                   </option>
                 ))}
               </select>
-            </div>
-          ) : (
-            <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 self-start md:self-auto flex items-center gap-3">
-              <UserCheck className="w-5 h-5 text-emerald-300" />
-              <div>
-                <p className="text-[11px] uppercase tracking-wider text-indigo-200 font-bold">Logged In Learner</p>
-                <p className="text-sm font-black text-white">{student.name}</p>
-              </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* 4 Core Pillars KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {Object.keys(CORE_SUBJECTS).map((subKey) => {
+      {/* ── SUBJECT KPI CARDS (FILTERED BY STUDENT'S GRADE LEVEL) ── */}
+      <div className={`grid grid-cols-1 ${isPreSchool ? 'sm:grid-cols-1' : 'sm:grid-cols-2 lg:grid-cols-3'} gap-5`}>
+        {eligibleSubjectKeys.map((subKey) => {
           const subject = CORE_SUBJECTS[subKey];
           const avg = getSubjectAverage(subKey);
           return (
@@ -253,7 +272,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
               key={subKey}
               onClick={() => setActiveCategoryTab(subKey)}
               className={`bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg border-2 transition-all cursor-pointer transform hover:-translate-y-1 ${
-                activeCategoryTab === subKey ? `border-${subject.color}-500 ring-4 ring-${subject.color}-500/10` : 'border-slate-100'
+                currentActiveCategoryTab === subKey ? `border-${subject.color}-500 ring-4 ring-${subject.color}-500/10` : 'border-slate-100'
               }`}
             >
               <div className="flex items-center justify-between mb-4">
@@ -279,7 +298,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                 ></div>
               </div>
               <div className="flex justify-between items-center text-xs text-slate-500 font-semibold">
-                <span>{subject.categories.length} Categories</span>
+                <span>{subject.categories.length} Activities & Domains</span>
                 <span className="text-indigo-600 font-bold flex items-center gap-0.5 hover:underline">
                   View Detail <ChevronRight className="w-3 h-3" />
                 </span>
@@ -289,7 +308,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
         })}
       </div>
 
-      {/* AI Recommendation Banner */}
+      {/* ── AI RECOMMENDATION BANNER ── */}
       {student.recommendation && (
         <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-2 border-amber-300 rounded-3xl p-6 sm:p-7 shadow-sm space-y-4">
           <div className="flex items-start gap-4">
@@ -326,7 +345,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
         </div>
       )}
 
-      {/* Middle Section: Weekly Trend Graph & Radar Chart */}
+      {/* ── CHARTS SECTION: WEEKLY PROGRESS TREND & MASTERY RADAR ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Weekly Trend Multi-Line Graph (Span 2) */}
@@ -336,17 +355,17 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
               <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-indigo-600" /> සතිපතා ලකුණු වර්ධන ප්‍රස්තාරය (Weekly Progress Trend)
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">Performance Across Subjects Recorded in Database</p>
+              <p className="text-xs text-slate-500 mt-0.5">Performance Across Eligible Subjects Recorded in Database</p>
             </div>
             
             {/* Subject Filters */}
             <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-2xl">
-              {['all', 'math', 'sinhala', 'english', 'preschool'].map((filter) => (
+              {(eligibleSubjectKeys.length > 1 ? ['all', ...eligibleSubjectKeys] : eligibleSubjectKeys).map((filter) => (
                 <button
                   key={filter}
                   onClick={() => setActiveSubjectTab(filter)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeSubjectTab === filter
+                    currentActiveSubjectTab === filter
                       ? 'bg-white text-indigo-700 shadow-sm'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
@@ -419,8 +438,8 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                 </text>
               ))}
 
-              {/* Shaded Areas & Lines based on Active Filter */}
-              {(activeSubjectTab === 'all' || activeSubjectTab === 'math') && (
+              {/* Shaded Areas & Lines based on Eligible Subjects */}
+              {!isPreSchool && (currentActiveSubjectTab === 'all' || currentActiveSubjectTab === 'math') && (
                 <>
                   <path d={getAreaPath('math')} fill="url(#mathGrad)" />
                   <path d={getLinePath('math')} fill="none" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -430,7 +449,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                 </>
               )}
 
-              {(activeSubjectTab === 'all' || activeSubjectTab === 'sinhala') && (
+              {!isPreSchool && (currentActiveSubjectTab === 'all' || currentActiveSubjectTab === 'sinhala') && (
                 <>
                   <path d={getAreaPath('sinhala')} fill="url(#sinhalaGrad)" />
                   <path d={getLinePath('sinhala')} fill="none" stroke="#059669" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -440,7 +459,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                 </>
               )}
 
-              {(activeSubjectTab === 'all' || activeSubjectTab === 'english') && (
+              {!isPreSchool && (currentActiveSubjectTab === 'all' || currentActiveSubjectTab === 'english') && (
                 <>
                   <path d={getAreaPath('english')} fill="url(#englishGrad)" />
                   <path d={getLinePath('english')} fill="none" stroke="#9333ea" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -450,7 +469,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                 </>
               )}
 
-              {(activeSubjectTab === 'all' || activeSubjectTab === 'preschool') && (
+              {isPreSchool && (
                 <>
                   <path d={getAreaPath('preschool')} fill="url(#preschoolGrad)" />
                   <path d={getLinePath('preschool')} fill="none" stroke="#d97706" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -464,18 +483,23 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
 
           {/* Graph Legend */}
           <div className="flex flex-wrap items-center justify-center gap-6 mt-4 pt-4 border-t border-slate-100 text-xs font-bold">
-            <span className="flex items-center gap-2 text-blue-600">
-              <span className="w-3 h-3 rounded-full bg-blue-600"></span> ගණිතය (Math)
-            </span>
-            <span className="flex items-center gap-2 text-emerald-600">
-              <span className="w-3 h-3 rounded-full bg-emerald-600"></span> සිංහල (Sinhala)
-            </span>
-            <span className="flex items-center gap-2 text-purple-600">
-              <span className="w-3 h-3 rounded-full bg-purple-600"></span> English Speech
-            </span>
-            <span className="flex items-center gap-2 text-amber-600">
-              <span className="w-3 h-3 rounded-full bg-amber-600"></span> Pre-School Foundations
-            </span>
+            {!isPreSchool ? (
+              <>
+                <span className="flex items-center gap-2 text-blue-600">
+                  <span className="w-3 h-3 rounded-full bg-blue-600"></span> ගණිතය (Math)
+                </span>
+                <span className="flex items-center gap-2 text-emerald-600">
+                  <span className="w-3 h-3 rounded-full bg-emerald-600"></span> සිංහල (Sinhala)
+                </span>
+                <span className="flex items-center gap-2 text-purple-600">
+                  <span className="w-3 h-3 rounded-full bg-purple-600"></span> English Speech
+                </span>
+              </>
+            ) : (
+              <span className="flex items-center gap-2 text-amber-600">
+                <span className="w-3 h-3 rounded-full bg-amber-600"></span> Pre-School & Grade 1 Foundations
+              </span>
+            )}
           </div>
         </div>
 
@@ -485,7 +509,9 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
             <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 mb-1">
               <Compass className="w-5 h-5 text-purple-600" /> විෂය සමතුලිතතාවය (Mastery Radar)
             </h3>
-            <p className="text-xs text-slate-500 mb-4">4-Pillar Competency Balance Profile</p>
+            <p className="text-xs text-slate-500 mb-4">
+              {isPreSchool ? 'Pre-School Foundation Competency Balance' : 'Primary Subjects Competency Balance'}
+            </p>
           </div>
 
           <div className="flex justify-center my-auto">
@@ -565,19 +591,19 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
             <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-emerald-600" /> විෂය කාණ්ඩ අනුව ලකුණු විශ්ලේෂණය (Category Marks Breakdown)
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">Granular performance, marks obtained, and mastery ratings from MongoDB database</p>
+            <p className="text-xs text-slate-500 mt-0.5">Granular performance and mastery ratings for eligible domains</p>
           </div>
 
           {/* Category Tabs */}
           <div className="flex flex-wrap gap-2">
-            {Object.keys(CORE_SUBJECTS).map((subKey) => {
+            {eligibleSubjectKeys.map((subKey) => {
               const s = CORE_SUBJECTS[subKey];
               return (
                 <button
                   key={subKey}
                   onClick={() => setActiveCategoryTab(subKey)}
                   className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                    activeCategoryTab === subKey
+                    currentActiveCategoryTab === subKey
                       ? `bg-${s.color}-600 text-white shadow-md`
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
@@ -592,88 +618,49 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
 
         {/* Categories Bar & Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5">
-          {student.categoryMarks && student.categoryMarks[activeCategoryTab]?.map((cat) => (
+          {student.categoryMarks && student.categoryMarks[currentActiveCategoryTab]?.map((cat) => (
             <div key={cat.code} className="bg-slate-50 rounded-2xl p-5 border border-slate-200/80 hover:border-slate-300 transition-all">
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100 mr-2">
                     {cat.code}
                   </span>
-                  <span className="text-sm font-bold text-slate-800">{cat.name}</span>
+                  <span className="font-bold text-sm text-slate-900">{cat.name}</span>
                 </div>
-                <span className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full ${
-                  cat.status === 'Mastered' ? 'bg-emerald-100 text-emerald-800' :
-                  cat.status === 'Proficient' ? 'bg-blue-100 text-blue-800' :
-                  cat.status === 'Developing' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'
+                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                  cat.pct >= 85 ? 'bg-emerald-100 text-emerald-800' :
+                  cat.pct >= 70 ? 'bg-blue-100 text-blue-800' :
+                  cat.pct >= 50 ? 'bg-amber-100 text-amber-800' :
+                  cat.pct > 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-200 text-slate-600'
                 }`}>
-                  {cat.status}
+                  {cat.pct >= 85 ? 'Mastery' : cat.pct >= 70 ? 'Proficient' : cat.pct >= 50 ? 'Developing' : cat.pct > 0 ? 'Needs Practice' : 'Not Started'}
                 </span>
               </div>
-
-              <div className="flex justify-between items-baseline mb-2">
-                <span className="text-xs text-slate-500 font-semibold">
-                  ලකුණු: <strong>{cat.marks}</strong> / {cat.maxMarks}
-                </span>
-                <span className="text-lg font-black text-slate-900">{cat.pct}%</span>
+              
+              <div className="flex items-baseline justify-between mb-2">
+                <span className="text-xs text-slate-500 font-medium">Progress / Marks</span>
+                <span className="text-sm font-black text-slate-900">{cat.marks} / {cat.maxMarks} ({cat.pct}%)</span>
               </div>
 
-              <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-                <div
-                  className={`h-2.5 rounded-full transition-all duration-1000 ${
-                    cat.pct >= 85 ? 'bg-gradient-to-r from-emerald-500 to-teal-500' :
-                    cat.pct >= 70 ? 'bg-gradient-to-r from-blue-500 to-indigo-500' :
-                    cat.pct >= 60 ? 'bg-gradient-to-r from-amber-500 to-orange-500' : 'bg-gradient-to-r from-slate-400 to-slate-500'
+              <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden mb-3">
+                <div 
+                  className={`h-2 rounded-full transition-all duration-700 ${
+                    cat.pct >= 85 ? 'bg-emerald-500' :
+                    cat.pct >= 70 ? 'bg-blue-500' :
+                    cat.pct >= 50 ? 'bg-amber-500' :
+                    cat.pct > 0 ? 'bg-rose-500' : 'bg-slate-300'
                   }`}
-                  style={{ width: `${cat.pct}%` }}
+                  style={{ width: `${Math.max(4, cat.pct)}%` }}
                 ></div>
+              </div>
+
+              <div className="flex justify-between items-center text-xs text-slate-500 font-semibold pt-1 border-t border-slate-200/50">
+                <span>Completed Attempts: <strong>{cat.attempts || 0}</strong></span>
               </div>
             </div>
           ))}
         </div>
-      </div>
 
-      {/* Longitudinal Weekly Gradebook Log */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 overflow-hidden">
-        <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 mb-1">
-          <Layers className="w-5 h-5 text-indigo-600" /> සතිපතා විස්තරාත්මක ලකුණු සටහන (Weekly Gradebook)
-        </h3>
-        <p className="text-xs text-slate-500 mb-6">Historical chronological evaluation marks across the learning timeline from database</p>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="bg-slate-50 text-slate-600 text-xs uppercase font-extrabold border-b border-slate-200">
-                <th className="py-3.5 px-4 rounded-l-xl">සතිය (Week)</th>
-                <th className="py-3.5 px-4">🧮 ගණිතය (Math)</th>
-                <th className="py-3.5 px-4">🦁 සිංහල (Sinhala)</th>
-                <th className="py-3.5 px-4">🗣️ English Speech</th>
-                <th className="py-3.5 px-4">🎨 Pre-School</th>
-                <th className="py-3.5 px-4">සාමාන්‍යය (Average)</th>
-                <th className="py-3.5 px-4 rounded-r-xl">ප්‍රගති තත්ත්වය (Status)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
-              {weeklyData.map((wp, index) => (
-                <tr key={wp.week} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-4 px-4 font-black text-slate-900">{wp.week}</td>
-                  <td className="py-4 px-4 text-blue-600 font-bold">{wp.math}%</td>
-                  <td className="py-4 px-4 text-emerald-600 font-bold">{wp.sinhala}%</td>
-                  <td className="py-4 px-4 text-purple-600 font-bold">{wp.english}%</td>
-                  <td className="py-4 px-4 text-amber-600 font-bold">{wp.preschool}%</td>
-                  <td className="py-4 px-4 font-black text-slate-900">{wp.average}%</td>
-                  <td className="py-4 px-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      wp.average >= 85 ? 'bg-emerald-100 text-emerald-800' :
-                      wp.average >= 70 ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
-                    }`}>
-                      {index === 0 ? 'Diagnostic Record' : `Growth Track`}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </div>
 
     </div>
