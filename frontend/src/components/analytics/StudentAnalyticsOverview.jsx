@@ -198,12 +198,9 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                 <span className="bg-indigo-500/40 text-indigo-200 border border-indigo-300/30 px-3 py-0.5 rounded-full text-xs font-bold">
                   {student.grade || 'Grade 4'}
                 </span>
-                <span className="bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 px-3 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
-                  <Database className="w-3 h-3 text-emerald-300" /> {dataSource}
-                </span>
               </div>
               <p className="text-indigo-200 text-sm mt-1">
-                4-Pillar Longitudinal Adaptive Progress & Performance Analytics (MongoDB Database Synced)
+                4-Pillar Longitudinal Adaptive Progress & Performance Diagnostics
               </p>
               <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-indigo-200">
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-xl">
