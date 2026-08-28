@@ -10,16 +10,17 @@ import {
   CheckCircle2, 
   BookOpen, 
   Compass,
-  ArrowRight
+  ArrowRight,
+  Database
 } from 'lucide-react';
 import StudentAnalyticsOverview from '../components/analytics/StudentAnalyticsOverview';
-import { fetchStudentsAnalyticsFromApi, STUDENT_PROFILES } from '../data/studentAnalyticsData';
+import { fetchStudentsAnalyticsFromApi } from '../data/studentAnalyticsData';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
   const [teacherName, setTeacherName] = useState('');
-  const [students, setStudents] = useState(STUDENT_PROFILES);
-  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'overview'
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -33,11 +34,15 @@ const TeacherDashboard = () => {
     const name = localStorage.getItem('studentName') || 'Teacher';
     setTeacherName(name);
 
-    fetchStudentsAnalyticsFromApi().then(data => {
-      if (data && data.length > 0) {
-        setStudents(data);
-      }
-    });
+    fetchStudentsAnalyticsFromApi()
+      .then(data => {
+        if (data && Array.isArray(data)) {
+          setStudents(data);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [navigate]);
 
   const handleLogout = () => {
@@ -47,9 +52,9 @@ const TeacherDashboard = () => {
     navigate('/login');
   };
 
-  const classAverage = students.length > 0 ? Math.round(
-    students.reduce((acc, s) => acc + (s.overallAverage || 80), 0) / students.length
-  ) : 80;
+  const classAverage = students.length > 0 
+    ? Math.round(students.reduce((acc, s) => acc + (s.overallAverage || 0), 0) / students.length) 
+    : 0;
   const totalExercisesClass = students.reduce((acc, s) => acc + (s.totalExercises || 0), 0);
 
   return (
@@ -65,8 +70,8 @@ const TeacherDashboard = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900">Teacher & Parent Analytical Portal</h1>
-                <span className="bg-indigo-100 text-indigo-800 text-xs font-black px-3 py-0.5 rounded-full">
-                  Admin Active
+                <span className="bg-indigo-100 text-indigo-800 text-xs font-black px-3 py-0.5 rounded-full flex items-center gap-1">
+                  <Database className="w-3 h-3 text-indigo-600" /> MongoDB Synced
                 </span>
               </div>
               <p className="text-slate-500 text-sm mt-0.5">
@@ -90,7 +95,7 @@ const TeacherDashboard = () => {
             </div>
             <div>
               <p className="text-xs font-bold text-slate-500 uppercase">Enrolled Students</p>
-              <h3 className="text-2xl font-black text-slate-900">{STUDENT_PROFILES.length} Active</h3>
+              <h3 className="text-2xl font-black text-slate-900">{students.length} Active</h3>
             </div>
           </div>
 
@@ -119,7 +124,7 @@ const TeacherDashboard = () => {
               🎯
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-500 uppercase">Remedial Focus Pillars</p>
+              <p className="text-xs font-bold text-slate-500 uppercase">Primary Learning Pillars</p>
               <h3 className="text-2xl font-black text-amber-700">4 Active Hubs</h3>
             </div>
           </div>
@@ -130,16 +135,16 @@ const TeacherDashboard = () => {
           <div className="mb-6 pb-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-                <BarChart3 className="w-6 h-6 text-indigo-600" /> ශිෂ්‍ය තනි පුද්ගල ප්‍රගති විශ්ලේෂණය (Individual Student Diagnostics)
+                <BarChart3 className="w-6 h-6 text-indigo-600" /> ශිෂ්‍ය තනි පුද්ගල ප්‍රගති විශ්ලේෂණය (Real Student Diagnostics)
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Select any student profile below to examine longitudinal weekly marks, radar balance, and category recommendations.
+                Real-time performance records, radar balance, and category scores loaded directly from MongoDB.
               </p>
             </div>
           </div>
 
           {/* Render Full Student Analytics Overview in Teacher Mode */}
-          <StudentAnalyticsOverview initialStudentId="std_001" isTeacherView={true} />
+          <StudentAnalyticsOverview isTeacherView={true} />
         </div>
 
       </div>

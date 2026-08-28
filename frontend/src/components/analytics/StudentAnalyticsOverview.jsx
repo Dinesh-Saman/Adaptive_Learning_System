@@ -16,20 +16,20 @@ import {
   ArrowUpRight,
   Database,
   RefreshCw,
-  UserCheck
+  UserCheck,
+  UserX
 } from 'lucide-react';
 import { 
   CORE_SUBJECTS, 
-  STUDENT_PROFILES, 
-  fetchStudentsAnalyticsFromApi, 
-  fetchStudentAnalyticsFromApi 
+  createBlankStudentProfile, 
+  fetchStudentsAnalyticsFromApi 
 } from '../../data/studentAnalyticsData';
 
 const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) => {
   const navigate = useNavigate();
   const loggedInStudentName = localStorage.getItem('studentName') || '';
   const loggedInStudentGrade = localStorage.getItem('studentGrade') || 'Grade 4';
-  const loggedInStudentId = localStorage.getItem('studentId') || initialStudentId || 'std_001';
+  const loggedInStudentId = localStorage.getItem('studentId') || initialStudentId || '';
 
   const [studentsList, setStudentsList] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState(loggedInStudentId);
@@ -38,18 +38,17 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
   const [loading, setLoading] = useState(true);
   const [dataSource, setDataSource] = useState('MongoDB');
 
-  // Load students from MongoDB API
+  // Load real students from MongoDB API
   useEffect(() => {
     let isMounted = true;
     const loadData = async () => {
       try {
         setLoading(true);
         const data = await fetchStudentsAnalyticsFromApi();
-        if (isMounted && data && data.length > 0) {
+        if (isMounted && data && Array.isArray(data)) {
           setStudentsList(data);
           setDataSource('MongoDB Active');
           
-          // Match logged-in student if not in teacher view
           if (!isTeacherView && loggedInStudentName) {
             const found = data.find(s => 
               s.name.toLowerCase() === loggedInStudentName.toLowerCase() || 
@@ -58,13 +57,15 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
             if (found) {
               setSelectedStudentId(found.studentId || found.id);
             }
+          } else if (isTeacherView && data.length > 0) {
+            setSelectedStudentId(data[0].studentId || data[0].id);
           }
         } else {
-          setStudentsList(STUDENT_PROFILES);
+          setStudentsList([]);
         }
       } catch (e) {
         console.warn("Analytics API load warning:", e);
-        setStudentsList(STUDENT_PROFILES);
+        setStudentsList([]);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -73,6 +74,30 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
     return () => { isMounted = false; };
   }, [isTeacherView, loggedInStudentName, loggedInStudentId]);
 
+  if (loading) {
+    return (
+      <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm">
+        <div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-3"></div>
+        <p className="text-slate-500 text-sm font-semibold">Loading real student performance records from MongoDB...</p>
+      </div>
+    );
+  }
+
+  // Teacher View with no registered students
+  if (isTeacherView && studentsList.length === 0) {
+    return (
+      <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm space-y-4">
+        <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-3xl mx-auto">
+          <UserX className="w-8 h-8" />
+        </div>
+        <h3 className="text-xl font-bold text-slate-800">No Students Registered Yet in MongoDB</h3>
+        <p className="text-slate-500 text-sm max-w-md mx-auto">
+          When students register and begin taking primary mathematics, Sinhala, English, or preschool activities, their live performance graphs and diagnostic recommendations will appear here automatically.
+        </p>
+      </div>
+    );
+  }
+
   // Determine current active student
   let student = studentsList.find(s => 
     s.studentId === selectedStudentId || 
@@ -80,23 +105,13 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
     (loggedInStudentName && s.name.toLowerCase() === loggedInStudentName.toLowerCase())
   );
 
-  // If student is logged in but not yet in the list, construct live profile
   if (!student) {
     if (!isTeacherView && loggedInStudentName) {
-      student = {
-        studentId: loggedInStudentId,
-        name: loggedInStudentName,
-        grade: loggedInStudentGrade,
-        avatar: '👦',
-        attendance: '98%',
-        totalExercises: 24,
-        overallAverage: 82.5,
-        weeklyProgress: STUDENT_PROFILES[0].weeklyProgress,
-        categoryMarks: STUDENT_PROFILES[0].categoryMarks,
-        recommendation: STUDENT_PROFILES[0].recommendation
-      };
+      student = createBlankStudentProfile(loggedInStudentId, loggedInStudentName, loggedInStudentGrade);
+    } else if (studentsList.length > 0) {
+      student = studentsList[0];
     } else {
-      student = studentsList[0] || STUDENT_PROFILES[0];
+      student = createBlankStudentProfile('', 'Student', 'Grade 4');
     }
   }
 
@@ -117,15 +132,18 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
 
   const weeklyData = student.weeklyProgress && student.weeklyProgress.length > 0 
     ? student.weeklyProgress 
-    : STUDENT_PROFILES[0].weeklyProgress;
+    : [
+        { week: 'Week 1', math: getSubjectAverage('math'), sinhala: getSubjectAverage('sinhala'), english: getSubjectAverage('english'), preschool: getSubjectAverage('preschool'), average: student.overallAverage || 0 }
+      ];
+
   const weeks = weeklyData.map(w => w.week);
   const getX = (index) => padding.left + (index / Math.max(1, weeks.length - 1)) * graphWidth;
-  const getY = (val) => padding.top + graphHeight - ((Math.max(50, Math.min(100, val)) - 50) / 50) * graphHeight;
+  const getY = (val) => padding.top + graphHeight - ((Math.max(0, Math.min(100, val))) / 100) * graphHeight;
 
   // Line paths generator
   const getLinePath = (key) => {
     return weeklyData
-      .map((item, idx) => `${idx === 0 ? 'M' : 'L'} ${getX(idx)} ${getY(item[key] || 70)}`)
+      .map((item, idx) => `${idx === 0 ? 'M' : 'L'} ${getX(idx)} ${getY(item[key] || 0)}`)
       .join(' ');
   };
 
@@ -189,13 +207,13 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
               </p>
               <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-indigo-200">
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-xl">
-                  <Calendar className="w-3.5 h-3.5 text-indigo-300" /> පැමිණීම: <strong>{student.attendance || '95%'}</strong>
+                  <Calendar className="w-3.5 h-3.5 text-indigo-300" /> පැමිණීම: <strong>{student.attendance || '100%'}</strong>
                 </span>
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-xl">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" /> සම්පූර්ණ කළ අභ්‍යාස: <strong>{student.totalExercises || 20}</strong>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" /> සම්පූර්ණ කළ අභ්‍යාස: <strong>{student.totalExercises || 0}</strong>
                 </span>
                 <span className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-xl">
-                  <Award className="w-3.5 h-3.5 text-amber-300" /> සාමාන්‍ය ලකුණු: <strong>{student.overallAverage || 82.5}%</strong>
+                  <Award className="w-3.5 h-3.5 text-amber-300" /> සාමාන්‍ය ලකුණු: <strong>{student.overallAverage || 0}%</strong>
                 </span>
               </div>
             </div>
@@ -203,9 +221,9 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
 
           {/* Student Switcher in Teacher View OR Current Student Indicator in Learner View */}
           {isTeacherView ? (
-            <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/20 self-start md:self-auto">
+            <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-2xl border border-white/20 self-start md:self-auto min-w-[220px]">
               <label className="block text-xs font-bold text-indigo-200 mb-1.5">
-                Select Student Profile (MongoDB Live Records):
+                Select Real Student (MongoDB Records):
               </label>
               <select
                 value={selectedStudentId}
@@ -250,17 +268,15 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                 </div>
                 <span className={`text-xs font-bold px-3 py-1 rounded-full ${
                   avg >= 85 ? 'bg-emerald-100 text-emerald-800' :
-                  avg >= 70 ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'
+                  avg >= 70 ? 'bg-blue-100 text-blue-800' :
+                  avg > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'
                 }`}>
-                  {avg >= 85 ? 'Mastery ⭐' : avg >= 70 ? 'Proficient 👍' : 'Needs Practice ⚠️'}
+                  {avg >= 85 ? 'Mastery ⭐' : avg >= 70 ? 'Proficient 👍' : avg > 0 ? 'Needs Practice ⚠️' : 'Not Started'}
                 </span>
               </div>
               <h3 className="text-base font-black text-slate-800 mb-1">{subject.name}</h3>
               <div className="flex items-baseline gap-2 mb-3">
                 <span className="text-3xl font-black text-slate-900">{avg}%</span>
-                <span className="text-xs font-bold text-emerald-600 flex items-center">
-                  <TrendingUp className="w-3.5 h-3.5 mr-0.5" /> +5.4% vs W1
-                </span>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-3">
                 <div 
@@ -290,7 +306,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="bg-amber-500 text-white text-xs font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    {student.recommendation.priority || 'High Priority ⭐'}
+                    {student.recommendation.priority || 'Adaptive AI Focus'}
                   </span>
                   <span className="text-xs font-bold text-amber-900">
                     AI Adaptive Diagnostic Recommendation (MongoDB Synced)
@@ -325,7 +341,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
               <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-indigo-600" /> සතිපතා ලකුණු වර්ධන ප්‍රස්තාරය (Weekly Progress Trend)
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">Weeks 1 to 6 Longitudinal Performance Across Pillars</p>
+              <p className="text-xs text-slate-500 mt-0.5">Performance Across Pillars Recorded in Database</p>
             </div>
             
             {/* Subject Filters */}
@@ -369,7 +385,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
               </defs>
 
               {/* Grid Lines */}
-              {[50, 60, 70, 80, 90, 100].map((val) => (
+              {[0, 20, 40, 60, 80, 100].map((val) => (
                 <g key={val}>
                   <line
                     x1={padding.left}
@@ -378,7 +394,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                     y2={getY(val)}
                     stroke="#f1f5f9"
                     strokeWidth="1.5"
-                    strokeDasharray={val === 50 ? "0" : "4 4"}
+                    strokeDasharray={val === 0 ? "0" : "4 4"}
                   />
                   <text
                     x={padding.left - 10}
@@ -414,7 +430,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                   <path d={getAreaPath('math')} fill="url(#mathGrad)" />
                   <path d={getLinePath('math')} fill="none" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                   {weeklyData.map((item, idx) => (
-                    <circle key={idx} cx={getX(idx)} cy={getY(item.math)} r="4.5" fill="#2563eb" stroke="#ffffff" strokeWidth="2" />
+                    <circle key={idx} cx={getX(idx)} cy={getY(item.math || 0)} r="4.5" fill="#2563eb" stroke="#ffffff" strokeWidth="2" />
                   ))}
                 </>
               )}
@@ -424,7 +440,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                   <path d={getAreaPath('sinhala')} fill="url(#sinhalaGrad)" />
                   <path d={getLinePath('sinhala')} fill="none" stroke="#059669" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                   {weeklyData.map((item, idx) => (
-                    <circle key={idx} cx={getX(idx)} cy={getY(item.sinhala)} r="4.5" fill="#059669" stroke="#ffffff" strokeWidth="2" />
+                    <circle key={idx} cx={getX(idx)} cy={getY(item.sinhala || 0)} r="4.5" fill="#059669" stroke="#ffffff" strokeWidth="2" />
                   ))}
                 </>
               )}
@@ -434,7 +450,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                   <path d={getAreaPath('english')} fill="url(#englishGrad)" />
                   <path d={getLinePath('english')} fill="none" stroke="#9333ea" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                   {weeklyData.map((item, idx) => (
-                    <circle key={idx} cx={getX(idx)} cy={getY(item.english)} r="4.5" fill="#9333ea" stroke="#ffffff" strokeWidth="2" />
+                    <circle key={idx} cx={getX(idx)} cy={getY(item.english || 0)} r="4.5" fill="#9333ea" stroke="#ffffff" strokeWidth="2" />
                   ))}
                 </>
               )}
@@ -444,7 +460,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                   <path d={getAreaPath('preschool')} fill="url(#preschoolGrad)" />
                   <path d={getLinePath('preschool')} fill="none" stroke="#d97706" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                   {weeklyData.map((item, idx) => (
-                    <circle key={idx} cx={getX(idx)} cy={getY(item.preschool)} r="4.5" fill="#d97706" stroke="#ffffff" strokeWidth="2" />
+                    <circle key={idx} cx={getX(idx)} cy={getY(item.preschool || 0)} r="4.5" fill="#d97706" stroke="#ffffff" strokeWidth="2" />
                   ))}
                 </>
               )}
@@ -541,7 +557,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
           </div>
 
           <div className="p-3.5 bg-slate-50 rounded-2xl text-center text-xs text-slate-600 font-semibold border border-slate-200/60 mt-4">
-            🌟 <strong>Pre-School & Math</strong> highest performing pillars with steady growth in <strong>Sinhala & English</strong>.
+            📊 Real-time evaluation based on student assessments in MongoDB.
           </div>
         </div>
 
@@ -593,7 +609,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                 <span className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full ${
                   cat.status === 'Mastered' ? 'bg-emerald-100 text-emerald-800' :
                   cat.status === 'Proficient' ? 'bg-blue-100 text-blue-800' :
-                  cat.status === 'Developing' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'
+                  cat.status === 'Developing' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'
                 }`}>
                   {cat.status}
                 </span>
@@ -611,7 +627,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                   className={`h-2.5 rounded-full transition-all duration-1000 ${
                     cat.pct >= 85 ? 'bg-gradient-to-r from-emerald-500 to-teal-500' :
                     cat.pct >= 70 ? 'bg-gradient-to-r from-blue-500 to-indigo-500' :
-                    cat.pct >= 60 ? 'bg-gradient-to-r from-amber-500 to-orange-500' : 'bg-gradient-to-r from-rose-500 to-red-500'
+                    cat.pct >= 60 ? 'bg-gradient-to-r from-amber-500 to-orange-500' : 'bg-gradient-to-r from-slate-400 to-slate-500'
                   }`}
                   style={{ width: `${cat.pct}%` }}
                 ></div>
@@ -626,7 +642,7 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
         <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 mb-1">
           <Layers className="w-5 h-5 text-indigo-600" /> සතිපතා විස්තරාත්මක ලකුණු සටහන (Weekly Gradebook)
         </h3>
-        <p className="text-xs text-slate-500 mb-6">Historical chronological evaluation marks across the 6-week learning timeline from database</p>
+        <p className="text-xs text-slate-500 mb-6">Historical chronological evaluation marks across the learning timeline from database</p>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -653,9 +669,9 @@ const StudentAnalyticsOverview = ({ initialStudentId, isTeacherView = false }) =
                   <td className="py-4 px-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                       wp.average >= 85 ? 'bg-emerald-100 text-emerald-800' :
-                      wp.average >= 75 ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'
+                      wp.average >= 70 ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
                     }`}>
-                      {index === 0 ? 'Baseline Diagnostic' : `+${(wp.average - weeklyData[0].average).toFixed(1)}% Growth 🚀`}
+                      {index === 0 ? 'Diagnostic Record' : `Growth Track`}
                     </span>
                   </td>
                 </tr>
