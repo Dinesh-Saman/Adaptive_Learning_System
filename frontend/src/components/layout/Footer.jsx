@@ -29,14 +29,18 @@ const Footer = () => {
           
           {/* Column 1: Brand & Research Mission */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-3 group inline-block">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-                🎓
-              </div>
+            <Link to="/" className="flex items-center gap-3.5 group inline-block">
+              <img 
+                src="/logo.png" 
+                alt="නැණ පියස (Nana Piyasa)" 
+                className="h-14 w-auto object-contain rounded-2xl bg-white p-1 shadow-md group-hover:scale-105 transition-transform" 
+              />
               <div>
-                <span className="font-black text-2xl text-white tracking-tight">LearnAI</span>
-                <span className="block text-[10px] uppercase tracking-wider text-indigo-400 font-extrabold -mt-1">
-                  Adaptive Learning System
+                <span className="font-black text-2xl text-white tracking-tight font-sinhala block">
+                  නැණ පියස
+                </span>
+                <span className="block text-[10px] uppercase tracking-wider text-indigo-400 font-extrabold -mt-0.5">
+                  Nana Piyasa Learning System
                 </span>
               </div>
             </Link>
@@ -146,7 +150,7 @@ const Footer = () => {
         {/* Bottom Balanced Bar */}
         <div className="border-t border-slate-800/80 pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 gap-4">
           <p className="text-center sm:text-left">
-            &copy; {new Date().getFullYear()} <strong>LearnAI Research Project</strong>. All rights reserved.
+            &copy; {new Date().getFullYear()} <strong>නැණ පියස (Nana Piyasa) Project</strong>. All rights reserved.
           </p>
           <p className="flex items-center gap-1.5 text-center sm:text-right">
             <span>Built with</span>

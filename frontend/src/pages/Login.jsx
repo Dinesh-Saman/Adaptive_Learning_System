@@ -144,9 +144,10 @@ const Login = () => {
           />
           {/* Tint overlay matching the kids app theme */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#4A6B1A]/85 via-[#4A6B1A]/30 to-transparent flex flex-col justify-end p-8">
-            <h3 className="text-3xl font-black text-white drop-shadow-md font-sinhala">LearnAI ගවේෂකයෝ!</h3>
+            <img src="/logo.png" alt="නැණ පියස" className="h-20 w-auto object-contain bg-white/95 rounded-2xl p-1.5 shadow-lg mb-3" />
+            <h3 className="text-3xl font-black text-white drop-shadow-md font-sinhala">නැණ පියස ගවේෂකයෝ!</h3>
             <p className="text-white font-bold text-sm mt-1 drop-shadow-md max-w-sm">
-              Play, Learn and Grow with Interactive Modules tailored for you.
+              පාඩම් කරන්න • සෙල්ලම් කරන්න • දැනුමෙන් වැඩි වන්න (Play, Learn & Grow)
             </p>
           </div>
         </div>
@@ -180,9 +181,11 @@ const Login = () => {
             </button>
           </div>
 
-          {/* Heading */}
+          {/* Heading with Logo */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#442312] tracking-tight">
+            <img src="/logo.png" alt="නැණ පියස (Nana Piyasa)" className="h-20 w-auto mx-auto mb-3 object-contain drop-shadow-sm" />
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#442312] tracking-tight font-sinhala">නැණ පියස</h2>
+            <h2 className="text-xl font-bold text-[#65554D] tracking-tight -mt-1">
               {mode === 'forgot-password' ? 'Reset Password' : mode === 'register' ? 'Create Account!' : 'Welcome Explorer!'}
             </h2>
             <p className="text-[#65554D] text-sm mt-2 max-w-sm mx-auto leading-relaxed">

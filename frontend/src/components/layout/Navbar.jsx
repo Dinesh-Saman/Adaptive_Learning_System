@@ -21,11 +21,20 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="p-2 bg-indigo-100 rounded-xl group-hover:bg-indigo-600 transition-colors">
-                <BrainCircuit className="h-8 w-8 text-indigo-600 group-hover:text-white transition-colors" />
+            <Link to="/" className="flex items-center gap-3 group">
+              <img 
+                src="/logo.png" 
+                alt="නැණ පියස (Nana Piyasa)" 
+                className="h-12 w-auto object-contain rounded-xl group-hover:scale-105 transition-transform" 
+              />
+              <div className="flex flex-col">
+                <span className="font-black text-xl text-slate-900 tracking-tight font-sinhala leading-tight">
+                  නැණ පියස
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-indigo-600 font-extrabold -mt-0.5">
+                  Nana Piyasa Learning
+                </span>
               </div>
-              <span className="font-bold text-2xl text-slate-800 tracking-tight">LearnAI</span>
             </Link>
           </div>
           

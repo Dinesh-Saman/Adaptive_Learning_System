@@ -431,7 +431,13 @@ const Dashboard = () => {
           /* MAIN 4 FUNCTIONS DASHBOARD WITH GRADE-BASED ACCESS CONTROL */
           <>
             <header className="mb-10 text-center animate-fade-in-up">
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-2">Welcome back, {student.name}!</h1>
+              <img src="/logo.png" alt="නැණ පියස (Nana Piyasa)" className="h-20 w-auto mx-auto mb-3 object-contain drop-shadow-sm" />
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-1">
+                සාදරයෙන් පිළිගනිමු, {student.name}!
+              </h1>
+              <p className="text-xs font-extrabold text-indigo-600 uppercase tracking-wider mb-2 font-sinhala">
+                නැණ පියස — පාඩම් කරන්න • සෙල්ලම් කරන්න • දැනුමෙන් වැඩි වන්න
+              </p>
               <p className="text-slate-600">
                 {isPreSchool 
                   ? 'Your profile is set for Pre-School & Grade 1. Enjoy motor skills, coloring, and craft activities below!'

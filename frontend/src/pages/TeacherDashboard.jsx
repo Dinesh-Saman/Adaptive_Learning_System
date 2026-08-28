@@ -131,11 +131,14 @@ const TeacherDashboard = () => {
           {/* Platform Branding */}
           <div className="p-6 border-b border-slate-800">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-2xl font-black shadow-lg">
-                🎓
-              </div>
+              <img 
+                src="/logo.png" 
+                alt="නැණ පියස (Nana Piyasa)" 
+                className="w-12 h-12 rounded-2xl object-contain bg-white p-1 shadow-lg shrink-0" 
+              />
               <div>
-                <h1 className="text-lg font-black tracking-tight text-white">Adaptive Learning</h1>
+                <h1 className="text-lg font-black tracking-tight text-white font-sinhala leading-tight">නැණ පියස</h1>
+                <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider -mt-0.5">Nana Piyasa Portal</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   <span className="text-[11px] font-bold text-slate-400">Teacher Portal</span>
