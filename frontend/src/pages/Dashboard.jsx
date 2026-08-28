@@ -465,7 +465,6 @@ const Dashboard = () => {
           /* MAIN 4 FUNCTIONS DASHBOARD WITH GRADE-BASED ACCESS CONTROL */
           <>
             <header className="mb-10 text-center animate-fade-in-up">
-              <img src="/logo.png" alt="නැණ පියස (Nana Piyasa)" className="h-20 w-auto mx-auto mb-3 object-contain drop-shadow-sm" />
               <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-1">
                 සාදරයෙන් පිළිගනිමු, {student.name}!
               </h1>
