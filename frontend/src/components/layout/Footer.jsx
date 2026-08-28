@@ -29,20 +29,13 @@ const Footer = () => {
           
           {/* Column 1: Brand & Research Mission */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-3.5 group inline-block">
-              <img 
-                src="/logo.png" 
-                alt="නැණ පියස (Nana Piyasa)" 
-                className="h-14 w-auto object-contain rounded-2xl bg-white p-1 shadow-md group-hover:scale-105 transition-transform" 
-              />
-              <div>
-                <span className="font-black text-2xl text-white tracking-tight font-sinhala block">
-                  නැණ පියස
-                </span>
-                <span className="block text-[10px] uppercase tracking-wider text-indigo-400 font-extrabold -mt-0.5">
-                  Nana Piyasa Learning System
-                </span>
-              </div>
+            <Link to="/" className="inline-block group">
+              <span className="font-black text-2xl text-white tracking-tight font-sinhala block group-hover:text-indigo-300 transition-colors">
+                නැණ පියස
+              </span>
+              <span className="block text-[10px] uppercase tracking-wider text-indigo-400 font-extrabold -mt-0.5">
+                Nana Piyasa Learning System
+              </span>
             </Link>
             
             <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
