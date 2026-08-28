@@ -243,7 +243,6 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
     let nextConsecWrong = consecutiveWrong;
 
     if (correct) {
-      playSound('correct');
       nextConsecCorrect += 1;
       nextConsecWrong = 0;
       if (nextConsecCorrect >= 2) {
@@ -251,7 +250,6 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
         nextConsecCorrect = 0;
       }
     } else {
-      playSound('wrong');
       nextConsecCorrect = 0;
       nextConsecWrong += 1;
       if (nextConsecWrong >= 2) {
@@ -287,6 +285,7 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
       isCorrect: correct,
       selectedOption: opt,
       correctAnswer: currentQuestion.answer,
+      explanationSi: currentQuestion.explanation_si,
       timeSpentSec: timeSpent,
       questionTextSi: currentQuestion.text_si,
       questionTextEn: currentQuestion.text_en
@@ -458,10 +457,8 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
                   let btnStyle = 'bg-white border-2 border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50/50';
                   
                   if (isAnswered) {
-                    if (opt === currentQuestion.answer) {
-                      btnStyle = 'bg-emerald-500 border-2 border-emerald-600 text-white shadow-md animate-pulse';
-                    } else if (opt === selectedOption) {
-                      btnStyle = 'bg-rose-500 border-2 border-rose-600 text-white';
+                    if (opt === selectedOption) {
+                      btnStyle = 'bg-blue-600 border-2 border-blue-700 text-white shadow-md scale-[1.02]';
                     } else {
                       btnStyle = 'bg-slate-100 border-slate-200 text-slate-400 opacity-60';
                     }
@@ -480,32 +477,14 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
                 })}
               </div>
 
-              {/* Feedback and Misconception Alert */}
-              {isAnswered && (
-                <div className={`rounded-2xl p-5 mb-4 border-2 animate-fade-in ${isCorrect ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-rose-50 border-rose-300 text-rose-800'}`}>
-                  <div className="flex items-center gap-2 mb-2 font-black text-base">
-                    <span>{isCorrect ? '🎉 නිවැරදියි!' : '❌ නැවත අවධානය යොමු කරමු:'}</span>
-                  </div>
-                  <p className="text-sm font-bold leading-relaxed mb-2">
-                    {remedialFeedback}
-                  </p>
-                  {misconception && (
-                    <div className="mt-2 pt-2 border-t border-rose-200 text-xs font-bold text-rose-700 flex items-start gap-1">
-                      <span>💡</span>
-                      <span><strong>AI Diagnostic Note:</strong> {misconception}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* Continue Action */}
               {isAnswered && (
-                <div className="flex justify-end pt-2">
+                <div className="flex justify-end pt-2 animate-fade-in">
                   <button
                     onClick={handleNextQuestion}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-black px-7 py-3 rounded-2xl shadow-md transition-all flex items-center gap-2 cursor-pointer text-base"
                   >
-                    <span>{qNum >= 10 ? 'සම්පූර්ණ වාර්තාව බලන්න (View Report)' : 'ඊළඟ ප්‍රශ්නය ➔'}</span>
+                    <span>{qNum >= 10 ? 'සම්පූර්ණ වාර්තාව බලන්න (View Report) ➔' : 'ඊළඟ ප්‍රශ්නය ➔'}</span>
                   </button>
                 </div>
               )}
@@ -602,6 +581,49 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Detailed Question Review Table */}
+            <div>
+              <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
+                <span>📋</span> ප්‍රශ්න සමාලෝචනය (Detailed Question Review)
+              </h3>
+              <div className="space-y-3">
+                {history.map((h, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`p-4 rounded-2xl border-2 ${
+                      h.isCorrect 
+                        ? 'bg-emerald-50 border-emerald-200' 
+                        : 'bg-rose-50 border-rose-200'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black text-white ${h.isCorrect ? 'bg-emerald-500' : 'bg-rose-500'}`}>
+                          {h.isCorrect ? '✓' : '✗'}
+                        </span>
+                        <span className="font-bold text-slate-800 text-sm">ප්‍රශ්නය {h.qNum}</span>
+                      </div>
+                      <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${h.isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                        {h.isCorrect ? 'නිවැරදියි' : 'වැරදියි'}
+                      </span>
+                    </div>
+                    <p className="text-slate-800 font-bold text-sm mb-2">{h.questionTextSi}</p>
+                    <div className="flex flex-wrap gap-4 text-xs font-bold">
+                      <span className="text-slate-600">ඔබේ පිළිතුර: <strong className={h.isCorrect ? 'text-emerald-700' : 'text-rose-700'}>{h.selectedOption}</strong></span>
+                      {!h.isCorrect && (
+                        <span className="text-slate-600">නිවැරදි පිළිතුර: <strong className="text-emerald-700">{h.correctAnswer}</strong></span>
+                      )}
+                    </div>
+                    {h.explanationSi && (
+                      <p className="mt-2 pt-2 border-t border-slate-200 text-xs text-slate-600 font-medium">
+                        💡 {h.explanationSi}
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
