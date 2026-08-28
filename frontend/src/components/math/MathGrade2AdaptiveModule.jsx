@@ -377,14 +377,12 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
   const overallAccuracy = history.length > 0 ? Math.round((totalCorrect / history.length) * 100) : 0;
 
   const domainSummaries = Object.entries(GRADE2_DOMAINS).map(([domId, dom]) => {
-    const scores = dom.skills.map(s => skillMastery[s.id] || 50);
-    const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-    
     const domSkillIds = new Set(dom.skills.map(s => s.id));
     const domHistory = history.filter(h => domSkillIds.has(h.skillId));
     const askedCount = domHistory.length;
     const correctCount = domHistory.filter(h => h.isCorrect).length;
     const wrongCount = askedCount - correctCount;
+    const accuracy = askedCount > 0 ? Math.round((correctCount / askedCount) * 100) : null;
 
     return {
       id: domId,
@@ -392,10 +390,10 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
       name_si: dom.name_si,
       icon: dom.icon,
       color: dom.color,
-      masteryAvg: avg,
       askedCount,
       correctCount,
-      wrongCount
+      wrongCount,
+      accuracy
     };
   });
 
@@ -697,14 +695,14 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
                           </span>
                         )}
                         <span className="font-black text-sm text-teal-700 bg-teal-50 px-3 py-1 rounded-xl border border-teal-200">
-                          {dom.masteryAvg}%
+                          {dom.accuracy !== null ? `${dom.accuracy}%` : '—'}
                         </span>
                       </div>
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
                       <div
                         className={`bg-gradient-to-r ${dom.color} h-3 rounded-full transition-all duration-700`}
-                        style={{ width: `${dom.masteryAvg}%` }}
+                        style={{ width: `${dom.accuracy !== null ? dom.accuracy : 0}%` }}
                       ></div>
                     </div>
                   </div>
