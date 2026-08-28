@@ -592,9 +592,9 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
                   
                   if (isAnswered) {
                     if (opt === selectedOption) {
-                      btnStyle = 'bg-teal-600 border-2 border-teal-700 text-white shadow-md scale-[1.02]';
+                      btnStyle = 'bg-teal-600 border-2 border-teal-700 text-white shadow-md';
                     } else {
-                      btnStyle = 'bg-slate-100 border-slate-200 text-slate-400 opacity-60';
+                      btnStyle = 'bg-slate-100 border-2 border-slate-200 text-slate-400 opacity-60';
                     }
                   }
 
@@ -603,7 +603,7 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
                       key={idx}
                       disabled={isAnswered}
                       onClick={() => handleSelectOption(opt)}
-                      className={`p-5 rounded-2xl font-black text-lg transition-all text-center flex items-center justify-center gap-3 cursor-pointer shadow-sm ${btnStyle}`}
+                      className={`p-5 rounded-2xl font-black text-lg transition-colors text-center flex items-center justify-center gap-3 cursor-pointer shadow-sm ${btnStyle}`}
                     >
                       <span>{opt}</span>
                     </button>
@@ -611,15 +611,15 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
                 })}
               </div>
 
-              {/* Continue Action Button - Always visible, disabled until answered */}
+              {/* Continue Action Button - Always visible, zero movement on state change */}
               <div className="flex justify-end pt-4 border-t border-slate-200">
                 <button
                   disabled={!isAnswered}
                   onClick={handleNextQuestion}
-                  className={`px-8 py-3.5 rounded-2xl font-black text-base transition-all flex items-center gap-2 ${
+                  className={`px-8 py-3.5 rounded-2xl font-black text-base border-2 transition-all flex items-center gap-2 ${
                     isAnswered
-                      ? 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg cursor-pointer active:scale-95'
-                      : 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed opacity-75'
+                      ? 'bg-teal-600 hover:bg-teal-700 border-teal-600 text-white shadow-lg cursor-pointer active:scale-95'
+                      : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-75 shadow-none'
                   }`}
                 >
                   <span>{qNum >= 20 ? 'සම්පූර්ණ වාර්තාව බලන්න (View Report) ➔' : 'ඊළඟ ප්‍රශ්නය ➔'}</span>
