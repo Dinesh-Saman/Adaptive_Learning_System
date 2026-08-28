@@ -131,12 +131,12 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
         </div>
       </div>
 
-      {/* Domain Quick Filters */}
-      <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[11px] font-black text-slate-500 mr-1 uppercase tracking-wider">Domains:</span>
+      {/* Domain Quick Filters - Single Line Layout */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 whitespace-nowrap">
+        <span className="text-[11px] font-black text-slate-500 mr-1 uppercase tracking-wider shrink-0">Domains:</span>
         <button
           onClick={() => setSelectedDomainFilter('all')}
-          className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`px-3 py-1 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
             selectedDomainFilter === 'all'
               ? 'bg-slate-900 text-white shadow-sm'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -144,20 +144,27 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
         >
           All Domains
         </button>
-        {subject.categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setSelectedDomainFilter(cat.id)}
-            className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
-              selectedDomainFilter === cat.id
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            <span className="bg-slate-100 text-slate-700 px-1 py-0.2 rounded text-[10px]">{cat.id}</span>
-            <span>{cat.name.split('(')[0]}</span>
-          </button>
-        ))}
+        {subject.categories.map((cat) => {
+          const shortTitle = cat.name.split('(')[0].split('&')[0].trim();
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedDomainFilter(cat.id)}
+              className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
+                selectedDomainFilter === cat.id
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <span className={`px-1 py-0.2 rounded text-[10px] font-black ${
+                selectedDomainFilter === cat.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'
+              }`}>
+                {cat.id}
+              </span>
+              <span>{shortTitle}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Registered Students Tabular List - Fits in a Single Screen (No Horizontal Overflow) */}
