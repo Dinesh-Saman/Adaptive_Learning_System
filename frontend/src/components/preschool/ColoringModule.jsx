@@ -397,52 +397,42 @@ export default function ColoringModule({ onExit }) {
           
           colorEvaluablePixels++; // Every colored inside pixel should be evaluated
           
-          if (maxColor - minColor < 15 || minColor > 220 || maxColor < 60) {
-             // It's a black shadow, white highlight, or pure grayscale part of the reference image.
-             // Automatically grant this pixel as correct so we don't penalize coloring over highlights!
-             colorCorrect++;
-          } else {
-             let userColorIdx = 0, userMinDist = Infinity;
-             let refColorIdx = 0, refMaxCos = -Infinity;
-             
-             for (let pIdx = 0; pIdx < PALETTE_RGB.length; pIdx++) {
-               const p = PALETTE_RGB[pIdx];
-               
-               // User color uses Euclidean distance because their palette color is flat
-               const ud = (r - p.r)**2 + (g - p.g)**2 + (b - p.b)**2;
-               if (ud < userMinDist) { userMinDist = ud; userColorIdx = pIdx; }
-               
-               // Reference color uses Cosine Similarity (angle) to perfectly ignore shadows/highlights!
-               const dot = refR * p.r + refG * p.g + refB * p.b;
-               const lenRef = Math.sqrt(refR*refR + refG*refG + refB*refB) || 1;
-               const lenP = Math.sqrt(p.r*p.r + p.g*p.g + p.b*p.b) || 1;
-               const cosSim = dot / (lenRef * lenP);
-               
-               if (cosSim > refMaxCos) { refMaxCos = cosSim; refColorIdx = pIdx; }
-             }
-             
-             const pUser = PALETTE_RGB[userColorIdx];
-             const pRef = PALETTE_RGB[refColorIdx];
-             
-             // Human-like forgiving color grading!
-             const FORGIVING_MATCHES = {
-               '#ef4444': ['#f43f5e', '#000000', '#ffffff'], // Red allows Pink
-               '#22c55e': ['#000000', '#ffffff'],            // Green
-               '#3b82f6': ['#000000', '#ffffff'],            // Blue
-               '#eab308': ['#000000', '#ffffff'],            // Yellow
-               '#f97316': ['#000000', '#ffffff'],            // Orange
-               '#f43f5e': ['#ef4444', '#000000', '#ffffff'], // Pink allows Red
-               '#a16207': ['#000000', '#ffffff'],            // Brown
-               '#a855f7': ['#000000', '#ffffff'],            // Purple
-               '#14b8a6': ['#000000', '#ffffff']             // Teal
-             };
-             
-             const isForgiven = FORGIVING_MATCHES[PALETTE[userColorIdx].hex]?.includes(PALETTE[refColorIdx].hex) || 
-                                FORGIVING_MATCHES[PALETTE[refColorIdx].hex]?.includes(PALETTE[userColorIdx].hex);
-             
-             if (userColorIdx === refColorIdx || isForgiven) {
-               colorCorrect++;
-             }
+          let userColorIdx = 0, userMinDist = Infinity;
+          let refColorIdx = 0, refMaxCos = -Infinity;
+          
+          // 1. Identify user's chosen palette color
+          for (let pIdx = 0; pIdx < PALETTE_RGB.length; pIdx++) {
+            const p = PALETTE_RGB[pIdx];
+            const ud = (r - p.r)**2 + (g - p.g)**2 + (b - p.b)**2;
+            if (ud < userMinDist) { userMinDist = ud; userColorIdx = pIdx; }
+          }
+          
+          // 2. Identify target reference palette color (excluding black/white to find true hue)
+          for (let pIdx = 0; pIdx < PALETTE_RGB.length; pIdx++) {
+            const p = PALETTE_RGB[pIdx];
+            if (PALETTE[pIdx].hex === '#000000' || PALETTE[pIdx].hex === '#ffffff') continue;
+            
+            const dot = refR * p.r + refG * p.g + refB * p.b;
+            const lenRef = Math.sqrt(refR*refR + refG*refG + refB*refB) || 1;
+            const lenP = Math.sqrt(p.r*p.r + p.g*p.g + p.b*p.b) || 1;
+            const cosSim = dot / (lenRef * lenP);
+            
+            if (cosSim > refMaxCos) { refMaxCos = cosSim; refColorIdx = pIdx; }
+          }
+          
+          // Human-like forgiving color grading (e.g. Red allows Pink)
+          const FORGIVING_MATCHES = {
+            '#ef4444': ['#f43f5e'], // Red allows Pink
+            '#f43f5e': ['#ef4444'], // Pink allows Red
+            '#f97316': ['#eab308'], // Orange allows Yellow
+            '#eab308': ['#f97316'], // Yellow allows Orange
+          };
+          
+          const isForgiven = FORGIVING_MATCHES[PALETTE[userColorIdx].hex]?.includes(PALETTE[refColorIdx].hex) || 
+                             FORGIVING_MATCHES[PALETTE[refColorIdx].hex]?.includes(PALETTE[userColorIdx].hex);
+          
+          if (userColorIdx === refColorIdx || isForgiven) {
+            colorCorrect++;
           }
           
           // KEEP the child's original color inside the lines! Do not overwrite it.
@@ -479,7 +469,8 @@ export default function ColoringModule({ onExit }) {
     
     const coveragePercent = Math.round((coloredInside / totalMaskPixels) * 100);
     const boundaryPercent = Math.round((coloredInside / (coloredInside + coloredOutside)) * 100);
-    const colorPercent = colorEvaluablePixels > 0 ? Math.round((colorCorrect / colorEvaluablePixels) * 100) : 0;
+    const rawColorPercent = colorEvaluablePixels > 0 ? (colorCorrect / colorEvaluablePixels) * 100 : 0;
+    const colorPercent = rawColorPercent < 2 ? 0 : Math.round(rawColorPercent);
     
     setStats({
       coverage: Math.min(100, coveragePercent),
