@@ -704,6 +704,10 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
 
 // 100% Strict 6-Dimensional Speech & Pronunciation Assessment
 function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally = false, recordingDuration = 2.0, avgVolume = 50, extraAlternativeWords = []) {
+  console.log("%c[Speaking Paper Evaluator] ──────── STEP-BY-STEP EVALUATION START ────────", "background: #0284c7; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
+  console.log(`[Step 1 Input] Spoken Text: "${spokenText}" | Target Text: "${targetText}" | Duration: ${recordingDuration}s`);
+  console.log(`[Step 1 Acoustic Alternatives]:`, extraAlternativeWords);
+
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
 
@@ -711,11 +715,16 @@ function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally
   const targetWords = targetClean.split(/\s+/).filter(Boolean);
   const allCandidateTokens = Array.from(new Set([...spokenWords, ...(extraAlternativeWords || [])])).filter(Boolean);
 
+  console.log(`[Step 1 Tokenized] Spoken Tokens:`, spokenWords);
+  console.log(`[Step 1 Tokenized] Target Tokens:`, targetWords);
+  console.log(`[Step 1 Tokenized] All Candidate Tokens:`, allCandidateTokens);
+
   // ── Step 1: Strict Sound & Human Speech Validation ──
-  // If no speech text or phonetic candidate tokens were recognized by ASR, return No Sound Detected
   const speechDetected = Boolean(spokenWords.length > 0 || allCandidateTokens.length > 0);
+  console.log(`[Step 1 Status] Speech Detected: ${speechDetected}`);
 
   if (!speechDetected) {
+    console.warn("%c[Step 1 Result] No speech detected - returning 0%", "color: #ef4444; font-weight: bold;");
     return {
       step: 1,
       soundDetected: false,
@@ -737,7 +746,9 @@ function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally
   // ── 1. Single Word Evaluation (Easy Level & MTI Lab) ──
   if (targetWords.length === 1) {
     const targetWord = targetWords[0];
+    console.log(`[Step 2 Single Word] Checking MTI patterns for word: "${targetWord}"...`);
     const mtiPatterns = detectSriLankanMTIPatterns(allCandidateTokens, targetWords);
+    console.log(`[Step 2 MTI Patterns Detected]:`, mtiPatterns);
     
     let matchedExact = (spokenClean === targetWord);
     let matchedInWords = spokenWords.includes(targetWord);
@@ -756,6 +767,9 @@ function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally
     const wordsCorrect = isCleanSingleUtterance;
     const accuracy = isCleanSingleUtterance ? 100 : (mtiPatterns.length > 0 ? 70 : (matchedInWords ? 60 : 25));
     const isPassed = (accuracy === 100);
+
+    console.log(`[Step 3 Single Word Result] matchedExact: ${matchedExact}, matchedInWords: ${matchedInWords}, isPassed: ${isPassed}, accuracy: ${accuracy}%`);
+    console.log("%c[Speaking Paper Evaluator] ──────── EVALUATION COMPLETE ────────", "background: #059669; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
 
     return {
       step: isPassed ? 3 : 2,
@@ -1019,6 +1033,7 @@ export default function EnglishModule({ onExit }) {
   // Full-Sentence Continuous Recording
   // Full Continuous & Single-Word Recording
   const startRecording = () => {
+    console.log("%c[Speaking Paper] 1. 'Speak' Button Clicked - Starting Recording...", "background: #047857; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
     playSound('click');
     stopListening();
 
@@ -1036,6 +1051,7 @@ export default function EnglishModule({ onExit }) {
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
+      console.error("[Speaking Paper] SpeechRecognition API not supported on this browser!");
       setIsListening(false);
       isListeningRef.current = false;
       setLiveTranscript('(Browser speech recognition not supported)');
@@ -1043,6 +1059,7 @@ export default function EnglishModule({ onExit }) {
     }
 
     try {
+      console.log("%c[Speaking Paper] 2. Initializing SpeechRecognition (lang: en-US, maxAlternatives: 5)...", "color: #0284c7; font-weight: bold;");
       const reco = new SpeechRecognition();
       reco.continuous = true;
       reco.interimResults = true;
@@ -1050,15 +1067,18 @@ export default function EnglishModule({ onExit }) {
       reco.maxAlternatives = 5;
 
       reco.onstart = () => {
+        console.log("%c[Speaking Paper] 2.1 onstart: Recognizer active and listening", "color: #059669; font-weight: bold;");
         if (isListeningRef.current) setIsListening(true);
       };
 
       reco.onsoundstart = () => {
+        console.log("%c[Speaking Paper] 2.2 onsoundstart: Audio signal detected", "color: #10b981;");
         soundHeardRef.current = true;
         setLiveTranscript('හඬ ලැබෙමින් පවතී...');
       };
 
       reco.onspeechstart = () => {
+        console.log("%c[Speaking Paper] 2.3 onspeechstart: Human speech recognized", "color: #10b981; font-weight: bold;");
         soundHeardRef.current = true;
         setLiveTranscript('හඬ ලැබෙමින් පවතී...');
       };
@@ -1066,6 +1086,9 @@ export default function EnglishModule({ onExit }) {
       reco.onresult = (event) => {
         soundHeardRef.current = true;
         const { transcript, alternatives } = extractCleanEnglishTranscript(event);
+        console.log(`%c[Speaking Paper] 3. onresult received -> transcript: "${transcript}"`, "background: #7c3aed; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;");
+        console.log(`[Speaking Paper] Acoustic Alternatives for this event:`, alternatives);
+
         if (transcript) {
           latestTranscriptRef.current = transcript;
           setLiveTranscript(transcript);
@@ -1073,14 +1096,16 @@ export default function EnglishModule({ onExit }) {
         if (alternatives && alternatives.length > 0) {
           const merged = Array.from(new Set([...latestAlternativesRef.current, ...alternatives]));
           latestAlternativesRef.current = merged;
+          console.log(`[Speaking Paper] Merged Session Alternatives:`, merged);
         }
       };
 
       reco.onerror = (event) => {
-        console.log("SpeechRecognition notice:", event.error);
+        console.warn(`%c[Speaking Paper] ⚠️ onerror: ${event.error}`, "color: #ef4444; font-weight: bold;");
       };
 
       reco.onend = () => {
+        console.log("%c[Speaking Paper] 2.4 onend: Recognizer cycle ended", "color: #64748b;");
         if (isListeningRef.current) {
           try {
             reco.start();
@@ -1091,7 +1116,7 @@ export default function EnglishModule({ onExit }) {
       recognitionRef.current = reco;
       reco.start();
     } catch (e) {
-      console.log("SpeechRecognition init error:", e);
+      console.error("[Speaking Paper] SpeechRecognition init error:", e);
     }
 
     timerIntervalRef.current = setInterval(() => {
@@ -1101,11 +1126,16 @@ export default function EnglishModule({ onExit }) {
 
   // Student clicks Stop when they finish speaking
   const stopRecordingAndEvaluate = () => {
+    console.log("%c[Speaking Paper] 4. 'Stop & Evaluate' Button Clicked", "background: #e11d48; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
     playSound('click');
     const finalHeardText = (latestTranscriptRef.current || liveTranscript || '').replace('සවන් දෙමින්...', '').replace('හඬ ලැබෙමින් පවතී...', '').trim();
     const soundDetected = soundHeardRef.current || Boolean(finalHeardText.trim());
     const duration = Math.max(1, recordingSeconds);
     const avgVol = 70;
+
+    console.log(`[Speaking Paper] Final Heard Text: "${finalHeardText}"`);
+    console.log(`[Speaking Paper] Sound Detected: ${soundDetected} | Duration: ${duration}s`);
+    console.log(`[Speaking Paper] Session Alternatives to Evaluate:`, latestAlternativesRef.current);
 
     stopListening();
 
@@ -1120,6 +1150,7 @@ export default function EnglishModule({ onExit }) {
       avgVol, 
       latestAlternativesRef.current || []
     );
+    console.log("%c[Speaking Paper] 5. Final Evaluated Result:", "color: #0284c7; font-weight: bold;", res);
     setAssessmentResult(res);
     setIsAnswered(true);
 
