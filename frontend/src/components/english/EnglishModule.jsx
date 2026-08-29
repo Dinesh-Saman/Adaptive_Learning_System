@@ -117,7 +117,7 @@ function speakEnglish(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-// One-Shot 3-Stage Speech & Word Alignment Evaluation
+// Guaranteed 3-Stage Speech & Word Alignment Evaluation
 function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = false) {
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
@@ -205,7 +205,7 @@ function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = fal
 
     for (let j = spokenIdx; j < Math.min(spokenIdx + 3, spokenWords.length); j++) {
       const sw = spokenWords[j];
-      if (sw === tw || sw === tw + 's' || sw === tw + 'd') {
+      if (sw === tw || sw === tw + 's' || sw === tw + 'd' || sw === tw + 'ed') {
         isMatched = true;
         spokenMatchedWord = sw;
         spokenIdx = j + 1;
@@ -297,7 +297,6 @@ export default function EnglishModule({ onExit }) {
   const audioContextRef = useRef(null);
   const mediaStreamRef = useRef(null);
   const animFrameRef = useRef(null);
-  const autoEvaluateTimeoutRef = useRef(null);
 
   // LocalStorage Paper History
   const [paperHistory, setPaperHistory] = useState(() => {
@@ -393,11 +392,6 @@ export default function EnglishModule({ onExit }) {
       timerIntervalRef.current = null;
     }
 
-    if (autoEvaluateTimeoutRef.current) {
-      clearTimeout(autoEvaluateTimeoutRef.current);
-      autoEvaluateTimeoutRef.current = null;
-    }
-
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
@@ -428,7 +422,7 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Start One-Shot Voice Recording
+  // Full-Sentence Continuous Recording (Never cuts off prematurely!)
   const startRecording = async () => {
     playSound('click');
     stopListening(); // Fully clear previous session
@@ -442,6 +436,9 @@ export default function EnglishModule({ onExit }) {
     soundHeardRef.current = false;
     isListeningRef.current = true;
     setIsListening(true);
+
+    const currentQ = paperQuestions[currentQIndex];
+    const isSingleWord = currentQ ? currentQ.level === 'easy' : true;
 
     // 1. Instant Hardware Audio VAD (100% Local, Zero Cloud Lag)
     try {
@@ -487,13 +484,13 @@ export default function EnglishModule({ onExit }) {
       console.log("Local audio context notice:", err);
     }
 
-    // 2. One-Shot SpeechRecognition (continuous: false = Instant 1-Shot Result!)
+    // 2. Full-Sentence Speech Recognition (continuous: true so it never cuts off mid-sentence!)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       try {
         const reco = new SpeechRecognition();
-        // Set continuous to false so it finalizes immediately on the very first utterance in 1 shot!
-        reco.continuous = false;
+        // Always continuous mode so student can take natural pauses while reading!
+        reco.continuous = true;
         reco.interimResults = true;
         reco.lang = 'en-US';
         reco.maxAlternatives = 3;
@@ -510,30 +507,24 @@ export default function EnglishModule({ onExit }) {
           soundHeardRef.current = true;
         };
 
-        // Instant Real-Time Output on First Syllable/Word
+        // Real-Time Cumulative Speech Streaming
         reco.onresult = (event) => {
           soundHeardRef.current = true;
 
-          let transcriptText = '';
+          let finalStr = '';
+          let interimStr = '';
           for (let i = 0; i < event.results.length; ++i) {
-            transcriptText += event.results[i][0].transcript;
-          }
-          transcriptText = transcriptText.trim();
-          
-          if (transcriptText) {
-            latestTranscriptRef.current = transcriptText;
-            setLiveTranscript(transcriptText); // Immediate 1-shot display!
-          }
-        };
-
-        reco.onspeechend = () => {
-          // As soon as the user finishes speaking, auto-evaluate in 1 shot after 350ms pause!
-          if (autoEvaluateTimeoutRef.current) clearTimeout(autoEvaluateTimeoutRef.current);
-          autoEvaluateTimeoutRef.current = setTimeout(() => {
-            if (isListeningRef.current && latestTranscriptRef.current) {
-              stopRecordingAndEvaluate();
+            if (event.results[i].isFinal) {
+              finalStr += event.results[i][0].transcript + ' ';
+            } else {
+              interimStr += event.results[i][0].transcript;
             }
-          }, 450);
+          }
+          const combined = (finalStr + interimStr).trim();
+          if (combined) {
+            latestTranscriptRef.current = combined;
+            setLiveTranscript(combined); // Live update in real time!
+          }
         };
 
         reco.onerror = (event) => {
@@ -541,11 +532,8 @@ export default function EnglishModule({ onExit }) {
         };
 
         reco.onend = () => {
-          // If ended and user has spoken, evaluate immediately
-          if (isListeningRef.current && latestTranscriptRef.current) {
-            stopRecordingAndEvaluate();
-          } else if (isListeningRef.current) {
-            // Restart if user hasn't spoken yet
+          // Auto-restart if user has not clicked 'Stop' yet
+          if (isListeningRef.current) {
             try {
               reco.start();
             } catch (e) {}
@@ -563,7 +551,7 @@ export default function EnglishModule({ onExit }) {
     }, 1000);
   };
 
-  // Instant Stop Recording & Fast 1-Shot Evaluation
+  // Student clicks Stop when they finish speaking the entire sentence
   const stopRecordingAndEvaluate = () => {
     playSound('click');
     const finalHeardText = latestTranscriptRef.current || liveTranscript || '';
@@ -941,14 +929,14 @@ export default function EnglishModule({ onExit }) {
                 </button>
               </div>
 
-              {/* One-Shot Live Listening & Real-Time Animated Equalizer Bars */}
+              {/* Continuous Live Listening & Real-Time Animated Equalizer Bars */}
               {isListening && (
                 <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 space-y-3 animate-fade-in">
                   
                   {/* Real-time Hardware Audio Equalizer */}
                   <div className="flex flex-wrap items-center justify-center gap-3">
                     <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
-                    <span className="font-bold text-sm">🎙️ මයික්‍රෆෝනය ක්‍රියාකාරීයි ({recordingSeconds}s)</span>
+                    <span className="font-bold text-sm">🎙️ සවන් දෙමින් පවතී ({recordingSeconds}s)</span>
                     
                     {/* Dynamic Equalizer Visualizer Bars */}
                     <div className="flex items-end gap-1 h-5 px-2 py-0.5 bg-white rounded-lg border border-emerald-200">
@@ -970,19 +958,19 @@ export default function EnglishModule({ onExit }) {
                     </span>
                   </div>
 
-                  {/* Real-time recognized text preview (1-Shot Instant Output!) */}
+                  {/* Real-time recognized text preview (Streams full sentence uninterrupted) */}
                   {liveTranscript ? (
                     <div className="p-3.5 bg-white rounded-2xl border-2 border-emerald-300 text-center animate-scale-up shadow-sm">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                        ඔබ පවසන දෙය (One-Shot Recognized):
+                        ඔබ පවසන දෙය (Live Speech):
                       </span>
-                      <span className="text-2xl sm:text-3xl font-black text-emerald-800 font-sans">
+                      <span className="text-xl sm:text-2xl font-black text-emerald-800 font-sans">
                         "{liveTranscript}"
                       </span>
                     </div>
                   ) : (
                     <p className="text-xs text-emerald-700 font-medium">
-                      (වචනය 1 වරක් පැහැදිලිව පවසන්න — පද්ධතිය ක්ෂණිකව එය හඳුනාගනු ඇත)
+                      (සම්පූර්ණ වාක්‍යය ඔබේ ස්වභාවික රිද්මයෙන් කියවන්න — අවසන් වූ පසු 'අවසන් කරන්න' ඔබන්න)
                     </p>
                   )}
                 </div>
