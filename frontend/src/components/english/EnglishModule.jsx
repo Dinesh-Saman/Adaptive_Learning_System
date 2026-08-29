@@ -1017,14 +1017,15 @@ export default function EnglishModule({ onExit }) {
   };
 
   // Full-Sentence Continuous Recording
-  const startRecording = async () => {
+  // Full Continuous & Single-Word Recording
+  const startRecording = () => {
     playSound('click');
     stopListening();
 
     setAssessmentResult(null);
     setIsAnswered(false);
-    setLiveTranscript('');
-    setLiveVolume(0);
+    setLiveTranscript('සවන් දෙමින්...');
+    setLiveVolume(50);
     setRecordingSeconds(0);
     latestTranscriptRef.current = '';
     latestAlternativesRef.current = [];
@@ -1033,144 +1034,64 @@ export default function EnglishModule({ onExit }) {
     isListeningRef.current = true;
     setIsListening(true);
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: { ideal: true },
-          noiseSuppression: { ideal: true },
-          autoGainControl: { ideal: true },
-          channelCount: { ideal: 1 },
-          sampleRate: { ideal: 16000 },
-          googEchoCancellation: { ideal: true },
-          googAutoGainControl: { ideal: true },
-          googNoiseSuppression: { ideal: true },
-          googHighpassFilter: { ideal: true },
-          googNoiseSuppression2: { ideal: true },
-          googEchoCancellation2: { ideal: true },
-          googTypingNoiseDetection: { ideal: true }
-        }
-      });
-      mediaStreamRef.current = stream;
-
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      audioContextRef.current = audioCtx;
-
-      // ── Stage 1: Highpass Filter (85 Hz) - Rejects sub-bass rumble, fan vibrations, AC hum ──
-      const highpassFilter = audioCtx.createBiquadFilter();
-      highpassFilter.type = 'highpass';
-      highpassFilter.frequency.value = 85;
-      highpassFilter.Q.value = 0.707;
-
-      // ── Stage 2: Lowpass Filter (7500 Hz) - Rejects high-frequency hiss, coil whine ──
-      const lowpassFilter = audioCtx.createBiquadFilter();
-      lowpassFilter.type = 'lowpass';
-      lowpassFilter.frequency.value = 7500;
-      lowpassFilter.Q.value = 0.707;
-
-      // ── Stage 3: Notch Filter (50 Hz / 60 Hz) - Rejects electrical power line hum ──
-      const notchFilter = audioCtx.createBiquadFilter();
-      notchFilter.type = 'notch';
-      notchFilter.frequency.value = 50;
-      notchFilter.Q.value = 4.0;
-
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 256;
-      analyser.smoothingTimeConstant = 0.4;
-
-      const source = audioCtx.createMediaStreamSource(stream);
-      // Connect filter pipeline: source -> highpass -> notch -> lowpass -> analyser
-      source.connect(highpassFilter);
-      highpassFilter.connect(notchFilter);
-      notchFilter.connect(lowpassFilter);
-      lowpassFilter.connect(analyser);
-
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-
-      let ambientNoiseFloor = 4; // Adaptive background noise threshold
-
-      const updateMeter = () => {
-        if (!isListeningRef.current) return;
-        analyser.getByteFrequencyData(dataArray);
-        
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) {
-          sum += dataArray[i];
-        }
-        const avg = sum / bufferLength;
-        const normalized = Math.min(100, Math.round((avg / 100) * 100));
-
-        // Adaptive Noise Gate: Zero out ambient room noise below floor
-        if (normalized <= ambientNoiseFloor) {
-          ambientNoiseFloor = Math.min(10, Math.max(3, (ambientNoiseFloor * 0.95) + (normalized * 0.05)));
-          setLiveVolume(0);
-        } else {
-          const gatedVolume = Math.min(100, Math.round(((normalized - ambientNoiseFloor) / (100 - ambientNoiseFloor)) * 100));
-          setLiveVolume(gatedVolume);
-          volumeSamplesRef.current.push(gatedVolume);
-
-          if (gatedVolume >= 5) {
-            soundHeardRef.current = true;
-          }
-        }
-
-        animFrameRef.current = requestAnimationFrame(updateMeter);
-      };
-      updateMeter();
-
-    } catch (err) {
-      console.log("Local audio context notice:", err);
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setIsListening(false);
+      isListeningRef.current = false;
+      setLiveTranscript('(Browser speech recognition not supported)');
+      return;
     }
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      try {
-        const reco = new SpeechRecognition();
-        reco.continuous = true;
-        reco.interimResults = true;
-        reco.lang = 'en-US';
-        reco.maxAlternatives = 5;
+    try {
+      const reco = new SpeechRecognition();
+      reco.continuous = true;
+      reco.interimResults = true;
+      reco.lang = 'en-US';
+      reco.maxAlternatives = 5;
 
-        reco.onstart = () => {
-          if (isListeningRef.current) setIsListening(true);
-        };
+      reco.onstart = () => {
+        if (isListeningRef.current) setIsListening(true);
+      };
 
-        reco.onsoundstart = () => {
-          soundHeardRef.current = true;
-        };
+      reco.onsoundstart = () => {
+        soundHeardRef.current = true;
+        setLiveTranscript('හඬ ලැබෙමින් පවතී...');
+      };
 
-        reco.onspeechstart = () => {
-          soundHeardRef.current = true;
-        };
+      reco.onspeechstart = () => {
+        soundHeardRef.current = true;
+        setLiveTranscript('හඬ ලැබෙමින් පවතී...');
+      };
 
-        reco.onresult = (event) => {
-          soundHeardRef.current = true;
-          const { transcript, alternatives } = extractCleanEnglishTranscript(event);
-          if (transcript) {
-            latestTranscriptRef.current = transcript;
-            setLiveTranscript(transcript);
-          }
-          if (alternatives && alternatives.length > 0) {
-            const merged = Array.from(new Set([...latestAlternativesRef.current, ...alternatives]));
-            latestAlternativesRef.current = merged;
-          }
-        };
+      reco.onresult = (event) => {
+        soundHeardRef.current = true;
+        const { transcript, alternatives } = extractCleanEnglishTranscript(event);
+        if (transcript) {
+          latestTranscriptRef.current = transcript;
+          setLiveTranscript(transcript);
+        }
+        if (alternatives && alternatives.length > 0) {
+          const merged = Array.from(new Set([...latestAlternativesRef.current, ...alternatives]));
+          latestAlternativesRef.current = merged;
+        }
+      };
 
-        reco.onerror = (event) => {
-          console.log("SpeechRecognition notice:", event.error);
-        };
+      reco.onerror = (event) => {
+        console.log("SpeechRecognition notice:", event.error);
+      };
 
-        reco.onend = () => {
-          if (isListeningRef.current) {
-            try {
-              reco.start();
-            } catch (e) {}
-          }
-        };
+      reco.onend = () => {
+        if (isListeningRef.current) {
+          try {
+            reco.start();
+          } catch (e) {}
+        }
+      };
 
-        recognitionRef.current = reco;
-        reco.start();
-      } catch (e) {}
+      recognitionRef.current = reco;
+      reco.start();
+    } catch (e) {
+      console.log("SpeechRecognition init error:", e);
     }
 
     timerIntervalRef.current = setInterval(() => {
@@ -1181,12 +1102,10 @@ export default function EnglishModule({ onExit }) {
   // Student clicks Stop when they finish speaking
   const stopRecordingAndEvaluate = () => {
     playSound('click');
-    const finalHeardText = latestTranscriptRef.current || liveTranscript || '';
+    const finalHeardText = (latestTranscriptRef.current || liveTranscript || '').replace('සවන් දෙමින්...', '').replace('හඬ ලැබෙමින් පවතී...', '').trim();
     const soundDetected = soundHeardRef.current || Boolean(finalHeardText.trim());
     const duration = Math.max(1, recordingSeconds);
-
-    const samples = volumeSamplesRef.current;
-    const avgVol = samples.length > 0 ? Math.round(samples.reduce((a,b)=>a+b, 0) / samples.length) : 50;
+    const avgVol = 70;
 
     stopListening();
 
@@ -2126,7 +2045,7 @@ export default function EnglishModule({ onExit }) {
                   {/* Spoken Transcript */}
                   <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 font-bold flex flex-wrap justify-between items-center gap-2">
                     <span>ඔබ පැවසූ දෙය: <strong className="font-sans text-slate-900 text-sm">"{assessmentResult.transcript}"</strong></span>
-                    <span>අපේක්ෂිත {currentQ.level === 'easy' ? 'වචනය' : 'වාක්‍යය'}: <strong className="font-sans text-emerald-700 text-sm">"{currentQ.target_text}"</strong></span>
+                    <span>අපේක්ෂිත {selectedGrade === 2 ? 'වචනය' : 'වාක්‍යය'}: <strong className="font-sans text-emerald-700 text-sm">"{currentQ.target_text}"</strong></span>
                   </div>
 
                 </div>
