@@ -457,10 +457,10 @@ const WORD_IPA_MAP = {
 function detectSriLankanMTIPatterns(spokenWords, targetWords) {
   const detected = [];
 
-  targetWords.forEach(tw => {
+  targetWords.forEach((tw, twIdx) => {
     // 1. S-Cluster Prosthesis
     if (/^s[cptkmnr]/.test(tw) || tw.startsWith('sp') || tw.startsWith('st') || tw.startsWith('sc') || tw.startsWith('sk') || tw.startsWith('sm') || tw.startsWith('sn')) {
-      const hasProstheticPrefix = spokenWords.some(sw => 
+      const hasDirectProsthesis = spokenWords.some(sw => 
         sw === 'i' + tw || 
         sw === 'is' + tw.slice(1) || 
         sw === 'es' + tw.slice(1) ||
@@ -483,18 +483,30 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
         sw.startsWith('is' + tw) ||
         sw.startsWith('es' + tw) ||
         sw.startsWith('i' + tw)
-      ) || (
-        spokenWords.some(sw => ['is', 'es', 'east', 'easter', 'esta', 'his', 'he', 'you', 'we', 'its', "it's", 'it', 's', 'a', 'the', 'e'].includes(sw)) && 
-        spokenWords.some(sw => sw === tw || sw.startsWith(tw.slice(0, 2)) || sw === 'ta' || sw === 'tar' || sw === 'pring' || sw === 'tudy')
-      ) || (
-        tw === 'study' && spokenWords.some(sw => ['history', 'histories', 'estudy', 'istudy', 'tudy'].includes(sw))
-      ) || (
-        tw === 'star' && spokenWords.some(sw => ['esta', 'estar', 'easter', 'istar', 'aster', 'is'].includes(sw))
-      ) || (
-        tw === 'spring' && spokenWords.some(sw => ['ispring', 'espring', 'springs'].includes(sw))
       );
 
-      if (hasProstheticPrefix) {
+      let hasSeparatedProsthesis = false;
+      if (targetWords.length === 1) {
+        hasSeparatedProsthesis = spokenWords.some(sw => 
+          ['is', 'es', 'east', 'easter', 'esta', 'his', 'he', 'you', 'we', 'its', "it's", 'it', 's', 'e'].includes(sw)
+        );
+      } else {
+        // In full sentences, check if an un-expected prosthetic prefix was placed immediately before tw
+        for (let sIdx = 0; sIdx < spokenWords.length; sIdx++) {
+          const sw = spokenWords[sIdx];
+          if (sw === tw || sw.startsWith(tw.slice(0, 3))) {
+            if (sIdx > 0 && ['is', 'es', 'east', 'esta', 'its', "it's"].includes(spokenWords[sIdx - 1])) {
+              const expectedPrev = twIdx > 0 ? targetWords[twIdx - 1] : '';
+              if (spokenWords[sIdx - 1] !== expectedPrev) {
+                hasSeparatedProsthesis = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (hasDirectProsthesis || hasSeparatedProsthesis) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'S_CLUSTER_PROSTHESIS'));
       }
     }
