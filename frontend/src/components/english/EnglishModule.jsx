@@ -279,10 +279,14 @@ function extractCleanEnglishTranscript(event) {
 
     // Pick the most authentic phonetic transcript from candidates
     if (candidateTranscripts.length > 0) {
-      // If any candidate is an explicit MTI confuser (e.g. "tree", "tink", "pan", "wery", "ischool", "boat"), prioritize it over auto-corrected standard word
+      // If any candidate is an explicit MTI confuser (e.g. "tree", "tink", "pan", "wery", "ischool", "its cool", "boat"), prioritize it over auto-corrected standard word
       const mtiConfuserCandidate = candidateTranscripts.find(c => {
-        const cLower = c.toLowerCase().trim();
-        return ['tree', 'tray', 'tri', 'tink', 'sink', 'dis', 'dat', 'pan', 'pish', 'pour', 'wery', 'vater', 'ischool', 'is-school', 'istar', 'ispoon', 'mudder', 'fadder'].includes(cLower);
+        const cLower = c.toLowerCase().trim().replace(/['’]/g, "'");
+        return [
+          'tree', 'tray', 'tri', 'tink', 'sink', 'dis', 'dat', 'pan', 'pish', 'pour', 
+          'wery', 'vater', 'ischool', 'is-school', 'its cool', "it's cool", 'it cool', 
+          'is cool', 'istar', 'ispoon', 'mudder', 'fadder'
+        ].includes(cLower);
       });
       chosenTranscript = mtiConfuserCandidate || candidateTranscripts[0];
     }
@@ -521,6 +525,7 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
   targetWords.forEach((tw, twIdx) => {
     // 1. S-Cluster Prosthesis
     if (/^s[cptkmnr]/.test(tw) || tw.startsWith('sp') || tw.startsWith('st') || tw.startsWith('sc') || tw.startsWith('sk') || tw.startsWith('sm') || tw.startsWith('sn')) {
+      const isSchoolTarget = (tw === 'school');
       const hasDirectProsthesis = spokenWords.some(sw => 
         sw === 'i' + tw || 
         sw === 'is' + tw.slice(1) || 
@@ -544,14 +549,20 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
         sw === 'istop' ||
         sw.startsWith('is' + tw) ||
         sw.startsWith('es' + tw) ||
-        sw.startsWith('i' + tw)
+        sw.startsWith('i' + tw) ||
+        (isSchoolTarget && (sw === 'itscool' || sw === 'iscool' || sw === 'iscool' || sw === 'escool'))
       );
 
       let hasSeparatedProsthesis = false;
       if (targetWords.length === 1) {
-        const hasTargetOrConfuser = spokenWords.some(sw => sw === tw || sw.startsWith(tw.slice(0, 3)) || isWordMatch(tw, sw));
+        const hasTargetOrConfuser = spokenWords.some(sw => 
+          sw === tw || 
+          sw.startsWith(tw.slice(0, 3)) || 
+          isWordMatch(tw, sw) ||
+          (isSchoolTarget && ['cool', 'kool', 'pool', 'tool', 'call', 'coo', 'cl'].includes(sw))
+        );
         hasSeparatedProsthesis = hasTargetOrConfuser && spokenWords.some(sw => 
-          ['is', 'es', 'est', 'east', 'easter', 'esta', 'his', 'he', 'its', "it's"].includes(sw)
+          ['is', 'es', 'est', 'east', 'easter', 'esta', 'his', 'he', 'its', "it's", 'it'].includes(sw)
         );
       } else {
         // In full sentences, check if an un-expected prosthetic prefix was placed immediately before tw

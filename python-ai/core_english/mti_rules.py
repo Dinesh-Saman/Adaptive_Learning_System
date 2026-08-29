@@ -175,9 +175,13 @@ class SriLankanMTIRuleEngine:
                 
                 has_separated_prosthesis = False
                 if len(target_words) == 1:
-                    has_target_or_confuser = any(sw == tw or sw.startswith(tw[:3]) for sw in spoken_words)
+                    is_school = (tw == 'school')
+                    has_target_or_confuser = any(
+                        sw == tw or sw.startswith(tw[:3]) or (is_school and sw in ['cool', 'kool', 'pool', 'tool', 'call', 'coo', 'cl'])
+                        for sw in spoken_words
+                    )
                     has_separated_prosthesis = has_target_or_confuser and any(
-                        sw in ['is', 'es', 'est', 'east', 'easter', 'esta', 'his', 'he', 'its', "it's"]
+                        sw in ['is', 'es', 'est', 'east', 'easter', 'esta', 'his', 'he', 'its', "it's", 'it']
                         for sw in spoken_words
                     )
                 else:
