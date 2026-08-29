@@ -604,7 +604,8 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
     if (tw.startsWith('f') || tw.includes('ph') || tw === 'elephant') {
       const hasFp = spokenWords.some(sw => 
         sw === 'p' + tw.slice(1) || 
-        ['pan', 'pilm', 'pood', 'pone', 'pour', 'pish', 'push', 'dish', 'pedder', 'peather', 'peter', 'elepant', 'elephent', 'aliphant', 'oliphant', 'elipant', 'elephan', 'eliphant', 'pud', 'put', 'pill'].includes(sw) ||
+        ['pan', 'pen', 'pilm', 'film', 'pood', 'pone', 'pour', 'pore', 'poor', 'paw', 'po', 'pole', 'poll', 'par', 'per', 'port', 'pot', 'pish', 'push', 'dish', 'pedder', 'peather', 'peter', 'elepant', 'elephent', 'aliphant', 'oliphant', 'elipant', 'elephan', 'eliphant', 'pud', 'put', 'pill', 'pish', 'peace', 'piece'].includes(sw) ||
+        (tw.startsWith('f') && (sw.startsWith('p' + tw.slice(1, 3)) || sw.startsWith('po') || sw.startsWith('pa') || sw.startsWith('pe') || sw.startsWith('pi'))) ||
         (tw === 'elephant' && (sw.includes('pant') || sw.includes('plant') || sw.includes('pent') || sw === 'elepant'))
       );
       if (hasFp) {
@@ -1716,15 +1717,33 @@ export default function EnglishModule({ onExit }) {
                   </button>
                 </div>
 
-                {/* Live Transcript Stream */}
+                {/* Live Transcript Stream & Analyzing Animation */}
                 {mtiLabListening && (
-                  <div className="p-4 bg-emerald-50 border-2 border-emerald-300 rounded-2xl text-emerald-900 space-y-2 animate-fade-in">
-                    <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">
-                      🎙️ සජීවී හඬ (Live Speech):
-                    </span>
-                    <span className="text-3xl font-black text-emerald-800 font-sans">
-                      "{mtiLabLiveTranscript || 'සවන් දෙමින්...'}"
-                    </span>
+                  <div className="p-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-2 border-emerald-400 rounded-3xl text-emerald-900 space-y-3 animate-fade-in shadow-md relative overflow-hidden">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-2 text-xs font-black text-emerald-700 uppercase tracking-wider">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping inline-block"></span>
+                        🎙️ හඬ විශ්ලේෂණය වෙමින් පවතී (Analyzing Speech...)
+                      </span>
+                      {/* Audio frequency wave visualizer */}
+                      <div className="flex items-center gap-1">
+                        <span className="w-1 h-5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0ms]"></span>
+                        <span className="w-1 h-8 bg-teal-500 rounded-full animate-bounce [animation-delay:150ms]"></span>
+                        <span className="w-1 h-10 bg-emerald-600 rounded-full animate-bounce [animation-delay:300ms]"></span>
+                        <span className="w-1 h-7 bg-teal-600 rounded-full animate-bounce [animation-delay:450ms]"></span>
+                        <span className="w-1 h-4 bg-emerald-400 rounded-full animate-bounce [animation-delay:200ms]"></span>
+                      </div>
+                    </div>
+
+                    <div className="py-2">
+                      <span className="text-3xl sm:text-4xl font-black text-emerald-900 font-sans tracking-wide">
+                        "{mtiLabLiveTranscript || 'සවන් දෙමින්...'}"
+                      </span>
+                    </div>
+
+                    <div className="text-[11px] text-emerald-700 font-bold flex items-center justify-center gap-1.5">
+                      <span className="animate-spin text-sm">⚙️</span> MTI රටා 12 සහ Phoneme සංසන්දනය වෙමින් පවතී...
+                    </div>
                   </div>
                 )}
 

@@ -216,11 +216,12 @@ class SriLankanMTIRuleEngine:
                 elif tw == 'father' and any(sw in ['fadder', 'fader', 'pada'] for sw in spoken_words):
                     detected.append(self._build_pattern_entry("TH_SUBSTITUTION", tw, "fadder"))
 
-            # 4. F/P Substitution (e.g. target: 'elephant', 'fan', 'film', 'food')
+            # 4. F/P Substitution (e.g. target: 'elephant', 'fan', 'film', 'food', 'four')
             if tw.startswith('f') or 'ph' in tw or tw == 'elephant':
                 has_fp = any(
                     sw == 'p' + tw[1:] or 
-                    sw in ['pan', 'pilm', 'pood', 'pone', 'pour', 'pish', 'push', 'dish', 'pedder', 'peather', 'peter', 'elepant', 'elephent', 'aliphant', 'oliphant', 'elipant', 'elephan', 'eliphant', 'pud', 'put', 'pill'] or
+                    sw in ['pan', 'pen', 'pilm', 'film', 'pood', 'pone', 'pour', 'pore', 'poor', 'paw', 'po', 'pole', 'poll', 'par', 'per', 'port', 'pot', 'pish', 'push', 'dish', 'pedder', 'peather', 'peter', 'elepant', 'elephent', 'aliphant', 'oliphant', 'elipant', 'elephan', 'eliphant', 'pud', 'put', 'pill', 'pish', 'peace', 'piece'] or
+                    (tw.startswith('f') and (sw.startswith('p' + tw[1:3]) or sw.startswith(('po', 'pa', 'pe', 'pi')))) or
                     (tw == 'elephant' and ('pant' in sw or 'plant' in sw or 'pent' in sw or sw == 'elepant'))
                     for sw in spoken_words
                 )
