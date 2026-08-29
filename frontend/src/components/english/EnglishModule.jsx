@@ -263,6 +263,7 @@ function extractCleanEnglishTranscript(event) {
     let chosenTranscript = '';
 
     // Check all alternatives for pure English (Latin) text and collect raw phonetic hypotheses
+    let candidateTranscripts = [];
     for (let k = 0; k < resItem.length; k++) {
       const altText = (resItem[k]?.transcript || '').trim();
       if (altText) {
@@ -270,10 +271,20 @@ function extractCleanEnglishTranscript(event) {
           const cleanTok = tok.replace(/[^a-z0-9]/g, '');
           if (cleanTok) allAltTokens.push(cleanTok);
         });
+        if (/^[a-zA-Z0-9\s.,'?!-–—]+$/.test(altText)) {
+          candidateTranscripts.push(altText);
+        }
       }
-      if (/^[a-zA-Z0-9\s.,'?!-–—]+$/.test(altText) && !chosenTranscript) {
-        chosenTranscript = altText;
-      }
+    }
+
+    // Pick the most authentic phonetic transcript from candidates
+    if (candidateTranscripts.length > 0) {
+      // If any candidate is an explicit MTI confuser (e.g. "tree", "tink", "pan", "wery", "ischool", "boat"), prioritize it over auto-corrected standard word
+      const mtiConfuserCandidate = candidateTranscripts.find(c => {
+        const cLower = c.toLowerCase().trim();
+        return ['tree', 'tray', 'tri', 'tink', 'sink', 'dis', 'dat', 'pan', 'pish', 'pour', 'wery', 'vater', 'ischool', 'is-school', 'istar', 'ispoon', 'mudder', 'fadder'].includes(cLower);
+      });
+      chosenTranscript = mtiConfuserCandidate || candidateTranscripts[0];
     }
 
     // Fallback: sanitize any foreign non-Latin scripts
