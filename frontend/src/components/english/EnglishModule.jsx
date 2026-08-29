@@ -117,13 +117,13 @@ function speakEnglish(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-// Instant 3-Stage Speech & Word Alignment Evaluation
-function evaluate3StageSpeech(spokenText, targetText, soundHeard = false) {
+// Guaranteed 3-Stage Speech & Word Alignment Evaluation
+function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = false) {
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
 
-  // ── Step 1: Instant Sound Check ──
-  const soundDetected = Boolean(spokenClean.length > 0 || soundHeard);
+  // ── Step 1: Guaranteed Sound Check (Hardware + Cloud) ──
+  const soundDetected = Boolean(spokenClean.length > 0 || soundDetectedLocally);
 
   if (!soundDetected) {
     return {
@@ -146,9 +146,9 @@ function evaluate3StageSpeech(spokenText, targetText, soundHeard = false) {
       soundDetected: true,
       wordsCorrect: false,
       pronunciationCorrect: false,
-      accuracy: 20,
+      accuracy: 25,
       statusTitle: 'වචනය අපැහැදිලියි (Unclear Speech)',
-      statusMessage: `හඬ ලැබුණ නමුත් වචනය පැහැදිලි නැත. කරුණාකර '${targetText}' ශබ්ද නගා පවසන්න.`,
+      statusMessage: `ඔබේ හඬ සාර්ථකව ලැබුණ නමුත් වචනය පැහැදිලි නැත. කරුණාකර '${targetText}' ශබ්ද නගා පැහැදිලිව පවසන්න.`,
       transcript: '(නොපැහැදිලි හඬක්)',
       wordResults: [{ word: targetText, matched: false, spoken: '' }],
       missedWords: [targetText]
@@ -163,7 +163,7 @@ function evaluate3StageSpeech(spokenText, targetText, soundHeard = false) {
     const targetWord = targetWords[0];
     let matched = (spokenWords.includes(targetWord)) || (spokenClean === targetWord);
 
-    // Instant phonetic/suffix fallback (e.g. tree / trees / three / ring / rings)
+    // Instant phonetic/suffix fallback (e.g. tree / trees / three / ring / rings / hand / hands)
     if (!matched && spokenWords.length > 0) {
       for (const sw of spokenWords) {
         if (sw === targetWord || sw === targetWord + 's' || sw === targetWord + 'd' || sw === targetWord + 'ing') {
@@ -286,7 +286,7 @@ export default function EnglishModule({ onExit }) {
   // Recording & 3-Stage Assessment State
   const [isListening, setIsListening] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState('');
-  const [instantSoundActive, setInstantSoundActive] = useState(false);
+  const [liveVolume, setLiveVolume] = useState(0);
   const [assessmentResult, setAssessmentResult] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
@@ -296,7 +296,9 @@ export default function EnglishModule({ onExit }) {
   const latestTranscriptRef = useRef('');
   const soundHeardRef = useRef(false);
   const timerIntervalRef = useRef(null);
-  const soundActiveTimeoutRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const mediaStreamRef = useRef(null);
+  const animFrameRef = useRef(null);
 
   // LocalStorage Paper History
   const [paperHistory, setPaperHistory] = useState(() => {
@@ -360,7 +362,7 @@ export default function EnglishModule({ onExit }) {
     setPaperQuestions(qList);
     setCurrentQIndex(0);
     setLiveTranscript('');
-    setInstantSoundActive(false);
+    setLiveVolume(0);
     setAssessmentResult(null);
     setIsAnswered(false);
     latestTranscriptRef.current = '';
@@ -381,150 +383,169 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Clean shutdown of speech recognition
+  // Complete cleanup of all audio resources
   const stopListening = () => {
     isListeningRef.current = false;
     setIsListening(false);
-    setInstantSoundActive(false);
+    setLiveVolume(0);
 
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
       timerIntervalRef.current = null;
     }
 
-    if (soundActiveTimeoutRef.current) {
-      clearTimeout(soundActiveTimeoutRef.current);
-      soundActiveTimeoutRef.current = null;
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
     }
 
     if (recognitionRef.current) {
       try {
         recognitionRef.current.onend = null;
         recognitionRef.current.onerror = null;
-        recognitionRef.current.onspeechstart = null;
-        recognitionRef.current.onspeechend = null;
-        recognitionRef.current.onsoundstart = null;
-        recognitionRef.current.onsoundend = null;
-        recognitionRef.current.onaudiostart = null;
         recognitionRef.current.onresult = null;
         recognitionRef.current.abort();
       } catch (e) {}
       recognitionRef.current = null;
     }
+
+    if (mediaStreamRef.current) {
+      try {
+        mediaStreamRef.current.getTracks().forEach(t => t.stop());
+      } catch (e) {}
+      mediaStreamRef.current = null;
+    }
+
+    if (audioContextRef.current) {
+      try {
+        audioContextRef.current.close();
+      } catch (e) {}
+      audioContextRef.current = null;
+    }
   };
 
-  // Fast, Low-Latency SpeechRecognition Initialization
-  const startRecording = () => {
+  // Hybrid Real-Time Audio + Web Speech Pipeline
+  const startRecording = async () => {
     playSound('click');
     stopListening(); // Fully clear previous session
 
     setAssessmentResult(null);
     setIsAnswered(false);
     setLiveTranscript('');
-    setInstantSoundActive(false);
+    setLiveVolume(0);
     setRecordingSeconds(0);
     latestTranscriptRef.current = '';
     soundHeardRef.current = false;
     isListeningRef.current = true;
     setIsListening(true);
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("ඔබේ බ්‍රවුසරය Web Speech API සඳහා සහාය නොදක්වයි. කරුණාකර Google Chrome හෝ Microsoft Edge භාවිතා කරන්න.");
-      stopListening();
-      return;
-    }
-
+    // 1. Instant Hardware Audio VAD (100% Local, Zero Cloud Lag)
     try {
-      const reco = new SpeechRecognition();
-      reco.continuous = true;
-      reco.interimResults = true;
-      reco.lang = 'en-US';
-      reco.maxAlternatives = 3;
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+      });
+      mediaStreamRef.current = stream;
 
-      reco.onstart = () => {
-        if (isListeningRef.current) {
-          setIsListening(true);
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioContextRef.current = audioCtx;
+
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.3;
+
+      const source = audioCtx.createMediaStreamSource(stream);
+      source.connect(analyser);
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      const updateMeter = () => {
+        if (!isListeningRef.current) return;
+        analyser.getByteFrequencyData(dataArray);
+        
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          sum += dataArray[i];
         }
-      };
-
-      // Instant Low-Latency Sound Trigger
-      reco.onaudiostart = () => {
-        soundHeardRef.current = true;
-        setInstantSoundActive(true);
-      };
-
-      reco.onsoundstart = () => {
-        soundHeardRef.current = true;
-        setInstantSoundActive(true);
-      };
-
-      reco.onspeechstart = () => {
-        soundHeardRef.current = true;
-        setInstantSoundActive(true);
-      };
-
-      reco.onspeechend = () => {
-        // Keep active briefly
-        if (soundActiveTimeoutRef.current) clearTimeout(soundActiveTimeoutRef.current);
-        soundActiveTimeoutRef.current = setTimeout(() => {
-          setInstantSoundActive(false);
-        }, 800);
-      };
-
-      reco.onsoundend = () => {
-        if (soundActiveTimeoutRef.current) clearTimeout(soundActiveTimeoutRef.current);
-        soundActiveTimeoutRef.current = setTimeout(() => {
-          setInstantSoundActive(false);
-        }, 800);
-      };
-
-      // Real-Time Immediate Transcript Streaming
-      reco.onresult = (event) => {
-        soundHeardRef.current = true;
-        setInstantSoundActive(true);
-
-        let finalStr = '';
-        let interimStr = '';
-        for (let i = 0; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalStr += event.results[i][0].transcript + ' ';
-          } else {
-            interimStr += event.results[i][0].transcript;
-          }
+        const avg = sum / bufferLength;
+        const normalized = Math.min(100, Math.round((avg / 100) * 100));
+        
+        setLiveVolume(normalized);
+        if (normalized >= 5) {
+          soundHeardRef.current = true;
         }
-        const combined = (finalStr + interimStr).trim();
-        if (combined) {
-          latestTranscriptRef.current = combined;
-          setLiveTranscript(combined); // Instant update on screen!
-        }
+
+        animFrameRef.current = requestAnimationFrame(updateMeter);
       };
-
-      reco.onerror = (event) => {
-        console.log("SpeechRecognition notice:", event.error);
-      };
-
-      reco.onend = () => {
-        // Auto-restart immediately if user is still in speaking mode
-        if (isListeningRef.current) {
-          try {
-            reco.start();
-          } catch (e) {}
-        }
-      };
-
-      recognitionRef.current = reco;
-      reco.start();
-
-      // Start elapsed timer
-      timerIntervalRef.current = setInterval(() => {
-        setRecordingSeconds(sec => sec + 1);
-      }, 1000);
+      updateMeter();
 
     } catch (err) {
-      console.error("Speech start error:", err);
-      stopListening();
+      console.log("Local audio context notice:", err);
     }
+
+    // 2. SpeechRecognition for instant text streaming
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      try {
+        const reco = new SpeechRecognition();
+        reco.continuous = true;
+        reco.interimResults = true;
+        reco.lang = 'en-US';
+        reco.maxAlternatives = 3;
+
+        reco.onstart = () => {
+          if (isListeningRef.current) setIsListening(true);
+        };
+
+        reco.onsoundstart = () => {
+          soundHeardRef.current = true;
+        };
+
+        reco.onspeechstart = () => {
+          soundHeardRef.current = true;
+        };
+
+        reco.onresult = (event) => {
+          soundHeardRef.current = true;
+
+          let finalStr = '';
+          let interimStr = '';
+          for (let i = 0; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              finalStr += event.results[i][0].transcript + ' ';
+            } else {
+              interimStr += event.results[i][0].transcript;
+            }
+          }
+          const combined = (finalStr + interimStr).trim();
+          if (combined) {
+            latestTranscriptRef.current = combined;
+            setLiveTranscript(combined); // Real-time immediate update!
+          }
+        };
+
+        reco.onerror = (event) => {
+          console.log("SpeechRecognition notice:", event.error);
+        };
+
+        reco.onend = () => {
+          // Auto-restart if user has not clicked 'Stop' yet
+          if (isListeningRef.current) {
+            try {
+              reco.start();
+            } catch (e) {}
+          }
+        };
+
+        recognitionRef.current = reco;
+        reco.start();
+      } catch (e) {}
+    }
+
+    // Start elapsed timer
+    timerIntervalRef.current = setInterval(() => {
+      setRecordingSeconds(sec => sec + 1);
+    }, 1000);
   };
 
   // Instant Stop Recording & Fast Evaluation
@@ -581,7 +602,7 @@ export default function EnglishModule({ onExit }) {
       // Next question
       setCurrentQIndex(prev => prev + 1);
       setLiveTranscript('');
-      setInstantSoundActive(false);
+      setLiveVolume(0);
       setAssessmentResult(null);
       setIsAnswered(false);
       setRecordingSeconds(0);
@@ -905,23 +926,33 @@ export default function EnglishModule({ onExit }) {
                 </button>
               </div>
 
-              {/* Instant Live Listening & Fast Voice Visualizer */}
+              {/* Instant Live Listening & Real-Time Animated Equalizer Bars */}
               {isListening && (
                 <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 space-y-3 animate-fade-in">
                   
-                  {/* High-speed Real-Time Sound Status Bar */}
-                  <div className="flex flex-wrap items-center justify-center gap-2 font-bold text-sm">
+                  {/* Real-time Hardware Audio Equalizer */}
+                  <div className="flex flex-wrap items-center justify-center gap-3">
                     <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
-                    <span>🎙️ මයික්‍රෆෝනය සක්‍රීයයි ({recordingSeconds}s)... දැන් කතා කරන්න</span>
-                    {instantSoundActive ? (
-                      <span className="bg-emerald-600 text-white text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
-                        <span>🟢</span> හඬ ලැබුණි (Voice Active)
-                      </span>
-                    ) : (
-                      <span className="bg-slate-200 text-slate-600 text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                        <span>🔈</span> හඬ බලාපොරොත්තුවෙන්...
-                      </span>
-                    )}
+                    <span className="font-bold text-sm">🎙️ මයික්‍රෆෝනය ක්‍රියාකාරීයි ({recordingSeconds}s)</span>
+                    
+                    {/* Dynamic Equalizer Visualizer Bars */}
+                    <div className="flex items-end gap-1 h-5 px-2 py-0.5 bg-white rounded-lg border border-emerald-200">
+                      {[0.4, 0.8, 1.2, 0.7, 0.5].map((mult, idx) => (
+                        <div
+                          key={idx}
+                          className="w-1.5 bg-emerald-500 rounded-full transition-all duration-75"
+                          style={{
+                            height: `${Math.max(4, Math.min(18, (liveVolume * mult) / 4))}px`
+                          }}
+                        ></div>
+                      ))}
+                    </div>
+
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      liveVolume > 5 ? 'bg-emerald-600 text-white animate-pulse' : 'bg-slate-200 text-slate-600'
+                    }`}>
+                      {liveVolume > 5 ? `🔊 හඬ ලැබෙමින් පවතී (${liveVolume}%)` : '🔈 සවන් දෙමින්...'}
+                    </span>
                   </div>
 
                   {/* Real-time recognized text preview (Instant display on every word) */}
