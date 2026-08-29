@@ -1283,10 +1283,15 @@ export default function EnglishModule({ onExit }) {
   const startMtiLabRecording = async () => {
     playSound('click');
     stopListening();
+
+    // Small delay so previous stream fully tears down before new mic request
+    await new Promise(resolve => setTimeout(resolve, 150));
+
     setMtiLabResult(null);
     setMtiLabLiveTranscript('සවන් දෙමින්...');
     setMtiLabListening(true);
     isListeningRef.current = true;
+    latestTranscriptRef.current = '';
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -1311,89 +1316,102 @@ export default function EnglishModule({ onExit }) {
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      try {
-        const reco = new SpeechRecognition();
-        reco.continuous = false; // Fast single-word immediate finalization
-        reco.interimResults = true;
-        reco.lang = 'en-US';
-        reco.maxAlternatives = 5;
+    if (!SpeechRecognition) {
+      setMtiLabListening(false);
+      isListeningRef.current = false;
+      setMtiLabLiveTranscript('(Browser speech recognition not supported)');
+      return;
+    }
 
-        reco.onsoundstart = () => {
-          setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
-        };
+    let hasRetried = false;
+    let hardTimeoutId = null;
 
-        reco.onspeechstart = () => {
-          setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
-        };
+    const processResult = (event) => {
+      if (hardTimeoutId) { clearTimeout(hardTimeoutId); hardTimeoutId = null; }
 
-        reco.onresult = (event) => {
-          let finalStr = '';
-          let interimStr = '';
-          const alts = [];
+      let finalStr = '';
+      let interimStr = '';
+      const alts = [];
 
-          for (let i = 0; i < event.results.length; ++i) {
-            const resItem = event.results[i];
-            for (let k = 0; k < resItem.length; k++) {
-              const altText = resItem[k]?.transcript?.trim();
-              if (altText) {
-                altText.toLowerCase().split(/\s+/).forEach(tok => {
-                  const cleanTok = tok.replace(/[^a-z0-9]/g, '');
-                  if (cleanTok) alts.push(cleanTok);
-                });
-              }
-            }
-            const primary = resItem[0]?.transcript?.trim() || '';
-            if (resItem.isFinal) {
-              finalStr += primary + ' ';
-            } else {
-              interimStr += primary + ' ';
-            }
+      for (let i = 0; i < event.results.length; ++i) {
+        const resItem = event.results[i];
+        for (let k = 0; k < resItem.length; k++) {
+          const altText = resItem[k]?.transcript?.trim();
+          if (altText) {
+            altText.toLowerCase().split(/\s+/).forEach(tok => {
+              const cleanTok = tok.replace(/[^a-z0-9]/g, '');
+              if (cleanTok) alts.push(cleanTok);
+            });
           }
+        }
+        const primary = resItem[0]?.transcript?.trim() || '';
+        if (resItem.isFinal) finalStr += primary + ' ';
+        else interimStr += primary + ' ';
+      }
 
-          const currentHeard = (finalStr.trim() || interimStr.trim());
-          if (currentHeard) {
-            latestTranscriptRef.current = currentHeard;
-            setMtiLabLiveTranscript(currentHeard);
-            // Instant real-time diagnostic evaluation
-            const res = evaluate6DimensionalSpeech(
-              currentHeard, 
-              mtiLabTargetWord, 
-              true, 
-              1.5, 
-              60, 
-              alts
-            );
-            setMtiLabResult(res);
-          }
-        };
+      const currentHeard = (finalStr.trim() || interimStr.trim());
+      if (currentHeard) {
+        latestTranscriptRef.current = currentHeard;
+        setMtiLabLiveTranscript(currentHeard);
+        const res = evaluate6DimensionalSpeech(currentHeard, mtiLabTargetWord, true, 1.5, 60, alts);
+        setMtiLabResult(res);
+      }
+    };
 
-        reco.onerror = (event) => {
-          console.log("MTI Lab SpeechRecognition error:", event.error);
-          if (event.error === 'no-speech') {
-            if (!latestTranscriptRef.current) {
-              setMtiLabLiveTranscript('(ශබ්දයක් හඳුනා නොගැනිණි)');
-            }
-          }
-          setMtiLabListening(false);
-          isListeningRef.current = false;
-        };
+    try {
+      const reco = new SpeechRecognition();
+      reco.continuous = false;
+      reco.interimResults = true;
+      reco.lang = 'en-US';
+      reco.maxAlternatives = 5;
 
-        reco.onend = () => {
-          setMtiLabListening(false);
-          isListeningRef.current = false;
-          if (!latestTranscriptRef.current) {
-            setMtiLabLiveTranscript(prev => (prev === 'සවන් දෙමින්...' || prev === 'හඬ ලැබෙමින් පවතී...') ? '(හඬක් හඳුනා නොගැනිණි)' : prev);
-          }
-        };
+      reco.onsoundstart = () => setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
+      reco.onspeechstart = () => setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
+      reco.onresult = processResult;
 
-        recognitionRef.current = reco;
-        reco.start();
-      } catch (e) {
-        console.log("Failed to start SpeechRecognition:", e);
+      reco.onerror = (event) => {
+        console.log('MTI Lab reco error:', event.error);
+        if (event.error === 'no-speech' && !hasRetried && isListeningRef.current && !latestTranscriptRef.current) {
+          hasRetried = true;
+          setMtiLabLiveTranscript('නැවතත් කතා කරන්න... (Speak again)');
+          try { reco.start(); return; } catch (e2) {}
+        }
+        if (!latestTranscriptRef.current) {
+          setMtiLabLiveTranscript('(ශබ්දයක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)');
+        }
         setMtiLabListening(false);
         isListeningRef.current = false;
-      }
+      };
+
+      reco.onend = () => {
+        setMtiLabListening(false);
+        isListeningRef.current = false;
+        if (!latestTranscriptRef.current) {
+          setMtiLabLiveTranscript(prev =>
+            (prev === 'සවන් දෙමින්...' || prev === 'හඬ ලැබෙමින් පවතී...' || prev.startsWith('නැවතත්'))
+              ? '(හඬක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)'
+              : prev
+          );
+        }
+      };
+
+      // 8s hard timeout: if nothing heard, show message and stop
+      hardTimeoutId = setTimeout(() => {
+        if (isListeningRef.current && !latestTranscriptRef.current) {
+          setMtiLabLiveTranscript('(ශබ්දයක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)');
+          setMtiLabListening(false);
+          isListeningRef.current = false;
+          try { reco.stop(); } catch (e) {}
+        }
+      }, 8000);
+
+      recognitionRef.current = reco;
+      reco.start();
+    } catch (e) {
+      console.log('Failed to start SpeechRecognition:', e);
+      setMtiLabListening(false);
+      isListeningRef.current = false;
+      setMtiLabLiveTranscript('(Recognition failed — please try again)');
     }
   };
 
