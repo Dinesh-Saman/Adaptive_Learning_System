@@ -258,8 +258,14 @@ class SriLankanMTIRuleEngine:
                     detected.append(self._build_pattern_entry("VOWEL_LENGTH_CONFUSION", tw, 'kek/bot'))
 
             # 9. Initial H Dropping (e.g. target: 'house', spoken: 'ouse')
-            if tw in ['house', 'happy', 'hello', 'hot', 'hat', 'hear', 'help']:
-                if any(sw in ['ouse', 'ause', 'our', 'appy', 'api', 'ello', 'elo', 'ot', 'ought', 'at', 'act', 'ear', 'air', 'elp', 'alp'] for sw in spoken_words) or any(sw == tw[1:] for sw in spoken_words):
+            if tw in ['house', 'happy', 'hello', 'hand', 'hot', 'hat', 'hear', 'help'] or tw.startswith('h'):
+                if any(
+                    sw in ['ouse', 'ause', 'our', 'hour', 'appy', 'api', 'ello', 'elo', 'and', 'end', 'ot', 'ought', 'art', 'out', 'at', 'act', 'ear', 'air', 'elp', 'alp', 'aut', 'aot'] or
+                    (tw.startswith('h') and sw == tw[1:]) or
+                    (tw == 'hot' and sw in ['ot', 'ought', 'art', 'out', 'aat', 'aut']) or
+                    (tw == 'hand' and sw in ['and', 'end', 'ant'])
+                    for sw in spoken_words
+                ):
                     detected.append(self._build_pattern_entry("INITIAL_H_DELETION", tw, tw[1:]))
 
             # 10. Z/S Confusion (e.g. target: 'zoo', spoken: 'soo')

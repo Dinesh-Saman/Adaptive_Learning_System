@@ -656,11 +656,19 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
       }
     }
 
-    // 9. Initial H Dropping (e.g. target: 'house', 'happy', 'hello')
-    if (['house', 'happy', 'hello', 'hot', 'hat', 'hear', 'help'].includes(tw)) {
+    // 9. Initial H Dropping (e.g. target: 'house', 'happy', 'hello', 'hand', 'hot', 'hat', 'hear', 'help')
+    if (['house', 'happy', 'hello', 'hand', 'hot', 'hat', 'hear', 'help'].includes(tw) || tw.startsWith('h')) {
       if (spokenWords.some(sw => 
-        ['ouse', 'ause', 'our', 'appy', 'api', 'ello', 'elo', 'ot', 'ought', 'at', 'act', 'ear', 'air', 'elp', 'alp'].includes(sw) ||
-        sw === tw.slice(1)
+        ['ouse', 'ause', 'our', 'hour', 'appy', 'api', 'ello', 'elo', 'and', 'end', 'ot', 'ought', 'art', 'out', 'at', 'act', 'ear', 'air', 'elp', 'alp', 'aut', 'aot'].includes(sw) ||
+        (tw.startsWith('h') && sw === tw.slice(1)) ||
+        (tw === 'hot' && ['ot', 'ought', 'art', 'out', 'aat', 'aut'].includes(sw)) ||
+        (tw === 'hand' && ['and', 'end', 'ant'].includes(sw)) ||
+        (tw === 'hat' && ['at', 'act', 'et'].includes(sw)) ||
+        (tw === 'house' && ['ouse', 'ause', 'out'].includes(sw)) ||
+        (tw === 'happy' && ['appy', 'api'].includes(sw)) ||
+        (tw === 'hello' && ['ello', 'elo', 'yellow'].includes(sw)) ||
+        (tw === 'help' && ['elp', 'alp'].includes(sw)) ||
+        (tw === 'hear' && ['ear', 'air', 'here'].includes(sw) && sw === 'ear')
       )) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'INITIAL_H_DELETION'));
       }
