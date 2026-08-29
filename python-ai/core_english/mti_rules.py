@@ -237,7 +237,7 @@ class SriLankanMTIRuleEngine:
 
             # 5. Paragoge (e.g. target: 'bus', spoken: 'busa')
             if tw in ['bus', 'milk', 'book', 'good', 'cake', 'stamp', 'park', 'pen']:
-                if any(sw in [tw + 'a', tw + 'er', tw + 'e', tw + 'i', 'busa', 'basa', 'bassa', 'milka', 'booka', 'buku', 'gooda', 'guda', 'keka', 'keki', 'stampa', 'parka', 'paka', 'pena'] for sw in spoken_words):
+                if any(sw in [tw + 'a', tw + 'ha', tw + 'er', tw + 'e', tw + 'i', 'milkha', 'milka', 'melka', 'melkha', 'milkah', 'busa', 'basa', 'bassa', 'booka', 'buku', 'gooda', 'guda', 'keka', 'keki', 'stampa', 'parka', 'paka', 'pena'] for sw in spoken_words):
                     detected.append(self._build_pattern_entry("PARAGOGE", tw, tw + 'a'))
 
             # 6. Final Consonant Weakening (e.g. target: 'but', spoken: 'bu')

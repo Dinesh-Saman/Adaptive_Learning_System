@@ -284,7 +284,8 @@ function extractCleanEnglishTranscript(event) {
           'tree', 'tray', 'tri', 'tee', 'tea', 'ti', 'tink', 'sink', 'dis', 'dat', 'pan', 'pish', 'push', 'pour', 
           'wery', 'vater', 'ischool', 'is-school', 'its cool', "it's cool", 'it cool', 
           'is cool', 'istar', 'ispoon', 'mudder', 'fadder', 'film', 'pilm',
-          'so', 'su', 'soo', 'sue', 'sew', 'sow'
+          'so', 'su', 'soo', 'sue', 'sew', 'sow',
+          'milkha', 'milka', 'melka', 'busa', 'booka'
         ].includes(cLower);
       });
       chosenTranscript = mtiConfuserCandidate || candidateTranscripts[0];
@@ -634,7 +635,8 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
     // 5. Paragoge (e.g. target: 'bus', 'milk', 'book')
     if (['bus', 'milk', 'book', 'good', 'cake', 'stamp', 'park', 'pen'].includes(tw)) {
       if (spokenWords.some(sw => 
-        [tw + 'a', tw + 'er', tw + 'e', tw + 'i', 'busa', 'basa', 'bassa', 'milka', 'booka', 'buku', 'gooda', 'guda', 'keka', 'keki', 'stampa', 'parka', 'paka', 'pena'].includes(sw)
+        [tw + 'a', tw + 'ha', tw + 'er', tw + 'e', tw + 'i', 'milkha', 'milka', 'melka', 'melkha', 'busa', 'basa', 'bassa', 'booka', 'buku', 'gooda', 'guda', 'keka', 'keki', 'stampa', 'parka', 'paka', 'pena'].includes(sw) ||
+        (tw === 'milk' && ['milkha', 'milka', 'melka', 'milki', 'melkha', 'milkah'].includes(sw))
       )) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'PARAGOGE'));
       }
