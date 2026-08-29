@@ -167,22 +167,40 @@ class SriLankanMTIRuleEngine:
         for idx, tw in enumerate(target_words):
             # 1. S-Cluster Prosthesis (e.g. target: 'spring', 'star', 'station', 'school' -> spoken: "it's spring", "is spring", "ispring", "east spring", "esta", "easter")
             if tw.startswith(('sc', 'sp', 'st', 'sk', 'sm', 'sn', 'spr', 'str', 'scr')):
+                DIRECT_PROSTHESIS_TOKENS = {
+                    'i' + tw, 'is' + tw[1:], 'es' + tw[1:],
+                    'esta', 'easter', 'estar', 'istar', 'aster',
+                    'ispring', 'espring', 'istation', 'ischool', 'ispoon',
+                    'istudy', 'estudy', 'history', 'histories', 'ispeak', 'istop',
+                }
+                # Per-word ASR-truncated prosthetic syllable variants
+                WORD_EXTRAS = {
+                    'star':    {'est', 'eest', 'ista', 'ist', 'ast', 'es'},
+                    'stop':    {'est', 'ist', 'is'},
+                    'spring':  {'es', 'isp', 'esp'},
+                    'study':   {'est', 'is', 'es'},
+                    'school':  {'isk', 'esk', 'esc'},
+                    'spoon':   {'es', 'isp'},
+                    'speak':   {'es', 'isp'},
+                    'station': {'est', 'ist'},
+                }
                 has_direct_prosthesis = any(
-                    sw in ['i' + tw, 'is' + tw[1:], 'es' + tw[1:], 'esta', 'easter', 'estar', 'istar', 'aster', 'ispring', 'espring', 'istation', 'ischool', 'ispoon', 'istudy', 'estudy', 'history', 'histories', 'ispeak', 'istop'] or
+                    sw in DIRECT_PROSTHESIS_TOKENS or
+                    sw in WORD_EXTRAS.get(tw, set()) or
                     sw.startswith('is' + tw) or sw.startswith('es' + tw) or sw.startswith('i' + tw)
                     for sw in spoken_words
                 )
-                
+
                 has_separated_prosthesis = False
                 if len(target_words) == 1:
                     has_separated_prosthesis = any(
-                        sw in ['is', 'es', 'east', 'easter', 'esta', 'his', 'he', 'you', 'we', 'its', "it's", 'it', 's', 'e']
+                        sw in ['is', 'es', 'east', 'easter', 'esta', 'his', 'he', 'you', 'we', 'its', "it's", 'it', 's', 'e', 'est', 'ist']
                         for sw in spoken_words
                     )
                 else:
                     for s_idx, sw in enumerate(spoken_words):
                         if sw == tw or sw.startswith(tw[:3]):
-                            if s_idx > 0 and spoken_words[s_idx - 1] in ['is', 'es', 'east', 'esta', 'its', "it's"]:
+                            if s_idx > 0 and spoken_words[s_idx - 1] in ['is', 'es', 'east', 'esta', 'its', "it's", 'est', 'ist']:
                                 expected_prev = target_words[idx - 1] if idx > 0 else ""
                                 if spoken_words[s_idx - 1] != expected_prev:
                                     has_separated_prosthesis = True
@@ -190,6 +208,7 @@ class SriLankanMTIRuleEngine:
 
                 if has_direct_prosthesis or has_separated_prosthesis:
                     detected.append(self._build_pattern_entry("S_CLUSTER_PROSTHESIS", tw, "is-" + tw))
+
 
             # 2. V/W Merger (e.g. target: 'very', spoken: 'wery')
             if tw.startswith('v'):

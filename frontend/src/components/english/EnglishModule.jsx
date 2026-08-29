@@ -536,6 +536,15 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
         sw === 'histories' ||
         sw === 'ispeak' ||
         sw === 'istop' ||
+        // ── Additional variants: ASR drops trailing consonants of prosthetic syllable ──
+        (tw === 'star'   && ['est', 'eest', 'ista', 'ist', 'ast', 'es'].includes(sw)) ||
+        (tw === 'stop'   && ['est', 'ist', 'is'].includes(sw)) ||
+        (tw === 'spring' && ['es', 'isp', 'esp'].includes(sw)) ||
+        (tw === 'study'  && ['est', 'is', 'es'].includes(sw)) ||
+        (tw === 'school' && ['isk', 'esk', 'esc'].includes(sw)) ||
+        (tw === 'spoon'  && ['es', 'isp'].includes(sw)) ||
+        (tw === 'speak'  && ['es', 'isp'].includes(sw)) ||
+        (tw === 'station' && ['est', 'ist'].includes(sw)) ||
         sw.startsWith('is' + tw) ||
         sw.startsWith('es' + tw) ||
         sw.startsWith('i' + tw)
@@ -544,7 +553,7 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
       let hasSeparatedProsthesis = false;
       if (targetWords.length === 1) {
         hasSeparatedProsthesis = spokenWords.some(sw => 
-          ['is', 'es', 'east', 'easter', 'esta', 'his', 'he', 'you', 'we', 'its', "it's", 'it', 's', 'e'].includes(sw)
+          ['is', 'es', 'east', 'easter', 'esta', 'his', 'he', 'you', 'we', 'its', "it's", 'it', 's', 'e', 'est', 'ist'].includes(sw)
         );
       } else {
         // In full sentences, check if an un-expected prosthetic prefix was placed immediately before tw
