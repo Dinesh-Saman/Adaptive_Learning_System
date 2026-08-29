@@ -206,7 +206,7 @@ class SriLankanMTIRuleEngine:
 
             # 3. TH Substitution (e.g. target: 'three', spoken: 'tree')
             if tw in ['three', 'think', 'this', 'that', 'there', 'the', 'mother', 'father']:
-                if tw == 'three' and any(sw in ['tree', 'tray', 'free', 'thee', 'tri'] for sw in spoken_words):
+                if tw == 'three' and any(sw in ['tree', 'tray', 'free', 'thee', 'tri', 'tee', 'tea', 'ti', 't'] for sw in spoken_words):
                     detected.append(self._build_pattern_entry("TH_SUBSTITUTION", tw, "tree"))
                 elif tw == 'think' and any(sw in ['tink', 'sink', 'pink', 'thing', 'tin'] for sw in spoken_words):
                     detected.append(self._build_pattern_entry("TH_SUBSTITUTION", tw, "tink"))

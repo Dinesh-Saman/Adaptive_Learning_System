@@ -283,7 +283,7 @@ function extractCleanEnglishTranscript(event) {
       const mtiConfuserCandidate = candidateTranscripts.find(c => {
         const cLower = c.toLowerCase().trim().replace(/['’]/g, "'");
         return [
-          'tree', 'tray', 'tri', 'tink', 'sink', 'dis', 'dat', 'pan', 'pish', 'pour', 
+          'tree', 'tray', 'tri', 'tee', 'tea', 'tink', 'sink', 'dis', 'dat', 'pan', 'pish', 'pour', 
           'wery', 'vater', 'ischool', 'is-school', 'its cool', "it's cool", 'it cool', 
           'is cool', 'istar', 'ispoon', 'mudder', 'fadder'
         ].includes(cLower);
@@ -598,7 +598,7 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
 
     // 3. TH Substitution (TH -> T/D)
     if (['three', 'think', 'this', 'that', 'there', 'the', 'mother', 'father'].includes(tw)) {
-      if (tw === 'three' && spokenWords.some(sw => ['tree', 'tray', 'free', 'thee', 'tri'].includes(sw))) {
+      if (tw === 'three' && spokenWords.some(sw => ['tree', 'tray', 'free', 'thee', 'tri', 'tee', 'tea', 'ti', 't'].includes(sw))) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
       } else if (tw === 'think' && spokenWords.some(sw => ['tink', 'sink', 'pink', 'thing', 'tin'].includes(sw))) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
