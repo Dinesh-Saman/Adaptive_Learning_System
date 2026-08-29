@@ -1212,47 +1212,111 @@ export default function EnglishModule({ onExit }) {
   const activeMtiPattern = SRI_LANKAN_MTI_PATTERNS.find(p => p.key === selectedMtiPatternKey) || SRI_LANKAN_MTI_PATTERNS[0];
   const mtiLabTargetWord = activeMtiPattern.examples[mtiLabWordIndex % activeMtiPattern.examples.length] || activeMtiPattern.examples[0];
 
-  const startMtiLabRecording = () => {
+  const startMtiLabRecording = async () => {
     playSound('click');
     stopListening();
     setMtiLabResult(null);
-    setMtiLabLiveTranscript('');
+    setMtiLabLiveTranscript('සවන් දෙමින්...');
     setMtiLabListening(true);
     isListeningRef.current = true;
 
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: { ideal: true },
+          noiseSuppression: { ideal: true },
+          autoGainControl: { ideal: true },
+          channelCount: { ideal: 1 },
+          sampleRate: { ideal: 16000 }
+        }
+      });
+      mediaStreamRef.current = stream;
+    } catch (e) {
+      console.log("MTI Lab mic stream notice:", e);
+    }
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
-      const reco = new SpeechRecognition();
-      reco.continuous = true;
-      reco.interimResults = true;
-      reco.lang = 'en-US';
-      reco.maxAlternatives = 5;
+      try {
+        const reco = new SpeechRecognition();
+        reco.continuous = true;
+        reco.interimResults = true;
+        reco.lang = 'en-US';
+        reco.maxAlternatives = 3;
 
-      reco.onresult = (event) => {
-        const { transcript, alternatives } = extractCleanEnglishTranscript(event);
-        if (transcript) {
-          setMtiLabLiveTranscript(transcript);
-          // Instant real-time diagnostic evaluation using both primary and all acoustic alternatives
-          const res = evaluate6DimensionalSpeech(
-            transcript, 
-            mtiLabTargetWord, 
-            true, 
-            1.5, 
-            60, 
-            alternatives || []
-          );
-          setMtiLabResult(res);
-        }
-      };
+        reco.onsoundstart = () => {
+          setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
+        };
 
-      reco.onend = () => {
-        if (isListeningRef.current) {
-          try { reco.start(); } catch (e) {}
-        }
-      };
+        reco.onspeechstart = () => {
+          setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
+        };
 
-      recognitionRef.current = reco;
-      reco.start();
+        reco.onresult = (event) => {
+          let finalStr = '';
+          let interimStr = '';
+          const alts = [];
+
+          for (let i = 0; i < event.results.length; ++i) {
+            const resItem = event.results[i];
+            for (let k = 0; k < resItem.length; k++) {
+              const altText = resItem[k]?.transcript?.trim();
+              if (altText) {
+                altText.toLowerCase().split(/\s+/).forEach(tok => {
+                  const cleanTok = tok.replace(/[^a-z0-9]/g, '');
+                  if (cleanTok) alts.push(cleanTok);
+                });
+              }
+            }
+            const primary = resItem[0]?.transcript?.trim() || '';
+            if (resItem.isFinal) {
+              finalStr += primary + ' ';
+            } else {
+              interimStr += primary + ' ';
+            }
+          }
+
+          const currentHeard = (finalStr.trim() || interimStr.trim());
+          if (currentHeard) {
+            setMtiLabLiveTranscript(currentHeard);
+            // Instant real-time diagnostic evaluation
+            const res = evaluate6DimensionalSpeech(
+              currentHeard, 
+              mtiLabTargetWord, 
+              true, 
+              1.5, 
+              60, 
+              alts
+            );
+            setMtiLabResult(res);
+          }
+        };
+
+        reco.onerror = (event) => {
+          console.log("MTI Lab SpeechRecognition error:", event.error);
+          if (isListeningRef.current && event.error !== 'aborted') {
+            try {
+              reco.stop();
+              setTimeout(() => {
+                if (isListeningRef.current) reco.start();
+              }, 200);
+            } catch (e) {}
+          }
+        };
+
+        reco.onend = () => {
+          if (isListeningRef.current) {
+            try {
+              reco.start();
+            } catch (e) {}
+          }
+        };
+
+        recognitionRef.current = reco;
+        reco.start();
+      } catch (e) {
+        console.log("Failed to start SpeechRecognition:", e);
+      }
     }
   };
 
