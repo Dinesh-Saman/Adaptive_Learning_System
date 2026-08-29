@@ -327,13 +327,12 @@ function alignWordsLCS(targetWords, spokenWords) {
 // Client-Side Sri Lankan MTI Pattern Detector
 function detectSriLankanMTIPatterns(spokenWords, targetWords) {
   const detected = [];
-  const spokenSet = new Set(spokenWords);
 
   targetWords.forEach(tw => {
     // 1. S-Cluster Prosthesis
     if (/^s[cptkmn]/.test(tw)) {
       spokenWords.forEach(sw => {
-        if (sw === 'i' + tw || sw === 'is' + tw.slice(1) || sw === 'es' + tw.slice(1)) {
+        if (sw === 'i' + tw || sw === 'is' + tw.slice(1) || sw === 'es' + tw.slice(1) || (sw === 'is' && spokenWords.includes(tw))) {
           detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'S_CLUSTER_PROSTHESIS'));
         }
       });
@@ -361,7 +360,7 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
     }
 
     // 5. Paragoge
-    if (['bus', 'milk', 'book', 'good', 'cake', 'stamp'].includes(tw) && spokenWords.some(sw => [tw + 'a', tw + 'er'].includes(sw))) {
+    if (['bus', 'milk', 'book', 'good', 'cake', 'stamp'].includes(tw) && spokenWords.some(sw => [tw + 'a', tw + 'er', tw + 'e'].includes(sw))) {
       detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'PARAGOGE'));
     }
 
@@ -395,7 +394,7 @@ function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally
       wordResults: [],
       missedWords: [],
       mtiPatterns: [],
-      fluency: { wpm: 0, speedStatus: 'No Speech', pauseCount: 0 },
+      fluency: { wpm: 0, speedStatus: 'No Speech' },
       intonation: { isMonotone: false, style: 'None' },
       volume: { percent: 0, status: 'Muted' }
     };
@@ -516,7 +515,7 @@ function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally
 export default function EnglishModule({ onExit }) {
   const navigate = useNavigate();
 
-  // Navigation State: 'grades_hub' | 'papers_hub' | 'quiz' | 'report'
+  // Navigation State: 'grades_hub' | 'papers_hub' | 'quiz' | 'report' | 'mti_lab'
   const [viewState, setViewState] = useState('grades_hub');
   const [selectedGrade, setSelectedGrade] = useState(2);
   const [activePaperId, setActivePaperId] = useState(1);
@@ -527,7 +526,14 @@ export default function EnglishModule({ onExit }) {
   const [history, setHistory] = useState([]);
   const [questionAttempts, setQuestionAttempts] = useState(1);
 
-  // Recording & 3-Stage Assessment State
+  // Dedicated MTI Diagnostics Lab State
+  const [selectedMtiPatternKey, setSelectedMtiPatternKey] = useState('S_CLUSTER_PROSTHESIS');
+  const [mtiLabWordIndex, setMtiLabWordIndex] = useState(0);
+  const [mtiLabLiveTranscript, setMtiLabLiveTranscript] = useState('');
+  const [mtiLabResult, setMtiLabResult] = useState(null);
+  const [mtiLabListening, setMtiLabListening] = useState(false);
+
+  // Recording & Assessment State
   const [isListening, setIsListening] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState('');
   const [liveVolume, setLiveVolume] = useState(0);
@@ -634,6 +640,7 @@ export default function EnglishModule({ onExit }) {
   const stopListening = () => {
     isListeningRef.current = false;
     setIsListening(false);
+    setMtiLabListening(false);
     setLiveVolume(0);
 
     if (timerIntervalRef.current) {
@@ -687,7 +694,6 @@ export default function EnglishModule({ onExit }) {
     isListeningRef.current = true;
     setIsListening(true);
 
-    // 1. Instant Hardware Audio VAD
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
@@ -733,7 +739,6 @@ export default function EnglishModule({ onExit }) {
       console.log("Local audio context notice:", err);
     }
 
-    // 2. High-Resolution Speech Recognition (maxAlternatives: 5)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       try {
@@ -791,7 +796,6 @@ export default function EnglishModule({ onExit }) {
       } catch (e) {}
     }
 
-    // Start elapsed timer
     timerIntervalRef.current = setInterval(() => {
       setRecordingSeconds(sec => sec + 1);
     }, 1000);
@@ -907,6 +911,61 @@ export default function EnglishModule({ onExit }) {
     volumeSamplesRef.current = [];
   };
 
+  // ── MTI LAB SANDBOX CONTROLS ──
+  const activeMtiPattern = SRI_LANKAN_MTI_PATTERNS.find(p => p.key === selectedMtiPatternKey) || SRI_LANKAN_MTI_PATTERNS[0];
+  const mtiLabTargetWord = activeMtiPattern.examples[mtiLabWordIndex % activeMtiPattern.examples.length] || activeMtiPattern.examples[0];
+
+  const startMtiLabRecording = () => {
+    playSound('click');
+    stopListening();
+    setMtiLabResult(null);
+    setMtiLabLiveTranscript('');
+    setMtiLabListening(true);
+    isListeningRef.current = true;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const reco = new SpeechRecognition();
+      reco.continuous = true;
+      reco.interimResults = true;
+      reco.lang = 'en-US';
+      reco.maxAlternatives = 5;
+
+      reco.onresult = (event) => {
+        let finalStr = '';
+        let interimStr = '';
+        for (let i = 0; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalStr += event.results[i][0].transcript + ' ';
+          } else {
+            interimStr += event.results[i][0].transcript;
+          }
+        }
+        const combined = (finalStr + interimStr).trim();
+        if (combined) {
+          setMtiLabLiveTranscript(combined);
+          // Instant real-time diagnostic evaluation
+          const res = evaluate6DimensionalSpeech(combined, mtiLabTargetWord, true, 1.5, 60);
+          setMtiLabResult(res);
+        }
+      };
+
+      reco.onend = () => {
+        if (isListeningRef.current) {
+          try { reco.start(); } catch (e) {}
+        }
+      };
+
+      recognitionRef.current = reco;
+      reco.start();
+    }
+  };
+
+  const stopMtiLabRecording = () => {
+    playSound('click');
+    stopListening();
+  };
+
   const currentQ = paperQuestions[currentQIndex];
   const activePaperConfig = PAPERS_CONFIG.find(p => p.id === activePaperId) || PAPERS_CONFIG[0];
 
@@ -927,10 +986,10 @@ export default function EnglishModule({ onExit }) {
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => {
-              if (viewState === 'quiz') {
-                if (window.confirm("ඔබට මෙම ප්‍රශ්න පත්‍රයෙන් ඉවත් වීමට අවශ්‍යද?")) {
+              if (viewState === 'quiz' || viewState === 'mti_lab') {
+                if (viewState === 'mti_lab' || window.confirm("ඔබට මෙම ප්‍රශ්න පත්‍රයෙන් ඉවත් වීමට අවශ්‍යද?")) {
                   stopListening();
-                  setViewState('papers_hub');
+                  setViewState('grades_hub');
                 }
               } else if (viewState === 'report') {
                 setViewState('papers_hub');
@@ -946,8 +1005,8 @@ export default function EnglishModule({ onExit }) {
             <span>
               {viewState === 'grades_hub'
                 ? 'Dashboard එකට'
-                : viewState === 'papers_hub'
-                ? 'ශ්‍රේණිය තෝරන්න'
+                : viewState === 'papers_hub' || viewState === 'mti_lab'
+                ? 'ප්‍රධාන මෙනුවට'
                 : 'ප්‍රශ්න පත්‍ර තෝරන්න'}
             </span>
           </button>
@@ -961,6 +1020,16 @@ export default function EnglishModule({ onExit }) {
                 ප්‍රශ්න {currentQIndex + 1} / 10
               </span>
             </div>
+          )}
+
+          {viewState === 'grades_hub' && (
+            <button
+              onClick={() => { playSound('click'); setViewState('mti_lab'); }}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-xs sm:text-sm rounded-2xl shadow-md transition-all cursor-pointer"
+            >
+              <span>🇱🇰</span>
+              <span>MTI පරීක්ෂක රසායනාගාරය (Sandbox)</span>
+            </button>
           )}
         </div>
 
@@ -1013,6 +1082,173 @@ export default function EnglishModule({ onExit }) {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── SCREEN: DEDICATED SRI LANKAN MTI DIAGNOSTICS LAB ── */}
+        {viewState === 'mti_lab' && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 border-2 border-rose-200 shadow-xl space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
+                <div>
+                  <div className="inline-block bg-rose-100 text-rose-800 font-black text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
+                    🇱🇰 Sri Lankan MTI Diagnostics Hub • සජීවී MTI රසායනාගාරය
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-black text-slate-800 font-sinhala">
+                    ශ්‍රී ලාංකික MTI උච්චාරණ රටා 12 පරීක්ෂාව
+                  </h2>
+                </div>
+                <button
+                  onClick={() => setViewState('grades_hub')}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer"
+                >
+                  ✕ පිටවීම
+                </button>
+              </div>
+
+              {/* 12 MTI Pattern Selector Grid */}
+              <div className="space-y-2">
+                <span className="text-xs font-black uppercase text-slate-500 tracking-wider">
+                  පරීක්ෂා කිරීමට MTI රටාවක් තෝරන්න (Select 1 of 12 Patterns):
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {SRI_LANKAN_MTI_PATTERNS.map((p, idx) => (
+                    <button
+                      key={p.key}
+                      onClick={() => {
+                        playSound('click');
+                        setSelectedMtiPatternKey(p.key);
+                        setMtiLabWordIndex(0);
+                        setMtiLabResult(null);
+                        setMtiLabLiveTranscript('');
+                      }}
+                      className={`p-2.5 rounded-2xl text-left border-2 transition-all cursor-pointer ${
+                        selectedMtiPatternKey === p.key
+                          ? 'bg-rose-500 border-rose-600 text-white shadow-md'
+                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white hover:border-rose-300'
+                      }`}
+                    >
+                      <div className="text-[10px] font-black opacity-80">#{idx + 1}</div>
+                      <div className="font-black text-xs leading-snug">{p.name}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Active Practice Card */}
+              <div className="p-6 bg-slate-50 border-2 border-slate-200 rounded-3xl space-y-6 text-center">
+                <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-200">
+                  <span className="text-xs font-black text-rose-700 bg-rose-100 px-3 py-1 rounded-full">
+                    {activeMtiPattern.name} ({activeMtiPattern.name_si})
+                  </span>
+                  <span className="text-xs font-mono font-bold text-slate-600">
+                    Target: {activeMtiPattern.target_ipa} vs Common Error: {activeMtiPattern.error_ipa}
+                  </span>
+                </div>
+
+                {/* Target Word Display */}
+                <div>
+                  <h3 className="text-4xl sm:text-5xl font-black text-slate-800 tracking-wide font-sans mb-1">
+                    {mtiLabTargetWord}
+                  </h3>
+                  <p className="text-sm text-slate-500 font-mono">
+                    {activeMtiPattern.target_ipa}
+                  </p>
+                </div>
+
+                {/* Word Navigation */}
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  {activeMtiPattern.examples.map((w, idx) => (
+                    <button
+                      key={w}
+                      onClick={() => {
+                        playSound('click');
+                        setMtiLabWordIndex(idx);
+                        setMtiLabResult(null);
+                        setMtiLabLiveTranscript('');
+                      }}
+                      className={`px-3 py-1.5 rounded-xl font-bold text-xs border transition-all cursor-pointer ${
+                        w === mtiLabTargetWord
+                          ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                          : 'bg-white text-slate-700 border-slate-300 hover:border-slate-500'
+                      }`}
+                    >
+                      {w}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Voice Controls */}
+                <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+                  <button
+                    onClick={() => speakEnglish(mtiLabTargetWord)}
+                    className="px-5 py-3 rounded-2xl font-black text-sm bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-200 shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <span>🔊</span> Standard Audio
+                  </button>
+
+                  <button
+                    onClick={mtiLabListening ? stopMtiLabRecording : startMtiLabRecording}
+                    className={`px-8 py-3.5 rounded-2xl font-black text-base transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
+                      mtiLabListening
+                        ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse'
+                        : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                    }`}
+                  >
+                    <span>{mtiLabListening ? '⏹️ අවසන් කරන්න' : '🎤 කතා කරන්න (Speak to Test)'}</span>
+                  </button>
+                </div>
+
+                {/* Live Transcript Stream */}
+                {mtiLabListening && (
+                  <div className="p-4 bg-emerald-50 border-2 border-emerald-300 rounded-2xl text-emerald-900 space-y-2 animate-fade-in">
+                    <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">
+                      🎙️ සජීවී හඬ (Live Speech):
+                    </span>
+                    <span className="text-3xl font-black text-emerald-800 font-sans">
+                      "{mtiLabLiveTranscript || 'සවන් දෙමින්...'}"
+                    </span>
+                  </div>
+                )}
+
+                {/* Real-time MTI Result Display */}
+                {mtiLabResult && !mtiLabListening && (
+                  <div className="p-5 bg-white border-2 border-slate-200 rounded-3xl space-y-4 text-left animate-fade-in shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-500">
+                        ඔබ පැවසූ දෙය: <strong className="text-slate-900 text-base font-sans">"{mtiLabResult.transcript}"</strong>
+                      </span>
+                      <span className={`px-3 py-1 rounded-xl text-xs font-black text-white ${
+                        mtiLabResult.mtiPatterns.length === 0 && mtiLabResult.wordsCorrect ? 'bg-emerald-600' : 'bg-rose-600'
+                      }`}>
+                        {mtiLabResult.mtiPatterns.length === 0 && mtiLabResult.wordsCorrect ? '✓ Clean Standard' : '⚠️ MTI Pattern Detected'}
+                      </span>
+                    </div>
+
+                    {/* MTI Pattern Advice Card */}
+                    {mtiLabResult.mtiPatterns.length > 0 ? (
+                      <div className="p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1.5">
+                        <div className="text-xs font-black text-rose-900">
+                          📌 හඳුනාගත් MTI රටාව: {mtiLabResult.mtiPatterns[0].name} ({mtiLabResult.mtiPatterns[0].name_si})
+                        </div>
+                        <p className="text-xs text-rose-800 font-bold">
+                          💡 උපදෙස: {mtiLabResult.mtiPatterns[0].pedagogical_tip_si}
+                        </p>
+                        <p className="text-[11px] text-slate-600 italic">
+                          ({mtiLabResult.mtiPatterns[0].pedagogical_tip})
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-emerald-50 border-2 border-emerald-200 rounded-2xl text-emerald-900">
+                        <h4 className="font-black text-sm">🎉 විශිෂ්ටයි! සම්මත ඉංග්‍රීසි උච්චාරණය (No MTI Errors).</h4>
+                        <p className="text-xs font-medium mt-0.5">ඔබේ උච්චාරණය සම්මත ඉංග්‍රීසි ශබ්ද රටාවට අනුකූල වේ.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+              </div>
             </div>
           </div>
         )}
