@@ -1282,17 +1282,10 @@ export default function EnglishModule({ onExit }) {
   const activeMtiPattern = SRI_LANKAN_MTI_PATTERNS.find(p => p.key === selectedMtiPatternKey) || SRI_LANKAN_MTI_PATTERNS[0];
   const mtiLabTargetWord = activeMtiPattern.examples[mtiLabWordIndex % activeMtiPattern.examples.length] || activeMtiPattern.examples[0];
 
-  const startMtiLabRecording = async () => {
+  const startMtiLabRecording = () => {
     console.log("%c[MTI Lab] 1. 'Speak to Test' Clicked - Initializing...", "background: #047857; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;");
     playSound('click');
-
-    // Tear down any existing recognition only — keep mic stream alive if already open
-    isListeningRef.current = false;
-    if (recognitionRef.current) {
-      console.log("%c[MTI Lab] 1.1 Aborting previous active recognition instance", "color: #d97706;");
-      try { recognitionRef.current.onend = null; recognitionRef.current.abort(); } catch (e) {}
-      recognitionRef.current = null;
-    }
+    stopListening();
 
     setMtiLabResult(null);
     setMtiLabLiveTranscript('සවන් දෙමින්...');
@@ -1309,138 +1302,88 @@ export default function EnglishModule({ onExit }) {
       return;
     }
 
-    let hasRetried = false;
-    let hardTimeoutId = null;
-    let resultDelivered = false;
-
-    const deliverResult = (heard, alts, recoRef) => {
-      if (resultDelivered) {
-        console.log("%c[MTI Lab] Result already delivered, skipping duplicate trigger", "color: #64748b;");
-        return;
-      }
-      resultDelivered = true;
-      if (hardTimeoutId) { clearTimeout(hardTimeoutId); hardTimeoutId = null; }
-
-      console.log(`%c[MTI Lab] 5. Delivering Result! Heard: "${heard}" | Alternatives: [${alts.join(', ')}]`, "background: #7c3aed; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;");
-
-      latestTranscriptRef.current = heard;
-      setMtiLabLiveTranscript(heard);
-      const res = evaluate6DimensionalSpeech(heard, mtiLabTargetWord, true, 1.5, 60, alts);
-      console.log("%c[MTI Lab] 6. Evaluation Result Payload:", "color: #0284c7; font-weight: bold;", res);
-      setMtiLabResult(res);
-
-      // ── KEY FIX: stop recognition immediately after first result ──
-      setMtiLabListening(false);
-      isListeningRef.current = false;
-      console.log("%c[MTI Lab] 7. Stopping recognition stream after result delivery", "color: #64748b;");
-      try { recoRef.stop(); } catch (e) {}
-    };
-
     try {
-      console.log("%c[MTI Lab] 3. Starting Web SpeechRecognition (lang: en-US, continuous: true, interim: true)", "color: #0284c7;");
+      console.log("%c[MTI Lab] 2. Starting SpeechRecognition...", "color: #0284c7;");
       const reco = new SpeechRecognition();
-      reco.continuous = true;       // Continuous mode keeps stream open until onresult delivers
-      reco.interimResults = true;   // Fire immediately on partial results
+      reco.continuous = true;
+      reco.interimResults = true;
       reco.lang = 'en-US';
       reco.maxAlternatives = 5;
 
+      reco.onstart = () => {
+        console.log("%c[MTI Lab] 2.1 onstart: Recognizer active and listening", "color: #059669;");
+      };
+
       reco.onsoundstart = () => {
-        console.log("%c[MTI Lab] 3.1 onsoundstart: Audio energy detected by browser", "color: #10b981;");
+        console.log("%c[MTI Lab] 2.2 onsoundstart: Audio energy detected", "color: #10b981;");
         setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
       };
 
       reco.onspeechstart = () => {
-        console.log("%c[MTI Lab] 3.2 onspeechstart: Human speech detected by ASR", "color: #10b981;");
+        console.log("%c[MTI Lab] 2.3 onspeechstart: Human speech detected", "color: #10b981;");
         setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
       };
 
       reco.onresult = (event) => {
-        let finalStr = '';
-        let interimStr = '';
-        const alts = [];
+        const { transcript, alternatives } = extractCleanEnglishTranscript(event);
+        console.log(`%c[MTI Lab] 3. onresult received -> "${transcript}"`, "background: #7c3aed; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;");
 
-        console.log("%c[MTI Lab] 4. onresult event fired! Results length:", "color: #8b5cf6;", event.results.length);
+        if (transcript) {
+          latestTranscriptRef.current = transcript;
+          setMtiLabLiveTranscript(transcript);
 
-        for (let i = 0; i < event.results.length; ++i) {
-          const resItem = event.results[i];
-          for (let k = 0; k < resItem.length; k++) {
-            const altText = resItem[k]?.transcript?.trim();
-            if (altText) {
-              altText.toLowerCase().split(/\s+/).forEach(tok => {
-                const cleanTok = tok.replace(/[^a-z0-9]/g, '');
-                if (cleanTok) alts.push(cleanTok);
-              });
-            }
-          }
-          const primary = resItem[0]?.transcript?.trim() || '';
-          if (resItem.isFinal) finalStr += primary + ' ';
-          else interimStr += primary + ' ';
-        }
+          const res = evaluate6DimensionalSpeech(
+            transcript,
+            mtiLabTargetWord,
+            true,
+            1.5,
+            60,
+            alternatives || []
+          );
+          console.log("%c[MTI Lab] 4. Evaluation Result:", "color: #0284c7; font-weight: bold;", res);
+          setMtiLabResult(res);
+          setMtiLabListening(false);
+          isListeningRef.current = false;
 
-        const heard = finalStr.trim() || interimStr.trim();
-        console.log(`%c[MTI Lab] 4.1 Parsed transcript -> Final: "${finalStr.trim()}", Interim: "${interimStr.trim()}", Raw Heard: "${heard}"`, "color: #6366f1;");
-        if (heard) {
-          deliverResult(heard, alts, reco);
+          try {
+            reco.onend = null;
+            reco.stop();
+          } catch (e) {}
         }
       };
 
       reco.onerror = (event) => {
-        console.warn(`%c[MTI Lab] ⚠️ onerror event: error="${event.error}", message="${event.message || 'none'}"`, "color: #ef4444; font-weight: bold;");
-        if (event.error === 'no-speech') {
-          // If no speech was detected, auto-restart if still listening
-          if (isListeningRef.current && !latestTranscriptRef.current) {
-            console.log("%c[MTI Lab] Still listening after no-speech, maintaining active session...", "color: #f59e0b;");
-            return;
-          }
-        }
-        if (!latestTranscriptRef.current) {
+        console.warn(`%c[MTI Lab] ⚠️ onerror: ${event.error}`, "color: #ef4444; font-weight: bold;");
+        if (!latestTranscriptRef.current && event.error !== 'no-speech') {
           setMtiLabLiveTranscript('(ශබ්දයක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)');
+          setMtiLabListening(false);
+          isListeningRef.current = false;
         }
-        setMtiLabListening(false);
-        isListeningRef.current = false;
       };
 
       reco.onend = () => {
-        console.log("%c[MTI Lab] 8. onend event: Recognition session ended", "color: #64748b;");
-        // If session closed prematurely by browser before speech finalization, auto-restart
-        if (isListeningRef.current && !latestTranscriptRef.current && !resultDelivered) {
-          console.log("%c[MTI Lab] 8.1 Stream closed before speech delivered - auto-restarting recognition...", "color: #0284c7;");
+        console.log("%c[MTI Lab] 5. onend: Session ended", "color: #64748b;");
+        if (isListeningRef.current && !latestTranscriptRef.current) {
           try {
             reco.start();
             return;
-          } catch (e) {
-            console.log("Auto-restart notice:", e);
-          }
+          } catch (e) {}
         }
-
         setMtiLabListening(false);
         isListeningRef.current = false;
         if (!latestTranscriptRef.current) {
-          console.log("%c[MTI Lab] 8.2 Session terminated without transcript", "color: #f59e0b;");
           setMtiLabLiveTranscript(prev =>
-            (prev === 'සවන් දෙමින්...' || prev === 'හඬ ලැබෙමින් පවතී...' || prev.startsWith('නැවතත්'))
+            (prev === 'සවන් දෙමින්...' || prev === 'හඬ ලැබෙමින් පවතී...')
               ? '(හඬක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)'
               : prev
           );
         }
       };
 
-      // 8s hard timeout: if nothing heard at all, show message and stop
-      hardTimeoutId = setTimeout(() => {
-        if (isListeningRef.current && !latestTranscriptRef.current) {
-          console.warn("%c[MTI Lab] ⏰ 8-second hard timeout reached with no recognition output", "color: #dc2626; font-weight: bold;");
-          setMtiLabLiveTranscript('(ශබ්දයක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)');
-          setMtiLabListening(false);
-          isListeningRef.current = false;
-          try { reco.stop(); } catch (e) {}
-        }
-      }, 8000);
-
       recognitionRef.current = reco;
       reco.start();
-      console.log("%c[MTI Lab] 3.3 reco.start() called successfully", "color: #059669;");
     } catch (e) {
-      console.error("[MTI Lab] Exception thrown during recognition start:", e);
+      console.error("[MTI Lab] Start error:", e);
       setMtiLabListening(false);
       isListeningRef.current = false;
       setMtiLabLiveTranscript('(Recognition failed — please try again)');
