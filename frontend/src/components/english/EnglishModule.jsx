@@ -1239,7 +1239,14 @@ export default function EnglishModule({ onExit }) {
           noiseSuppression: { ideal: true },
           autoGainControl: { ideal: true },
           channelCount: { ideal: 1 },
-          sampleRate: { ideal: 16000 }
+          sampleRate: { ideal: 16000 },
+          googEchoCancellation: { ideal: true },
+          googAutoGainControl: { ideal: true },
+          googNoiseSuppression: { ideal: true },
+          googHighpassFilter: { ideal: true },
+          googNoiseSuppression2: { ideal: true },
+          googEchoCancellation2: { ideal: true },
+          googTypingNoiseDetection: { ideal: true }
         }
       });
       mediaStreamRef.current = stream;
