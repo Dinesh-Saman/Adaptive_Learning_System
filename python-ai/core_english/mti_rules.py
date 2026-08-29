@@ -276,9 +276,15 @@ class SriLankanMTIRuleEngine:
                     detected.append(self._build_pattern_entry("INITIAL_H_DELETION", tw, tw[1:]))
 
             # 10. Z/S Confusion (e.g. target: 'zoo', spoken: 'soo')
-            if tw in ['zoo', 'busy', 'please', 'zero', 'zebra', 'music', 'noise', 'rose']:
-                if any(sw in ['soo', 'sue', 'bissy', 'bisi', 'pleas', 'police', 'sero', 'siro', 'sebra', 'mewsic', 'mousic', 'noiss', 'nice', 'ross', 'rows'] for sw in spoken_words):
-                    detected.append(self._build_pattern_entry("Z_S_CONFUSION", tw, 'soo'))
+            if tw in ['zoo', 'busy', 'please', 'zero', 'zebra', 'music', 'noise', 'rose'] or tw.startswith('z'):
+                is_zoo = (tw == 'zoo')
+                if any(
+                    sw in ['soo', 'sue', 'so', 'su', 'sew', 'sow', 'sou', 'bissy', 'bisi', 'pleas', 'police', 'sero', 'siro', 'sebra', 'mewsic', 'mousic', 'noiss', 'nice', 'ross', 'rows'] or
+                    (is_zoo and sw in ['so', 'su', 'soo', 'sue', 'sew', 'sow', 'sou', 'soon', 'siu']) or
+                    (tw.startswith('z') and sw == 's' + tw[1:])
+                    for sw in spoken_words
+                ):
+                    detected.append(self._build_pattern_entry("Z_S_CONFUSION", tw, 'soo' if is_zoo else 's' + tw[1:]))
 
             # 11. Back Vowel Confusion (e.g. target: 'hall', spoken: 'hol')
             if tw in ['hall', 'cup', 'ball', 'call', 'walk', 'tall']:

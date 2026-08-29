@@ -283,7 +283,8 @@ function extractCleanEnglishTranscript(event) {
         return [
           'tree', 'tray', 'tri', 'tee', 'tea', 'ti', 'tink', 'sink', 'dis', 'dat', 'pan', 'pish', 'push', 'pour', 
           'wery', 'vater', 'ischool', 'is-school', 'its cool', "it's cool", 'it cool', 
-          'is cool', 'istar', 'ispoon', 'mudder', 'fadder', 'film', 'pilm'
+          'is cool', 'istar', 'ispoon', 'mudder', 'fadder', 'film', 'pilm',
+          'so', 'su', 'soo', 'sue', 'sew', 'sow'
         ].includes(cLower);
       });
       chosenTranscript = mtiConfuserCandidate || candidateTranscripts[0];
@@ -692,9 +693,12 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
     }
 
     // 10. Z/S Confusion (e.g. target: 'zoo', 'busy', 'please')
-    if (['zoo', 'busy', 'please', 'zero', 'zebra', 'music', 'noise', 'rose'].includes(tw)) {
+    if (['zoo', 'busy', 'please', 'zero', 'zebra', 'music', 'noise', 'rose'].includes(tw) || tw.startsWith('z')) {
+      const isZoo = (tw === 'zoo');
       if (spokenWords.some(sw => 
-        ['soo', 'sue', 'bissy', 'bisi', 'pleas', 'police', 'sero', 'siro', 'sebra', 'mewsic', 'mousic', 'noiss', 'nice', 'ross', 'rows'].includes(sw)
+        ['soo', 'sue', 'so', 'su', 'sew', 'sow', 'sou', 'bissy', 'bisi', 'pleas', 'police', 'sero', 'siro', 'sebra', 'mewsic', 'mousic', 'noiss', 'nice', 'ross', 'rows'].includes(sw) ||
+        (isZoo && ['so', 'su', 'soo', 'sue', 'sew', 'sow', 'sou', 'soon', 'siu'].includes(sw)) ||
+        (tw.startsWith('z') && sw === 's' + tw.slice(1))
       )) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'Z_S_CONFUSION'));
       }
