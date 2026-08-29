@@ -326,21 +326,9 @@ function isWordMatch(tw, sw) {
   if (t === 'tall' && (s === 'to' || s === 'the' || s === 'all' || s === 'tol' || s === 'tool')) return true;
   if (t === 'in' && (s === 'into' || s === 'in')) return true;
 
-  // Substring root match (e.g. 'warmness' starts with 'warm')
-  if (s.startsWith(t) && s.length <= t.length + 4) return true;
-  if (t.startsWith(s) && t.length <= s.length + 3) return true;
-
-  // Levenshtein distance <= 1 for words length >= 4
-  if (t.length >= 4 && s.length >= 4) {
-    if (Math.abs(t.length - s.length) <= 1) {
-      let matchChars = 0;
-      const minLen = Math.min(t.length, s.length);
-      for (let i = 0; i < minLen; i++) {
-        if (t[i] === s[i]) matchChars++;
-      }
-      if (matchChars >= minLen - 1) return true;
-    }
-  }
+  // Substring root match for compound/fused speech
+  if (s.startsWith(t) && (s.length === t.length + 1 || s.length === t.length + 2)) return true;
+  if (t.startsWith(s) && (t.length === s.length + 1 || t.length === s.length + 2)) return true;
 
   return false;
 }
@@ -667,7 +655,7 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
     if (['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit'].includes(tw)) {
       if (
         (tw === 'cake' && spokenWords.some(sw => ['kek', 'kake'].includes(sw))) ||
-        (tw === 'boat' && spokenWords.some(sw => ['bot', 'bought'].includes(sw))) ||
+        (tw === 'boat' && spokenWords.some(sw => ['bot', 'bought', 'board', 'bode', 'bod', 'bowt'].includes(sw))) ||
         (tw === 'great' && spokenWords.some(sw => ['gret', 'get'].includes(sw))) ||
         (tw === 'note' && spokenWords.some(sw => ['not', 'nut'].includes(sw))) ||
         (tw === 'feet' && spokenWords.some(sw => ['fit', 'foot'].includes(sw))) ||

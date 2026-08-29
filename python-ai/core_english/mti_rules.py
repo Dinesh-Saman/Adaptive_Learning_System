@@ -254,7 +254,7 @@ class SriLankanMTIRuleEngine:
             if tw in ['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit']:
                 if (
                     (tw == 'cake' and any(sw in ['kek', 'kake'] for sw in spoken_words)) or
-                    (tw == 'boat' and any(sw in ['bot', 'bought'] for sw in spoken_words)) or
+                    (tw == 'boat' and any(sw in ['bot', 'bought', 'board', 'bode', 'bod', 'bowt'] for sw in spoken_words)) or
                     (tw == 'great' and any(sw in ['gret', 'get'] for sw in spoken_words)) or
                     (tw == 'note' and any(sw in ['not', 'nut'] for sw in spoken_words)) or
                     (tw == 'feet' and any(sw in ['fit', 'foot'] for sw in spoken_words)) or
