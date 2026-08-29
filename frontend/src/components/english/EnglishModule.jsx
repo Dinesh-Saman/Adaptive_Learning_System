@@ -1050,7 +1050,7 @@ export default function EnglishModule({ onExit }) {
 
     setAssessmentResult(null);
     setIsAnswered(false);
-    setLiveTranscript('සවන් දෙමින්...');
+    setLiveTranscript('');
     setLiveVolume(50);
     setRecordingSeconds(0);
     latestTranscriptRef.current = '';
@@ -1085,13 +1085,11 @@ export default function EnglishModule({ onExit }) {
       reco.onsoundstart = () => {
         console.log("%c[Speaking Paper] 2.2 onsoundstart: Audio signal detected", "color: #10b981;");
         soundHeardRef.current = true;
-        setLiveTranscript('හඬ ලැබෙමින් පවතී...');
       };
 
       reco.onspeechstart = () => {
         console.log("%c[Speaking Paper] 2.3 onspeechstart: Human speech recognized", "color: #10b981; font-weight: bold;");
         soundHeardRef.current = true;
-        setLiveTranscript('හඬ ලැබෙමින් පවතී...');
       };
 
       reco.onresult = (event) => {
