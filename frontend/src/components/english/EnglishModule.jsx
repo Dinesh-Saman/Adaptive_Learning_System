@@ -306,10 +306,27 @@ function extractCleanEnglishTranscript(event) {
     }
   }
 
-  const primary = (finalStr + interimStr).trim();
+  const numberWordMap = {
+    '0': 'zero', '1': 'one', '2': 'two', '3': 'three', '4': 'four',
+    '5': 'five', '6': 'six', '7': 'seven', '8': 'eight', '9': 'nine', '10': 'ten'
+  };
+
+  let primary = (finalStr + interimStr).trim();
+  // Normalize digit tokens to English words (e.g. "3" -> "three", "3." -> "three")
+  primary = primary.replace(/\b([0-9]|10)\b/g, (match) => numberWordMap[match] || match);
+
+  // Also populate alternative tokens with digit conversions
+  const normalizedAltTokens = [];
+  allAltTokens.forEach(tok => {
+    if (numberWordMap[tok]) {
+      normalizedAltTokens.push(numberWordMap[tok]);
+    }
+    normalizedAltTokens.push(tok);
+  });
+
   return {
     transcript: primary,
-    alternatives: Array.from(new Set(allAltTokens))
+    alternatives: Array.from(new Set(normalizedAltTokens))
   };
 }
 
