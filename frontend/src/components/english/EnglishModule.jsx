@@ -873,38 +873,6 @@ export default function EnglishModule({ onExit }) {
   const animFrameRef = useRef(null);
   const volumeSamplesRef = useRef([]);
 
-  // ── Pre-warm microphone when entering MTI Lab so first button click is instant ──
-  React.useEffect(() => {
-    if (viewState === 'mti_lab') {
-      if (!mediaStreamRef.current) {
-        navigator.mediaDevices?.getUserMedia({
-          audio: {
-            echoCancellation: { ideal: true },
-            noiseSuppression: { ideal: true },
-            autoGainControl: { ideal: true },
-            channelCount: { ideal: 1 },
-            sampleRate: { ideal: 16000 },
-            googEchoCancellation: { ideal: true },
-            googAutoGainControl: { ideal: true },
-            googNoiseSuppression: { ideal: true },
-            googHighpassFilter: { ideal: true },
-            googNoiseSuppression2: { ideal: true },
-            googEchoCancellation2: { ideal: true },
-            googTypingNoiseDetection: { ideal: true }
-          }
-        }).then(stream => {
-          mediaStreamRef.current = stream;
-        }).catch(e => console.log('MTI Lab mic pre-warm notice:', e));
-      }
-    } else {
-      // Release mic when leaving MTI Lab to free hardware resource
-      if (mediaStreamRef.current && viewState !== 'quiz') {
-        try { mediaStreamRef.current.getTracks().forEach(t => t.stop()); } catch (e) {}
-        mediaStreamRef.current = null;
-      }
-    }
-  }, [viewState]);
-
   // LocalStorage Paper History
   const [paperHistory, setPaperHistory] = useState(() => {
     try {
@@ -1331,35 +1299,6 @@ export default function EnglishModule({ onExit }) {
     setMtiLabListening(true);
     isListeningRef.current = true;
     latestTranscriptRef.current = '';
-
-    // Only open mic stream if not already open (pre-warmed)
-    if (!mediaStreamRef.current) {
-      console.log("%c[MTI Lab] 2. Requesting getUserMedia hardware microphone...", "color: #2563eb;");
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: { ideal: true },
-            noiseSuppression: { ideal: true },
-            autoGainControl: { ideal: true },
-            channelCount: { ideal: 1 },
-            sampleRate: { ideal: 16000 },
-            googEchoCancellation: { ideal: true },
-            googAutoGainControl: { ideal: true },
-            googNoiseSuppression: { ideal: true },
-            googHighpassFilter: { ideal: true },
-            googNoiseSuppression2: { ideal: true },
-            googEchoCancellation2: { ideal: true },
-            googTypingNoiseDetection: { ideal: true }
-          }
-        });
-        mediaStreamRef.current = stream;
-        console.log("%c[MTI Lab] 2.1 Hardware microphone acquired successfully", "color: #059669;");
-      } catch (e) {
-        console.error("[MTI Lab] 2.2 Error acquiring microphone:", e);
-      }
-    } else {
-      console.log("%c[MTI Lab] 2. Using pre-warmed microphone stream", "color: #059669;");
-    }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
