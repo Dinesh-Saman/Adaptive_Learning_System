@@ -362,43 +362,57 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
   const detected = [];
 
   targetWords.forEach(tw => {
-    // 1. S-Cluster Prosthesis
+    // 1. S-Cluster Prosthesis (e.g. target: 'station' -> spoken: 'istation', 'is station', 'east station', 'his station', 'es station')
     if (/^s[cptkmn]/.test(tw)) {
-      spokenWords.forEach(sw => {
-        if (sw === 'i' + tw || sw === 'is' + tw.slice(1) || sw === 'es' + tw.slice(1) || (sw === 'is' && spokenWords.includes(tw))) {
-          detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'S_CLUSTER_PROSTHESIS'));
-        }
-      });
+      const hasProstheticPrefix = spokenWords.some(sw => 
+        sw === 'i' + tw || 
+        sw === 'is' + tw.slice(1) || 
+        sw === 'es' + tw.slice(1) ||
+        sw === 'istation' ||
+        sw === 'ischool' ||
+        sw === 'ispoon' ||
+        sw === 'istudy' ||
+        sw === 'ispeak'
+      ) || (
+        spokenWords.some(sw => ['is', 'es', 'east', 'his', 'its', 'a', 'e'].includes(sw)) && 
+        spokenWords.some(sw => sw === tw || sw.startsWith(tw.slice(0, 3)))
+      );
+
+      if (hasProstheticPrefix) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'S_CLUSTER_PROSTHESIS'));
+      }
     }
 
     // 2. V/W Merger
-    if (tw.startsWith('v') && spokenWords.some(sw => sw === 'w' + tw.slice(1))) {
+    if (tw.startsWith('v') && spokenWords.some(sw => sw === 'w' + tw.slice(1) || sw === 'wary' || sw === 'worry')) {
       detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'V_W_MERGER'));
-    } else if (tw.startsWith('w') && spokenWords.some(sw => sw === 'v' + tw.slice(1))) {
+    } else if (tw.startsWith('w') && spokenWords.some(sw => sw === 'v' + tw.slice(1) || sw === 'vater' || sw === 'voter' || sw === 'vin')) {
       detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'V_W_MERGER'));
     }
 
     // 3. TH Substitution
     if (['three', 'think', 'this', 'that', 'there', 'the'].includes(tw)) {
-      if (tw === 'three' && spokenWords.includes('tree')) {
+      if (tw === 'three' && (spokenWords.includes('tree') || spokenWords.includes('tray') || spokenWords.includes('free'))) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
-      } else if (['this', 'that'].includes(tw) && (spokenWords.includes('dis') || spokenWords.includes('dat'))) {
+      } else if (tw === 'think' && (spokenWords.includes('tink') || spokenWords.includes('sink') || spokenWords.includes('pink'))) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
+      } else if (['this', 'that'].includes(tw) && (spokenWords.includes('dis') || spokenWords.includes('dat') || spokenWords.includes('tis') || spokenWords.includes('tat'))) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
       }
     }
 
     // 4. F/P Substitution
-    if (tw.startsWith('f') && spokenWords.some(sw => sw === 'p' + tw.slice(1))) {
+    if (tw.startsWith('f') && spokenWords.some(sw => sw === 'p' + tw.slice(1) || sw === 'pan' || sw === 'pilm' || sw === 'pood' || sw === 'pone' || sw === 'pour')) {
       detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'F_P_SUBSTITUTION'));
     }
 
     // 5. Paragoge
-    if (['bus', 'milk', 'book', 'good', 'cake', 'stamp'].includes(tw) && spokenWords.some(sw => [tw + 'a', tw + 'er', tw + 'e'].includes(sw))) {
+    if (['bus', 'milk', 'book', 'good', 'cake', 'stamp'].includes(tw) && spokenWords.some(sw => [tw + 'a', tw + 'er', tw + 'e', 'busa', 'milka', 'booka', 'gooda'].includes(sw))) {
       detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'PARAGOGE'));
     }
 
     // 6. Initial H Dropping
-    if (tw.startsWith('h') && tw.length > 2 && spokenWords.includes(tw.slice(1))) {
+    if (tw.startsWith('h') && tw.length > 2 && (spokenWords.includes(tw.slice(1)) || spokenWords.includes('ouse') || spokenWords.includes('appy') || spokenWords.includes('ello'))) {
       detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'INITIAL_H_DELETION'));
     }
   });

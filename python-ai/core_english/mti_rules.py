@@ -165,11 +165,17 @@ class SriLankanMTIRuleEngine:
         target_words = target_clean.split()
 
         for tw in target_words:
-            # 1. S-Cluster Prosthesis (e.g. target: 'school', spoken: 'ischool' or 'is school')
+            # 1. S-Cluster Prosthesis (e.g. target: 'station', spoken: 'istation', 'east station', 'is station', 'his station')
             if tw.startswith(('sc', 'sp', 'st', 'sk', 'sm', 'sn')):
-                for sw in spoken_words:
-                    if sw in ['i' + tw, 'is' + tw[1:], 'es' + tw[1:]] or (sw == 'is' and tw in spoken_words):
-                        detected.append(self._build_pattern_entry("S_CLUSTER_PROSTHESIS", tw, sw))
+                has_prosthesis = any(
+                    sw in ['i' + tw, 'is' + tw[1:], 'es' + tw[1:], 'istation', 'ischool', 'ispoon', 'istudy', 'ispeak'] 
+                    for sw in spoken_words
+                ) or (
+                    any(sw in ['is', 'es', 'east', 'his', 'its', 'a', 'e'] for sw in spoken_words) and
+                    any(sw == tw or sw.startswith(tw[:3]) for sw in spoken_words)
+                )
+                if has_prosthesis:
+                    detected.append(self._build_pattern_entry("S_CLUSTER_PROSTHESIS", tw, "is-" + tw))
 
             # 2. V/W Merger (e.g. target: 'very', spoken: 'wery')
             if tw.startswith('v') and any(sw == 'w' + tw[1:] for sw in spoken_words):
