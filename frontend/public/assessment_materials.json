@@ -506,7 +506,7 @@
         },
         {
             "id": "q_064",
-            "word": "phone",
+            "word": "forest",
             "category_id": 4,
             "category_name": "F/P Substitution",
             "target_ipa": "/f/",
@@ -2672,7 +2672,7 @@
                 },
                 {
                     "id": "q_064",
-                    "word": "phone",
+                    "word": "forest",
                     "category_id": 4,
                     "category_name": "F/P Substitution",
                     "target_ipa": "/f/",

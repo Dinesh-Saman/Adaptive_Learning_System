@@ -49,7 +49,7 @@ SRI_LANKAN_MTI_PATTERNS = [
         "name_si": "F වෙනුවට P ශබ්දය භාවිතය (Pan for Fan)",
         "target_ipa": "/fæn/",
         "error_ipa": "/pæn/",
-        "examples": ["fan", "film", "food", "phone", "elephant", "fish", "feather", "four"],
+        "examples": ["fan", "film", "food", "elephant", "fish", "feather", "four"],
         "pedagogical_tip": "Gently place upper teeth on lower lip and blow air for 'F', rather than pressing both lips together like 'P'.",
         "pedagogical_tip_si": "'F' ශබ්දයට උඩු දත් යටි තොල මත තබා හුළං පිඹින්න (තොල් දෙකම එකතු කර 'P' ශබ්දය නොගන්න)."
     },
