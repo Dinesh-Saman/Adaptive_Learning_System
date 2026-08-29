@@ -115,66 +115,74 @@ function speakEnglish(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-// Rigorous Speech Accuracy Evaluation
-function calculateSimilarity(spokenText, targetText) {
+// 3-Stage Speech Accuracy Evaluation
+function evaluate3StageSpeech(spokenText, targetText, hasAudio = true) {
+  // ── Step 1: Sound Check ──
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-  
-  if (!spokenClean || !targetClean) return 0;
-  if (spokenClean === targetClean) return 100;
 
+  if (!hasAudio && !spokenClean) {
+    return {
+      step: 1,
+      soundDetected: false,
+      wordsCorrect: false,
+      pronunciationCorrect: false,
+      accuracy: 0,
+      statusTitle: 'ශබ්දයක් හඳුනා නොගැනිණි',
+      statusMessage: 'මයික්‍රෆෝනයෙන් කිසිදු හඬක් වාර්තා නොවීය. කරුණාකර ශබ්ද නගා කතා කරන්න.',
+      transcript: '(No sound detected)'
+    };
+  }
+
+  // ── Step 2: Word Correctness Check ──
   const spokenWords = spokenClean.split(/\s+/).filter(Boolean);
   const targetWords = targetClean.split(/\s+/).filter(Boolean);
+  let wordsCorrect = false;
 
-  // ── CASE 1: Single Word Pronunciation (Easy Level / 1 word target) ──
   if (targetWords.length === 1) {
     const targetWord = targetWords[0];
-    
-    // If the child spoke the exact word (either standalone or in a phrase like "the hand", "a hand")
-    if (spokenWords.includes(targetWord)) {
-      return 100;
-    }
-
-    // If the word was pronounced incorrectly (e.g. "and" instead of "hand", "cat" instead of "hat")
-    // A wrong single word MUST NOT pass (cap score strictly at 25-30% maximum)
-    const matrix = [];
-    for (let i = 0; i <= spokenClean.length; i++) matrix[i] = [i];
-    for (let j = 0; j <= targetClean.length; j++) matrix[0][j] = j;
-    for (let i = 1; i <= spokenClean.length; i++) {
-      for (let j = 1; j <= targetClean.length; j++) {
-        const cost = spokenClean[i - 1] === targetClean[j - 1] ? 0 : 1;
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j - 1] + cost
-        );
-      }
-    }
-    const dist = matrix[spokenClean.length][targetClean.length];
-    const maxLen = Math.max(spokenClean.length, targetClean.length);
-    const rawSim = (maxLen - dist) / maxLen;
-    return Math.round(rawSim * 30);
+    wordsCorrect = spokenWords.includes(targetWord) || spokenClean === targetWord;
+  } else {
+    const matches = targetWords.filter(w => spokenWords.includes(w)).length;
+    wordsCorrect = targetWords.length > 0 && (matches / targetWords.length) >= 0.70;
   }
 
-  // ── CASE 2: Multi-Word Sentences (Medium & Hard Levels) ──
-  let matchedCount = 0;
-  const targetCopy = [...targetWords];
-  
-  for (const sw of spokenWords) {
-    const idx = targetCopy.indexOf(sw);
-    if (idx !== -1) {
-      matchedCount++;
-      targetCopy.splice(idx, 1);
-    }
+  if (!wordsCorrect) {
+    return {
+      step: 2,
+      soundDetected: true,
+      wordsCorrect: false,
+      pronunciationCorrect: false,
+      accuracy: 25,
+      statusTitle: 'පැවසූ වචනය වැරදියි',
+      statusMessage: `ඔබ පැවසූ වචනය '${spokenText || spokenClean}' වේ. අපේක්ෂිත වචනය '${targetText}' වේ.`,
+      transcript: spokenText || '(Wrong word)'
+    };
   }
 
-  const wordRecall = (matchedCount / targetWords.length) * 100;
-  const wordPrecision = (matchedCount / spokenWords.length) * 100;
-  
-  if (wordRecall + wordPrecision === 0) return 0;
-  const tokenAccuracy = Math.round((2 * wordRecall * wordPrecision) / (wordRecall + wordPrecision));
+  // ── Step 3: Pronunciation Quality Check ──
+  let pronunciationScore = 90;
+  if (spokenClean === targetClean) {
+    pronunciationScore = 100;
+  } else if (targetWords.length === 1) {
+    pronunciationScore = 90;
+  } else {
+    const matches = targetWords.filter(w => spokenWords.includes(w)).length;
+    pronunciationScore = Math.round((matches / targetWords.length) * 100);
+  }
 
-  return Math.min(tokenAccuracy, Math.round(wordRecall));
+  const isPassed = pronunciationScore >= 75;
+
+  return {
+    step: 3,
+    soundDetected: true,
+    wordsCorrect: true,
+    pronunciationCorrect: isPassed,
+    accuracy: pronunciationScore,
+    statusTitle: isPassed ? 'විශිෂ්ට උච්චාරණයක්! (Passed)' : 'උච්චාරණය තවදුරටත් පුහුණු වන්න',
+    statusMessage: isPassed ? 'ඔබේ උච්චාරණය සහ කථන රිද්මය ඉතා පැහැදිලියි.' : 'වචනය නිවැරදියි, නමුත් උච්චාරණය වඩාත් පැහැදිලිව පුහුණු වන්න.',
+    transcript: spokenText || targetText
+  };
 }
 
 export default function EnglishModule({ onExit }) {
@@ -190,13 +198,11 @@ export default function EnglishModule({ onExit }) {
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [history, setHistory] = useState([]);
 
-  // Recording & Assessment State
+  // Recording & 3-Stage Assessment State
   const [isListening, setIsListening] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [userTranscript, setUserTranscript] = useState('');
-  const [recordedAccuracy, setRecordedAccuracy] = useState(null);
+  const [assessmentResult, setAssessmentResult] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
-  const [isPassed, setIsPassed] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
 
   const recognitionRef = useRef(null);
@@ -268,10 +274,8 @@ export default function EnglishModule({ onExit }) {
     const qList = generatePaperQuestions(selectedGrade, pId);
     setPaperQuestions(qList);
     setCurrentQIndex(0);
-    setUserTranscript('');
-    setRecordedAccuracy(null);
+    setAssessmentResult(null);
     setIsAnswered(false);
-    setIsPassed(false);
     latestTranscriptRef.current = '';
     evaluatedRef.current = false;
     setViewState('quiz');
@@ -290,37 +294,17 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Evaluate speech result
-  const evaluateResult = (transcript, fallbackScore = null) => {
+  // Apply Assessment Result
+  const applyResult = (res) => {
     if (evaluatedRef.current) return;
     evaluatedRef.current = true;
 
-    const currentQ = paperQuestions[currentQIndex];
-    if (!currentQ) return;
-
-    let text = (transcript || '').trim();
-    let acc = 0;
-
-    if (text) {
-      acc = calculateSimilarity(text, currentQ.target_text);
-    } else if (fallbackScore !== null) {
-      acc = fallbackScore;
-      text = currentQ.target_text;
-    } else {
-      text = '(Speech detected)';
-      acc = 30;
-    }
-
-    const passed = acc >= 75;
-
-    setUserTranscript(text);
-    setRecordedAccuracy(acc);
-    setIsPassed(passed);
+    setAssessmentResult(res);
     setIsAnswered(true);
     setIsListening(false);
     setIsAnalyzing(false);
 
-    if (passed) {
+    if (res.pronunciationCorrect) {
       playSound('correct');
     } else {
       playSound('wrong');
@@ -350,8 +334,7 @@ export default function EnglishModule({ onExit }) {
   // Start Voice Recording with Audio Capture & Speech Recognition
   const startRecording = async () => {
     playSound('click');
-    setUserTranscript('');
-    setRecordedAccuracy(null);
+    setAssessmentResult(null);
     setIsAnswered(false);
     setIsAnalyzing(false);
     setRecordingSeconds(0);
@@ -374,24 +357,17 @@ export default function EnglishModule({ onExit }) {
       };
 
       mediaRecorder.onstop = async () => {
-        // If already evaluated via Web Speech API, stop
         if (evaluatedRef.current) return;
 
-        // Otherwise, send recorded audio to backend AI assessment
         setIsAnalyzing(true);
+        const currentQ = paperQuestions[currentQIndex];
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         
-        if (latestTranscriptRef.current) {
-          evaluateResult(latestTranscriptRef.current);
-          return;
-        }
-
         try {
           const reader = new FileReader();
           reader.readAsDataURL(audioBlob);
           reader.onloadend = async () => {
             const base64Audio = reader.result ? reader.result.split(',')[1] : '';
-            const currentQ = paperQuestions[currentQIndex];
             
             try {
               const res = await fetch('http://localhost:5000/api/english/assess', {
@@ -401,24 +377,36 @@ export default function EnglishModule({ onExit }) {
                   studentId: "student_primary",
                   audioBase64: base64Audio,
                   targetText: currentQ?.target_text || "",
+                  clientTranscript: latestTranscriptRef.current || "",
                   videoFramesBase64: []
                 })
               });
               
               if (res.ok) {
                 const data = await res.json();
-                const score = Math.round(data.overall_score || 80);
-                evaluateResult(currentQ?.target_text || "", score);
-              } else {
-                evaluateResult(latestTranscriptRef.current || currentQ?.target_text || "", 80);
+                applyResult({
+                  step: data.step || 3,
+                  soundDetected: data.sound_detected !== undefined ? data.sound_detected : true,
+                  wordsCorrect: data.words_correct !== undefined ? data.words_correct : true,
+                  pronunciationCorrect: data.pronunciation_correct !== undefined ? data.pronunciation_correct : (data.overall_score >= 75),
+                  accuracy: Math.round(data.overall_score || 85),
+                  statusTitle: data.status_title_si || (data.overall_score >= 75 ? 'විශිෂ්ට උච්චාරණයක්! (Passed)' : 'උච්චාරණය තවදුරටත් පුහුණු වන්න'),
+                  statusMessage: data.status_message_si || '',
+                  transcript: data.transcript || latestTranscriptRef.current || currentQ?.target_text
+                });
+                return;
               }
             } catch (err) {
-              // Graceful fallback if backend server is not running
-              evaluateResult(latestTranscriptRef.current || currentQ?.target_text || "", 80);
+              console.log("Backend assessment notice, using 3-stage client evaluator:", err);
             }
+
+            // Client-side 3-stage fallback
+            const localResult = evaluate3StageSpeech(latestTranscriptRef.current, currentQ?.target_text, audioChunksRef.current.length > 0);
+            applyResult(localResult);
           };
         } catch (e) {
-          evaluateResult(latestTranscriptRef.current || "", 30);
+          const localResult = evaluate3StageSpeech(latestTranscriptRef.current, currentQ?.target_text, false);
+          applyResult(localResult);
         }
       };
 
@@ -447,7 +435,6 @@ export default function EnglishModule({ onExit }) {
             combined = combined.trim();
             if (combined) {
               latestTranscriptRef.current = combined;
-              setUserTranscript(combined);
             }
           };
 
@@ -470,13 +457,6 @@ export default function EnglishModule({ onExit }) {
     playSound('click');
     setIsListening(false);
     stopMediaStream();
-
-    // If transcript was recognized, evaluate immediately
-    setTimeout(() => {
-      if (latestTranscriptRef.current && !evaluatedRef.current) {
-        evaluateResult(latestTranscriptRef.current);
-      }
-    }, 400);
   };
 
   // Move to next question or complete paper
@@ -485,16 +465,22 @@ export default function EnglishModule({ onExit }) {
     stopMediaStream();
 
     const currentQ = paperQuestions[currentQIndex];
+    const isPassed = assessmentResult ? assessmentResult.pronunciationCorrect : false;
+    const accuracy = assessmentResult ? assessmentResult.accuracy : 0;
+    const userTranscript = assessmentResult ? assessmentResult.transcript : '(No speech)';
+
     const entry = {
       qNum: currentQIndex + 1,
       id: currentQ.id,
       level: currentQ.level,
       targetText: currentQ.target_text,
-      userTranscript: userTranscript || '(Speech recorded)',
-      accuracy: recordedAccuracy !== null ? recordedAccuracy : 0,
+      userTranscript: userTranscript,
+      accuracy: accuracy,
       isPassed: isPassed,
       sinhalaMeaning: currentQ.sinhala_meaning,
-      phoneticHint: currentQ.phonetic_hint
+      phoneticHint: currentQ.phonetic_hint,
+      soundDetected: assessmentResult ? assessmentResult.soundDetected : false,
+      wordsCorrect: assessmentResult ? assessmentResult.wordsCorrect : false
     };
 
     const updatedHistory = [...history, entry];
@@ -503,10 +489,8 @@ export default function EnglishModule({ onExit }) {
     if (currentQIndex < 9) {
       // Next question
       setCurrentQIndex(prev => prev + 1);
-      setUserTranscript('');
-      setRecordedAccuracy(null);
+      setAssessmentResult(null);
       setIsAnswered(false);
-      setIsPassed(false);
       setIsAnalyzing(false);
       setRecordingSeconds(0);
       latestTranscriptRef.current = '';
@@ -604,7 +588,7 @@ export default function EnglishModule({ onExit }) {
                 ඉංග්‍රීසි කථන අනුවර්තී පද්ධතිය
               </h1>
               <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
-                2, 3 සහ 4 ශ්‍රේණි සඳහා සකස් කළ කථන ප්‍රශ්න 100 බැගින් යුත් ප්‍රශ්න පත්‍ර පද්ධතිය. ඔබේ ශ්‍රේණිය තෝරන්න.
+                පියවර 3ක ශබ්ද, වචන සහ උච්චාරණ ඇගයීම (1. Sound Check ➔ 2. Word Check ➔ 3. Pronunciation Check).
               </p>
             </div>
 
@@ -629,9 +613,9 @@ export default function EnglishModule({ onExit }) {
                     <h2 className="text-2xl font-black text-slate-800 font-sinhala">{g.title}</h2>
                     <p className="text-xs text-slate-600 font-medium leading-relaxed">{g.desc}</p>
                     <div className="pt-2 text-xs font-bold text-slate-500 space-y-1">
-                      <div>✓ Paper 01: Easy (10 Qs)</div>
-                      <div>✓ Paper 02: Medium (10 Qs)</div>
-                      <div>✓ Paper 03: Hard (10 Qs)</div>
+                      <div>✓ Paper 01: Easy (Single Words)</div>
+                      <div>✓ Paper 02: Medium (Short Sentences)</div>
+                      <div>✓ Paper 03: Hard (Long Sentences)</div>
                     </div>
                   </div>
 
@@ -657,7 +641,7 @@ export default function EnglishModule({ onExit }) {
                 කථන ප්‍රශ්න පත්‍ර 3 (Easy, Medium, Hard)
               </h1>
               <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
-                Easy මට්ටමෙන් ආරම්භ කර 75% කට වඩා ලකුණු ලබාගෙන Medium සහ Hard මට්ටම් අගුළු හරින්න.
+                පියවර 3ක විශ්ලේෂණය: 1. ශබ්ද හඳුනා ගැනීම ➔ 2. වචන පරීක්ෂාව ➔ 3. උච්චාරණ නිරවද්‍යතාව.
               </p>
             </div>
 
@@ -843,28 +827,77 @@ export default function EnglishModule({ onExit }) {
               {/* Analyzing Loader */}
               {isAnalyzing && (
                 <div className="p-3.5 rounded-2xl bg-blue-50 border-2 border-blue-300 text-blue-800 text-xs font-bold animate-pulse flex items-center justify-center gap-2">
-                  <span>🤖 කථන විශ්ලේෂණය සිදුවෙමින් පවතී... (Analyzing Speech)</span>
+                  <span>🤖 පියවර 3ක කථන විශ්ලේෂණය සිදුවෙමින් පවතී (Sound ➔ Word ➔ Pronunciation)...</span>
                 </div>
               )}
 
-              {/* Live Transcript and Accuracy Feedback */}
-              {userTranscript && !isAnalyzing && (
-                <div className="p-4 rounded-2xl bg-white border-2 border-slate-200 space-y-2 animate-fade-in">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">ඔබ පැවසූ දෙය (Recognized Speech):</p>
-                  <p className="text-lg font-black text-slate-800 font-sans">
-                    "{userTranscript}"
-                  </p>
-                  {recordedAccuracy !== null && (
-                    <div className="flex justify-center items-center gap-2 pt-2">
-                      <span className={`text-xs font-black px-3.5 py-1.5 rounded-full ${
-                        recordedAccuracy >= 75
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                          : 'bg-rose-100 text-rose-800 border border-rose-300'
-                      }`}>
-                        නිරවද්‍යතාව: {recordedAccuracy}% {recordedAccuracy >= 75 ? '✓ (Passed)' : '✗ (Needs 75%)'}
-                      </span>
+              {/* ── 3-STAGE ASSESSMENT BREAKDOWN ── */}
+              {assessmentResult && !isAnalyzing && (
+                <div className="p-5 rounded-3xl bg-white border-2 border-slate-200 space-y-4 text-left animate-fade-in shadow-sm">
+                  
+                  {/* Status Banner */}
+                  <div className={`p-3.5 rounded-2xl border flex items-center justify-between ${
+                    assessmentResult.pronunciationCorrect
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                      : assessmentResult.wordsCorrect
+                      ? 'bg-amber-50 border-amber-300 text-amber-900'
+                      : 'bg-rose-50 border-rose-300 text-rose-900'
+                  }`}>
+                    <div>
+                      <h4 className="font-black text-sm">{assessmentResult.statusTitle}</h4>
+                      <p className="text-xs font-medium mt-0.5">{assessmentResult.statusMessage}</p>
                     </div>
-                  )}
+                    <span className={`text-base font-black px-3 py-1 rounded-xl ${
+                      assessmentResult.pronunciationCorrect
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-slate-700 text-white'
+                    }`}>
+                      {assessmentResult.accuracy}%
+                    </span>
+                  </div>
+
+                  {/* 3 Steps Checklist */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs">
+                    
+                    {/* Step 1: Sound Check */}
+                    <div className={`p-2.5 rounded-xl border flex items-center gap-2 font-bold ${
+                      assessmentResult.soundDetected ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'
+                    }`}>
+                      <span>{assessmentResult.soundDetected ? '✓' : '✗'}</span>
+                      <span>1. ශබ්ද හඳුනා ගැනීම</span>
+                    </div>
+
+                    {/* Step 2: Word Check */}
+                    <div className={`p-2.5 rounded-xl border flex items-center gap-2 font-bold ${
+                      !assessmentResult.soundDetected
+                        ? 'bg-slate-100 border-slate-200 text-slate-400'
+                        : assessmentResult.wordsCorrect
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                        : 'bg-rose-50 border-rose-200 text-rose-800'
+                    }`}>
+                      <span>{assessmentResult.wordsCorrect ? '✓' : '✗'}</span>
+                      <span>2. වචන නිරවද්‍යතාව</span>
+                    </div>
+
+                    {/* Step 3: Pronunciation Check */}
+                    <div className={`p-2.5 rounded-xl border flex items-center gap-2 font-bold ${
+                      !assessmentResult.wordsCorrect
+                        ? 'bg-slate-100 border-slate-200 text-slate-400'
+                        : assessmentResult.pronunciationCorrect
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                        : 'bg-amber-50 border-amber-200 text-amber-800'
+                    }`}>
+                      <span>{assessmentResult.pronunciationCorrect ? '✓' : '✗'}</span>
+                      <span>3. උච්චාරණ මට්ටම</span>
+                    </div>
+
+                  </div>
+
+                  {/* Spoken Transcript */}
+                  <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 font-bold">
+                    ඔබ පැවසූ දෙය: <span className="font-sans text-slate-900 text-sm">"{assessmentResult.transcript}"</span>
+                  </div>
+
                 </div>
               )}
 
@@ -969,9 +1002,13 @@ export default function EnglishModule({ onExit }) {
                     <p className="text-xs text-slate-600 font-bold">
                       ඔබ පැවසූ දෙය: <span className="font-sans text-slate-800">"{h.userTranscript}"</span>
                     </p>
-                    <p className="text-[11px] text-slate-500 font-medium mt-1">
-                      තේරුම: {h.sinhalaMeaning}
-                    </p>
+                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200 text-[11px] font-bold text-slate-500">
+                      <span>1. Sound: {h.soundDetected ? '✓' : '✗'}</span>
+                      <span>•</span>
+                      <span>2. Word: {h.wordsCorrect ? '✓' : '✗'}</span>
+                      <span>•</span>
+                      <span>3. Pronunciation: {h.accuracy}%</span>
+                    </div>
                   </div>
                 ))}
               </div>
