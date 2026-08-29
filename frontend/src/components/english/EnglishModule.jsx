@@ -1135,7 +1135,10 @@ export default function EnglishModule({ onExit }) {
           if (transcript) {
             latestTranscriptRef.current = transcript;
             setLiveTranscript(transcript);
-            latestAlternativesRef.current = alternatives || [];
+          }
+          if (alternatives && alternatives.length > 0) {
+            const merged = Array.from(new Set([...latestAlternativesRef.current, ...alternatives]));
+            latestAlternativesRef.current = merged;
           }
         };
 
@@ -1874,7 +1877,7 @@ export default function EnglishModule({ onExit }) {
               
               <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-200">
                 <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700">
-                  {currentQ.level === 'easy' ? '🔤 Easy (Single Word)' : currentQ.level === 'medium' ? '📖 Medium (Short Sentence)' : '🎙️ Hard (Long Sentence)'}
+                  {selectedGrade === 2 ? '🔤 Single Word (තනි වචන)' : selectedGrade === 3 ? '📖 Short Sentence (කෙටි වාක්‍ය)' : '🎙️ Long Sentence (දිගු වාක්‍ය)'}
                 </span>
                 <span className="text-xs font-bold text-slate-500">
                   තේරුම: <strong className="text-slate-800">{currentQ.sinhala_meaning}</strong>
