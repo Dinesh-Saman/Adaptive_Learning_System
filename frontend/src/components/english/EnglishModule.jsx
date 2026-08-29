@@ -262,7 +262,7 @@ function extractCleanEnglishTranscript(event) {
     const resItem = event.results[i];
     let chosenTranscript = '';
 
-    // Check all alternatives for pure English (Latin) text and collect raw phonetic hypotheses
+    // Check all alternatives for speech text and collect raw phonetic hypotheses
     let candidateTranscripts = [];
     for (let k = 0; k < resItem.length; k++) {
       const altText = (resItem[k]?.transcript || '').trim();
@@ -271,21 +271,19 @@ function extractCleanEnglishTranscript(event) {
           const cleanTok = tok.replace(/[^a-z0-9]/g, '');
           if (cleanTok) allAltTokens.push(cleanTok);
         });
-        if (/^[a-zA-Z0-9\s.,'?!-–—]+$/.test(altText)) {
-          candidateTranscripts.push(altText);
-        }
+        candidateTranscripts.push(altText);
       }
     }
 
     // Pick the most authentic phonetic transcript from candidates
     if (candidateTranscripts.length > 0) {
-      // If any candidate is an explicit MTI confuser (e.g. "tree", "tink", "pan", "wery", "ischool", "its cool", "boat"), prioritize it over auto-corrected standard word
+      // If any candidate is an explicit MTI confuser, prioritize raw spoken pronunciation
       const mtiConfuserCandidate = candidateTranscripts.find(c => {
         const cLower = c.toLowerCase().trim().replace(/['’]/g, "'");
         return [
-          'tree', 'tray', 'tri', 'tee', 'tea', 'tink', 'sink', 'dis', 'dat', 'pan', 'pish', 'pour', 
+          'tree', 'tray', 'tri', 'tee', 'tea', 'ti', 'tink', 'sink', 'dis', 'dat', 'pan', 'pish', 'push', 'pour', 
           'wery', 'vater', 'ischool', 'is-school', 'its cool', "it's cool", 'it cool', 
-          'is cool', 'istar', 'ispoon', 'mudder', 'fadder'
+          'is cool', 'istar', 'ispoon', 'mudder', 'fadder', 'film', 'pilm'
         ].includes(cLower);
       });
       chosenTranscript = mtiConfuserCandidate || candidateTranscripts[0];
@@ -299,7 +297,7 @@ function extractCleanEnglishTranscript(event) {
     if (resItem.isFinal) {
       finalStr += (chosenTranscript || '') + ' ';
     } else {
-      interimStr += (chosenTranscript || '');
+      interimStr = (chosenTranscript || '');
     }
   }
 
@@ -619,9 +617,11 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
 
     // 4. F/P Substitution (e.g. target: 'elephant', 'fan', 'film', 'food', 'phone', 'fish', 'feather', 'four')
     if (tw.startsWith('f') || tw.includes('ph') || tw === 'elephant') {
+      const isFish = (tw === 'fish');
       const hasFp = spokenWords.some(sw => 
         sw === 'p' + tw.slice(1) || 
-        ['pan', 'pen', 'pilm', 'film', 'pood', 'pone', 'pour', 'pore', 'poor', 'paw', 'po', 'pole', 'poll', 'par', 'per', 'port', 'pot', 'pish', 'push', 'dish', 'pedder', 'peather', 'peter', 'elepant', 'elephent', 'aliphant', 'oliphant', 'elipant', 'elephan', 'eliphant', 'pud', 'put', 'pill', 'pish', 'peace', 'piece'].includes(sw) ||
+        ['pan', 'pen', 'pilm', 'film', 'pood', 'pone', 'pour', 'pore', 'poor', 'paw', 'po', 'pole', 'poll', 'par', 'per', 'port', 'pot', 'pish', 'push', 'dish', 'pedder', 'peather', 'peter', 'elepant', 'elephent', 'aliphant', 'oliphant', 'elipant', 'elephan', 'eliphant', 'pud', 'put', 'pill', 'peace', 'piece'].includes(sw) ||
+        (isFish && ['pish', 'push', 'peach', 'pitch', 'piss', 'pis', 'dish', 'phish', 'posh'].includes(sw)) ||
         (tw.startsWith('f') && (sw.startsWith('p' + tw.slice(1, 3)) || sw.startsWith('po') || sw.startsWith('pa') || sw.startsWith('pe') || sw.startsWith('pi'))) ||
         (tw === 'elephant' && (sw.includes('pant') || sw.includes('plant') || sw.includes('pent') || sw === 'elepant'))
       );
