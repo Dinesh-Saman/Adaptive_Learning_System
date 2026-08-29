@@ -258,6 +258,39 @@ function speakEnglish(text) {
   window.speechSynthesis.speak(utterance);
 }
 
+// Clean English-only transcript extractor with multi-alternative foreign script rejection
+function extractCleanEnglishTranscript(event) {
+  let finalStr = '';
+  let interimStr = '';
+
+  for (let i = 0; i < event.results.length; ++i) {
+    const resItem = event.results[i];
+    let chosenTranscript = '';
+
+    // Check all alternatives for pure English (Latin) text
+    for (let k = 0; k < resItem.length; k++) {
+      const altText = (resItem[k]?.transcript || '').trim();
+      if (/^[a-zA-Z0-9\s.,'?!-–—]+$/.test(altText)) {
+        chosenTranscript = altText;
+        break;
+      }
+    }
+
+    // Fallback: sanitize any foreign non-Latin scripts
+    if (!chosenTranscript && resItem[0]?.transcript) {
+      chosenTranscript = resItem[0].transcript.replace(/[^\x00-\x7F]/g, '').trim();
+    }
+
+    if (resItem.isFinal) {
+      finalStr += (chosenTranscript || '') + ' ';
+    } else {
+      interimStr += (chosenTranscript || '');
+    }
+  }
+
+  return (finalStr + interimStr).trim();
+}
+
 // Phonetic & stem word similarity helper
 function isWordMatch(tw, sw) {
   if (!tw || !sw) return false;
@@ -762,17 +795,7 @@ export default function EnglishModule({ onExit }) {
 
         reco.onresult = (event) => {
           soundHeardRef.current = true;
-
-          let finalStr = '';
-          let interimStr = '';
-          for (let i = 0; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-              finalStr += event.results[i][0].transcript + ' ';
-            } else {
-              interimStr += event.results[i][0].transcript;
-            }
-          }
-          const combined = (finalStr + interimStr).trim();
+          const combined = extractCleanEnglishTranscript(event);
           if (combined) {
             latestTranscriptRef.current = combined;
             setLiveTranscript(combined);
@@ -932,16 +955,7 @@ export default function EnglishModule({ onExit }) {
       reco.maxAlternatives = 5;
 
       reco.onresult = (event) => {
-        let finalStr = '';
-        let interimStr = '';
-        for (let i = 0; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalStr += event.results[i][0].transcript + ' ';
-          } else {
-            interimStr += event.results[i][0].transcript;
-          }
-        }
-        const combined = (finalStr + interimStr).trim();
+        const combined = extractCleanEnglishTranscript(event);
         if (combined) {
           setMtiLabLiveTranscript(combined);
           // Instant real-time diagnostic evaluation
