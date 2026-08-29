@@ -247,7 +247,7 @@ class SriLankanMTIRuleEngine:
 
             # 7. Consonant Cluster Simplification (e.g. target: 'next', spoken: 'neks')
             if tw in ['next', 'friend', 'stamp', 'product', 'desk', 'fast', 'best', 'plant']:
-                if any(sw in ['neks', 'necks', 'nex', 'neck', 'fren', 'stam', 'stem', 'produk', 'produc', 'des', 'dec', 'fas', 'pass', 'bes', 'bet', 'plan', 'plen'] for sw in spoken_words):
+                if any(sw in ['neks', 'necks', 'nex', 'neck', 'fren', 'stam', 'stem', 'produk', 'produc', 'des', 'dec', 'fas', 'fass', 'pass', 'farce', 'face', 'first', 'force', 'bes', 'bet', 'plan', 'plen'] for sw in spoken_words):
                     detected.append(self._build_pattern_entry("CLUSTER_SIMPLIFICATION", tw, 'neks'))
 
             # 8. Short/Long Vowel Confusion (e.g. target: 'cake', spoken: 'kek')

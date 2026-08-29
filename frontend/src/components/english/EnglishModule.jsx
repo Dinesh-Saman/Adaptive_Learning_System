@@ -285,7 +285,8 @@ function extractCleanEnglishTranscript(event) {
           'wery', 'vater', 'ischool', 'is-school', 'its cool', "it's cool", 'it cool', 
           'is cool', 'istar', 'ispoon', 'mudder', 'fadder', 'film', 'pilm',
           'so', 'su', 'soo', 'sue', 'sew', 'sow',
-          'milkha', 'milka', 'melka', 'busa', 'booka'
+          'milkha', 'milka', 'melka', 'busa', 'booka',
+          'farce', 'fas', 'fass', 'neks', 'necks'
         ].includes(cLower);
       });
       chosenTranscript = mtiConfuserCandidate || candidateTranscripts[0];
@@ -651,10 +652,12 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
       }
     }
 
-    // 7. Consonant Cluster Simplification (e.g. target: 'next', 'friend', 'stamp')
+    // 7. Consonant Cluster Simplification (e.g. target: 'next', 'friend', 'stamp', 'fast')
     if (['next', 'friend', 'stamp', 'product', 'desk', 'fast', 'best', 'plant'].includes(tw)) {
+      const isFast = (tw === 'fast');
       if (spokenWords.some(sw => 
-        ['neks', 'necks', 'nex', 'neck', 'fren', 'stam', 'stem', 'produk', 'produc', 'des', 'dec', 'fas', 'pass', 'bes', 'bet', 'plan', 'plen'].includes(sw)
+        ['neks', 'necks', 'nex', 'neck', 'fren', 'stam', 'stem', 'produk', 'produc', 'des', 'dec', 'fas', 'fass', 'pass', 'farce', 'face', 'bes', 'bet', 'plan', 'plen'].includes(sw) ||
+        (isFast && ['farce', 'fas', 'fass', 'pass', 'face', 'first', 'force'].includes(sw))
       )) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'CLUSTER_SIMPLIFICATION'));
       }
