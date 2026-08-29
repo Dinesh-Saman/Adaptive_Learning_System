@@ -118,12 +118,12 @@ function speakEnglish(text) {
 }
 
 // Accurate 3-Stage Speech & Word Alignment Evaluation
-function evaluate3StageSpeech(spokenText, targetText, hasMicEnergy = false) {
+function evaluate3StageSpeech(spokenText, targetText, soundHeard = false) {
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
 
   // ── Step 1: Sound Check ──
-  const soundDetected = Boolean(spokenClean.length > 0 || hasMicEnergy);
+  const soundDetected = Boolean(spokenClean.length > 0 || soundHeard);
 
   if (!soundDetected) {
     return {
@@ -140,6 +140,21 @@ function evaluate3StageSpeech(spokenText, targetText, hasMicEnergy = false) {
     };
   }
 
+  if (!spokenClean) {
+    return {
+      step: 2,
+      soundDetected: true,
+      wordsCorrect: false,
+      pronunciationCorrect: false,
+      accuracy: 20,
+      statusTitle: 'වචනය අපැහැදිලියි (Unclear Speech)',
+      statusMessage: `හඬ ලැබුණ නමුත් වචනය පැහැදිලි නැත. කරුණාකර '${targetText}' ශබ්ද නගා පවසන්න.`,
+      transcript: '(නොපැහැදිලි හඬක්)',
+      wordResults: [{ word: targetText, matched: false, spoken: '' }],
+      missedWords: [targetText]
+    };
+  }
+
   const spokenWords = spokenClean.split(/\s+/).filter(Boolean);
   const targetWords = targetClean.split(/\s+/).filter(Boolean);
 
@@ -148,15 +163,17 @@ function evaluate3StageSpeech(spokenText, targetText, hasMicEnergy = false) {
     const targetWord = targetWords[0];
     let matched = (spokenWords.includes(targetWord)) || (spokenClean === targetWord);
 
-    // Phonetic/suffix fallback (e.g. tree / trees / three)
+    // Phonetic/suffix fallback (e.g. tree / trees / three / ring / rings)
     if (!matched && spokenWords.length > 0) {
-      const sw = spokenWords[spokenWords.length - 1];
-      if (sw === targetWord || sw === targetWord + 's' || sw === targetWord + 'd') {
-        matched = true;
+      for (const sw of spokenWords) {
+        if (sw === targetWord || sw === targetWord + 's' || sw === targetWord + 'd' || sw === targetWord + 'ing') {
+          matched = true;
+          break;
+        }
       }
     }
 
-    const accuracy = matched ? 100 : (spokenClean ? 25 : 0);
+    const accuracy = matched ? 100 : 25;
     const isPassed = matched;
 
     return {
@@ -168,8 +185,8 @@ function evaluate3StageSpeech(spokenText, targetText, hasMicEnergy = false) {
       statusTitle: isPassed ? 'විශිෂ්ට උච්චාරණයක්! (Passed)' : 'පැවසූ වචනය වැරදියි (Needs Practice)',
       statusMessage: isPassed 
         ? 'ඔබේ උච්චාරණය ඉතා පැහැදිලියි.' 
-        : `ඔබ පැවසූ වචනය '${spokenText || '(නොපැහැදිලි හඬක්)'}' වේ. අපේක්ෂිත වචනය '${targetText}' වේ.`,
-      transcript: spokenText || targetText,
+        : `ඔබ පැවසූ වචනය '${spokenText}' වේ. අපේක්ෂිත වචනය '${targetText}' වේ.`,
+      transcript: spokenText,
       wordResults: [{ word: targetWord, matched: matched, spoken: spokenWords[0] || '' }],
       missedWords: matched ? [] : [targetWord]
     };
@@ -247,7 +264,7 @@ function evaluate3StageSpeech(spokenText, targetText, hasMicEnergy = false) {
       : missedContentWords.length > 0 
       ? `වචන ${matchedCount}/${totalWords} නිවැරදියි. '${missedContentWords.join(', ')}' වචනය නිවැරදිව උච්චාරණය කරන්න.`
       : `වචන ${matchedCount}/${totalWords} නිවැරදියි. සම්පූර්ණ වාක්‍යය පැහැදිලිව කියවන්න.`,
-    transcript: spokenText || targetText,
+    transcript: spokenText,
     wordResults: wordResults,
     missedWords: missedWords,
     missedContentWords: missedContentWords
@@ -270,7 +287,7 @@ export default function EnglishModule({ onExit }) {
   // Recording & 3-Stage Assessment State
   const [isListening, setIsListening] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState('');
-  const [micVolume, setMicVolume] = useState(0);
+  const [speechActive, setSpeechActive] = useState(false);
   const [assessmentResult, setAssessmentResult] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
@@ -278,11 +295,8 @@ export default function EnglishModule({ onExit }) {
   const recognitionRef = useRef(null);
   const isListeningRef = useRef(false);
   const latestTranscriptRef = useRef('');
-  const maxVolumeRef = useRef(0);
+  const soundHeardRef = useRef(false);
   const timerIntervalRef = useRef(null);
-  const audioContextRef = useRef(null);
-  const micStreamRef = useRef(null);
-  const animFrameRef = useRef(null);
 
   // LocalStorage Paper History
   const [paperHistory, setPaperHistory] = useState(() => {
@@ -346,11 +360,11 @@ export default function EnglishModule({ onExit }) {
     setPaperQuestions(qList);
     setCurrentQIndex(0);
     setLiveTranscript('');
-    setMicVolume(0);
+    setSpeechActive(false);
     setAssessmentResult(null);
     setIsAnswered(false);
     latestTranscriptRef.current = '';
-    maxVolumeRef.current = 0;
+    soundHeardRef.current = false;
     setViewState('quiz');
   };
 
@@ -367,98 +381,46 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Teardown all audio and recognition resources cleanly
+  // Clean shutdown of speech recognition
   const stopListening = () => {
     isListeningRef.current = false;
     setIsListening(false);
+    setSpeechActive(false);
 
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
       timerIntervalRef.current = null;
     }
 
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
-    }
-
     if (recognitionRef.current) {
       try {
         recognitionRef.current.onend = null;
         recognitionRef.current.onerror = null;
-        recognitionRef.current.stop();
+        recognitionRef.current.onspeechstart = null;
+        recognitionRef.current.onspeechend = null;
+        recognitionRef.current.onsoundstart = null;
+        recognitionRef.current.onresult = null;
+        recognitionRef.current.abort();
       } catch (e) {}
       recognitionRef.current = null;
     }
-
-    if (micStreamRef.current) {
-      try {
-        micStreamRef.current.getTracks().forEach(t => t.stop());
-      } catch (e) {}
-      micStreamRef.current = null;
-    }
-
-    if (audioContextRef.current) {
-      try {
-        audioContextRef.current.close();
-      } catch (e) {}
-      audioContextRef.current = null;
-    }
-
-    setMicVolume(0);
   };
 
-  // Start Voice Recording with Live Speech Recognition + Hardware Mic Level Monitoring
-  const startRecording = async () => {
+  // Dedicated conflict-free SpeechRecognition initialization
+  const startRecording = () => {
     playSound('click');
-    stopListening(); // Clear any previous instance cleanly
+    stopListening(); // Fully clear any previous instances
 
     setAssessmentResult(null);
     setIsAnswered(false);
     setLiveTranscript('');
-    setMicVolume(0);
+    setSpeechActive(false);
     setRecordingSeconds(0);
     latestTranscriptRef.current = '';
-    maxVolumeRef.current = 0;
+    soundHeardRef.current = false;
     isListeningRef.current = true;
     setIsListening(true);
 
-    // 1. Hardware Mic Volume Analyser via Web Audio API
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      micStreamRef.current = stream;
-
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      audioContextRef.current = audioCtx;
-
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 256;
-      const source = audioCtx.createMediaStreamSource(stream);
-      source.connect(analyser);
-
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-      const checkVolume = () => {
-        if (!isListeningRef.current) return;
-        analyser.getByteFrequencyData(dataArray);
-        let sum = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-          sum += dataArray[i];
-        }
-        const avg = sum / dataArray.length;
-        const normalized = Math.min(100, Math.round((avg / 128) * 100));
-        setMicVolume(normalized);
-        if (normalized > maxVolumeRef.current) {
-          maxVolumeRef.current = normalized;
-        }
-        animFrameRef.current = requestAnimationFrame(checkVolume);
-      };
-      checkVolume();
-    } catch (micErr) {
-      console.log("Web Audio mic meter notice:", micErr);
-    }
-
-    // 2. Continuous Speech Recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("ඔබේ බ්‍රවුසරය Web Speech API සඳහා සහාය නොදක්වයි. කරුණාකර Google Chrome හෝ Microsoft Edge භාවිතා කරන්න.");
@@ -479,7 +441,24 @@ export default function EnglishModule({ onExit }) {
         }
       };
 
+      reco.onsoundstart = () => {
+        soundHeardRef.current = true;
+        setSpeechActive(true);
+      };
+
+      reco.onspeechstart = () => {
+        soundHeardRef.current = true;
+        setSpeechActive(true);
+      };
+
+      reco.onspeechend = () => {
+        setSpeechActive(false);
+      };
+
       reco.onresult = (event) => {
+        soundHeardRef.current = true;
+        setSpeechActive(true);
+
         let finalStr = '';
         let interimStr = '';
         for (let i = 0; i < event.results.length; ++i) {
@@ -492,18 +471,20 @@ export default function EnglishModule({ onExit }) {
         const combined = (finalStr + interimStr).trim();
         if (combined) {
           latestTranscriptRef.current = combined;
-          setLiveTranscript(combined); // Live update in real time!
+          setLiveTranscript(combined); // Real-time immediate update!
         }
       };
 
       reco.onerror = (event) => {
         console.log("SpeechRecognition notice:", event.error);
-        // If aborted or network glitch, keep listening active
+        if (event.error === 'no-speech') {
+          // Keep listening active
+        }
       };
 
       reco.onend = () => {
         // Auto-restart if user has not clicked 'Stop' yet
-        if (isListeningRef.current && recognitionRef.current) {
+        if (isListeningRef.current) {
           try {
             reco.start();
           } catch (e) {}
@@ -520,6 +501,7 @@ export default function EnglishModule({ onExit }) {
 
     } catch (err) {
       console.error("Speech start error:", err);
+      stopListening();
     }
   };
 
@@ -527,14 +509,14 @@ export default function EnglishModule({ onExit }) {
   const stopRecordingAndEvaluate = () => {
     playSound('click');
     const finalHeardText = latestTranscriptRef.current || liveTranscript || '';
-    const hasMicEnergy = maxVolumeRef.current >= 8;
+    const soundDetected = soundHeardRef.current || Boolean(finalHeardText.trim());
 
     stopListening();
 
     const currentQ = paperQuestions[currentQIndex];
     const targetText = currentQ ? currentQ.target_text : '';
 
-    const res = evaluate3StageSpeech(finalHeardText, targetText, hasMicEnergy);
+    const res = evaluate3StageSpeech(finalHeardText, targetText, soundDetected);
     setAssessmentResult(res);
     setIsAnswered(true);
 
@@ -577,12 +559,12 @@ export default function EnglishModule({ onExit }) {
       // Next question
       setCurrentQIndex(prev => prev + 1);
       setLiveTranscript('');
-      setMicVolume(0);
+      setSpeechActive(false);
       setAssessmentResult(null);
       setIsAnswered(false);
       setRecordingSeconds(0);
       latestTranscriptRef.current = '';
-      maxVolumeRef.current = 0;
+      soundHeardRef.current = false;
     } else {
       // Paper Completed (10 questions finished)
       const passedCount = updatedHistory.filter(h => h.isPassed).length;
@@ -901,43 +883,32 @@ export default function EnglishModule({ onExit }) {
                 </button>
               </div>
 
-              {/* Live Listening & Real-Time Mic Energy Meter */}
+              {/* Live Listening & Real-Time Speech Display */}
               {isListening && (
                 <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 space-y-3 animate-fade-in">
                   <div className="flex items-center justify-center gap-2 font-bold text-sm">
                     <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
-                    <span>🎙️ සවන් දෙමින් පවතී ({recordingSeconds}s)... දැන් කතා කරන්න</span>
-                  </div>
-
-                  {/* Hardware Mic Energy Waveform Meter */}
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-xs font-bold text-slate-600">හඬ සංවේදනය:</span>
-                    <div className="w-48 bg-slate-200 rounded-full h-3 overflow-hidden p-0.5 border border-slate-300 flex items-center">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-75 ${
-                          micVolume > 15 ? 'bg-emerald-500' : 'bg-blue-400'
-                        }`}
-                        style={{ width: `${Math.max(5, micVolume)}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-xs font-bold text-emerald-700 min-w-[32px]">
-                      {micVolume > 5 ? '🔊 Active' : '🔈 Mic on'}
-                    </span>
+                    <span>🎙️ මයික්‍රෆෝනය සක්‍රීයයි ({recordingSeconds}s)... දැන් කතා කරන්න</span>
+                    {speechActive && (
+                      <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full animate-bounce">
+                        🔊 කථන හඬ ලැබෙමින් පවතී
+                      </span>
+                    )}
                   </div>
 
                   {/* Real-time recognized text preview */}
                   {liveTranscript ? (
-                    <div className="p-3 bg-white rounded-xl border border-emerald-200 text-center">
+                    <div className="p-3 bg-white rounded-xl border border-emerald-200 text-center animate-scale-up">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
                         ඔබ පවසන දෙය (Live Speech):
                       </span>
-                      <span className="text-xl font-black text-emerald-800 font-sans">
+                      <span className="text-2xl font-black text-emerald-800 font-sans">
                         "{liveTranscript}"
                       </span>
                     </div>
                   ) : (
                     <p className="text-xs text-emerald-700 font-medium">
-                      (මයික්‍රෆෝනයට පැහැදිලිව කතා කරන්න, ඔබ පවසන වචන මෙහි දිස්වනු ඇත)
+                      (මයික්‍රෆෝනයට පැහැදිලිව කතා කරන්න, ඔබ පවසන වචන මෙහි ක්ෂණිකව දිස්වනු ඇත)
                     </p>
                   )}
                 </div>
@@ -1037,7 +1008,7 @@ export default function EnglishModule({ onExit }) {
                   {/* Spoken Transcript */}
                   <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 font-bold flex flex-wrap justify-between items-center gap-2">
                     <span>ඔබ පැවසූ දෙය: <strong className="font-sans text-slate-900 text-sm">"{assessmentResult.transcript}"</strong></span>
-                    <span>අපේක්ෂිත වාක්‍යය: <strong className="font-sans text-emerald-700 text-sm">"{currentQ.target_text}"</strong></span>
+                    <span>අපේක්ෂිත {currentQ.level === 'easy' ? 'වචනය' : 'වාක්‍යය'}: <strong className="font-sans text-emerald-700 text-sm">"{currentQ.target_text}"</strong></span>
                   </div>
 
                 </div>
