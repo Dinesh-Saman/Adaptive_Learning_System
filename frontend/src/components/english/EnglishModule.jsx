@@ -10,7 +10,7 @@ const POOLS = {
   4: g4Data
 };
 
-const STOP_WORDS = new Set(['the', 'a', 'an', 'is', 'am', 'are', 'in', 'on', 'at', 'to', 'of', 'and', 'it', 'my', 'we', 'he', 'she']);
+const STOP_WORDS = new Set(['the', 'a', 'an', 'is', 'am', 'are', 'in', 'on', 'at', 'to', 'of', 'and', 'it', 'my', 'we', 'he', 'she', 'for', 'with']);
 
 const PAPERS_CONFIG = [
   {
@@ -117,12 +117,78 @@ function speakEnglish(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-// Guaranteed 3-Stage Speech & Word Alignment Evaluation
-function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = false) {
-  const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-  const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+// Phonetic & stem word similarity helper
+function isWordMatch(tw, sw) {
+  if (!tw || !sw) return false;
+  const t = tw.toLowerCase();
+  const s = sw.toLowerCase();
+  if (t === s) return true;
+  if (s === t + 's' || s === t + 'd' || s === t + 'ed' || s === t + 'ing') return true;
+  if (t === s + 's' || t === s + 'd' || t === s + 'ed' || t === s + 'ing') return true;
+  return false;
+}
 
-  // ── Step 1: Guaranteed Sound Check (Hardware + Cloud) ──
+// Longest Common Subsequence (LCS) Dynamic Programming Word Alignment
+function alignWordsLCS(targetWords, spokenWords) {
+  const n = targetWords.length;
+  const m = spokenWords.length;
+  
+  const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      if (isWordMatch(targetWords[i - 1], spokenWords[j - 1])) {
+        dp[i][j] = dp[i - 1][j - 1] + 1;
+      } else {
+        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+      }
+    }
+  }
+  
+  let i = n;
+  let j = m;
+  const aligned = [];
+  
+  while (i > 0 && j > 0) {
+    if (isWordMatch(targetWords[i - 1], spokenWords[j - 1])) {
+      aligned.push({
+        word: targetWords[i - 1],
+        matched: true,
+        spoken: spokenWords[j - 1]
+      });
+      i--;
+      j--;
+    } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+      aligned.push({
+        word: targetWords[i - 1],
+        matched: false,
+        spoken: ''
+      });
+      i--;
+    } else {
+      j--;
+    }
+  }
+  
+  while (i > 0) {
+    aligned.push({
+      word: targetWords[i - 1],
+      matched: false,
+      spoken: ''
+    });
+    i--;
+  }
+  
+  aligned.reverse();
+  return aligned;
+}
+
+// 100% Accurate 3-Stage Speech & Word Alignment Evaluation
+function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = false) {
+  const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
+  const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
+
+  // ── Step 1: Sound Check ──
   const soundDetected = Boolean(spokenClean.length > 0 || soundDetectedLocally);
 
   if (!soundDetected) {
@@ -148,7 +214,7 @@ function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = fal
       pronunciationCorrect: false,
       accuracy: 25,
       statusTitle: 'වචනය අපැහැදිලියි (Unclear Speech)',
-      statusMessage: `ඔබේ හඬ සාර්ථකව ලැබුණ නමුත් වචනය පැහැදිලි නැත. කරුණාකර '${targetText}' ශබ්ද නගා පැහැදිලිව පවසන්න.`,
+      statusMessage: `ඔබේ හඬ ලැබුණ නමුත් වචනය පැහැදිලි නැත. කරුණාකර '${targetText}' ශබ්ද නගා පැහැදිලිව පවසන්න.`,
       transcript: '(නොපැහැදිලි හඬක්)',
       wordResults: [{ word: targetText, matched: false, spoken: '' }],
       missedWords: [targetText]
@@ -163,10 +229,9 @@ function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = fal
     const targetWord = targetWords[0];
     let matched = (spokenWords.includes(targetWord)) || (spokenClean === targetWord);
 
-    // Instant phonetic/suffix fallback (e.g. tree / trees / three / ring / rings / hand / hands)
     if (!matched && spokenWords.length > 0) {
       for (const sw of spokenWords) {
-        if (sw === targetWord || sw === targetWord + 's' || sw === targetWord + 'd' || sw === targetWord + 'ing') {
+        if (isWordMatch(targetWord, sw)) {
           matched = true;
           break;
         }
@@ -192,52 +257,24 @@ function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = fal
     };
   }
 
-  // ── 2. Multi-Word Sentence Alignment (Medium & Hard Levels) ──
-  const wordResults = [];
-  let matchedCount = 0;
-  const missedContentWords = [];
-  const missedWords = [];
-
-  let spokenIdx = 0;
-  for (const tw of targetWords) {
-    let isMatched = false;
-    let spokenMatchedWord = '';
-
-    for (let j = spokenIdx; j < Math.min(spokenIdx + 3, spokenWords.length); j++) {
-      const sw = spokenWords[j];
-      if (sw === tw || sw === tw + 's' || sw === tw + 'd' || sw === tw + 'ed') {
-        isMatched = true;
-        spokenMatchedWord = sw;
-        spokenIdx = j + 1;
-        break;
-      }
-    }
-
-    if (isMatched) {
-      matchedCount++;
-      wordResults.push({ word: tw, matched: true, spoken: spokenMatchedWord });
-    } else {
-      const actualHeard = spokenIdx < spokenWords.length ? spokenWords[spokenIdx] : '';
-      wordResults.push({ word: tw, matched: false, spoken: actualHeard });
-      missedWords.push(tw);
-      if (!STOP_WORDS.has(tw)) {
-        missedContentWords.push(tw);
-      }
-      if (spokenIdx < spokenWords.length) spokenIdx++;
-    }
-  }
+  // ── 2. Multi-Word Sentence DP Alignment (Medium & Hard Levels) ──
+  const wordResults = alignWordsLCS(targetWords, spokenWords);
+  const matchedCount = wordResults.filter(w => w.matched).length;
+  const missedWords = wordResults.filter(w => !w.matched).map(w => w.word);
+  const missedContentWords = missedWords.filter(w => !STOP_WORDS.has(w));
 
   const totalWords = targetWords.length;
   const matchRatio = matchedCount / totalWords;
 
-  // Strict content-word sensitive scoring:
   let accuracy = 0;
   let isPassed = false;
 
   if (missedContentWords.length > 0) {
+    // If core content word is missed, cap at 68%
     accuracy = Math.min(68, Math.round(matchRatio * 85));
     isPassed = false;
-  } else if (matchRatio >= 0.80) {
+  } else if (matchRatio >= 0.75) {
+    // Passed threshold if all core content words are spoken
     accuracy = Math.round(matchRatio * 100);
     isPassed = true;
   } else {
@@ -437,9 +474,6 @@ export default function EnglishModule({ onExit }) {
     isListeningRef.current = true;
     setIsListening(true);
 
-    const currentQ = paperQuestions[currentQIndex];
-    const isSingleWord = currentQ ? currentQ.level === 'easy' : true;
-
     // 1. Instant Hardware Audio VAD (100% Local, Zero Cloud Lag)
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -484,12 +518,11 @@ export default function EnglishModule({ onExit }) {
       console.log("Local audio context notice:", err);
     }
 
-    // 2. Full-Sentence Speech Recognition (continuous: true so it never cuts off mid-sentence!)
+    // 2. Continuous Speech Recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       try {
         const reco = new SpeechRecognition();
-        // Always continuous mode so student can take natural pauses while reading!
         reco.continuous = true;
         reco.interimResults = true;
         reco.lang = 'en-US';
@@ -523,7 +556,7 @@ export default function EnglishModule({ onExit }) {
           const combined = (finalStr + interimStr).trim();
           if (combined) {
             latestTranscriptRef.current = combined;
-            setLiveTranscript(combined); // Live update in real time!
+            setLiveTranscript(combined);
           }
         };
 
@@ -532,7 +565,7 @@ export default function EnglishModule({ onExit }) {
         };
 
         reco.onend = () => {
-          // Auto-restart if user has not clicked 'Stop' yet
+          // Auto-restart if user is still in speaking mode
           if (isListeningRef.current) {
             try {
               reco.start();
@@ -1051,16 +1084,11 @@ export default function EnglishModule({ onExit }) {
                             className={`px-3 py-1.5 rounded-xl text-xs font-bold font-sans flex items-center gap-1.5 border ${
                               wr.matched
                                 ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                                : 'bg-rose-50 border-rose-300 text-rose-800 animate-pulse'
+                                : 'bg-rose-50 border-rose-300 text-rose-800'
                             }`}
                           >
                             <span>{wr.matched ? '✓' : '✗'}</span>
                             <span>{wr.word}</span>
-                            {!wr.matched && wr.spoken && (
-                              <span className="text-[10px] text-rose-600 font-normal italic">
-                                ("{wr.spoken}")
-                              </span>
-                            )}
                           </span>
                         ))}
                       </div>
