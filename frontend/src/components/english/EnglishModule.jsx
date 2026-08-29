@@ -10,6 +10,8 @@ const POOLS = {
   4: g4Data
 };
 
+const STOP_WORDS = new Set(['the', 'a', 'an', 'is', 'am', 'are', 'in', 'on', 'at', 'to', 'of', 'and', 'it', 'my', 'we', 'he', 'she']);
+
 const PAPERS_CONFIG = [
   {
     id: 1,
@@ -115,7 +117,7 @@ function speakEnglish(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-// 3-Stage Speech Accuracy Evaluation
+// Accurate 3-Stage Speech & Word Alignment Evaluation
 function evaluate3StageSpeech(spokenText, targetText) {
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
@@ -130,66 +132,123 @@ function evaluate3StageSpeech(spokenText, targetText) {
       accuracy: 0,
       statusTitle: 'ශබ්දයක් හඳුනා නොගැනිණි',
       statusMessage: 'මයික්‍රෆෝනයෙන් කිසිදු හඬක් වාර්තා නොවීය. කරුණාකර මයික්‍රෆෝනය ළඟට ගෙන ශබ්ද නගා කතා කරන්න.',
-      transcript: '(No sound detected)'
+      transcript: '(No sound detected)',
+      wordResults: [],
+      missedWords: []
     };
   }
 
-  // ── Step 2: Word Correctness Check ──
   const spokenWords = spokenClean.split(/\s+/).filter(Boolean);
   const targetWords = targetClean.split(/\s+/).filter(Boolean);
-  let wordsCorrect = false;
 
+  // ── 1. Single Word Evaluation (Easy Level) ──
   if (targetWords.length === 1) {
     const targetWord = targetWords[0];
-    wordsCorrect = spokenWords.includes(targetWord) || spokenClean === targetWord;
-    
-    // Check common close homophones/inflections
-    if (!wordsCorrect && spokenWords.length > 0) {
+    let matched = (spokenWords.includes(targetWord)) || (spokenClean === targetWord);
+
+    // Phonetic/suffix fallback
+    if (!matched && spokenWords.length > 0) {
       const sw = spokenWords[spokenWords.length - 1];
       if (sw === targetWord || sw === targetWord + 's' || sw === targetWord + 'd') {
-        wordsCorrect = true;
+        matched = true;
       }
     }
-  } else {
-    const matches = targetWords.filter(w => spokenWords.includes(w)).length;
-    wordsCorrect = targetWords.length > 0 && (matches / targetWords.length) >= 0.70;
-  }
 
-  if (!wordsCorrect) {
+    const accuracy = matched ? 100 : 25;
+    const isPassed = matched;
+
     return {
-      step: 2,
+      step: matched ? 3 : 2,
       soundDetected: true,
-      wordsCorrect: false,
-      pronunciationCorrect: false,
-      accuracy: 25,
-      statusTitle: 'පැවසූ වචනය වැරදියි',
-      statusMessage: `ඔබ පැවසූ වචනය '${spokenText || spokenClean}' වේ. අපේක්ෂිත වචනය '${targetText}' වේ.`,
-      transcript: spokenText || '(Wrong word)'
+      wordsCorrect: matched,
+      pronunciationCorrect: isPassed,
+      accuracy: accuracy,
+      statusTitle: isPassed ? 'විශිෂ්ට උච්චාරණයක්! (Passed)' : 'පැවසූ වචනය වැරදියි (Needs Practice)',
+      statusMessage: isPassed 
+        ? 'ඔබේ උච්චාරණය ඉතා පැහැදිලියි.' 
+        : `ඔබ පැවසූ වචනය '${spokenText}' වේ. අපේක්ෂිත වචනය '${targetText}' වේ.`,
+      transcript: spokenText || targetText,
+      wordResults: [{ word: targetWord, matched: matched, spoken: spokenWords[0] || '' }],
+      missedWords: matched ? [] : [targetWord]
     };
   }
 
-  // ── Step 3: Pronunciation Quality Check ──
-  let pronunciationScore = 90;
-  if (spokenClean === targetClean) {
-    pronunciationScore = 100;
-  } else if (targetWords.length === 1) {
-    pronunciationScore = 95;
-  } else {
-    const matches = targetWords.filter(w => spokenWords.includes(w)).length;
-    pronunciationScore = Math.round((matches / targetWords.length) * 100);
+  // ── 2. Multi-Word Sentence Alignment (Medium & Hard Levels) ──
+  const wordResults = [];
+  let matchedCount = 0;
+  const missedContentWords = [];
+  const missedWords = [];
+
+  let spokenIdx = 0;
+  for (const tw of targetWords) {
+    let isMatched = false;
+    let spokenMatchedWord = '';
+
+    for (let j = spokenIdx; j < Math.min(spokenIdx + 3, spokenWords.length); j++) {
+      const sw = spokenWords[j];
+      if (sw === tw || sw === tw + 's' || sw === tw + 'd') {
+        isMatched = true;
+        spokenMatchedWord = sw;
+        spokenIdx = j + 1;
+        break;
+      }
+    }
+
+    if (isMatched) {
+      matchedCount++;
+      wordResults.push({ word: tw, matched: true, spoken: spokenMatchedWord });
+    } else {
+      const actualHeard = spokenIdx < spokenWords.length ? spokenWords[spokenIdx] : '';
+      wordResults.push({ word: tw, matched: false, spoken: actualHeard });
+      missedWords.push(tw);
+      if (!STOP_WORDS.has(tw)) {
+        missedContentWords.push(tw);
+      }
+      if (spokenIdx < spokenWords.length) spokenIdx++;
+    }
   }
 
-  const isPassed = pronunciationScore >= 75;
+  const totalWords = targetWords.length;
+  const matchRatio = matchedCount / totalWords;
+
+  // Strict pedagogical scoring:
+  // If ANY content word was missed (e.g. 'sun' pronounced as 'earn'), it CANNOT pass with >=75%!
+  let accuracy = 0;
+  let isPassed = false;
+
+  if (missedContentWords.length > 0) {
+    // Content word missed: score capped at 65-68% (Needs Practice)
+    accuracy = Math.min(68, Math.round(matchRatio * 85));
+    isPassed = false;
+  } else if (matchRatio >= 0.80) {
+    // All content words matched and at least 80% total words matched
+    accuracy = Math.round(matchRatio * 100);
+    isPassed = true;
+  } else {
+    accuracy = Math.round(matchRatio * 100);
+    isPassed = false;
+  }
+
+  const allWordsCorrect = (matchedCount === totalWords);
 
   return {
-    step: 3,
+    step: isPassed ? 3 : (matchedCount > 0 ? 2 : 1),
     soundDetected: true,
-    wordsCorrect: true,
+    wordsCorrect: allWordsCorrect,
     pronunciationCorrect: isPassed,
-    accuracy: pronunciationScore,
-    statusTitle: isPassed ? 'විශිෂ්ට උච්චාරණයක්! (Passed)' : 'උච්චාරණය තවදුරටත් පුහුණු වන්න',
-    statusMessage: isPassed ? 'ඔබේ උච්චාරණය සහ කථන රිද්මය ඉතා පැහැදිලියි.' : 'වචනය නිවැරදියි, නමුත් උච්චාරණය වඩාත් පැහැදිලිව පුහුණු වන්න.',
-    transcript: spokenText || targetText
+    accuracy: accuracy,
+    statusTitle: isPassed 
+      ? 'විශිෂ්ට උච්චාරණයක්! (Passed)' 
+      : 'උච්චාරණය තවදුරටත් පුහුණු වන්න (Needs Practice)',
+    statusMessage: isPassed 
+      ? 'ඔබේ උච්චාරණය සහ කථන රිද්මය ඉතා පැහැදිලියි.' 
+      : missedContentWords.length > 0 
+      ? `වචන ${matchedCount}/${totalWords} නිවැරදියි. '${missedContentWords.join(', ')}' වචනය නිවැරදිව උච්චාරණය කරන්න.`
+      : `වචන ${matchedCount}/${totalWords} නිවැරදියි. සම්පූර්ණ වාක්‍යය පැහැදිලිව කියවන්න.`,
+    transcript: spokenText || targetText,
+    wordResults: wordResults,
+    missedWords: missedWords,
+    missedContentWords: missedContentWords
   };
 }
 
@@ -378,7 +437,7 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Stop Recording & Execute 3-Stage Evaluation
+  // Stop Recording & Execute Accurate 3-Stage Evaluation
   const stopRecordingAndEvaluate = () => {
     playSound('click');
     stopListening();
@@ -419,7 +478,8 @@ export default function EnglishModule({ onExit }) {
       sinhalaMeaning: currentQ.sinhala_meaning,
       phoneticHint: currentQ.phonetic_hint,
       soundDetected: assessmentResult ? assessmentResult.soundDetected : false,
-      wordsCorrect: assessmentResult ? assessmentResult.wordsCorrect : false
+      wordsCorrect: assessmentResult ? assessmentResult.wordsCorrect : false,
+      wordResults: assessmentResult ? assessmentResult.wordResults : []
     };
 
     const updatedHistory = [...history, entry];
@@ -794,7 +854,7 @@ export default function EnglishModule({ onExit }) {
                     <span className={`text-base font-black px-3 py-1 rounded-xl ${
                       assessmentResult.pronunciationCorrect
                         ? 'bg-emerald-600 text-white'
-                        : 'bg-slate-700 text-white'
+                        : 'bg-rose-600 text-white'
                     }`}>
                       {assessmentResult.accuracy}%
                     </span>
@@ -825,7 +885,7 @@ export default function EnglishModule({ onExit }) {
 
                     {/* Step 3: Pronunciation Check */}
                     <div className={`p-2.5 rounded-xl border flex items-center gap-2 font-bold ${
-                      !assessmentResult.wordsCorrect
+                      !assessmentResult.wordsCorrect && !assessmentResult.pronunciationCorrect
                         ? 'bg-slate-100 border-slate-200 text-slate-400'
                         : assessmentResult.pronunciationCorrect
                         ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
@@ -837,10 +897,39 @@ export default function EnglishModule({ onExit }) {
 
                   </div>
 
+                  {/* Word-by-Word Visual Breakdown for Sentences */}
+                  {assessmentResult.wordResults && assessmentResult.wordResults.length > 1 && (
+                    <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                        වචන අනුව විශ්ලේෂණය (Word Breakdown):
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {assessmentResult.wordResults.map((wr, idx) => (
+                          <span
+                            key={idx}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold font-sans flex items-center gap-1.5 border ${
+                              wr.matched
+                                ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                                : 'bg-rose-50 border-rose-300 text-rose-800 animate-pulse'
+                            }`}
+                          >
+                            <span>{wr.matched ? '✓' : '✗'}</span>
+                            <span>{wr.word}</span>
+                            {!wr.matched && wr.spoken && (
+                              <span className="text-[10px] text-rose-600 font-normal italic">
+                                ("{wr.spoken}")
+                              </span>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Spoken Transcript */}
-                  <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 font-bold flex justify-between items-center">
+                  <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 font-bold flex flex-wrap justify-between items-center gap-2">
                     <span>ඔබ පැවසූ දෙය: <strong className="font-sans text-slate-900 text-sm">"{assessmentResult.transcript}"</strong></span>
-                    <span>අපේක්ෂිත වචනය: <strong className="font-sans text-emerald-700 text-sm">"{currentQ.target_text}"</strong></span>
+                    <span>අපේක්ෂිත වාක්‍යය: <strong className="font-sans text-emerald-700 text-sm">"{currentQ.target_text}"</strong></span>
                   </div>
 
                 </div>
