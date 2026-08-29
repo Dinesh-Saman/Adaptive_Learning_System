@@ -117,12 +117,12 @@ function speakEnglish(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-// Accurate 3-Stage Speech & Word Alignment Evaluation
+// Instant 3-Stage Speech & Word Alignment Evaluation
 function evaluate3StageSpeech(spokenText, targetText, soundHeard = false) {
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
 
-  // ── Step 1: Sound Check ──
+  // ── Step 1: Instant Sound Check ──
   const soundDetected = Boolean(spokenClean.length > 0 || soundHeard);
 
   if (!soundDetected) {
@@ -163,7 +163,7 @@ function evaluate3StageSpeech(spokenText, targetText, soundHeard = false) {
     const targetWord = targetWords[0];
     let matched = (spokenWords.includes(targetWord)) || (spokenClean === targetWord);
 
-    // Phonetic/suffix fallback (e.g. tree / trees / three / ring / rings)
+    // Instant phonetic/suffix fallback (e.g. tree / trees / three / ring / rings)
     if (!matched && spokenWords.length > 0) {
       for (const sw of spokenWords) {
         if (sw === targetWord || sw === targetWord + 's' || sw === targetWord + 'd' || sw === targetWord + 'ing') {
@@ -230,8 +230,7 @@ function evaluate3StageSpeech(spokenText, targetText, soundHeard = false) {
   const totalWords = targetWords.length;
   const matchRatio = matchedCount / totalWords;
 
-  // Strict pedagogical scoring:
-  // If ANY content word was missed (e.g. 'sun' pronounced as 'earn'), it CANNOT pass with >=75%!
+  // Strict content-word sensitive scoring:
   let accuracy = 0;
   let isPassed = false;
 
@@ -240,7 +239,7 @@ function evaluate3StageSpeech(spokenText, targetText, soundHeard = false) {
     accuracy = Math.min(68, Math.round(matchRatio * 85));
     isPassed = false;
   } else if (matchRatio >= 0.80) {
-    // All content words matched and at least 80% total words matched
+    // All content words matched and >=80% total words matched
     accuracy = Math.round(matchRatio * 100);
     isPassed = true;
   } else {
@@ -287,7 +286,7 @@ export default function EnglishModule({ onExit }) {
   // Recording & 3-Stage Assessment State
   const [isListening, setIsListening] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState('');
-  const [speechActive, setSpeechActive] = useState(false);
+  const [instantSoundActive, setInstantSoundActive] = useState(false);
   const [assessmentResult, setAssessmentResult] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
@@ -297,6 +296,7 @@ export default function EnglishModule({ onExit }) {
   const latestTranscriptRef = useRef('');
   const soundHeardRef = useRef(false);
   const timerIntervalRef = useRef(null);
+  const soundActiveTimeoutRef = useRef(null);
 
   // LocalStorage Paper History
   const [paperHistory, setPaperHistory] = useState(() => {
@@ -360,7 +360,7 @@ export default function EnglishModule({ onExit }) {
     setPaperQuestions(qList);
     setCurrentQIndex(0);
     setLiveTranscript('');
-    setSpeechActive(false);
+    setInstantSoundActive(false);
     setAssessmentResult(null);
     setIsAnswered(false);
     latestTranscriptRef.current = '';
@@ -385,11 +385,16 @@ export default function EnglishModule({ onExit }) {
   const stopListening = () => {
     isListeningRef.current = false;
     setIsListening(false);
-    setSpeechActive(false);
+    setInstantSoundActive(false);
 
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
       timerIntervalRef.current = null;
+    }
+
+    if (soundActiveTimeoutRef.current) {
+      clearTimeout(soundActiveTimeoutRef.current);
+      soundActiveTimeoutRef.current = null;
     }
 
     if (recognitionRef.current) {
@@ -399,6 +404,8 @@ export default function EnglishModule({ onExit }) {
         recognitionRef.current.onspeechstart = null;
         recognitionRef.current.onspeechend = null;
         recognitionRef.current.onsoundstart = null;
+        recognitionRef.current.onsoundend = null;
+        recognitionRef.current.onaudiostart = null;
         recognitionRef.current.onresult = null;
         recognitionRef.current.abort();
       } catch (e) {}
@@ -406,15 +413,15 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Dedicated conflict-free SpeechRecognition initialization
+  // Fast, Low-Latency SpeechRecognition Initialization
   const startRecording = () => {
     playSound('click');
-    stopListening(); // Fully clear any previous instances
+    stopListening(); // Fully clear previous session
 
     setAssessmentResult(null);
     setIsAnswered(false);
     setLiveTranscript('');
-    setSpeechActive(false);
+    setInstantSoundActive(false);
     setRecordingSeconds(0);
     latestTranscriptRef.current = '';
     soundHeardRef.current = false;
@@ -441,23 +448,41 @@ export default function EnglishModule({ onExit }) {
         }
       };
 
+      // Instant Low-Latency Sound Trigger
+      reco.onaudiostart = () => {
+        soundHeardRef.current = true;
+        setInstantSoundActive(true);
+      };
+
       reco.onsoundstart = () => {
         soundHeardRef.current = true;
-        setSpeechActive(true);
+        setInstantSoundActive(true);
       };
 
       reco.onspeechstart = () => {
         soundHeardRef.current = true;
-        setSpeechActive(true);
+        setInstantSoundActive(true);
       };
 
       reco.onspeechend = () => {
-        setSpeechActive(false);
+        // Keep active briefly
+        if (soundActiveTimeoutRef.current) clearTimeout(soundActiveTimeoutRef.current);
+        soundActiveTimeoutRef.current = setTimeout(() => {
+          setInstantSoundActive(false);
+        }, 800);
       };
 
+      reco.onsoundend = () => {
+        if (soundActiveTimeoutRef.current) clearTimeout(soundActiveTimeoutRef.current);
+        soundActiveTimeoutRef.current = setTimeout(() => {
+          setInstantSoundActive(false);
+        }, 800);
+      };
+
+      // Real-Time Immediate Transcript Streaming
       reco.onresult = (event) => {
         soundHeardRef.current = true;
-        setSpeechActive(true);
+        setInstantSoundActive(true);
 
         let finalStr = '';
         let interimStr = '';
@@ -471,19 +496,16 @@ export default function EnglishModule({ onExit }) {
         const combined = (finalStr + interimStr).trim();
         if (combined) {
           latestTranscriptRef.current = combined;
-          setLiveTranscript(combined); // Real-time immediate update!
+          setLiveTranscript(combined); // Instant update on screen!
         }
       };
 
       reco.onerror = (event) => {
         console.log("SpeechRecognition notice:", event.error);
-        if (event.error === 'no-speech') {
-          // Keep listening active
-        }
       };
 
       reco.onend = () => {
-        // Auto-restart if user has not clicked 'Stop' yet
+        // Auto-restart immediately if user is still in speaking mode
         if (isListeningRef.current) {
           try {
             reco.start();
@@ -505,7 +527,7 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Stop Recording & Execute Accurate 3-Stage Evaluation
+  // Instant Stop Recording & Fast Evaluation
   const stopRecordingAndEvaluate = () => {
     playSound('click');
     const finalHeardText = latestTranscriptRef.current || liveTranscript || '';
@@ -559,7 +581,7 @@ export default function EnglishModule({ onExit }) {
       // Next question
       setCurrentQIndex(prev => prev + 1);
       setLiveTranscript('');
-      setSpeechActive(false);
+      setInstantSoundActive(false);
       setAssessmentResult(null);
       setIsAnswered(false);
       setRecordingSeconds(0);
@@ -883,26 +905,32 @@ export default function EnglishModule({ onExit }) {
                 </button>
               </div>
 
-              {/* Live Listening & Real-Time Speech Display */}
+              {/* Instant Live Listening & Fast Voice Visualizer */}
               {isListening && (
                 <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 space-y-3 animate-fade-in">
-                  <div className="flex items-center justify-center gap-2 font-bold text-sm">
+                  
+                  {/* High-speed Real-Time Sound Status Bar */}
+                  <div className="flex flex-wrap items-center justify-center gap-2 font-bold text-sm">
                     <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
                     <span>🎙️ මයික්‍රෆෝනය සක්‍රීයයි ({recordingSeconds}s)... දැන් කතා කරන්න</span>
-                    {speechActive && (
-                      <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full animate-bounce">
-                        🔊 කථන හඬ ලැබෙමින් පවතී
+                    {instantSoundActive ? (
+                      <span className="bg-emerald-600 text-white text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
+                        <span>🟢</span> හඬ ලැබුණි (Voice Active)
+                      </span>
+                    ) : (
+                      <span className="bg-slate-200 text-slate-600 text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <span>🔈</span> හඬ බලාපොරොත්තුවෙන්...
                       </span>
                     )}
                   </div>
 
-                  {/* Real-time recognized text preview */}
+                  {/* Real-time recognized text preview (Instant display on every word) */}
                   {liveTranscript ? (
-                    <div className="p-3 bg-white rounded-xl border border-emerald-200 text-center animate-scale-up">
+                    <div className="p-3.5 bg-white rounded-2xl border-2 border-emerald-300 text-center animate-scale-up shadow-sm">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
                         ඔබ පවසන දෙය (Live Speech):
                       </span>
-                      <span className="text-2xl font-black text-emerald-800 font-sans">
+                      <span className="text-2xl sm:text-3xl font-black text-emerald-800 font-sans">
                         "{liveTranscript}"
                       </span>
                     </div>
