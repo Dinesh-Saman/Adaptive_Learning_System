@@ -910,9 +910,10 @@ export default function EnglishModule({ onExit }) {
       try {
         recognitionRef.current.onend = null;
         recognitionRef.current.onerror = null;
-        recognitionRef.current.onresult = null;
-        recognitionRef.current.abort();
-      } catch (e) {}
+        recognitionRef.current.stop();
+      } catch (e) {
+        try { recognitionRef.current.abort(); } catch (err) {}
+      }
       recognitionRef.current = null;
     }
 
@@ -1239,10 +1240,10 @@ export default function EnglishModule({ onExit }) {
     if (SpeechRecognition) {
       try {
         const reco = new SpeechRecognition();
-        reco.continuous = true;
+        reco.continuous = false; // Fast single-word immediate finalization
         reco.interimResults = true;
         reco.lang = 'en-US';
-        reco.maxAlternatives = 3;
+        reco.maxAlternatives = 5;
 
         reco.onsoundstart = () => {
           setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
@@ -1278,6 +1279,7 @@ export default function EnglishModule({ onExit }) {
 
           const currentHeard = (finalStr.trim() || interimStr.trim());
           if (currentHeard) {
+            latestTranscriptRef.current = currentHeard;
             setMtiLabLiveTranscript(currentHeard);
             // Instant real-time diagnostic evaluation
             const res = evaluate6DimensionalSpeech(
@@ -1294,21 +1296,20 @@ export default function EnglishModule({ onExit }) {
 
         reco.onerror = (event) => {
           console.log("MTI Lab SpeechRecognition error:", event.error);
-          if (isListeningRef.current && event.error !== 'aborted') {
-            try {
-              reco.stop();
-              setTimeout(() => {
-                if (isListeningRef.current) reco.start();
-              }, 200);
-            } catch (e) {}
+          if (event.error === 'no-speech') {
+            if (!latestTranscriptRef.current) {
+              setMtiLabLiveTranscript('(ශබ්දයක් හඳුනා නොගැනිණි)');
+            }
           }
+          setMtiLabListening(false);
+          isListeningRef.current = false;
         };
 
         reco.onend = () => {
-          if (isListeningRef.current) {
-            try {
-              reco.start();
-            } catch (e) {}
+          setMtiLabListening(false);
+          isListeningRef.current = false;
+          if (!latestTranscriptRef.current) {
+            setMtiLabLiveTranscript(prev => (prev === 'සවන් දෙමින්...' || prev === 'හඬ ලැබෙමින් පවතී...') ? '(හඬක් හඳුනා නොගැනිණි)' : prev);
           }
         };
 
@@ -1316,13 +1317,24 @@ export default function EnglishModule({ onExit }) {
         reco.start();
       } catch (e) {
         console.log("Failed to start SpeechRecognition:", e);
+        setMtiLabListening(false);
+        isListeningRef.current = false;
       }
     }
   };
 
   const stopMtiLabRecording = () => {
     playSound('click');
-    stopListening();
+    setMtiLabListening(false);
+    isListeningRef.current = false;
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        try { recognitionRef.current.abort(); } catch (err) {}
+      }
+      recognitionRef.current = null;
+    }
   };
 
   const currentQ = paperQuestions[currentQIndex];
