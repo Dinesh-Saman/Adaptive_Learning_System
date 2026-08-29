@@ -357,25 +357,134 @@ function alignWordsLCS(targetWords, spokenWords) {
   return aligned;
 }
 
+// Exact Word IPA mapping dictionary for all example words
+const WORD_IPA_MAP = {
+  // Pattern 1: S-Cluster Prosthesis
+  'school': { target: '/skuːl/', error: '/ɪskuːl/' },
+  'spoon': { target: '/spuːn/', error: '/ɪspuːn/' },
+  'station': { target: '/ˈsteɪʃən/', error: '/ɪsˈteɪʃən/' },
+  'study': { target: '/ˈstʌdi/', error: '/ɪsˈtʌdi/' },
+  'speak': { target: '/spiːk/', error: '/ɪspiːk/' },
+  'star': { target: '/stɑːr/', error: '/ɪsˈtɑːr/ or /esta/' },
+  'stop': { target: '/stɒp/', error: '/ɪsˈtɒp/' },
+  'spring': { target: '/sprɪŋ/', error: '/ɪsˈprɪŋ/' },
+  // Pattern 2: V/W Merger
+  'very': { target: '/ˈveri/', error: '/ˈweri/' },
+  'water': { target: '/ˈwɔːtər/', error: '/ˈvɔːtər/' },
+  'win': { target: '/wɪn/', error: '/vɪn/' },
+  'view': { target: '/vjuː/', error: '/wjuː/' },
+  'van': { target: '/væn/', error: '/wæn/' },
+  'window': { target: '/ˈwɪndoʊ/', error: '/ˈvɪndoʊ/' },
+  'voice': { target: '/vɔɪs/', error: '/wɔɪs/' },
+  'village': { target: '/ˈvɪlɪdʒ/', error: '/ˈwɪlɪdʒ/' },
+  // Pattern 3: TH Substitution
+  'three': { target: '/θriː/', error: '/triː/' },
+  'think': { target: '/θɪŋk/', error: '/tɪŋk/' },
+  'this': { target: '/ðɪs/', error: '/dɪs/' },
+  'that': { target: '/ðæt/', error: '/dæt/' },
+  'there': { target: '/ðeər/', error: '/deər/' },
+  'the': { target: '/ðə/', error: '/də/' },
+  'mother': { target: '/ˈmʌðər/', error: '/ˈmʌdər/' },
+  'father': { target: '/ˈfɑːðər/', error: '/ˈfɑːdər/' },
+  // Pattern 4: F/P Substitution
+  'fan': { target: '/fæn/', error: '/pæn/' },
+  'film': { target: '/fɪlm/', error: '/pɪlm/' },
+  'food': { target: '/fuːd/', error: '/puːd/' },
+  'phone': { target: '/foʊn/', error: '/poʊn/' },
+  'elephant': { target: '/ˈelɪfənt/', error: '/ˈelɪpənt/' },
+  'fish': { target: '/fɪʃ/', error: '/pɪʃ/' },
+  'feather': { target: '/ˈfeðər/', error: '/ˈpedər/' },
+  'four': { target: '/fɔːr/', error: '/pɔːr/' },
+  // Pattern 5: Paragoge
+  'bus': { target: '/bʌs/', error: '/bʌs.ə/' },
+  'milk': { target: '/mɪlk/', error: '/mɪlk.ə/' },
+  'book': { target: '/bʊk/', error: '/bʊk.ə/' },
+  'good': { target: '/ɡʊd/', error: '/ɡʊd.ə/' },
+  'cake': { target: '/keɪk/', error: '/keɪk.ə/' },
+  'stamp': { target: '/stæmp/', error: '/stæmp.ə/' },
+  'park': { target: '/pɑːrk/', error: '/pɑːrk.ə/' },
+  'pen': { target: '/pen/', error: '/pen.ə/' },
+  // Pattern 6: Final Consonant Weakening
+  'but': { target: '/bʌt/', error: '/bʌ/' },
+  'cat': { target: '/kæt/', error: '/kæ/' },
+  'hand': { target: '/hænd/', error: '/hæn/' },
+  'red': { target: '/red/', error: '/re/' },
+  'bird': { target: '/bɜːrd/', error: '/bɜː/' },
+  // Pattern 7: Consonant Cluster Simplification
+  'next': { target: '/nekst/', error: '/neks/' },
+  'friend': { target: '/frend/', error: '/fren/' },
+  'product': { target: '/ˈprɒdʌkt/', error: '/ˈprɒdʌk/' },
+  'desk': { target: '/desk/', error: '/des/' },
+  'fast': { target: '/fɑːst/', error: '/fɑːs/' },
+  'best': { target: '/best/', error: '/bes/' },
+  'plant': { target: '/plɑːnt/', error: '/plɑːn/' },
+  // Pattern 8: Short/Long Vowel Confusion
+  'boat': { target: '/boʊt/', error: '/bɒt/' },
+  'great': { target: '/ɡreɪt/', error: '/ɡret/' },
+  'note': { target: '/noʊt/', error: '/nɒt/' },
+  'feet': { target: '/fiːt/', error: '/fɪt/' },
+  'fit': { target: '/fɪt/', error: '/fiːt/' },
+  'seat': { target: '/siːt/', error: '/sɪt/' },
+  'sit': { target: '/sɪt/', error: '/siːt/' },
+  // Pattern 9: Initial H Dropping
+  'house': { target: '/haʊs/', error: '/aʊs/' },
+  'happy': { target: '/ˈhæpi/', error: '/ˈæpi/' },
+  'hello': { target: '/həˈloʊ/', error: '/əˈloʊ/' },
+  'hot': { target: '/hɒt/', error: '/ɒt/' },
+  'hat': { target: '/hæt/', error: '/æt/' },
+  'hear': { target: '/hɪər/', error: '/ɪər/' },
+  'help': { target: '/help/', error: '/elp/' },
+  // Pattern 10: Z/S Confusion
+  'zoo': { target: '/zuː/', error: '/suː/' },
+  'busy': { target: '/ˈbɪzi/', error: '/ˈbɪsi/' },
+  'please': { target: '/pliːz/', error: '/pliːs/' },
+  'zero': { target: '/ˈzɪəroʊ/', error: '/ˈsɪəroʊ/' },
+  'zebra': { target: '/ˈzebrə/', error: '/ˈsebrə/' },
+  'music': { target: '/ˈmjuːzɪk/', error: '/ˈmjuːsɪk/' },
+  'noise': { target: '/nɔɪz/', error: '/nɔɪs/' },
+  'rose': { target: '/roʊz/', error: '/roʊs/' },
+  // Pattern 11: Back Vowel Confusion
+  'hall': { target: '/hɔːl/', error: '/hɒl/' },
+  'cup': { target: '/kʌp/', error: '/kæp/' },
+  'ball': { target: '/bɔːl/', error: '/bɒl/' },
+  'call': { target: '/kɔːl/', error: '/kɒl/' },
+  'walk': { target: '/wɔːk/', error: '/wɒk/' },
+  'tall': { target: '/tɔːl/', error: '/tɒl/' },
+  // Pattern 12: Equal Stress / Syllable-Timed Rhythm
+  'computer': { target: '/kəmˈpjuːtər/', error: '/kompjuˈter/' },
+  'banana': { target: '/bəˈnɑːnə/', error: '/bananə/' },
+  'tomorrow': { target: '/təˈmɒroʊ/', error: '/tomɒroʊ/' },
+  'beautiful': { target: '/ˈbjuːtɪfʊl/', error: '/bjuːtiˈful/' },
+  'together': { target: '/təˈɡeðər/', error: '/toɡeˈdər/' },
+  'umbrella': { target: '/ʌmˈbrelə/', error: '/umbreˈla/' }
+};
+
 // Client-Side Sri Lankan MTI Pattern Detector
 function detectSriLankanMTIPatterns(spokenWords, targetWords) {
   const detected = [];
 
   targetWords.forEach(tw => {
-    // 1. S-Cluster Prosthesis (e.g. target: 'station' -> spoken: 'istation', 'is station', 'east station', 'his station', 'es station')
+    // 1. S-Cluster Prosthesis (e.g. target: 'star' -> spoken: 'esta', 'easter', 'istar', 'estar', 'is star', 'east star')
     if (/^s[cptkmn]/.test(tw)) {
       const hasProstheticPrefix = spokenWords.some(sw => 
         sw === 'i' + tw || 
         sw === 'is' + tw.slice(1) || 
         sw === 'es' + tw.slice(1) ||
+        sw === 'esta' ||
+        sw === 'easter' ||
+        sw === 'estar' ||
+        sw === 'istar' ||
+        sw === 'aster' ||
         sw === 'istation' ||
         sw === 'ischool' ||
         sw === 'ispoon' ||
         sw === 'istudy' ||
         sw === 'ispeak'
       ) || (
-        spokenWords.some(sw => ['is', 'es', 'east', 'his', 'its', 'a', 'e'].includes(sw)) && 
-        spokenWords.some(sw => sw === tw || sw.startsWith(tw.slice(0, 3)))
+        spokenWords.some(sw => ['is', 'es', 'east', 'easter', 'esta', 'his', 'its', 'a', 'e'].includes(sw)) && 
+        spokenWords.some(sw => sw === tw || sw.startsWith(tw.slice(0, 2)) || sw === 'ta' || sw === 'tar')
+      ) || (
+        tw === 'star' && spokenWords.some(sw => ['esta', 'estar', 'easter', 'istar', 'aster', 'is'].includes(sw))
       );
 
       if (hasProstheticPrefix) {
@@ -1171,7 +1280,7 @@ export default function EnglishModule({ onExit }) {
                     {activeMtiPattern.name} ({activeMtiPattern.name_si})
                   </span>
                   <span className="text-xs font-mono font-bold text-slate-600">
-                    Target: {activeMtiPattern.target_ipa} vs Common Error: {activeMtiPattern.error_ipa}
+                    Target: {WORD_IPA_MAP[mtiLabTargetWord]?.target || activeMtiPattern.target_ipa} vs Common Error: {WORD_IPA_MAP[mtiLabTargetWord]?.error || activeMtiPattern.error_ipa}
                   </span>
                 </div>
 
@@ -1181,7 +1290,7 @@ export default function EnglishModule({ onExit }) {
                     {mtiLabTargetWord}
                   </h3>
                   <p className="text-sm text-slate-500 font-mono">
-                    {activeMtiPattern.target_ipa}
+                    {WORD_IPA_MAP[mtiLabTargetWord]?.target || activeMtiPattern.target_ipa}
                   </p>
                 </div>
 
@@ -1248,14 +1357,22 @@ export default function EnglishModule({ onExit }) {
                         ඔබ පැවසූ දෙය: <strong className="text-slate-900 text-base font-sans">"{mtiLabResult.transcript}"</strong>
                       </span>
                       <span className={`px-3 py-1 rounded-xl text-xs font-black text-white ${
-                        mtiLabResult.mtiPatterns.length === 0 && mtiLabResult.wordsCorrect ? 'bg-emerald-600' : 'bg-rose-600'
+                        mtiLabResult.mtiPatterns && mtiLabResult.mtiPatterns.length > 0
+                          ? 'bg-rose-600'
+                          : mtiLabResult.wordsCorrect
+                          ? 'bg-emerald-600'
+                          : 'bg-amber-600'
                       }`}>
-                        {mtiLabResult.mtiPatterns.length === 0 && mtiLabResult.wordsCorrect ? '✓ Clean Standard' : '⚠️ MTI Pattern Detected'}
+                        {mtiLabResult.mtiPatterns && mtiLabResult.mtiPatterns.length > 0
+                          ? '⚠️ MTI Pattern Detected'
+                          : mtiLabResult.wordsCorrect
+                          ? '✓ Clean Standard'
+                          : '⚠️ Wrong Word / වෙනත් වචනයක්'}
                       </span>
                     </div>
 
                     {/* MTI Pattern Advice Card */}
-                    {mtiLabResult.mtiPatterns.length > 0 ? (
+                    {mtiLabResult.mtiPatterns && mtiLabResult.mtiPatterns.length > 0 ? (
                       <div className="p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1.5">
                         <div className="text-xs font-black text-rose-900">
                           📌 හඳුනාගත් MTI රටාව: {mtiLabResult.mtiPatterns[0].name} ({mtiLabResult.mtiPatterns[0].name_si})
@@ -1265,6 +1382,13 @@ export default function EnglishModule({ onExit }) {
                         </p>
                         <p className="text-[11px] text-slate-600 italic">
                           ({mtiLabResult.mtiPatterns[0].pedagogical_tip})
+                        </p>
+                      </div>
+                    ) : !mtiLabResult.wordsCorrect ? (
+                      <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-2xl text-amber-900">
+                        <h4 className="font-black text-sm">⚠️ පැවසූ වචනය අපේක්ෂිත වචනයට නොගැලපේ.</h4>
+                        <p className="text-xs font-medium mt-0.5">
+                          ඔබ පැවසූ වචනය '{mtiLabResult.transcript}' වේ. කරුණාකර '{mtiLabTargetWord}' වචනය නැවත පවසන්න.
                         </p>
                       </div>
                     ) : (

@@ -168,11 +168,13 @@ class SriLankanMTIRuleEngine:
             # 1. S-Cluster Prosthesis (e.g. target: 'station', spoken: 'istation', 'east station', 'is station', 'his station')
             if tw.startswith(('sc', 'sp', 'st', 'sk', 'sm', 'sn')):
                 has_prosthesis = any(
-                    sw in ['i' + tw, 'is' + tw[1:], 'es' + tw[1:], 'istation', 'ischool', 'ispoon', 'istudy', 'ispeak'] 
+                    sw in ['i' + tw, 'is' + tw[1:], 'es' + tw[1:], 'esta', 'easter', 'estar', 'istar', 'aster', 'istation', 'ischool', 'ispoon', 'istudy', 'ispeak'] 
                     for sw in spoken_words
                 ) or (
-                    any(sw in ['is', 'es', 'east', 'his', 'its', 'a', 'e'] for sw in spoken_words) and
-                    any(sw == tw or sw.startswith(tw[:3]) for sw in spoken_words)
+                    any(sw in ['is', 'es', 'east', 'easter', 'esta', 'his', 'its', 'a', 'e'] for sw in spoken_words) and
+                    any(sw == tw or sw.startswith(tw[:2]) or sw in ['ta', 'tar'] for sw in spoken_words)
+                ) or (
+                    tw == 'star' and any(sw in ['esta', 'estar', 'easter', 'istar', 'aster', 'is'] for sw in spoken_words)
                 )
                 if has_prosthesis:
                     detected.append(self._build_pattern_entry("S_CLUSTER_PROSTHESIS", tw, "is-" + tw))
