@@ -286,7 +286,8 @@ function extractCleanEnglishTranscript(event) {
           'is cool', 'istar', 'ispoon', 'mudder', 'fadder', 'film', 'pilm',
           'so', 'su', 'soo', 'sue', 'sew', 'sow',
           'milkha', 'milka', 'melka', 'busa', 'booka',
-          'farce', 'fas', 'fass', 'neks', 'necks'
+          'farce', 'fas', 'fass', 'neks', 'necks',
+          'bout', 'baut', 'bot', 'board', 'bode'
         ].includes(cLower);
       });
       chosenTranscript = mtiConfuserCandidate || candidateTranscripts[0];
@@ -655,7 +656,7 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
     if (['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit'].includes(tw)) {
       if (
         (tw === 'cake' && spokenWords.some(sw => ['kek', 'kake'].includes(sw))) ||
-        (tw === 'boat' && spokenWords.some(sw => ['bot', 'bought', 'board', 'bode', 'bod', 'bowt'].includes(sw))) ||
+        (tw === 'boat' && spokenWords.some(sw => ['bot', 'bought', 'board', 'bode', 'bod', 'bowt', 'bout', 'baut', 'butt', 'bat'].includes(sw))) ||
         (tw === 'great' && spokenWords.some(sw => ['gret', 'get'].includes(sw))) ||
         (tw === 'note' && spokenWords.some(sw => ['not', 'nut'].includes(sw))) ||
         (tw === 'feet' && spokenWords.some(sw => ['fit', 'foot'].includes(sw))) ||
