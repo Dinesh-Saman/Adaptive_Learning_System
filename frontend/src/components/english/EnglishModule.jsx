@@ -1072,7 +1072,7 @@ export default function EnglishModule({ onExit }) {
     try {
       console.log("%c[Speaking Paper] 2. Initializing SpeechRecognition (lang: en-US, maxAlternatives: 5)...", "color: #0284c7; font-weight: bold;");
       const reco = new SpeechRecognition();
-      reco.continuous = true;
+      reco.continuous = false;
       reco.interimResults = true;
       reco.lang = 'en-US';
       reco.maxAlternatives = 5;
@@ -1115,7 +1115,7 @@ export default function EnglishModule({ onExit }) {
 
       reco.onend = () => {
         console.log("%c[Speaking Paper] 2.4 onend: Recognizer cycle ended", "color: #64748b;");
-        if (isListeningRef.current) {
+        if (isListeningRef.current && !latestTranscriptRef.current) {
           try {
             reco.start();
           } catch (e) {}
