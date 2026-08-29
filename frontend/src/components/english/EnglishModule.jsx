@@ -1315,11 +1315,13 @@ export default function EnglishModule({ onExit }) {
   const mtiLabTargetWord = activeMtiPattern.examples[mtiLabWordIndex % activeMtiPattern.examples.length] || activeMtiPattern.examples[0];
 
   const startMtiLabRecording = async () => {
+    console.log("%c[MTI Lab] 1. 'Speak to Test' Clicked - Initializing...", "background: #047857; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;");
     playSound('click');
 
     // Tear down any existing recognition only — keep mic stream alive if already open
     isListeningRef.current = false;
     if (recognitionRef.current) {
+      console.log("%c[MTI Lab] 1.1 Aborting previous active recognition instance", "color: #d97706;");
       try { recognitionRef.current.onend = null; recognitionRef.current.abort(); } catch (e) {}
       recognitionRef.current = null;
     }
@@ -1332,6 +1334,7 @@ export default function EnglishModule({ onExit }) {
 
     // Only open mic stream if not already open (pre-warmed)
     if (!mediaStreamRef.current) {
+      console.log("%c[MTI Lab] 2. Requesting getUserMedia hardware microphone...", "color: #2563eb;");
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
@@ -1350,13 +1353,17 @@ export default function EnglishModule({ onExit }) {
           }
         });
         mediaStreamRef.current = stream;
+        console.log("%c[MTI Lab] 2.1 Hardware microphone acquired successfully", "color: #059669;");
       } catch (e) {
-        console.log("MTI Lab mic stream notice:", e);
+        console.error("[MTI Lab] 2.2 Error acquiring microphone:", e);
       }
+    } else {
+      console.log("%c[MTI Lab] 2. Using pre-warmed microphone stream", "color: #059669;");
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
+      console.error("[MTI Lab] SpeechRecognition API not supported on this browser!");
       setMtiLabListening(false);
       isListeningRef.current = false;
       setMtiLabLiveTranscript('(Browser speech recognition not supported)');
@@ -1368,36 +1375,52 @@ export default function EnglishModule({ onExit }) {
     let resultDelivered = false;
 
     const deliverResult = (heard, alts, recoRef) => {
-      if (resultDelivered) return;
+      if (resultDelivered) {
+        console.log("%c[MTI Lab] Result already delivered, skipping duplicate trigger", "color: #64748b;");
+        return;
+      }
       resultDelivered = true;
       if (hardTimeoutId) { clearTimeout(hardTimeoutId); hardTimeoutId = null; }
+
+      console.log(`%c[MTI Lab] 5. Delivering Result! Heard: "${heard}" | Alternatives: [${alts.join(', ')}]`, "background: #7c3aed; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;");
 
       latestTranscriptRef.current = heard;
       setMtiLabLiveTranscript(heard);
       const res = evaluate6DimensionalSpeech(heard, mtiLabTargetWord, true, 1.5, 60, alts);
+      console.log("%c[MTI Lab] 6. Evaluation Result Payload:", "color: #0284c7; font-weight: bold;", res);
       setMtiLabResult(res);
 
       // ── KEY FIX: stop recognition immediately after first result ──
-      // This bypasses Chrome's 1.5-2s silence endpoint detection wait
       setMtiLabListening(false);
       isListeningRef.current = false;
+      console.log("%c[MTI Lab] 7. Stopping recognition stream after result delivery", "color: #64748b;");
       try { recoRef.stop(); } catch (e) {}
     };
 
     try {
+      console.log("%c[MTI Lab] 3. Starting Web SpeechRecognition (lang: en-US, continuous: false, interim: true)", "color: #0284c7;");
       const reco = new SpeechRecognition();
       reco.continuous = false;
       reco.interimResults = true;   // Fire immediately on partial results
       reco.lang = 'en-US';
       reco.maxAlternatives = 5;
 
-      reco.onsoundstart = () => setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
-      reco.onspeechstart = () => setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
+      reco.onsoundstart = () => {
+        console.log("%c[MTI Lab] 3.1 onsoundstart: Audio energy detected by browser", "color: #10b981;");
+        setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
+      };
+
+      reco.onspeechstart = () => {
+        console.log("%c[MTI Lab] 3.2 onspeechstart: Human speech detected by ASR", "color: #10b981;");
+        setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
+      };
 
       reco.onresult = (event) => {
         let finalStr = '';
         let interimStr = '';
         const alts = [];
+
+        console.log("%c[MTI Lab] 4. onresult event fired! Results length:", "color: #8b5cf6;", event.results.length);
 
         for (let i = 0; i < event.results.length; ++i) {
           const resItem = event.results[i];
@@ -1416,19 +1439,22 @@ export default function EnglishModule({ onExit }) {
         }
 
         const heard = finalStr.trim() || interimStr.trim();
+        console.log(`%c[MTI Lab] 4.1 Parsed transcript -> Final: "${finalStr.trim()}", Interim: "${interimStr.trim()}", Raw Heard: "${heard}"`, "color: #6366f1;");
         if (heard) {
-          // Deliver result immediately on first interim — don't wait for Chrome silence detection
           deliverResult(heard, alts, reco);
         }
       };
 
       reco.onerror = (event) => {
-        console.log('MTI Lab reco error:', event.error);
+        console.warn(`%c[MTI Lab] ⚠️ onerror event: error="${event.error}", message="${event.message || 'none'}"`, "color: #ef4444; font-weight: bold;");
         if (event.error === 'no-speech' && !hasRetried && isListeningRef.current && !latestTranscriptRef.current) {
           hasRetried = true;
           resultDelivered = false;
+          console.log("%c[MTI Lab] Auto-retrying once on 'no-speech'...", "color: #f59e0b;");
           setMtiLabLiveTranscript('නැවතත් කතා කරන්න... (Speak again)');
-          try { reco.start(); return; } catch (e2) {}
+          try { reco.start(); return; } catch (e2) {
+            console.error("[MTI Lab] Auto-retry start failed:", e2);
+          }
         }
         if (!latestTranscriptRef.current) {
           setMtiLabLiveTranscript('(ශබ්දයක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)');
@@ -1438,9 +1464,11 @@ export default function EnglishModule({ onExit }) {
       };
 
       reco.onend = () => {
+        console.log("%c[MTI Lab] 8. onend event: Recognition session terminated", "color: #64748b;");
         setMtiLabListening(false);
         isListeningRef.current = false;
         if (!latestTranscriptRef.current) {
+          console.log("%c[MTI Lab] 8.1 onend without transcript - displaying prompt to retry", "color: #f59e0b;");
           setMtiLabLiveTranscript(prev =>
             (prev === 'සවන් දෙමින්...' || prev === 'හඬ ලැබෙමින් පවතී...' || prev.startsWith('නැවතත්'))
               ? '(හඬක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)'
@@ -1452,6 +1480,7 @@ export default function EnglishModule({ onExit }) {
       // 8s hard timeout: if nothing heard at all, show message and stop
       hardTimeoutId = setTimeout(() => {
         if (isListeningRef.current && !latestTranscriptRef.current) {
+          console.warn("%c[MTI Lab] ⏰ 8-second hard timeout reached with no recognition output", "color: #dc2626; font-weight: bold;");
           setMtiLabLiveTranscript('(ශබ්දයක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)');
           setMtiLabListening(false);
           isListeningRef.current = false;
@@ -1461,8 +1490,9 @@ export default function EnglishModule({ onExit }) {
 
       recognitionRef.current = reco;
       reco.start();
+      console.log("%c[MTI Lab] 3.3 reco.start() called successfully", "color: #059669;");
     } catch (e) {
-      console.log('Failed to start SpeechRecognition:', e);
+      console.error("[MTI Lab] Exception thrown during recognition start:", e);
       setMtiLabListening(false);
       isListeningRef.current = false;
       setMtiLabLiveTranscript('(Recognition failed — please try again)');
