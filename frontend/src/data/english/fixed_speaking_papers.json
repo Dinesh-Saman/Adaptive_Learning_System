@@ -1,0 +1,836 @@
+{
+  "2": {
+    "1": [
+      {
+        "id": "G2_P1_Q01",
+        "target_text": "school",
+        "display_text": "school",
+        "phonetic_hint": "/skuːl/",
+        "sinhala_meaning": "පාසල",
+        "tip": "S-Cluster: Speak 'school' directly without 'is-'",
+        "mti_pattern": "S_CLUSTER_PROSTHESIS"
+      },
+      {
+        "id": "G2_P1_Q02",
+        "target_text": "water",
+        "display_text": "water",
+        "phonetic_hint": "/ˈwɔː.tər/",
+        "sinhala_meaning": "වතුර",
+        "tip": "V/W: Round your lips for 'water'",
+        "mti_pattern": "V_W_MERGER"
+      },
+      {
+        "id": "G2_P1_Q03",
+        "target_text": "three",
+        "display_text": "three",
+        "phonetic_hint": "/θriː/",
+        "sinhala_meaning": "තුන",
+        "tip": "TH: Soft 'th' sound, not 'tree'",
+        "mti_pattern": "TH_SUBSTITUTION"
+      },
+      {
+        "id": "G2_P1_Q04",
+        "target_text": "fish",
+        "display_text": "fish",
+        "phonetic_hint": "/fɪʃ/",
+        "sinhala_meaning": "මාළුවා",
+        "tip": "F/P: Bite your lower lip for 'fish', not 'pish'",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
+      {
+        "id": "G2_P1_Q05",
+        "target_text": "milk",
+        "display_text": "milk",
+        "phonetic_hint": "/mɪlk/",
+        "sinhala_meaning": "කිරි",
+        "tip": "Paragoge: Stop cleanly at 'k', do not add 'a'",
+        "mti_pattern": "PARAGOGE"
+      },
+      {
+        "id": "G2_P1_Q06",
+        "target_text": "cat",
+        "display_text": "cat",
+        "phonetic_hint": "/kæt/",
+        "sinhala_meaning": "පූසා",
+        "tip": "Final Consonant: Pronounce the ending 't' clearly",
+        "mti_pattern": "FINAL_CONSONANT_WEAKENING"
+      },
+      {
+        "id": "G2_P1_Q07",
+        "target_text": "fast",
+        "display_text": "fast",
+        "phonetic_hint": "/fɑːst/",
+        "sinhala_meaning": "වේගවත්",
+        "tip": "Cluster: Pronounce both 's' and 't' in 'fast'",
+        "mti_pattern": "CLUSTER_SIMPLIFICATION"
+      },
+      {
+        "id": "G2_P1_Q08",
+        "target_text": "boat",
+        "display_text": "boat",
+        "phonetic_hint": "/bəʊt/",
+        "sinhala_meaning": "බෝට්ටුව",
+        "tip": "Vowel Length: Elongate the vowel cleanly",
+        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
+      },
+      {
+        "id": "G2_P1_Q09",
+        "target_text": "house",
+        "display_text": "house",
+        "phonetic_hint": "/haʊs/",
+        "sinhala_meaning": "නිවස",
+        "tip": "Initial H: Breathe out the 'h' sound clearly",
+        "mti_pattern": "INITIAL_H_DELETION"
+      },
+      {
+        "id": "G2_P1_Q10",
+        "target_text": "zoo",
+        "display_text": "zoo",
+        "phonetic_hint": "/zuː/",
+        "sinhala_meaning": "සත්වෝද්‍යානය",
+        "tip": "Z/S: Buzz the 'z' sound cleanly",
+        "mti_pattern": "Z_S_CONFUSION"
+      }
+    ],
+    "2": [
+      {
+        "id": "G2_P2_Q01",
+        "target_text": "star",
+        "display_text": "star",
+        "phonetic_hint": "/stɑːr/",
+        "sinhala_meaning": "තරුව",
+        "tip": "S-Cluster: Start with 's', not 'is-tar'",
+        "mti_pattern": "S_CLUSTER_PROSTHESIS"
+      },
+      {
+        "id": "G2_P2_Q02",
+        "target_text": "van",
+        "display_text": "van",
+        "phonetic_hint": "/væn/",
+        "sinhala_meaning": "වෑන් රථය",
+        "tip": "V/W: Teeth to lower lip for 'van'",
+        "mti_pattern": "V_W_MERGER"
+      },
+      {
+        "id": "G2_P2_Q03",
+        "target_text": "mother",
+        "display_text": "mother",
+        "phonetic_hint": "/ˈmʌð.ər/",
+        "sinhala_meaning": "අම්මා",
+        "tip": "TH: Soft 'th' sound in 'mother'",
+        "mti_pattern": "TH_SUBSTITUTION"
+      },
+      {
+        "id": "G2_P2_Q04",
+        "target_text": "four",
+        "display_text": "four",
+        "phonetic_hint": "/fɔːr/",
+        "sinhala_meaning": "හතර",
+        "tip": "F/P: 'f' sound, not 'pour'",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
+      {
+        "id": "G2_P2_Q05",
+        "target_text": "book",
+        "display_text": "book",
+        "phonetic_hint": "/bʊk/",
+        "sinhala_meaning": "පොත",
+        "tip": "Paragoge: Clean stop at 'k'",
+        "mti_pattern": "PARAGOGE"
+      },
+      {
+        "id": "G2_P2_Q06",
+        "target_text": "hand",
+        "display_text": "hand",
+        "phonetic_hint": "/hænd/",
+        "sinhala_meaning": "අත",
+        "tip": "Final Consonant: Sound the ending 'd'",
+        "mti_pattern": "FINAL_CONSONANT_WEAKENING"
+      },
+      {
+        "id": "G2_P2_Q07",
+        "target_text": "desk",
+        "display_text": "desk",
+        "phonetic_hint": "/dɛsk/",
+        "sinhala_meaning": "මේසය",
+        "tip": "Cluster: Sound both 's' and 'k'",
+        "mti_pattern": "CLUSTER_SIMPLIFICATION"
+      },
+      {
+        "id": "G2_P2_Q08",
+        "target_text": "cake",
+        "display_text": "cake",
+        "phonetic_hint": "/keɪk/",
+        "sinhala_meaning": "කේක්",
+        "tip": "Vowel Length: Say 'kayk', not 'kek'",
+        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
+      },
+      {
+        "id": "G2_P2_Q09",
+        "target_text": "happy",
+        "display_text": "happy",
+        "phonetic_hint": "/ˈhæp.i/",
+        "sinhala_meaning": "සතුටු",
+        "tip": "Initial H: Pronounce the 'h' in happy",
+        "mti_pattern": "INITIAL_H_DELETION"
+      },
+      {
+        "id": "G2_P2_Q10",
+        "target_text": "cup",
+        "display_text": "cup",
+        "phonetic_hint": "/kʌp/",
+        "sinhala_meaning": "කෝප්පය",
+        "tip": "Back Vowel: Central open vowel for 'cup'",
+        "mti_pattern": "BACK_VOWEL_CONFUSION"
+      }
+    ],
+    "3": [
+      {
+        "id": "G2_P3_Q01",
+        "target_text": "spoon",
+        "display_text": "spoon",
+        "phonetic_hint": "/spuːn/",
+        "sinhala_meaning": "හැන්ද",
+        "tip": "S-Cluster: Start with 's', not 'is-poon'",
+        "mti_pattern": "S_CLUSTER_PROSTHESIS"
+      },
+      {
+        "id": "G2_P3_Q02",
+        "target_text": "win",
+        "display_text": "win",
+        "phonetic_hint": "/wɪn/",
+        "sinhala_meaning": "දිනනවා",
+        "tip": "V/W: Round lips for 'win'",
+        "mti_pattern": "V_W_MERGER"
+      },
+      {
+        "id": "G2_P3_Q03",
+        "target_text": "think",
+        "display_text": "think",
+        "phonetic_hint": "/θɪŋk/",
+        "sinhala_meaning": "සිතනවා",
+        "tip": "TH: Soft 'th', not 'tink'",
+        "mti_pattern": "TH_SUBSTITUTION"
+      },
+      {
+        "id": "G2_P3_Q04",
+        "target_text": "fan",
+        "display_text": "fan",
+        "phonetic_hint": "/fæn/",
+        "sinhala_meaning": "පංකාව",
+        "tip": "F/P: 'f' sound, not 'pan'",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
+      {
+        "id": "G2_P3_Q05",
+        "target_text": "bus",
+        "display_text": "bus",
+        "phonetic_hint": "/bʌs/",
+        "sinhala_meaning": "බස් රථය",
+        "tip": "Paragoge: Clean stop, not 'busa'",
+        "mti_pattern": "PARAGOGE"
+      },
+      {
+        "id": "G2_P3_Q06",
+        "target_text": "red",
+        "display_text": "red",
+        "phonetic_hint": "/rɛd/",
+        "sinhala_meaning": "රතු",
+        "tip": "Final Consonant: Crisp 'd' at end",
+        "mti_pattern": "FINAL_CONSONANT_WEAKENING"
+      },
+      {
+        "id": "G2_P3_Q07",
+        "target_text": "plant",
+        "display_text": "plant",
+        "phonetic_hint": "/plɑːnt/",
+        "sinhala_meaning": "පැලය",
+        "tip": "Cluster: Pronounce 'n' and 't'",
+        "mti_pattern": "CLUSTER_SIMPLIFICATION"
+      },
+      {
+        "id": "G2_P3_Q08",
+        "target_text": "feet",
+        "display_text": "feet",
+        "phonetic_hint": "/fiːt/",
+        "sinhala_meaning": "පාද",
+        "tip": "Vowel Length: Long 'ee' sound",
+        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
+      },
+      {
+        "id": "G2_P3_Q09",
+        "target_text": "hot",
+        "display_text": "hot",
+        "phonetic_hint": "/hɒt/",
+        "sinhala_meaning": "උණුසුම්",
+        "tip": "Initial H: Pronounce the 'h' in hot",
+        "mti_pattern": "INITIAL_H_DELETION"
+      },
+      {
+        "id": "G2_P3_Q10",
+        "target_text": "banana",
+        "display_text": "banana",
+        "phonetic_hint": "/bəˈnɑː.nə/",
+        "sinhala_meaning": "කෙසෙල්",
+        "tip": "Rhythm: Stress the middle syllable 'NA'",
+        "mti_pattern": "STRESS_RHYTHM_DEVIATION"
+      }
+    ]
+  },
+  "3": {
+    "1": [
+      {
+        "id": "G3_P1_Q01",
+        "target_text": "We walk to school every morning.",
+        "display_text": "We walk to school every morning.",
+        "phonetic_hint": "school -> /skuːl/",
+        "sinhala_meaning": "අපි සෑම උදෑසනකම පාසල් යනවා.",
+        "tip": "S-Cluster: Say 'school' cleanly",
+        "mti_pattern": "S_CLUSTER_PROSTHESIS"
+      },
+      {
+        "id": "G3_P1_Q02",
+        "target_text": "The water in the well is cold.",
+        "display_text": "The water in the well is cold.",
+        "phonetic_hint": "water -> /ˈwɔː.tər/",
+        "sinhala_meaning": "ළිඳේ වතුර සීතලයි.",
+        "tip": "V/W: Round lips for 'water' and 'well'",
+        "mti_pattern": "V_W_MERGER"
+      },
+      {
+        "id": "G3_P1_Q03",
+        "target_text": "I see three birds in the tree.",
+        "display_text": "I see three birds in the tree.",
+        "phonetic_hint": "three -> /θriː/",
+        "sinhala_meaning": "මම ගසේ කුරුල්ලන් තිදෙනෙක් දකිනවා.",
+        "tip": "TH: Distinguish 'three' from 'tree'",
+        "mti_pattern": "TH_SUBSTITUTION"
+      },
+      {
+        "id": "G3_P1_Q04",
+        "target_text": "The small fish swims very fast.",
+        "display_text": "The small fish swims very fast.",
+        "phonetic_hint": "fish -> /fɪʃ/",
+        "sinhala_meaning": "කුඩා මාළුවා ඉතා වේගයෙන් පිහිනයි.",
+        "tip": "F/P: Lip-teeth sound for 'fish' and 'fast'",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
+      {
+        "id": "G3_P1_Q05",
+        "target_text": "I drink fresh milk from a glass.",
+        "display_text": "I drink fresh milk from a glass.",
+        "phonetic_hint": "milk -> /mɪlk/",
+        "sinhala_meaning": "මම වීදුරුවකින් නැවුම් කිරි බොනවා.",
+        "tip": "Paragoge: Clean ending on 'milk' and 'glass'",
+        "mti_pattern": "PARAGOGE"
+      },
+      {
+        "id": "G3_P1_Q06",
+        "target_text": "Hold my hand to cross the road.",
+        "display_text": "Hold my hand to cross the road.",
+        "phonetic_hint": "hand -> /hænd/",
+        "sinhala_meaning": "පාර මාරු වීමට මගේ අත අල්ලාගන්න.",
+        "tip": "Final Consonant: Pronounce 'd' in hand and road",
+        "mti_pattern": "FINAL_CONSONANT_WEAKENING"
+      },
+      {
+        "id": "G3_P1_Q07",
+        "target_text": "Sit at your desk and write clearly.",
+        "display_text": "Sit at your desk and write clearly.",
+        "phonetic_hint": "desk -> /dɛsk/",
+        "sinhala_meaning": "ඔබේ මේසයේ වාඩි වී පැහැදිලිව ලියන්න.",
+        "tip": "Cluster: Crisp 'sk' in 'desk'",
+        "mti_pattern": "CLUSTER_SIMPLIFICATION"
+      },
+      {
+        "id": "G3_P1_Q08",
+        "target_text": "Mother made a sweet chocolate cake.",
+        "display_text": "Mother made a sweet chocolate cake.",
+        "phonetic_hint": "cake -> /keɪk/",
+        "sinhala_meaning": "අම්මා රසවත් චොකලට් කේක් එකක් හැදුවා.",
+        "tip": "Vowel Length: Long 'ay' in cake",
+        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
+      },
+      {
+        "id": "G3_P1_Q09",
+        "target_text": "The big house has a red door.",
+        "display_text": "The big house has a red door.",
+        "phonetic_hint": "house -> /haʊs/",
+        "sinhala_meaning": "විශාල නිවසේ රතු දොරක් ඇත.",
+        "tip": "Initial H: Sound 'h' in house",
+        "mti_pattern": "INITIAL_H_DELETION"
+      },
+      {
+        "id": "G3_P1_Q10",
+        "target_text": "We hear beautiful music in the hall.",
+        "display_text": "We hear beautiful music in the hall.",
+        "phonetic_hint": "music -> /ˈmjuːzɪk/, hall -> /hɔːl/",
+        "sinhala_meaning": "ශාලාවේ අපට ලස්සන සංගීතයක් ඇසේ.",
+        "tip": "Z/S & Back Vowel: Buzz 'z' in music, open 'aw' in hall",
+        "mti_pattern": "Z_S_CONFUSION"
+      }
+    ],
+    "2": [
+      {
+        "id": "G3_P2_Q01",
+        "target_text": "A bright star shines in the dark sky.",
+        "display_text": "A bright star shines in the dark sky.",
+        "phonetic_hint": "star -> /stɑːr/, sky -> /skaɪ/",
+        "sinhala_meaning": "අඳුරු අහසේ දීප්තිමත් තරුවක් බබළයි.",
+        "tip": "S-Cluster: Crisp 'star' and 'sky'",
+        "mti_pattern": "S_CLUSTER_PROSTHESIS"
+      },
+      {
+        "id": "G3_P2_Q02",
+        "target_text": "Open the window to get fresh air.",
+        "display_text": "Open the window to get fresh air.",
+        "phonetic_hint": "window -> /ˈwɪn.doʊ/",
+        "sinhala_meaning": "නැවුම් වාතය ලබා ගැනීමට ජනේලය අරින්න.",
+        "tip": "V/W: Round lips for 'window'",
+        "mti_pattern": "V_W_MERGER"
+      },
+      {
+        "id": "G3_P2_Q03",
+        "target_text": "My father works hard every day.",
+        "display_text": "My father works hard every day.",
+        "phonetic_hint": "father -> /ˈfɑː.ðər/",
+        "sinhala_meaning": "මගේ පියා සෑම දිනකම මහන්සි වී වැඩ කරයි.",
+        "tip": "TH: Soft 'th' in father",
+        "mti_pattern": "TH_SUBSTITUTION"
+      },
+      {
+        "id": "G3_P2_Q04",
+        "target_text": "Look at the four birds flying high.",
+        "display_text": "Look at the four birds flying high.",
+        "phonetic_hint": "four -> /fɔːr/, flying -> /ˈflaɪ.ɪŋ/",
+        "sinhala_meaning": "ඉහළින් පියාසර කරන කුරුල්ලන් හතර දෙස බලන්න.",
+        "tip": "F/P: 'f' sound in four and flying",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
+      {
+        "id": "G3_P2_Q05",
+        "target_text": "The green bus stopped at the gate.",
+        "display_text": "The green bus stopped at the gate.",
+        "phonetic_hint": "bus -> /bʌs/",
+        "sinhala_meaning": "කොළ පැහැති බස් රථය ගේට්ටුව අසල නැවැත්විය.",
+        "tip": "Paragoge: Clean stop on 'bus'",
+        "mti_pattern": "PARAGOGE"
+      },
+      {
+        "id": "G3_P2_Q06",
+        "target_text": "The little cat drinks warm milk.",
+        "display_text": "The little cat drinks warm milk.",
+        "phonetic_hint": "cat -> /kæt/",
+        "sinhala_meaning": "පොඩි පූසා උණුසුම් කිරි බොනවා.",
+        "tip": "Final Consonant: Clear 't' in cat",
+        "mti_pattern": "FINAL_CONSONANT_WEAKENING"
+      },
+      {
+        "id": "G3_P2_Q07",
+        "target_text": "The next train leaves at noon.",
+        "display_text": "The next train leaves at noon.",
+        "phonetic_hint": "next -> /nɛkst/",
+        "sinhala_meaning": "ඊළඟ දුම්රිය මද්දහනේදී පිටත් වේ.",
+        "tip": "Cluster: Pronounce 'kst' in next",
+        "mti_pattern": "CLUSTER_SIMPLIFICATION"
+      },
+      {
+        "id": "G3_P2_Q08",
+        "target_text": "The boat floats on the quiet lake.",
+        "display_text": "The boat floats on the quiet lake.",
+        "phonetic_hint": "boat -> /boʊt/",
+        "sinhala_meaning": "බෝට්ටුව නිස්කලංක විල මත පාවෙයි.",
+        "tip": "Vowel Length: Long 'o' in boat",
+        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
+      },
+      {
+        "id": "G3_P2_Q09",
+        "target_text": "The children are happy to play outside.",
+        "display_text": "The children are happy to play outside.",
+        "phonetic_hint": "happy -> /ˈhæp.i/",
+        "sinhala_meaning": "ළමයින් පිටත සෙල්ලම් කිරීමට සතුටුයි.",
+        "tip": "Initial H: Sound 'h' in happy",
+        "mti_pattern": "INITIAL_H_DELETION"
+      },
+      {
+        "id": "G3_P2_Q10",
+        "target_text": "The sweet banana grows on the tree.",
+        "display_text": "The sweet banana grows on the tree.",
+        "phonetic_hint": "banana -> /bəˈnɑː.nə/",
+        "sinhala_meaning": "රසවත් කෙසෙල් ගසේ වැඩෙයි.",
+        "tip": "Rhythm: Natural syllable timing on banana",
+        "mti_pattern": "STRESS_RHYTHM_DEVIATION"
+      }
+    ],
+    "3": [
+      {
+        "id": "G3_P3_Q01",
+        "target_text": "Use a clean spoon to eat soup.",
+        "display_text": "Use a clean spoon to eat soup.",
+        "phonetic_hint": "spoon -> /spuːn/",
+        "sinhala_meaning": "සුප් කෑමට පිරිසිදු හැන්දක් භාවිතා කරන්න.",
+        "tip": "S-Cluster: Start 'spoon' with 's'",
+        "mti_pattern": "S_CLUSTER_PROSTHESIS"
+      },
+      {
+        "id": "G3_P3_Q02",
+        "target_text": "A white van drove past our house.",
+        "display_text": "A white van drove past our house.",
+        "phonetic_hint": "van -> /væn/",
+        "sinhala_meaning": "සුදු පැහැති වෑන් රථයක් අපේ නිවස පසුකර ගියේය.",
+        "tip": "V/W: 'v' teeth to lip in van",
+        "mti_pattern": "V_W_MERGER"
+      },
+      {
+        "id": "G3_P3_Q03",
+        "target_text": "I think this book is very interesting.",
+        "display_text": "I think this book is very interesting.",
+        "phonetic_hint": "think -> /θɪŋk/, this -> /ðɪs/",
+        "sinhala_meaning": "මම සිතන්නේ මෙම පොත ඉතා රසවත් බවයි.",
+        "tip": "TH: Soft 'th' in think and this",
+        "mti_pattern": "TH_SUBSTITUTION"
+      },
+      {
+        "id": "G3_P3_Q04",
+        "target_text": "My good friend gave me a gift.",
+        "display_text": "My good friend gave me a gift.",
+        "phonetic_hint": "friend -> /frɛnd/",
+        "sinhala_meaning": "මගේ හොඳ මිතුරා මට තෑග්ගක් දුන්නා.",
+        "tip": "F/P: 'f' in friend, not 'prend'",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
+      {
+        "id": "G3_P3_Q05",
+        "target_text": "We read a story book in class.",
+        "display_text": "We read a story book in class.",
+        "phonetic_hint": "book -> /bʊk/",
+        "sinhala_meaning": "අපි පන්තියේදී කතන්දර පොතක් කියවනවා.",
+        "tip": "Paragoge: Crisp stop on 'book'",
+        "mti_pattern": "PARAGOGE"
+      },
+      {
+        "id": "G3_P3_Q06",
+        "target_text": "A red bird sang on the green branch.",
+        "display_text": "A red bird sang on the green branch.",
+        "phonetic_hint": "bird -> /bɜːd/, red -> /rɛd/",
+        "sinhala_meaning": "රතු කුරුල්ලෙක් කොළ අත්තක් මත ගීතයක් ගැයීය.",
+        "tip": "Final Consonant: Ending 'd' on bird and red",
+        "mti_pattern": "FINAL_CONSONANT_WEAKENING"
+      },
+      {
+        "id": "G3_P3_Q07",
+        "target_text": "This green plant grows in rich soil.",
+        "display_text": "This green plant grows in rich soil.",
+        "phonetic_hint": "plant -> /plɑːnt/",
+        "sinhala_meaning": "මෙම කොළ පැළය සාරවත් පසෙහි වැඩෙයි.",
+        "tip": "Cluster: Clear 'nt' in plant",
+        "mti_pattern": "CLUSTER_SIMPLIFICATION"
+      },
+      {
+        "id": "G3_P3_Q08",
+        "target_text": "Take your seat before the bell rings.",
+        "display_text": "Take your seat before the bell rings.",
+        "phonetic_hint": "seat -> /siːt/",
+        "sinhala_meaning": "ඝණ්ටාරය නාද වීමට පෙර ඔබේ ආසනයේ වාඩි වන්න.",
+        "tip": "Vowel Length: Long 'ee' in seat",
+        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
+      },
+      {
+        "id": "G3_P3_Q09",
+        "target_text": "The hot soup warmed my hands.",
+        "display_text": "The hot soup warmed my hands.",
+        "phonetic_hint": "hot -> /hɒt/",
+        "sinhala_meaning": "උණුසුම් සුප් එක මගේ දෑත් උණුසුම් කළේය.",
+        "tip": "Initial H: Clear 'h' in hot",
+        "mti_pattern": "INITIAL_H_DELETION"
+      },
+      {
+        "id": "G3_P3_Q10",
+        "target_text": "We saw zebra stripes at the zoo.",
+        "display_text": "We saw zebra stripes at the zoo.",
+        "phonetic_hint": "zebra -> /ˈzɛb.rə/, zoo -> /zuː/",
+        "sinhala_meaning": "සත්වෝද්‍යානයේදී අපි සීබ්‍රා ඉරි දුටුවෙමු.",
+        "tip": "Z/S: Buzz 'z' in zebra and zoo",
+        "mti_pattern": "Z_S_CONFUSION"
+      }
+    ]
+  },
+  "4": {
+    "1": [
+      {
+        "id": "G4_P1_Q01",
+        "target_text": "Students study very hard to achieve high marks in their school examinations.",
+        "display_text": "Students study very hard to achieve high marks in their school examinations.",
+        "phonetic_hint": "students -> /ˈstjuː.dənts/, study -> /ˈstʌd.i/, school -> /skuːl/",
+        "sinhala_meaning": "සිසුන් පාසල් විභාගවලින් ඉහළ ලකුණු ලබා ගැනීමට ඉතා මහන්සි වී ඉගෙන ගනී.",
+        "tip": "S-Cluster: Say 'students', 'study', and 'school' cleanly",
+        "mti_pattern": "S_CLUSTER_PROSTHESIS"
+      },
+      {
+        "id": "G4_P1_Q02",
+        "target_text": "We visited a beautiful village with cold flowing water and vast green valleys.",
+        "display_text": "We visited a beautiful village with cold flowing water and vast green valleys.",
+        "phonetic_hint": "village -> /ˈvɪl.ɪdʒ/, water -> /ˈwɔː.tər/, vast -> /vɑːst/",
+        "sinhala_meaning": "අපි සීතල ගලා යන ජලය සහ විශාල හරිත නිම්න සහිත සුන්දර ගමකට ගියෙමු.",
+        "tip": "V/W: Differentiate 'village', 'water', and 'vast'",
+        "mti_pattern": "V_W_MERGER"
+      },
+      {
+        "id": "G4_P1_Q03",
+        "target_text": "My father told us that three important lessons were taught there on Thursday.",
+        "display_text": "My father told us that three important lessons were taught there on Thursday.",
+        "phonetic_hint": "father -> /ˈfɑː.ðər/, three -> /θriː/, Thursday -> /ˈθɜːz.deɪ/",
+        "sinhala_meaning": "බ්‍රහස්පතින්දා එහිදී වැදගත් පාඩම් තුනක් උගන්වන ලද බව මගේ පියා අපට පැවසීය.",
+        "tip": "TH: Pronounce soft 'th' in father, three, and Thursday",
+        "mti_pattern": "TH_SUBSTITUTION"
+      },
+      {
+        "id": "G4_P1_Q04",
+        "target_text": "The wild elephant walked peacefully through the deep green forest with four small calves.",
+        "display_text": "The wild elephant walked peacefully through the deep green forest with four small calves.",
+        "phonetic_hint": "elephant -> /ˈɛl.ɪ.fənt/, forest -> /ˈfɒr.ɪst/, four -> /fɔːr/",
+        "sinhala_meaning": "වන අලියා කුඩා පැටවුන් හතර දෙනෙකු සමඟ ගැඹුරු හරිත වනාන්තරය මැදින් සාමකාමීව ගමන් කළේය.",
+        "tip": "F/P: 'f' sound in elephant, forest, and four",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
+      {
+        "id": "G4_P1_Q05",
+        "target_text": "After a good football match, all the players enjoyed cold milk and sweet cake.",
+        "display_text": "After a good football match, all the players enjoyed cold milk and sweet cake.",
+        "phonetic_hint": "milk -> /mɪlk/, cake -> /keɪk/",
+        "sinhala_meaning": "හොඳ පාපන්දු තරගයකින් පසු සියලුම ක්‍රීඩකයෝ සිසිල් කිරි සහ පැණි රස කේක් රස වින්දෝය.",
+        "tip": "Paragoge: Stop cleanly on milk and cake without adding extra vowels",
+        "mti_pattern": "PARAGOGE"
+      },
+      {
+        "id": "G4_P1_Q06",
+        "target_text": "The red bird rested its broken wing on my warm hand until it felt better.",
+        "display_text": "The red bird rested its broken wing on my warm hand until it felt better.",
+        "phonetic_hint": "bird -> /bɜːd/, hand -> /hænd/, red -> /rɛd/",
+        "sinhala_meaning": "රතු කුරුල්ලාට සුවයක් දැනෙන තුරු එහි කැඩුණු තටුව මගේ උණුසුම් අත මත තබා ගෙන සිටියේය.",
+        "tip": "Final Consonant: Sound ending 'd' on bird, hand, and red",
+        "mti_pattern": "FINAL_CONSONANT_WEAKENING"
+      },
+      {
+        "id": "G4_P1_Q07",
+        "target_text": "The smart student placed the next product carefully on top of the classroom desk.",
+        "display_text": "The smart student placed the next product carefully on top of the classroom desk.",
+        "phonetic_hint": "next -> /nɛkst/, product -> /ˈprɒd.ʌkt/, desk -> /dɛsk/",
+        "sinhala_meaning": "දක්ෂ ශිෂ්‍යයා ඊළඟ නිෂ්පාදනය පන්ති කාමරයේ මේසය මත ප්‍රවේශමෙන් තැබීය.",
+        "tip": "Cluster: Crisp consonant clusters in next, product, and desk",
+        "mti_pattern": "CLUSTER_SIMPLIFICATION"
+      },
+      {
+        "id": "G4_P1_Q08",
+        "target_text": "They sailed a small wooden boat across the great blue lake in the warm sunlight.",
+        "display_text": "They sailed a small wooden boat across the great blue lake in the warm sunlight.",
+        "phonetic_hint": "boat -> /boʊt/, great -> /ɡreɪt/",
+        "sinhala_meaning": "ඔවුන් උණුසුම් හිරු එළියේ විශාල නිල් විල හරහා කුඩා ලී බෝට්ටුවක් පැදවූහ.",
+        "tip": "Vowel Length: Long natural vowels in boat and great",
+        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
+      },
+      {
+        "id": "G4_P1_Q09",
+        "target_text": "We were very happy to help our kind neighbor clean their old brick house.",
+        "display_text": "We were very happy to help our kind neighbor clean their old brick house.",
+        "phonetic_hint": "happy -> /ˈhæp.i/, help -> /hɛlp/, house -> /haʊs/",
+        "sinhala_meaning": "අපගේ කාරුණික අසල්වැසියාට ඔවුන්ගේ පැරණි ගඩොල් නිවස පිරිසිදු කිරීමට උදව් කිරීමට අපි ඉතා සතුටු වුණෙමු.",
+        "tip": "Initial H: Breathe out the 'h' in happy, help, and house",
+        "mti_pattern": "INITIAL_H_DELETION"
+      },
+      {
+        "id": "G4_P1_Q10",
+        "target_text": "Please listen carefully to the soft music playing inside the quiet modern computer room.",
+        "display_text": "Please listen carefully to the soft music playing inside the quiet modern computer room.",
+        "phonetic_hint": "please -> /pliːz/, music -> /ˈmjuː.zɪk/, computer -> /kəmˈpjuː.tər/",
+        "sinhala_meaning": "කරුණාකර නිස්කලංක නවීන පරිගණක කාමරය තුළ වාදනය වන මෘදු සංගීතයට හොඳින් සවන් දෙන්න.",
+        "tip": "Z/S & Rhythm: Buzz 'z' in please/music, and stress 'pu' in computer",
+        "mti_pattern": "STRESS_RHYTHM_DEVIATION"
+      }
+    ],
+    "2": [
+      {
+        "id": "G4_P2_Q01",
+        "target_text": "Look at the silver moon and sparkling stars in the dark night sky.",
+        "display_text": "Look at the silver moon and sparkling stars in the dark night sky.",
+        "phonetic_hint": "sparkling -> /ˈspɑː.klɪŋ/, stars -> /stɑːrz/, sky -> /skaɪ/",
+        "sinhala_meaning": "අඳුරු රාත්‍රී අහසේ රිදී සඳ සහ දිදුලන තරු දෙස බලන්න.",
+        "tip": "S-Cluster: Clean 'sparkling', 'stars', and 'sky'",
+        "mti_pattern": "S_CLUSTER_PROSTHESIS"
+      },
+      {
+        "id": "G4_P2_Q02",
+        "target_text": "The train arrived at the railway station with loud voices and clear announcements.",
+        "display_text": "The train arrived at the railway station with loud voices and clear announcements.",
+        "phonetic_hint": "station -> /ˈsteɪ.ʃən/, voices -> /ˈvɔɪ.sɪz/",
+        "sinhala_meaning": "දුම්රිය ඝෝෂාකාරී හඬවල් සහ පැහැදිලි නිවේදන සමඟ දුම්රිය ස්ථානයට පැමිණියේය.",
+        "tip": "V/W & S-Cluster: Say 'station' without 'is-' and 'voices' with 'v'",
+        "mti_pattern": "V_W_MERGER"
+      },
+      {
+        "id": "G4_P2_Q03",
+        "target_text": "My mother thinks that this interesting story will teach us good moral values.",
+        "display_text": "My mother thinks that this interesting story will teach us good moral values.",
+        "phonetic_hint": "mother -> /ˈmʌð.ər/, thinks -> /θɪŋks/, this -> /ðɪs/",
+        "sinhala_meaning": "මෙම රසවත් කතාව අපට යහපත් සදාචාරාත්මක වටිනාකම් උගන්වනු ඇතැයි මගේ මව සිතයි.",
+        "tip": "TH: Soft 'th' in mother, thinks, and this",
+        "mti_pattern": "TH_SUBSTITUTION"
+      },
+      {
+        "id": "G4_P2_Q04",
+        "target_text": "Birds build their warm nests high up in the tall green forest trees.",
+        "display_text": "Birds build their warm nests high up in the tall green forest trees.",
+        "phonetic_hint": "forest -> /ˈfɒr.ɪst/, warm -> /wɔːm/, nests -> /nɛsts/",
+        "sinhala_meaning": "කුරුල්ලෝ උස කොළ පැහැති වනාන්තර ගස්වල උඩින් තම උණුසුම් කූඩු සාදති.",
+        "tip": "F/P & Back Vowel: 'f' in forest and tall back vowel in 'tall'",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
+      {
+        "id": "G4_P2_Q05",
+        "target_text": "Children take a big yellow bus to visit the central park every Saturday.",
+        "display_text": "Children take a big yellow bus to visit the central park every Saturday.",
+        "phonetic_hint": "bus -> /bʌs/, park -> /pɑːk/",
+        "sinhala_meaning": "ළමයින් සෑම සෙනසුරාදා දිනකම මධ්‍යම උද්‍යානය නැරඹීමට විශාල කහ පැහැති බස් රථයකින් යති.",
+        "tip": "Paragoge: Crisp stop on bus and park",
+        "mti_pattern": "PARAGOGE"
+      },
+      {
+        "id": "G4_P2_Q06",
+        "target_text": "Our kind friend held my hand firmly as we climbed the steep rocky mountain.",
+        "display_text": "Our kind friend held my hand firmly as we climbed the steep rocky mountain.",
+        "phonetic_hint": "friend -> /frɛnd/, hand -> /hænd/",
+        "sinhala_meaning": "අප බෑවුම් සහිත පාෂාණමය කන්ද තරණය කරන විට අපගේ කරුණාවන්ත මිතුරා මගේ අත තදින් අල්ලා ගත්තේය.",
+        "tip": "Final Consonant: Ending 'd' on friend and hand",
+        "mti_pattern": "FINAL_CONSONANT_WEAKENING"
+      },
+      {
+        "id": "G4_P2_Q07",
+        "target_text": "The fast runner reached the final post before any other competitor in the race.",
+        "display_text": "The fast runner reached the final post before any other competitor in the race.",
+        "phonetic_hint": "fast -> /fɑːst/, post -> /poʊst/",
+        "sinhala_meaning": "වේගවත් ධාවකයා තරඟයේ අනෙකුත් තරඟකරුවන්ට පෙර අවසන් කණුව වෙත ළඟා විය.",
+        "tip": "Cluster: Clear 'st' in fast and post",
+        "mti_pattern": "CLUSTER_SIMPLIFICATION"
+      },
+      {
+        "id": "G4_P2_Q08",
+        "target_text": "We sat comfortably on the wooden bench and ate sweet yellow mangoes together.",
+        "display_text": "We sat comfortably on the wooden bench and ate sweet yellow mangoes together.",
+        "phonetic_hint": "sweet -> /swiːt/, together -> /təˈɡɛð.ər/",
+        "sinhala_meaning": "අපි ලී බංකුව මත සුවපහසු ලෙස වාඩි වී පැණි රස කහ අඹ එකට කෑවෙමු.",
+        "tip": "Vowel Length & Rhythm: Long 'ee' in sweet and rhythm on together",
+        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
+      },
+      {
+        "id": "G4_P2_Q09",
+        "target_text": "It was a hot afternoon so we wore light hats and drank cool fresh water.",
+        "display_text": "It was a hot afternoon so we wore light hats and drank cool fresh water.",
+        "phonetic_hint": "hot -> /hɒt/, hats -> /hæts/",
+        "sinhala_meaning": "එය උණුසුම් දහවලක් වූ නිසා අපි සැහැල්ලු තොප්පි පැළඳ සිසිල් නැවුම් ජලය පානය කළෙමු.",
+        "tip": "Initial H: Pronounce the 'h' in hot and hats",
+        "mti_pattern": "INITIAL_H_DELETION"
+      },
+      {
+        "id": "G4_P2_Q10",
+        "target_text": "We saw playful zebras and noisy birds at the national zoo yesterday morning.",
+        "display_text": "We saw playful zebras and noisy birds at the national zoo yesterday morning.",
+        "phonetic_hint": "zebras -> /ˈzɛb.rəz/, zoo -> /zuː/, noisy -> /ˈnɔɪ.zi/",
+        "sinhala_meaning": "ඊයේ උදෑසන ජාතික සත්වෝද්‍යානයේදී අපි සෙල්ලක්කාර සීබ්‍රාවන් සහ ඝෝෂාකාරී කුරුල්ලන් දුටුවෙමු.",
+        "tip": "Z/S: Vibrate vocal cords for 'z' in zebras, zoo, and noisy",
+        "mti_pattern": "Z_S_CONFUSION"
+      }
+    ],
+    "3": [
+      {
+        "id": "G4_P3_Q01",
+        "target_text": "In spring fresh flowers bloom and green grass grows all over the garden.",
+        "display_text": "In spring fresh flowers bloom and green grass grows all over the garden.",
+        "phonetic_hint": "spring -> /sprɪŋ/",
+        "sinhala_meaning": "වසන්තයේ දී නැවුම් මල් පිපෙන අතර වත්ත පුරා හරිත තණකොළ වැඩෙයි.",
+        "tip": "S-Cluster: Start 'spring' directly without 'is-'",
+        "mti_pattern": "S_CLUSTER_PROSTHESIS"
+      },
+      {
+        "id": "G4_P3_Q02",
+        "target_text": "The view from the top of the green hill was very clear and peaceful.",
+        "display_text": "The view from the top of the green hill was very clear and peaceful.",
+        "phonetic_hint": "view -> /vjuː/, very -> /ˈvɛr.i/",
+        "sinhala_meaning": "හරිත කඳු මුදුනේ සිට දර්ශනය ඉතා පැහැදිලි හා සාමකාමී විය.",
+        "tip": "V/W: Touch upper teeth to lower lip for 'view' and 'very'",
+        "mti_pattern": "V_W_MERGER"
+      },
+      {
+        "id": "G4_P3_Q03",
+        "target_text": "I think there are three small kittens sleeping quietly under that table.",
+        "display_text": "I think there are three small kittens sleeping quietly under that table.",
+        "phonetic_hint": "think -> /θɪŋk/, there -> /ðɛər/, three -> /θriː/, that -> /ðæt/",
+        "sinhala_meaning": "මම සිතන්නේ එම මේසය යට කුඩා පූස් පැටවුන් තිදෙනෙකු නිහඬව නිදා සිටින බවයි.",
+        "tip": "TH: Soft 'th' in think, there, three, and that",
+        "mti_pattern": "TH_SUBSTITUTION"
+      },
+      {
+        "id": "G4_P3_Q04",
+        "target_text": "The tiny bird had soft green feathers and flew away into the blue sky.",
+        "display_text": "The tiny bird had soft green feathers and flew away into the blue sky.",
+        "phonetic_hint": "feathers -> /ˈfɛð.ərz/, flew -> /fluː/",
+        "sinhala_meaning": "කුඩා කුරුල්ලාට මෘදු කොළ පැහැති පිහාටු තිබූ අතර නිල් අහසට පියාසර කළේය.",
+        "tip": "F/P: 'f' sound in feathers and flew",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
+      {
+        "id": "G4_P3_Q05",
+        "target_text": "The heavy bus stopped near the central park gate to drop off passengers.",
+        "display_text": "The heavy bus stopped near the central park gate to drop off passengers.",
+        "phonetic_hint": "bus -> /bʌs/, park -> /pɑːk/",
+        "sinhala_meaning": "මගීන් බස්සවා ගැනීම සඳහා බරැති බස් රථය මධ්‍යම උද්‍යාන ගේට්ටුව අසල නතර විය.",
+        "tip": "Paragoge: Clean stop on bus and park",
+        "mti_pattern": "PARAGOGE"
+      },
+      {
+        "id": "G4_P3_Q06",
+        "target_text": "The red bird sat quietly on the branch until its friend returned with food.",
+        "display_text": "The red bird sat quietly on the branch until its friend returned with food.",
+        "phonetic_hint": "red -> /rɛd/, bird -> /bɜːd/, friend -> /frɛnd/",
+        "sinhala_meaning": "රතු කුරුල්ලා තම මිතුරා ආහාර රැගෙන එන තුරු අත්ත මත නිහඬව වාඩි වී සිටියේය.",
+        "tip": "Final Consonant: Ending 'd' on red, bird, and friend",
+        "mti_pattern": "FINAL_CONSONANT_WEAKENING"
+      },
+      {
+        "id": "G4_P3_Q07",
+        "target_text": "Our best student presented an amazing project on the school auditorium stage.",
+        "display_text": "Our best student presented an amazing project on the school auditorium stage.",
+        "phonetic_hint": "best -> /bɛst/, student -> /ˈstjuː.dənt/, stage -> /steɪdʒ/",
+        "sinhala_meaning": "අපගේ දක්ෂතම ශිෂ්‍යයා පාසල් ශ්‍රවණාගාර වේදිකාවේදී විශිෂ්ට ව්‍යාපෘතියක් ඉදිරිපත් කළේය.",
+        "tip": "Cluster: Clear clusters in best, student, and stage",
+        "mti_pattern": "CLUSTER_SIMPLIFICATION"
+      },
+      {
+        "id": "G4_P3_Q08",
+        "target_text": "We sailed a wooden boat on the calm blue lake during our summer holiday.",
+        "display_text": "We sailed a wooden boat on the calm blue lake during our summer holiday.",
+        "phonetic_hint": "boat -> /boʊt/, lake -> /leɪk/",
+        "sinhala_meaning": "අපගේ ගිම්හාන නිවාඩුව තුළ අපි සන්සුන් නිල් විල මත ලී බෝට්ටුවක් පැදවූයෙමු.",
+        "tip": "Vowel Length: Long clean vowels in boat and lake",
+        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
+      },
+      {
+        "id": "G4_P3_Q09",
+        "target_text": "Everyone was happy to help the injured puppy find a safe warm home.",
+        "display_text": "Everyone was happy to help the injured puppy find a safe warm home.",
+        "phonetic_hint": "happy -> /ˈhæp.i/, help -> /hɛlp/, home -> /hoʊm/",
+        "sinhala_meaning": "තුවාල වූ බලු පැටියාට ආරක්ෂිත උණුසුම් නිවසක් සොයා ගැනීමට උදව් කිරීමට සැවොම සතුටු වූහ.",
+        "tip": "Initial H: Sound 'h' in happy, help, and home",
+        "mti_pattern": "INITIAL_H_DELETION"
+      },
+      {
+        "id": "G4_P3_Q10",
+        "target_text": "We take an umbrella whenever heavy rain falls tomorrow afternoon.",
+        "display_text": "We take an umbrella whenever heavy rain falls tomorrow afternoon.",
+        "phonetic_hint": "umbrella -> /ʌmˈbrɛl.ə/, tomorrow -> /təˈmɒr.oʊ/",
+        "sinhala_meaning": "හෙට දහවල් අධික වර්ෂාවක් ඇද හැලෙන විට අපි කුඩයක් රැගෙන යමු.",
+        "tip": "Rhythm: Dynamic natural stress on umbrella and tomorrow",
+        "mti_pattern": "STRESS_RHYTHM_DEVIATION"
+      }
+    ]
+  }
+}

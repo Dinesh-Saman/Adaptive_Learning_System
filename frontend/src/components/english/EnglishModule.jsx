@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import g2Data from '../../data/english/grade2_speaking_pool.json';
 import g3Data from '../../data/english/grade3_speaking_pool.json';
 import g4Data from '../../data/english/grade4_speaking_pool.json';
+import fixedSpeakingPapersData from '../../data/english/fixed_speaking_papers.json';
 
 const POOLS = {
   2: g2Data,
   3: g3Data,
   4: g4Data
 };
+
+const FIXED_PAPERS = fixedSpeakingPapersData;
 
 const STOP_WORDS = new Set(['the', 'a', 'an', 'is', 'am', 'are', 'in', 'on', 'at', 'to', 'of', 'and', 'it', 'my', 'we', 'he', 'she', 'for', 'with']);
 
@@ -156,33 +159,24 @@ const SRI_LANKAN_MTI_PATTERNS = [
 const PAPERS_CONFIG = [
   {
     id: 1,
-    level: 'easy',
-    title: 'ප්‍රශ්න පත්‍රය 01 (Easy)',
-    levelTitle: 'පහසු මට්ටම — Single Words',
-    subtitle: 'තනි වචන නිවැරදිව උච්චාරණය කිරීම',
-    badge: 'ප්‍රශ්න 10 • Easy',
-    icon: '🔤',
+    title: 'ප්‍රශ්න පත්‍රය 01 (Paper 01)',
+    badge: 'ප්‍රශ්න 10 • Paper 01',
+    icon: '📝',
     color: 'from-emerald-500 to-teal-600',
     borderColor: 'border-emerald-300'
   },
   {
     id: 2,
-    level: 'medium',
-    title: 'ප්‍රශ්න පත්‍රය 02 (Medium)',
-    levelTitle: 'මධ්‍යම මට්ටම — Short Sentences',
-    subtitle: 'කෙටි වාක්‍ය කියවීම සහ ස්වභාවික රිද්මය',
-    badge: 'ප්‍රශ්න 10 • Medium',
+    title: 'ප්‍රශ්න පත්‍රය 02 (Paper 02)',
+    badge: 'ප්‍රශ්න 10 • Paper 02',
     icon: '📖',
     color: 'from-blue-500 to-indigo-600',
     borderColor: 'border-blue-300'
   },
   {
     id: 3,
-    level: 'hard',
-    title: 'ප්‍රශ්න පත්‍රය 03 (Hard)',
-    levelTitle: 'උසස් මට්ටම — Long Sentences',
-    subtitle: 'දිගු වාක්‍ය සහ චතුර කථන ප්‍රකාශනය',
-    badge: 'ප්‍රශ්න 10 • Hard',
+    title: 'ප්‍රශ්න පත්‍රය 03 (Paper 03)',
+    badge: 'ප්‍රශ්න 10 • Paper 03',
     icon: '🎙️',
     color: 'from-purple-500 to-pink-600',
     borderColor: 'border-purple-300'
@@ -922,14 +916,14 @@ export default function EnglishModule({ onExit }) {
     return false;
   };
 
-  // Pick 10 random questions for a specific paper from the 100-question pool
+  // Fetch fixed 10 questions for the specific grade and paper (covers all MTI patterns)
   const generatePaperQuestions = (grade, paperId) => {
-    const pool = POOLS[grade]?.questions || [];
-    const paperConf = PAPERS_CONFIG.find(p => p.id === paperId);
-    const targetLevel = paperConf ? paperConf.level : 'easy';
-    const filtered = pool.filter(q => q.level === targetLevel);
-    const shuffled = [...filtered].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 10);
+    const fixedList = FIXED_PAPERS[grade]?.[paperId] || FIXED_PAPERS[2]?.[1] || [];
+    return fixedList.map(q => ({
+      ...q,
+      grade: grade,
+      level_name_si: grade === 2 ? 'තනි වචන (Single Words)' : grade === 3 ? 'කෙටි වාක්‍ය (Short Sentences)' : 'දිගු වාක්‍ය (Long Sentences)'
+    }));
   };
 
   // Start a specific paper
@@ -1496,9 +1490,9 @@ export default function EnglishModule({ onExit }) {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { grade: 2, icon: '🌱', title: '2 ශ්‍රේණිය', desc: 'මූලික ඉංග්‍රීසි වචන සහ සරල වාක්‍ය උච්චාරණය', color: 'from-emerald-500 to-teal-600' },
-                { grade: 3, icon: '🎯', title: '3 ශ්‍රේණිය', desc: 'විස්තීර්ණ වචන මාලාව, වාක්‍ය කියවීම සහ රිද්මය', color: 'from-blue-500 to-indigo-600' },
-                { grade: 4, icon: '🚀', title: '4 ශ්‍රේණිය', desc: 'උසස් වාග්කෝෂය, චතුර කථනය සහ ප්‍රකාශන හැකියාව', color: 'from-purple-500 to-pink-600' }
+                { grade: 2, icon: '🌱', title: '2 ශ්‍රේණිය', desc: 'තනි වචන උච්චාරණය (Single Words) — MTI රටා 12ම ආවරණය වන ස්ථාවර ප්‍රශ්න පත්‍ර 3', type: 'තනි වචන (Single Words)', color: 'from-emerald-500 to-teal-600' },
+                { grade: 3, icon: '🎯', title: '3 ශ්‍රේණිය', desc: 'කෙටි වාක්‍ය කියවීම (Short Sentences) — MTI රටා 12ම ආවරණය වන ස්ථාවර ප්‍රශ්න පත්‍ර 3', type: 'කෙටි වාක්‍ය (Short Sentences)', color: 'from-blue-500 to-indigo-600' },
+                { grade: 4, icon: '🚀', title: '4 ශ්‍රේණිය', desc: 'දිගු වාක්‍ය සහ චතුර කථනය (Long Sentences) — MTI රටා 12ම ආවරණය වන ස්ථාවර ප්‍රශ්න පත්‍ර 3', type: 'දිගු වාක්‍ය (Long Sentences)', color: 'from-purple-500 to-pink-600' }
               ].map(g => (
                 <div
                   key={g.grade}
@@ -1509,15 +1503,15 @@ export default function EnglishModule({ onExit }) {
                     <div className="flex justify-between items-center">
                       <span className="text-4xl">{g.icon}</span>
                       <span className="bg-slate-100 text-slate-700 text-xs font-black px-3 py-1 rounded-full">
-                        ප්‍රශ්න 100 කෝෂය
+                        ප්‍රශ්න පත්‍ර 3 (30 Questions)
                       </span>
                     </div>
                     <h2 className="text-2xl font-black text-slate-800 font-sinhala">{g.title}</h2>
                     <p className="text-xs text-slate-600 font-medium leading-relaxed">{g.desc}</p>
                     <div className="pt-2 text-xs font-bold text-slate-500 space-y-1">
-                      <div>✓ Paper 01: Easy (Single Words)</div>
-                      <div>✓ Paper 02: Medium (Short Sentences)</div>
-                      <div>✓ Paper 03: Hard (Long Sentences)</div>
+                      <div>✓ Paper 01: 10 Questions ({g.type})</div>
+                      <div>✓ Paper 02: 10 Questions ({g.type})</div>
+                      <div>✓ Paper 03: 10 Questions ({g.type})</div>
                     </div>
                   </div>
 
@@ -1732,7 +1726,7 @@ export default function EnglishModule({ onExit }) {
           </div>
         )}
 
-        {/* ── SCREEN 2: 3 PAPERS HUB (EASY, MEDIUM, HARD) ── */}
+        {/* ── SCREEN 2: 3 PAPERS HUB ── */}
         {viewState === 'papers_hub' && (
           <div className="space-y-6 animate-fade-in">
             <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl text-center relative overflow-hidden">
@@ -1740,10 +1734,10 @@ export default function EnglishModule({ onExit }) {
                 Grade {selectedGrade} • {selectedGrade} ශ්‍රේණිය ඉංග්‍රීසි
               </div>
               <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2 font-sinhala">
-                කථන ප්‍රශ්න පත්‍ර 3 (Easy, Medium, Hard)
+                {selectedGrade === 2 ? 'තනි වචන ප්‍රශ්න පත්‍ර 3 (Single Words)' : selectedGrade === 3 ? 'කෙටි වාක්‍ය ප්‍රශ්න පත්‍ර 3 (Short Sentences)' : 'දිගු වාක්‍ය ප්‍රශ්න පත්‍ර 3 (Long Sentences)'}
               </h1>
               <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
-                පියවර 6ක විස්තීර්ණ විශ්ලේෂණය: වචන නිරවද්‍යතාව, චතුරතාව (WPM), රිද්මය, ශබ්ද මට්ටම සහ MTI දෝෂ නිවැරදි කිරීම.
+                ශ්‍රී ලාංකික MTI උච්චාරණ රටා 12ම ආවරණය වන පරිදි සකස් කළ ස්ථාවර ප්‍රශ්න 10 බැගින් අඩංගු ප්‍රශ්න පත්‍ර.
               </p>
             </div>
 
@@ -1752,6 +1746,11 @@ export default function EnglishModule({ onExit }) {
                 const result = paperHistory[selectedGrade]?.[p.id];
                 const isCompleted = !!result;
                 const unlocked = isPaperUnlocked(p.id);
+                const subtitleText = selectedGrade === 2
+                  ? 'තනි වචන නිවැරදිව උච්චාරණය (MTI රටා ආවරණය)'
+                  : selectedGrade === 3
+                  ? 'කෙටි වාක්‍ය කියවීම සහ රිද්මය (MTI රටා ආවරණය)'
+                  : 'දිගු වාක්‍ය සහ චතුර කථනය (MTI රටා ආවරණය)';
 
                 return (
                   <div 
@@ -1786,7 +1785,7 @@ export default function EnglishModule({ onExit }) {
                         {p.title}
                       </h3>
                       <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                        {p.subtitle}
+                        {subtitleText}
                       </p>
 
                       <div className="pt-2">
