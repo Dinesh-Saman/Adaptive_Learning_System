@@ -538,8 +538,9 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
 
       let hasSeparatedProsthesis = false;
       if (targetWords.length === 1) {
-        hasSeparatedProsthesis = spokenWords.some(sw => 
-          ['is', 'es', 'est', 'east', 'easter', 'esta', 'his', 'he', 'you', 'we', 'its', "it's", 'it', 's', 'e'].includes(sw)
+        const hasTargetOrConfuser = spokenWords.some(sw => sw === tw || sw.startsWith(tw.slice(0, 3)) || isWordMatch(tw, sw));
+        hasSeparatedProsthesis = hasTargetOrConfuser && spokenWords.some(sw => 
+          ['is', 'es', 'est', 'east', 'easter', 'esta', 'his', 'he', 'its', "it's"].includes(sw)
         );
       } else {
         // In full sentences, check if an un-expected prosthetic prefix was placed immediately before tw
@@ -695,31 +696,32 @@ function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
 
-  // ── Step 1: Sound Check ──
-  const soundDetected = Boolean(spokenClean.length > 0 || soundDetectedLocally);
+  const spokenWords = spokenClean.split(/\s+/).filter(Boolean);
+  const targetWords = targetClean.split(/\s+/).filter(Boolean);
+  const allCandidateTokens = Array.from(new Set([...spokenWords, ...(extraAlternativeWords || [])])).filter(Boolean);
 
-  if (!soundDetected) {
+  // ── Step 1: Strict Sound & Human Speech Validation ──
+  // If no speech text or phonetic candidate tokens were recognized by ASR, return No Sound Detected
+  const speechDetected = Boolean(spokenWords.length > 0 || allCandidateTokens.length > 0);
+
+  if (!speechDetected) {
     return {
       step: 1,
       soundDetected: false,
       wordsCorrect: false,
       pronunciationCorrect: false,
       accuracy: 0,
-      statusTitle: 'ශබ්දයක් හඳුනා නොගැනිණි',
+      statusTitle: 'ශබ්දයක් හඳුනා නොගැනිණි (No Speech Detected)',
       statusMessage: 'මයික්‍රෆෝනයෙන් කිසිදු හඬක් වාර්තා නොවීය. කරුණාකර මයික්‍රෆෝනය ළඟට ගෙන ශබ්ද නගා කතා කරන්න.',
       transcript: '(No sound detected)',
       wordResults: [],
-      missedWords: [],
+      missedWords: targetWords,
       mtiPatterns: [],
       fluency: { wpm: 0, speedStatus: 'No Speech' },
       intonation: { isMonotone: false, style: 'None' },
       volume: { percent: 0, status: 'Muted' }
     };
   }
-
-  const spokenWords = spokenClean.split(/\s+/).filter(Boolean);
-  const targetWords = targetClean.split(/\s+/).filter(Boolean);
-  const allCandidateTokens = Array.from(new Set([...spokenWords, ...(extraAlternativeWords || [])]));
 
   // ── 1. Single Word Evaluation (Easy Level & MTI Lab) ──
   if (targetWords.length === 1) {
@@ -1014,6 +1016,7 @@ export default function EnglishModule({ onExit }) {
     setLiveVolume(0);
     setRecordingSeconds(0);
     latestTranscriptRef.current = '';
+    latestAlternativesRef.current = [];
     soundHeardRef.current = false;
     volumeSamplesRef.current = [];
     isListeningRef.current = true;
