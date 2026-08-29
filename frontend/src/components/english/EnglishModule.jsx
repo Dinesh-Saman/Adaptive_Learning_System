@@ -1398,9 +1398,9 @@ export default function EnglishModule({ onExit }) {
     };
 
     try {
-      console.log("%c[MTI Lab] 3. Starting Web SpeechRecognition (lang: en-US, continuous: false, interim: true)", "color: #0284c7;");
+      console.log("%c[MTI Lab] 3. Starting Web SpeechRecognition (lang: en-US, continuous: true, interim: true)", "color: #0284c7;");
       const reco = new SpeechRecognition();
-      reco.continuous = false;
+      reco.continuous = true;       // Continuous mode keeps stream open until onresult delivers
       reco.interimResults = true;   // Fire immediately on partial results
       reco.lang = 'en-US';
       reco.maxAlternatives = 5;
@@ -1447,13 +1447,11 @@ export default function EnglishModule({ onExit }) {
 
       reco.onerror = (event) => {
         console.warn(`%c[MTI Lab] ⚠️ onerror event: error="${event.error}", message="${event.message || 'none'}"`, "color: #ef4444; font-weight: bold;");
-        if (event.error === 'no-speech' && !hasRetried && isListeningRef.current && !latestTranscriptRef.current) {
-          hasRetried = true;
-          resultDelivered = false;
-          console.log("%c[MTI Lab] Auto-retrying once on 'no-speech'...", "color: #f59e0b;");
-          setMtiLabLiveTranscript('නැවතත් කතා කරන්න... (Speak again)');
-          try { reco.start(); return; } catch (e2) {
-            console.error("[MTI Lab] Auto-retry start failed:", e2);
+        if (event.error === 'no-speech') {
+          // If no speech was detected, auto-restart if still listening
+          if (isListeningRef.current && !latestTranscriptRef.current) {
+            console.log("%c[MTI Lab] Still listening after no-speech, maintaining active session...", "color: #f59e0b;");
+            return;
           }
         }
         if (!latestTranscriptRef.current) {
@@ -1464,11 +1462,22 @@ export default function EnglishModule({ onExit }) {
       };
 
       reco.onend = () => {
-        console.log("%c[MTI Lab] 8. onend event: Recognition session terminated", "color: #64748b;");
+        console.log("%c[MTI Lab] 8. onend event: Recognition session ended", "color: #64748b;");
+        // If session closed prematurely by browser before speech finalization, auto-restart
+        if (isListeningRef.current && !latestTranscriptRef.current && !resultDelivered) {
+          console.log("%c[MTI Lab] 8.1 Stream closed before speech delivered - auto-restarting recognition...", "color: #0284c7;");
+          try {
+            reco.start();
+            return;
+          } catch (e) {
+            console.log("Auto-restart notice:", e);
+          }
+        }
+
         setMtiLabListening(false);
         isListeningRef.current = false;
         if (!latestTranscriptRef.current) {
-          console.log("%c[MTI Lab] 8.1 onend without transcript - displaying prompt to retry", "color: #f59e0b;");
+          console.log("%c[MTI Lab] 8.2 Session terminated without transcript", "color: #f59e0b;");
           setMtiLabLiveTranscript(prev =>
             (prev === 'සවන් දෙමින්...' || prev === 'හඬ ලැබෙමින් පවතී...' || prev.startsWith('නැවතත්'))
               ? '(හඬක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)'
