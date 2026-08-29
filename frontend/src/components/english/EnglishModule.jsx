@@ -522,6 +522,7 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
         sw === 'es' + tw.slice(1) ||
         sw === 'ispring' ||
         sw === 'espring' ||
+        sw === 'est' ||
         sw === 'esta' ||
         sw === 'easter' ||
         sw === 'estar' ||
@@ -536,15 +537,6 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
         sw === 'histories' ||
         sw === 'ispeak' ||
         sw === 'istop' ||
-        // ── Additional variants: ASR drops trailing consonants of prosthetic syllable ──
-        (tw === 'star'   && ['est', 'eest', 'ista', 'ist', 'ast', 'es'].includes(sw)) ||
-        (tw === 'stop'   && ['est', 'ist', 'is'].includes(sw)) ||
-        (tw === 'spring' && ['es', 'isp', 'esp'].includes(sw)) ||
-        (tw === 'study'  && ['est', 'is', 'es'].includes(sw)) ||
-        (tw === 'school' && ['isk', 'esk', 'esc'].includes(sw)) ||
-        (tw === 'spoon'  && ['es', 'isp'].includes(sw)) ||
-        (tw === 'speak'  && ['es', 'isp'].includes(sw)) ||
-        (tw === 'station' && ['est', 'ist'].includes(sw)) ||
         sw.startsWith('is' + tw) ||
         sw.startsWith('es' + tw) ||
         sw.startsWith('i' + tw)
@@ -553,14 +545,14 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
       let hasSeparatedProsthesis = false;
       if (targetWords.length === 1) {
         hasSeparatedProsthesis = spokenWords.some(sw => 
-          ['is', 'es', 'east', 'easter', 'esta', 'his', 'he', 'you', 'we', 'its', "it's", 'it', 's', 'e', 'est', 'ist'].includes(sw)
+          ['is', 'es', 'est', 'east', 'easter', 'esta', 'his', 'he', 'you', 'we', 'its', "it's", 'it', 's', 'e'].includes(sw)
         );
       } else {
         // In full sentences, check if an un-expected prosthetic prefix was placed immediately before tw
         for (let sIdx = 0; sIdx < spokenWords.length; sIdx++) {
           const sw = spokenWords[sIdx];
           if (sw === tw || sw.startsWith(tw.slice(0, 3))) {
-            if (sIdx > 0 && ['is', 'es', 'east', 'esta', 'its', "it's"].includes(spokenWords[sIdx - 1])) {
+            if (sIdx > 0 && ['is', 'es', 'est', 'east', 'esta', 'its', "it's"].includes(spokenWords[sIdx - 1])) {
               const expectedPrev = twIdx > 0 ? targetWords[twIdx - 1] : '';
               if (spokenWords[sIdx - 1] !== expectedPrev) {
                 hasSeparatedProsthesis = true;
