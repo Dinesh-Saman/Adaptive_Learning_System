@@ -168,11 +168,13 @@ class SriLankanMTIRuleEngine:
             # 1. S-Cluster Prosthesis (e.g. target: 'spring', 'star', 'station', 'school' -> spoken: "it's spring", "is spring", "ispring", "east spring", "esta", "easter")
             if tw.startswith(('sc', 'sp', 'st', 'sk', 'sm', 'sn', 'spr', 'str', 'scr')):
                 has_prosthesis = any(
-                    sw in ['i' + tw, 'is' + tw[1:], 'es' + tw[1:], 'esta', 'easter', 'estar', 'istar', 'aster', 'ispring', 'espring', 'istation', 'ischool', 'ispoon', 'istudy', 'ispeak', 'istop'] 
+                    sw in ['i' + tw, 'is' + tw[1:], 'es' + tw[1:], 'esta', 'easter', 'estar', 'istar', 'aster', 'ispring', 'espring', 'istation', 'ischool', 'ispoon', 'istudy', 'estudy', 'history', 'histories', 'ispeak', 'istop'] 
                     for sw in spoken_words
                 ) or (
-                    any(sw in ['is', 'es', 'east', 'easter', 'esta', 'his', 'its', "it's", 'it', 's', 'a', 'e'] for sw in spoken_words) and
-                    any(sw == tw or sw.startswith(tw[:2]) or sw in ['ta', 'tar', 'pring'] for sw in spoken_words)
+                    any(sw in ['is', 'es', 'east', 'easter', 'esta', 'his', 'he', 'you', 'we', 'its', "it's", 'it', 's', 'a', 'the', 'e'] for sw in spoken_words) and
+                    any(sw == tw or sw.startswith(tw[:2]) or sw in ['ta', 'tar', 'pring', 'tudy'] for sw in spoken_words)
+                ) or (
+                    tw == 'study' and any(sw in ['history', 'histories', 'estudy', 'istudy', 'tudy'] for sw in spoken_words)
                 ) or (
                     tw == 'star' and any(sw in ['esta', 'estar', 'easter', 'istar', 'aster', 'is'] for sw in spoken_words)
                 ) or (

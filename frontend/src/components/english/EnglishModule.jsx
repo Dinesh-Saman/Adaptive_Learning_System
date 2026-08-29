@@ -464,7 +464,7 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
   const detected = [];
 
   targetWords.forEach(tw => {
-    // 1. S-Cluster Prosthesis (e.g. target: 'spring', 'star', 'station', 'school' -> spoken: "it's spring", "is spring", "ispring", "east spring", "esta", "easter")
+    // 1. S-Cluster Prosthesis (e.g. target: 'study', 'spring', 'star', 'station', 'school')
     if (/^s[cptkmnr]/.test(tw) || tw.startsWith('sp') || tw.startsWith('st') || tw.startsWith('sc') || tw.startsWith('sk') || tw.startsWith('sm') || tw.startsWith('sn')) {
       const hasProstheticPrefix = spokenWords.some(sw => 
         sw === 'i' + tw || 
@@ -481,14 +481,19 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
         sw === 'ischool' ||
         sw === 'ispoon' ||
         sw === 'istudy' ||
+        sw === 'estudy' ||
+        sw === 'history' ||
+        sw === 'histories' ||
         sw === 'ispeak' ||
         sw === 'istop' ||
         sw.startsWith('is' + tw) ||
         sw.startsWith('es' + tw) ||
         sw.startsWith('i' + tw)
       ) || (
-        spokenWords.some(sw => ['is', 'es', 'east', 'easter', 'esta', 'his', 'its', 'it', 's', 'a', 'e'].includes(sw)) && 
-        spokenWords.some(sw => sw === tw || sw.startsWith(tw.slice(0, 2)) || sw === 'ta' || sw === 'tar' || sw === 'pring')
+        spokenWords.some(sw => ['is', 'es', 'east', 'easter', 'esta', 'his', 'he', 'you', 'we', 'its', "it's", 'it', 's', 'a', 'the', 'e'].includes(sw)) && 
+        spokenWords.some(sw => sw === tw || sw.startsWith(tw.slice(0, 2)) || sw === 'ta' || sw === 'tar' || sw === 'pring' || sw === 'tudy')
+      ) || (
+        tw === 'study' && spokenWords.some(sw => ['history', 'histories', 'estudy', 'istudy', 'tudy'].includes(sw))
       ) || (
         tw === 'star' && spokenWords.some(sw => ['esta', 'estar', 'easter', 'istar', 'aster', 'is'].includes(sw))
       ) || (
