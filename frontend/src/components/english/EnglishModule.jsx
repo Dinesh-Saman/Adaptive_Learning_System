@@ -287,7 +287,8 @@ function extractCleanEnglishTranscript(event) {
           'so', 'su', 'soo', 'sue', 'sew', 'sow',
           'milkha', 'milka', 'melka', 'busa', 'booka',
           'farce', 'fas', 'fass', 'neks', 'necks',
-          'bout', 'baut', 'bot', 'board', 'bode'
+          'bout', 'baut', 'bot', 'board', 'bode',
+          'owls', 'owl', 'ows', 'ouse', 'ause'
         ].includes(cLower);
       });
       chosenTranscript = mtiConfuserCandidate || candidateTranscripts[0];
@@ -671,12 +672,12 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
     // 9. Initial H Dropping (e.g. target: 'house', 'happy', 'hello', 'hand', 'hot', 'hat', 'hear', 'help')
     if (['house', 'happy', 'hello', 'hand', 'hot', 'hat', 'hear', 'help'].includes(tw) || tw.startsWith('h')) {
       if (spokenWords.some(sw => 
-        ['ouse', 'ause', 'our', 'hour', 'appy', 'api', 'ello', 'elo', 'and', 'end', 'ot', 'ought', 'art', 'out', 'at', 'act', 'ear', 'air', 'elp', 'alp', 'aut', 'aot'].includes(sw) ||
+        ['ouse', 'ause', 'our', 'hour', 'appy', 'api', 'ello', 'elo', 'and', 'end', 'ot', 'ought', 'art', 'out', 'at', 'act', 'ear', 'air', 'elp', 'alp', 'aut', 'aot', 'owls', 'owl', 'ows', 'auls'].includes(sw) ||
         (tw.startsWith('h') && sw === tw.slice(1)) ||
         (tw === 'hot' && ['ot', 'ought', 'art', 'out', 'aat', 'aut'].includes(sw)) ||
         (tw === 'hand' && ['and', 'end', 'ant'].includes(sw)) ||
         (tw === 'hat' && ['at', 'act', 'et'].includes(sw)) ||
-        (tw === 'house' && ['ouse', 'ause', 'out'].includes(sw)) ||
+        (tw === 'house' && ['ouse', 'ause', 'out', 'owls', 'owl', 'ows', 'auls', 'hows'].includes(sw)) ||
         (tw === 'happy' && ['appy', 'api'].includes(sw)) ||
         (tw === 'hello' && ['ello', 'elo', 'yellow'].includes(sw)) ||
         (tw === 'help' && ['elp', 'alp'].includes(sw)) ||
