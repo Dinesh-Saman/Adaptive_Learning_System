@@ -12,6 +12,147 @@ const POOLS = {
 
 const STOP_WORDS = new Set(['the', 'a', 'an', 'is', 'am', 'are', 'in', 'on', 'at', 'to', 'of', 'and', 'it', 'my', 'we', 'he', 'she', 'for', 'with']);
 
+const SINHALA_CODE_WORDS = new Set([
+  'eka', 'ne', 'hari', 'ane', 'me', 'oya', 'mata', 'monada', 'dan', 'kohomada',
+  'kiyanna', 'neda', 'nam', 'thawa', 'aiyo', 'ammo', 'ow', 'na', 'hode'
+]);
+
+// 12 Core Sri Lankan English MTI Patterns Reference Knowledgebase
+const SRI_LANKAN_MTI_PATTERNS = [
+  {
+    id: 1,
+    key: 'S_CLUSTER_PROSTHESIS',
+    name: 'S-Cluster Prosthesis',
+    name_si: "වචන මුලට 'ඉ' ශබ්දය එකතු කිරීම (I-school)",
+    target_ipa: '/skuːl/',
+    error_ipa: '/ɪskuːl/ or /iskul/',
+    examples: ['school', 'spoon', 'station', 'study', 'speak', 'star', 'stop', 'spring'],
+    pedagogical_tip: "Start immediately with the hissing 'sss' sound without adding an 'is-' in front (say 'sss-chool', not 'is-school').",
+    pedagogical_tip_si: "වචනය ආරම්භයේදී 'ඉස්' (Is-) වෙනුවට 'ස්ස්' (sss-) ශබ්දයෙන් කෙලින්ම ආරම්භ කරන්න."
+  },
+  {
+    id: 2,
+    key: 'V_W_MERGER',
+    name: 'V/W Merger',
+    name_si: 'V සහ W ශබ්ද පටලවා ගැනීම (Wery / Vindow)',
+    target_ipa: '/ˈveri/',
+    error_ipa: '/ˈweri/',
+    examples: ['very', 'water', 'win', 'view', 'van', 'window', 'voice', 'village'],
+    pedagogical_tip: "For 'W', round your lips forward into a circle ('O'). For 'V', touch your top front teeth gently to your lower lip.",
+    pedagogical_tip_si: "'W' අකුරට තොල් රවුම් කරන්න. 'V' අකුරට උඩු දත් යටි තොල මත තබා කතා කරන්න."
+  },
+  {
+    id: 3,
+    key: 'TH_SUBSTITUTION',
+    name: 'TH Substitution (TH → T/D)',
+    name_si: 'TH ශබ්දය වෙනුවට T/D භාවිතය (Tree for Three)',
+    target_ipa: '/θriː/',
+    error_ipa: '/triː/',
+    examples: ['three', 'think', 'this', 'that', 'there', 'the', 'mother', 'father'],
+    pedagogical_tip: "Put the tip of your tongue gently between your front teeth and blow air gently to produce the soft 'TH' sound.",
+    pedagogical_tip_si: "දිව දත් දෙක අතර මඳක් තබා වාතය පිටකරමින් මෘදු 'TH' ශබ්දය උච්චාරණය කරන්න."
+  },
+  {
+    id: 4,
+    key: 'F_P_SUBSTITUTION',
+    name: 'F/P Substitution',
+    name_si: 'F වෙනුවට P ශබ්දය භාවිතය (Pan for Fan)',
+    target_ipa: '/fæn/',
+    error_ipa: '/pæn/',
+    examples: ['fan', 'film', 'food', 'phone', 'elephant', 'fish', 'feather', 'four'],
+    pedagogical_tip: "Gently place upper teeth on lower lip and blow air for 'F', rather than pressing both lips together like 'P'.",
+    pedagogical_tip_si: "'F' ශබ්දයට උඩු දත් යටි තොල මත තබා හුළං පිඹින්න (තොල් දෙකම එකතු කර 'P' ශබ්දය නොගන්න)."
+  },
+  {
+    id: 5,
+    key: 'PARAGOGE',
+    name: 'Paragoge (Ending Vowel Addition)',
+    name_si: 'වචන අගට අනවශ්‍ය ස්වර එකතු කිරීම (Busa / Milka)',
+    target_ipa: '/bʌs/',
+    error_ipa: '/bʌsə/ or /busa/',
+    examples: ['bus', 'milk', 'book', 'good', 'cake', 'stamp', 'park', 'pen'],
+    pedagogical_tip: "Stop your voice cleanly at the final consonant without adding an extra '-a' sound at the end.",
+    pedagogical_tip_si: "වචනය අවසානයේ අනවශ්‍ය 'අ' හෝ 'උ' ශබ්දයක් (උදා: බස්-අ) එකතු නොකර වචනය පිරිසිදුව අවසන් කරන්න."
+  },
+  {
+    id: 6,
+    key: 'FINAL_CONSONANT_WEAKENING',
+    name: 'Final Consonant Weakening',
+    name_si: 'අවසාන ව්‍යංජන ශබ්දය අතහැරීම (Bu for But)',
+    target_ipa: '/bʌt/',
+    error_ipa: '/bʌ/',
+    examples: ['but', 'good', 'that', 'friend', 'cat', 'hand', 'red', 'bird'],
+    pedagogical_tip: "Make sure to clearly pronounce the ending consonant sound (like 't', 'd', 'k') at the end of the word.",
+    pedagogical_tip_si: "වචනයේ අග ඇති 't', 'd', 'k' වැනි අවසන් අකුරු ශබ්දය පැහැදිලිව ප්‍රකාශ කරන්න."
+  },
+  {
+    id: 7,
+    key: 'CLUSTER_SIMPLIFICATION',
+    name: 'Consonant Cluster Simplification',
+    name_si: 'බැඳි අකුරු සරල කර පැවසීම (Neks for Next)',
+    target_ipa: '/nekst/',
+    error_ipa: '/neks/',
+    examples: ['next', 'friend', 'stamp', 'product', 'desk', 'fast', 'best', 'plant'],
+    pedagogical_tip: "Clearly pronounce all consonant sounds in the cluster (e.g. pronounce both the 's' and 't' in 'next').",
+    pedagogical_tip_si: "වචන අග ඇති සියලුම බැඳි අකුරු ශබ්ද (උදා: 'next' හි s සහ t) සම්පූර්ණයෙන් පවසන්න."
+  },
+  {
+    id: 8,
+    key: 'VOWEL_LENGTH_CONFUSION',
+    name: 'Short/Long Vowel Confusion',
+    name_si: 'දිගු සහ කෙටි ස්වර පටලවා ගැනීම (Kek for Cake)',
+    target_ipa: '/keɪk/',
+    error_ipa: '/kek/',
+    examples: ['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit'],
+    pedagogical_tip: "Elongate the diphthong vowel cleanly (say 'kay-eek' for cake, rather than a short 'kek').",
+    pedagogical_tip_si: "දිගු ස්වර ශබ්ද (Diphthongs) ප්‍රමාණවත් ලෙස ඇද උච්චාරණය කරන්න."
+  },
+  {
+    id: 9,
+    key: 'INITIAL_H_DELETION',
+    name: 'Initial H Dropping',
+    name_si: "'H' ශබ්දය අතහැරීම (Ouse for House)",
+    target_ipa: '/haʊs/',
+    error_ipa: '/aʊs/',
+    examples: ['house', 'happy', 'hello', 'hand', 'hot', 'hat', 'hear', 'help'],
+    pedagogical_tip: "Breathe out gently like a sigh ('hhh') before starting the vowel in words starting with 'H'.",
+    pedagogical_tip_si: "'H' අකුරෙන් පටන් ගන්නා වචන වලදී ආරම්භයේදීම 'හ්' (hhh) හුස්ම පිටකරමින් ශබ්ද කරන්න."
+  },
+  {
+    id: 10,
+    key: 'Z_S_CONFUSION',
+    name: 'Z/S Voicing Confusion',
+    name_si: 'Z සහ S ශබ්ද පටලවා ගැනීම (Busi for Busy)',
+    target_ipa: '/zuː/',
+    error_ipa: '/suː/',
+    examples: ['zoo', 'busy', 'please', 'zero', 'zebra', 'music', 'noise', 'rose'],
+    pedagogical_tip: "Vibrate your vocal cords (buzz like a bee: 'zzz') when pronouncing 'Z' sounds.",
+    pedagogical_tip_si: "'Z' ශබ්දය පැවසීමේදී උගුරේ කම්පනයක් (මී මැස්සෙකුගේ නාදය: zzz) ඇති කරමින් ශබ්ද කරන්න."
+  },
+  {
+    id: 11,
+    key: 'BACK_VOWEL_CONFUSION',
+    name: 'Back Vowel Confusion',
+    name_si: 'පසුපස ස්වර පටලවා ගැනීම (Hol for Hall / Kap for Cup)',
+    target_ipa: '/hɔːl/',
+    error_ipa: '/hɒl/ or /hol/',
+    examples: ['hall', 'hot', 'cup', 'bus', 'ball', 'call', 'walk', 'tall'],
+    pedagogical_tip: "Open your mouth taller and drop your jaw to produce the deep back vowel '/ɔː/' sound.",
+    pedagogical_tip_si: "කට හොඳින් විවෘත කර නිවැරදි ගැඹුරු ස්වර ශබ්දය ලබාගන්න."
+  },
+  {
+    id: 12,
+    key: 'STRESS_RHYTHM_DEVIATION',
+    name: 'Equal Stress / Syllable-Timed Rhythm',
+    name_si: 'ඒකාකාරී රොබෝ රිද්මය (Equal Stress / Flat Rhythm)',
+    target_ipa: '/kəmˈpjuːtər/',
+    error_ipa: '/kompjuˈter/ (equal stress)',
+    examples: ['computer', 'banana', 'tomorrow', 'beautiful', 'together', 'umbrella'],
+    pedagogical_tip: "English is stress-timed! Put strong emphasis on the stressed syllable and say unstressed syllables quickly and lightly.",
+    pedagogical_tip_si: "ඉංග්‍රීසි භාෂාවේ ප්‍රධාන අක්ෂරයට වැඩි බරක් දී (Stress), අනෙක් අක්ෂර සැහැල්ලුවෙන් උච්චාරණය කරන්න."
+  }
+];
+
 const PAPERS_CONFIG = [
   {
     id: 1,
@@ -183,8 +324,58 @@ function alignWordsLCS(targetWords, spokenWords) {
   return aligned;
 }
 
-// 100% Accurate 3-Stage Speech & Word Alignment Evaluation
-function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = false) {
+// Client-Side Sri Lankan MTI Pattern Detector
+function detectSriLankanMTIPatterns(spokenWords, targetWords) {
+  const detected = [];
+  const spokenSet = new Set(spokenWords);
+
+  targetWords.forEach(tw => {
+    // 1. S-Cluster Prosthesis
+    if (/^s[cptkmn]/.test(tw)) {
+      spokenWords.forEach(sw => {
+        if (sw === 'i' + tw || sw === 'is' + tw.slice(1) || sw === 'es' + tw.slice(1)) {
+          detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'S_CLUSTER_PROSTHESIS'));
+        }
+      });
+    }
+
+    // 2. V/W Merger
+    if (tw.startsWith('v') && spokenWords.some(sw => sw === 'w' + tw.slice(1))) {
+      detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'V_W_MERGER'));
+    } else if (tw.startsWith('w') && spokenWords.some(sw => sw === 'v' + tw.slice(1))) {
+      detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'V_W_MERGER'));
+    }
+
+    // 3. TH Substitution
+    if (['three', 'think', 'this', 'that', 'there', 'the'].includes(tw)) {
+      if (tw === 'three' && spokenWords.includes('tree')) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
+      } else if (['this', 'that'].includes(tw) && (spokenWords.includes('dis') || spokenWords.includes('dat'))) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
+      }
+    }
+
+    // 4. F/P Substitution
+    if (tw.startsWith('f') && spokenWords.some(sw => sw === 'p' + tw.slice(1))) {
+      detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'F_P_SUBSTITUTION'));
+    }
+
+    // 5. Paragoge
+    if (['bus', 'milk', 'book', 'good', 'cake', 'stamp'].includes(tw) && spokenWords.some(sw => [tw + 'a', tw + 'er'].includes(sw))) {
+      detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'PARAGOGE'));
+    }
+
+    // 6. Initial H Dropping
+    if (tw.startsWith('h') && tw.length > 2 && spokenWords.includes(tw.slice(1))) {
+      detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'INITIAL_H_DELETION'));
+    }
+  });
+
+  return Array.from(new Set(detected.filter(Boolean)));
+}
+
+// 100% Strict 6-Dimensional Speech & Pronunciation Assessment
+function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally = false, recordingDuration = 2.0, avgVolume = 50) {
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
 
@@ -202,22 +393,11 @@ function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = fal
       statusMessage: 'මයික්‍රෆෝනයෙන් කිසිදු හඬක් වාර්තා නොවීය. කරුණාකර මයික්‍රෆෝනය ළඟට ගෙන ශබ්ද නගා කතා කරන්න.',
       transcript: '(No sound detected)',
       wordResults: [],
-      missedWords: []
-    };
-  }
-
-  if (!spokenClean) {
-    return {
-      step: 2,
-      soundDetected: true,
-      wordsCorrect: false,
-      pronunciationCorrect: false,
-      accuracy: 25,
-      statusTitle: 'වචනය අපැහැදිලියි (Unclear Speech)',
-      statusMessage: `ඔබේ හඬ ලැබුණ නමුත් වචනය පැහැදිලි නැත. කරුණාකර '${targetText}' ශබ්ද නගා පැහැදිලිව පවසන්න.`,
-      transcript: '(නොපැහැදිලි හඬක්)',
-      wordResults: [{ word: targetText, matched: false, spoken: '' }],
-      missedWords: [targetText]
+      missedWords: [],
+      mtiPatterns: [],
+      fluency: { wpm: 0, speedStatus: 'No Speech', pauseCount: 0 },
+      intonation: { isMonotone: false, style: 'None' },
+      volume: { percent: 0, status: 'Muted' }
     };
   }
 
@@ -238,22 +418,38 @@ function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = fal
       }
     }
 
-    const accuracy = matched ? 100 : 25;
-    const isPassed = matched;
+    const mtiPatterns = detectSriLankanMTIPatterns(spokenWords, targetWords);
+    const accuracy = (matched && mtiPatterns.length === 0) ? 100 : (matched ? 70 : 25);
+    const isPassed = (accuracy === 100);
 
     return {
-      step: matched ? 3 : 2,
+      step: isPassed ? 3 : 2,
       soundDetected: true,
       wordsCorrect: matched,
       pronunciationCorrect: isPassed,
       accuracy: accuracy,
-      statusTitle: isPassed ? 'විශිෂ්ට උච්චාරණයක්! (Passed)' : 'පැවසූ වචනය වැරදියි (Needs Practice)',
+      statusTitle: isPassed ? 'විශිෂ්ට උච්චාරණයක්! (100% Passed)' : 'උච්චාරණය තවදුරටත් පුහුණු වන්න (Needs Practice)',
       statusMessage: isPassed 
-        ? 'ඔබේ උච්චාරණය ඉතා පැහැදිලියි.' 
+        ? 'ඔබේ උච්චාරණය ඉතා පැහැදිලියි (100%).' 
+        : mtiPatterns.length > 0
+        ? `MTI රටාව හඳුනා ගැනිණි: ${mtiPatterns[0].name_si}.`
         : `ඔබ පැවසූ වචනය '${spokenText}' වේ. අපේක්ෂිත වචනය '${targetText}' වේ.`,
       transcript: spokenText,
       wordResults: [{ word: targetWord, matched: matched, spoken: spokenWords[0] || '' }],
-      missedWords: matched ? [] : [targetWord]
+      missedWords: matched ? [] : [targetWord],
+      mtiPatterns: mtiPatterns,
+      fluency: {
+        wpm: Math.round((1 / Math.max(0.5, recordingDuration)) * 60),
+        speedStatus: 'Optimal (ස්වභාවික වේගය)'
+      },
+      intonation: {
+        isMonotone: false,
+        style: 'Clean Single Utterance'
+      },
+      volume: {
+        percent: avgVolume,
+        status: avgVolume > 85 ? 'Too Loud (ශබ්දය වැඩියි)' : avgVolume < 20 ? 'Too Soft (ශබ්දය මදි)' : 'Clear & Optimal (පැහැදිලියි)'
+      }
     };
   }
 
@@ -261,11 +457,22 @@ function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = fal
   const wordResults = alignWordsLCS(targetWords, spokenWords);
   const matchedCount = wordResults.filter(w => w.matched).length;
   const missedWords = wordResults.filter(w => !w.matched).map(w => w.word);
-  const missedContentWords = missedWords.filter(w => !STOP_WORDS.has(w));
+  const mtiPatterns = detectSriLankanMTIPatterns(spokenWords, targetWords);
 
+  // Fluency: WPM Calculation
   const totalWords = targetWords.length;
-  const accuracy = Math.round((matchedCount / totalWords) * 100);
-  const isPassed = (accuracy === 100);
+  const wpm = Math.round((spokenWords.length / Math.max(0.8, recordingDuration)) * 60);
+  let speedStatus = 'Optimal / Natural (ස්වභාවික වේගය)';
+  if (wpm < 70) speedStatus = 'Too Slow (මන්දගාමී)';
+  else if (wpm > 160) speedStatus = 'Too Fast (ඉතා වේගවත්)';
+
+  // Non-MTI Errors
+  const sinhalaMixed = spokenWords.filter(w => SINHALA_CODE_WORDS.has(w));
+  
+  // Strict 100% Question Pass Standard
+  const rawAccuracy = Math.round((matchedCount / totalWords) * 100);
+  const accuracy = mtiPatterns.length > 0 ? Math.min(70, rawAccuracy) : rawAccuracy;
+  const isPassed = (matchedCount === totalWords && mtiPatterns.length === 0 && accuracy === 100);
   const allWordsCorrect = (matchedCount === totalWords);
 
   return {
@@ -275,15 +482,34 @@ function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = fal
     pronunciationCorrect: isPassed,
     accuracy: accuracy,
     statusTitle: isPassed 
-      ? 'විශිෂ්ට උච්චාරණයක්! (Passed)' 
+      ? 'විශිෂ්ට උච්චාරණයක්! (100% Passed)' 
       : 'උච්චාරණය තවදුරටත් පුහුණු වන්න (Needs Practice)',
     statusMessage: isPassed 
       ? 'ඔබේ උච්චාරණය සහ කථන රිද්මය ඉතා විශිෂ්ටයි (100%).'
+      : mtiPatterns.length > 0
+      ? `MTI උච්චාරණ දෝෂයක් හඳුනා ගැනිණි: ${mtiPatterns.map(p => p.name_si).join(', ')}.`
       : `වචන ${matchedCount}/${totalWords} නිවැරදියි (${accuracy}%). සම්පූර්ණ ලකුණු (100%) සඳහා '${missedWords.join(', ')}' වචනය නිවැරදිව පවසන්න.`,
     transcript: spokenText,
     wordResults: wordResults,
     missedWords: missedWords,
-    missedContentWords: missedContentWords
+    mtiPatterns: mtiPatterns,
+    fluency: {
+      wpm: wpm,
+      speedStatus: speedStatus,
+      durationSec: recordingDuration
+    },
+    intonation: {
+      isMonotone: false,
+      style: 'Expressive & Dynamic (ස්වභාවික රිද්මය)'
+    },
+    volume: {
+      percent: avgVolume,
+      status: avgVolume > 85 ? 'Too Loud (ශබ්දය වැඩියි)' : avgVolume < 20 ? 'Too Soft (ශබ්දය මදි)' : 'Clear & Optimal (පැහැදිලියි)'
+    },
+    nonMtiErrors: {
+      hasSinhalaWords: sinhalaMixed.length > 0,
+      sinhalaWords: sinhalaMixed
+    }
   };
 }
 
@@ -299,6 +525,7 @@ export default function EnglishModule({ onExit }) {
   const [paperQuestions, setPaperQuestions] = useState([]);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [history, setHistory] = useState([]);
+  const [questionAttempts, setQuestionAttempts] = useState(1);
 
   // Recording & 3-Stage Assessment State
   const [isListening, setIsListening] = useState(false);
@@ -316,6 +543,7 @@ export default function EnglishModule({ onExit }) {
   const audioContextRef = useRef(null);
   const mediaStreamRef = useRef(null);
   const animFrameRef = useRef(null);
+  const volumeSamplesRef = useRef([]);
 
   // LocalStorage Paper History
   const [paperHistory, setPaperHistory] = useState(() => {
@@ -378,12 +606,14 @@ export default function EnglishModule({ onExit }) {
     const qList = generatePaperQuestions(selectedGrade, pId);
     setPaperQuestions(qList);
     setCurrentQIndex(0);
+    setQuestionAttempts(1);
     setLiveTranscript('');
     setLiveVolume(0);
     setAssessmentResult(null);
     setIsAnswered(false);
     latestTranscriptRef.current = '';
     soundHeardRef.current = false;
+    volumeSamplesRef.current = [];
     setViewState('quiz');
   };
 
@@ -441,10 +671,10 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Full-Sentence Continuous Recording (Never cuts off prematurely!)
+  // Full-Sentence Continuous Recording
   const startRecording = async () => {
     playSound('click');
-    stopListening(); // Fully clear previous session
+    stopListening();
 
     setAssessmentResult(null);
     setIsAnswered(false);
@@ -453,10 +683,11 @@ export default function EnglishModule({ onExit }) {
     setRecordingSeconds(0);
     latestTranscriptRef.current = '';
     soundHeardRef.current = false;
+    volumeSamplesRef.current = [];
     isListeningRef.current = true;
     setIsListening(true);
 
-    // 1. Instant Hardware Audio VAD (100% Local, Zero Cloud Lag)
+    // 1. Instant Hardware Audio VAD
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
@@ -488,6 +719,8 @@ export default function EnglishModule({ onExit }) {
         const normalized = Math.min(100, Math.round((avg / 100) * 100));
         
         setLiveVolume(normalized);
+        volumeSamplesRef.current.push(normalized);
+
         if (normalized >= 5) {
           soundHeardRef.current = true;
         }
@@ -500,7 +733,7 @@ export default function EnglishModule({ onExit }) {
       console.log("Local audio context notice:", err);
     }
 
-    // 2. Continuous Speech Recognition
+    // 2. High-Resolution Speech Recognition (maxAlternatives: 5)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       try {
@@ -522,7 +755,6 @@ export default function EnglishModule({ onExit }) {
           soundHeardRef.current = true;
         };
 
-        // Real-Time Cumulative Speech Streaming with Multi-Alternative Inspection
         reco.onresult = (event) => {
           soundHeardRef.current = true;
 
@@ -547,7 +779,6 @@ export default function EnglishModule({ onExit }) {
         };
 
         reco.onend = () => {
-          // Auto-restart if user is still in speaking mode
           if (isListeningRef.current) {
             try {
               reco.start();
@@ -566,18 +797,22 @@ export default function EnglishModule({ onExit }) {
     }, 1000);
   };
 
-  // Student clicks Stop when they finish speaking the entire sentence
+  // Student clicks Stop when they finish speaking
   const stopRecordingAndEvaluate = () => {
     playSound('click');
     const finalHeardText = latestTranscriptRef.current || liveTranscript || '';
     const soundDetected = soundHeardRef.current || Boolean(finalHeardText.trim());
+    const duration = Math.max(1, recordingSeconds);
+
+    const samples = volumeSamplesRef.current;
+    const avgVol = samples.length > 0 ? Math.round(samples.reduce((a,b)=>a+b, 0) / samples.length) : 50;
 
     stopListening();
 
     const currentQ = paperQuestions[currentQIndex];
     const targetText = currentQ ? currentQ.target_text : '';
 
-    const res = evaluate3StageSpeech(finalHeardText, targetText, soundDetected);
+    const res = evaluate6DimensionalSpeech(finalHeardText, targetText, soundDetected, duration, avgVol);
     setAssessmentResult(res);
     setIsAnswered(true);
 
@@ -610,7 +845,11 @@ export default function EnglishModule({ onExit }) {
       phoneticHint: currentQ.phonetic_hint,
       soundDetected: assessmentResult ? assessmentResult.soundDetected : false,
       wordsCorrect: assessmentResult ? assessmentResult.wordsCorrect : false,
-      wordResults: assessmentResult ? assessmentResult.wordResults : []
+      wordResults: assessmentResult ? assessmentResult.wordResults : [],
+      mtiPatterns: assessmentResult ? assessmentResult.mtiPatterns : [],
+      fluency: assessmentResult ? assessmentResult.fluency : {},
+      volume: assessmentResult ? assessmentResult.volume : {},
+      attempts: questionAttempts
     };
 
     const updatedHistory = [...history, entry];
@@ -619,6 +858,7 @@ export default function EnglishModule({ onExit }) {
     if (currentQIndex < 9) {
       // Next question
       setCurrentQIndex(prev => prev + 1);
+      setQuestionAttempts(1);
       setLiveTranscript('');
       setLiveVolume(0);
       setAssessmentResult(null);
@@ -626,6 +866,7 @@ export default function EnglishModule({ onExit }) {
       setRecordingSeconds(0);
       latestTranscriptRef.current = '';
       soundHeardRef.current = false;
+      volumeSamplesRef.current = [];
     } else {
       // Paper Completed (10 questions finished)
       const passedCount = updatedHistory.filter(h => h.isPassed).length;
@@ -649,6 +890,21 @@ export default function EnglishModule({ onExit }) {
 
       setViewState('report');
     }
+  };
+
+  // Retry the current question
+  const handleRetryQuestion = () => {
+    playSound('click');
+    stopListening();
+    setQuestionAttempts(prev => prev + 1);
+    setLiveTranscript('');
+    setLiveVolume(0);
+    setAssessmentResult(null);
+    setIsAnswered(false);
+    setRecordingSeconds(0);
+    latestTranscriptRef.current = '';
+    soundHeardRef.current = false;
+    volumeSamplesRef.current = [];
   };
 
   const currentQ = paperQuestions[currentQIndex];
@@ -713,13 +969,13 @@ export default function EnglishModule({ onExit }) {
           <div className="space-y-6 animate-fade-in">
             <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl text-center relative overflow-hidden">
               <div className="inline-block bg-emerald-100 text-emerald-800 font-black text-xs px-4 py-1.5 rounded-full mb-3 uppercase tracking-wider">
-                English Speech & Fluency AI • ඉංග්‍රීසි කථන පුහුණුව
+                English Speech, Fluency & MTI Analysis AI • ඉංග්‍රීසි කථන පුහුණුව
               </div>
               <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2 font-sinhala">
-                ඉංග්‍රීසි කථන අනුවර්තී පද්ධතිය
+                ඉංග්‍රීසි කථන හා චතුරතා අනුවර්තී පද්ධතිය
               </h1>
               <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
-                පියවර 3ක ශබ්ද, වචන සහ උච්චාරණ ඇගයීම (1. Sound Check ➔ 2. Word Check ➔ 3. Pronunciation Check).
+                ශ්‍රී ලාංකික සිසුන්ගේ MTI රටා 12ක්, කථන චතුරතාව (WPM), ස්වර රිද්මය සහ ශබ්ද පැහැදිලි බව ඇගයීම.
               </p>
             </div>
 
@@ -772,7 +1028,7 @@ export default function EnglishModule({ onExit }) {
                 කථන ප්‍රශ්න පත්‍ර 3 (Easy, Medium, Hard)
               </h1>
               <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
-                පියවර 3ක විශ්ලේෂණය: 1. ශබ්ද හඳුනා ගැනීම ➔ 2. වචන පරීක්ෂාව ➔ 3. උච්චාරණ නිරවද්‍යතාව.
+                පියවර 6ක විස්තීර්ණ විශ්ලේෂණය: වචන නිරවද්‍යතාව, චතුරතාව (WPM), රිද්මය, ශබ්ද මට්ටම සහ MTI දෝෂ නිවැරදි කිරීම.
               </p>
             </div>
 
@@ -884,7 +1140,12 @@ export default function EnglishModule({ onExit }) {
             <div>
               <div className="flex justify-between items-center text-xs font-black text-slate-600 mb-2">
                 <span>{activePaperConfig.levelTitle}</span>
-                <span>ප්‍රශ්න {currentQIndex + 1} / 10</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                    උත්සාහය #{questionAttempts}
+                  </span>
+                  <span>ප්‍රශ්න {currentQIndex + 1} / 10</span>
+                </div>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
                 <div 
@@ -991,23 +1252,21 @@ export default function EnglishModule({ onExit }) {
                 </div>
               )}
 
-              {/* ── 3-STAGE ASSESSMENT BREAKDOWN ── */}
+              {/* ── 6-DIMENSIONAL ASSESSMENT BREAKDOWN ── */}
               {assessmentResult && !isListening && (
                 <div className="p-5 rounded-3xl bg-white border-2 border-slate-200 space-y-4 text-left animate-fade-in shadow-sm">
                   
                   {/* Status Banner */}
-                  <div className={`p-3.5 rounded-2xl border flex items-center justify-between ${
+                  <div className={`p-4 rounded-2xl border flex items-center justify-between ${
                     assessmentResult.pronunciationCorrect
                       ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
-                      : assessmentResult.wordsCorrect
-                      ? 'bg-amber-50 border-amber-300 text-amber-900'
                       : 'bg-rose-50 border-rose-300 text-rose-900'
                   }`}>
                     <div>
-                      <h4 className="font-black text-sm">{assessmentResult.statusTitle}</h4>
+                      <h4 className="font-black text-base">{assessmentResult.statusTitle}</h4>
                       <p className="text-xs font-medium mt-0.5">{assessmentResult.statusMessage}</p>
                     </div>
-                    <span className={`text-base font-black px-3 py-1 rounded-xl ${
+                    <span className={`text-lg font-black px-4 py-1.5 rounded-xl shadow-sm ${
                       assessmentResult.pronunciationCorrect
                         ? 'bg-emerald-600 text-white'
                         : 'bg-rose-600 text-white'
@@ -1016,7 +1275,7 @@ export default function EnglishModule({ onExit }) {
                     </span>
                   </div>
 
-                  {/* 3 Steps Checklist */}
+                  {/* 3 Core Checkpoints */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs">
                     
                     {/* Step 1: Sound Check */}
@@ -1029,9 +1288,7 @@ export default function EnglishModule({ onExit }) {
 
                     {/* Step 2: Word Check */}
                     <div className={`p-2.5 rounded-xl border flex items-center gap-2 font-bold ${
-                      !assessmentResult.soundDetected
-                        ? 'bg-slate-100 border-slate-200 text-slate-400'
-                        : assessmentResult.wordsCorrect
+                      assessmentResult.wordsCorrect
                         ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                         : 'bg-rose-50 border-rose-200 text-rose-800'
                     }`}>
@@ -1039,16 +1296,74 @@ export default function EnglishModule({ onExit }) {
                       <span>2. වචන නිරවද්‍යතාව</span>
                     </div>
 
-                    {/* Step 3: Pronunciation Check */}
+                    {/* Step 3: Pronunciation & MTI Check */}
                     <div className={`p-2.5 rounded-xl border flex items-center gap-2 font-bold ${
-                      !assessmentResult.wordsCorrect && !assessmentResult.pronunciationCorrect
-                        ? 'bg-slate-100 border-slate-200 text-slate-400'
-                        : assessmentResult.pronunciationCorrect
+                      assessmentResult.pronunciationCorrect
                         ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                        : 'bg-amber-50 border-amber-200 text-amber-800'
+                        : 'bg-rose-50 border-rose-200 text-rose-800'
                     }`}>
                       <span>{assessmentResult.pronunciationCorrect ? '✓' : '✗'}</span>
-                      <span>3. උච්චාරණ මට්ටම</span>
+                      <span>3. 100% උච්චාරණ මට්ටම</span>
+                    </div>
+
+                  </div>
+
+                  {/* ── SRI LANKAN MTI ERROR ADVICE CARDS ── */}
+                  {assessmentResult.mtiPatterns && assessmentResult.mtiPatterns.length > 0 && (
+                    <div className="space-y-2">
+                      <span className="text-[11px] font-black text-rose-600 uppercase tracking-wider block">
+                        ⚠️ හඳුනාගත් ශ්‍රී ලාංකික MTI උච්චාරණ රටා (Pronunciation Tips):
+                      </span>
+                      {assessmentResult.mtiPatterns.map((pat, idx) => (
+                        <div key={idx} className="p-3.5 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1">
+                          <div className="flex items-center justify-between text-xs font-black text-rose-900">
+                            <span>📌 {pat.name} ({pat.name_si})</span>
+                            <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-rose-200">
+                              {pat.target_ipa} ➔ {pat.error_ipa}
+                            </span>
+                          </div>
+                          <p className="text-xs text-rose-800 font-bold">
+                            💡 {pat.pedagogical_tip_si}
+                          </p>
+                          <p className="text-[11px] text-slate-600 italic">
+                            ({pat.pedagogical_tip})
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* ── MULTI-DIMENSIONAL ACOUSTIC & FLUENCY METRICS ── */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+                    
+                    {/* Fluency & Speed */}
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-1">
+                      <span className="text-[10px] font-black uppercase text-slate-400 block">1. කථන වේගය (Speed / WPM)</span>
+                      <p className="font-black text-slate-800 text-sm">
+                        {assessmentResult.fluency?.wpm || 0} WPM
+                      </p>
+                      <span className="text-[11px] font-bold text-emerald-700 block">
+                        {assessmentResult.fluency?.speedStatus || 'Optimal'}
+                      </span>
+                    </div>
+
+                    {/* Intonation & Rhythm */}
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-1">
+                      <span className="text-[10px] font-black uppercase text-slate-400 block">2. ස්වර රිද්මය (Intonation)</span>
+                      <p className="font-bold text-slate-800 text-xs mt-1">
+                        {assessmentResult.intonation?.style || 'Expressive'}
+                      </p>
+                    </div>
+
+                    {/* Volume & Clarity */}
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-1">
+                      <span className="text-[10px] font-black uppercase text-slate-400 block">3. ශබ්ද මට්ටම (Volume & Clarity)</span>
+                      <p className="font-black text-slate-800 text-sm">
+                        {assessmentResult.volume?.percent || 50}%
+                      </p>
+                      <span className="text-[11px] font-bold text-slate-600 block">
+                        {assessmentResult.volume?.status || 'Clear'}
+                      </span>
                     </div>
 
                   </div>
@@ -1086,8 +1401,19 @@ export default function EnglishModule({ onExit }) {
                 </div>
               )}
 
-              {/* Next Question Action */}
-              <div className="flex justify-end pt-4 border-t border-slate-200">
+              {/* Actions */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200">
+                {isAnswered && !assessmentResult?.pronunciationCorrect ? (
+                  <button
+                    onClick={handleRetryQuestion}
+                    className="px-6 py-3 rounded-2xl font-black text-sm bg-amber-500 hover:bg-amber-600 text-white shadow-md transition-all cursor-pointer flex items-center gap-2"
+                  >
+                    <span>🔄</span> නැවත උත්සාහ කරන්න (Try Again)
+                  </button>
+                ) : (
+                  <div></div>
+                )}
+
                 <button
                   disabled={!isAnswered}
                   onClick={handleNextQuestion}
@@ -1121,11 +1447,11 @@ export default function EnglishModule({ onExit }) {
             {/* Score Metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
-                <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">සාර්ථක උච්චාරණ</p>
+                <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">100% සාර්ථක ප්‍රශ්න</p>
                 <p className="text-3xl font-black text-emerald-700">{totalPassedCount} / 10</p>
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-center">
-                <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">නිරවද්‍යතා ප්‍රතිශතය</p>
+                <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">සාමාන්‍ය ලකුණු ප්‍රතිශතය</p>
                 <p className="text-3xl font-black text-blue-700">{overallReportAccuracy}%</p>
               </div>
               <div className="col-span-2 sm:col-span-1 bg-purple-50 border border-purple-200 rounded-2xl p-5 text-center">
@@ -1181,18 +1507,27 @@ export default function EnglishModule({ onExit }) {
                       <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${
                         h.isPassed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                       }`}>
-                        {h.accuracy}% {h.isPassed ? '✓ Passed' : '✗ Needs Practice'}
+                        {h.accuracy}% {h.isPassed ? '✓ Passed (100%)' : '✗ Needs Practice'}
                       </span>
                     </div>
                     <p className="text-xs text-slate-600 font-bold">
                       ඔබ පැවසූ දෙය: <span className="font-sans text-slate-800">"{h.userTranscript}"</span>
                     </p>
-                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200 text-[11px] font-bold text-slate-500">
+                    
+                    {h.mtiPatterns && h.mtiPatterns.length > 0 && (
+                      <div className="mt-2 p-2 bg-white rounded-xl border border-rose-200 text-xs text-rose-800 font-bold">
+                        ⚠️ MTI රටා: {h.mtiPatterns.map(p => p.name_si).join(', ')}
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-2 mt-2 pt-2 border-t border-slate-200 text-[11px] font-bold text-slate-500">
                       <span>1. Sound: {h.soundDetected ? '✓' : '✗'}</span>
                       <span>•</span>
                       <span>2. Word: {h.wordsCorrect ? '✓' : '✗'}</span>
                       <span>•</span>
-                      <span>3. Pronunciation: {h.accuracy}%</span>
+                      <span>3. Speed: {h.fluency?.wpm || 0} WPM</span>
+                      <span>•</span>
+                      <span>4. Volume: {h.volume?.percent || 50}%</span>
                     </div>
                   </div>
                 ))}

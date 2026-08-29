@@ -580,10 +580,13 @@ def submit_grade3_answer(data: Grade3AnswerSubmitData):
 @app.post("/api/ai/english/pronunciation")
 def analyze_pronunciation(data: SpeechAudioData):
     """
-    3-Stage English Speech & Pronunciation Assessment Pipeline:
-    1. Step 1: Sound / Voice Activity Detection (VAD via Librosa Energy & RMS)
-    2. Step 2: Speech-to-Text & Word Correctness (Pre-built SpeechRecognition / ASR)
-    3. Step 3: Pronunciation Quality & Phoneme Accuracy (Phoneme Engine & MTI Rules)
+    Comprehensive 6-Dimensional English Speech & Pronunciation Assessment:
+    1. Overall Score & 100% Pass Standard
+    2. Word & Sentence Accuracy (DP LCS alignment)
+    3. Fluency (Speech Rate WPM, Pauses, Repetitions / Hesitations)
+    4. Intonation & Rhythm (F0 Pitch dynamics, Monotone detection, Question slope)
+    5. Volume & Clarity (Too soft / optimal / too loud, SNR clarity)
+    6. 12 Sri Lankan MTI Patterns & Non-MTI Syntactic Analysis
     """
     import numpy as np
     import base64
@@ -599,270 +602,148 @@ def analyze_pronunciation(data: SpeechAudioData):
             target_text = data.get("target_text", "").strip()
             student_id = data.get("student_id", "student_01")
             client_transcript = data.get("client_transcript", "").strip()
-            video_frames = data.get("video_frames_base64", [])
+            response_latency_ms = float(data.get("response_latency_ms", 0.0))
         else:
             audio_b64 = getattr(data, "audio_base64", "")
             target_text = getattr(data, "target_text", "").strip()
             student_id = getattr(data, "student_id", "student_01")
             client_transcript = getattr(data, "client_transcript", "").strip()
-            video_frames = getattr(data, "video_frames_base64", [])
+            response_latency_ms = float(getattr(data, "response_latency_ms", 0.0))
 
-        if not audio_b64 or audio_b64 == "dummy_base64_audio":
-            return {
-                "step": 1,
-                "sound_detected": False,
-                "words_correct": False,
-                "pronunciation_correct": False,
-                "overall_score": 0.0,
-                "status": "NO_SOUND",
-                "status_title_si": "ශබ්දයක් හඳුනා නොගැනිණි",
-                "status_message_si": "මයික්‍රෆෝනයෙන් කිසිදු හඬක් වාර්තා නොවීය. කරුණාකර මයික්‍රෆෝනය ළඟට ගෙන ශබ්ද නගා කතා කරන්න.",
-                "transcript": "(No sound recorded)",
-                "target_text": target_text,
-                "diagnostics": {"pronunciation": 0.0, "sound_level": 0.0}
-            }
-            
-        audio_bytes = base64.b64decode(audio_b64)
-        print(f"[ASSESSMENT] target='{target_text}', audio_bytes={len(audio_bytes)}")
-        
         y = None
         sr_rate = 16000
+        peak = 0.0
         
-        # 1. Standard RIFF WAV header
-        if audio_bytes[:4] == b'RIFF':
+        if audio_b64 and audio_b64 != "dummy_base64_audio":
             try:
-                y_raw, file_sr = sf.read(io.BytesIO(audio_bytes), dtype='float32', always_2d=False)
-                if file_sr != 16000:
-                    y = librosa.resample(y_raw, orig_sr=file_sr, target_sr=16000)
+                audio_bytes = base64.b64decode(audio_b64)
+                if audio_bytes[:4] == b'RIFF':
+                    y_raw, file_sr = sf.read(io.BytesIO(audio_bytes), dtype='float32', always_2d=False)
+                    if file_sr != 16000:
+                        y = librosa.resample(y_raw, orig_sr=file_sr, target_sr=16000)
+                    else:
+                        y = y_raw
                 else:
-                    y = y_raw
-                sr_rate = 16000
-            except Exception as sf_err:
-                print(f"[DEBUG] soundfile notice: {sf_err}")
-                
-        # 2. Universal PyAV path: WebM, Opus, OGG
-        if y is None:
-            try:
-                import av
-                container = av.open(io.BytesIO(audio_bytes))
-                stream = container.streams.audio[0]
-                resampler = av.AudioResampler(format='fltp', layout='mono', rate=16000)
-                audio_frames = []
-                for frame in container.decode(stream):
-                    for rf in resampler.resample(frame):
-                        audio_frames.append(rf.to_ndarray())
-                if audio_frames:
-                    y = np.concatenate(audio_frames, axis=1).squeeze()
-                    sr_rate = 16000
-            except Exception as av_err:
-                print(f"[DEBUG] PyAV notice: {av_err}")
-                
-        if y is None or len(y) == 0:
-            return {
-                "step": 1,
-                "sound_detected": False,
-                "words_correct": False,
-                "pronunciation_correct": False,
-                "overall_score": 0.0,
-                "status": "NO_SOUND",
-                "status_title_si": "ශබ්දයක් හඳුනා නොගැනිණි",
-                "status_message_si": "ශබ්දය විකේතනය කළ නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න.",
-                "transcript": "(Decode error)",
-                "target_text": target_text
-            }
-            
-        if y.ndim > 1:
-            y = y.mean(axis=1)
+                    import av
+                    container = av.open(io.BytesIO(audio_bytes))
+                    stream = container.streams.audio[0]
+                    resampler = av.AudioResampler(format='fltp', layout='mono', rate=16000)
+                    audio_frames = []
+                    for frame in container.decode(stream):
+                        for rf in resampler.resample(frame):
+                            audio_frames.append(rf.to_ndarray())
+                    if audio_frames:
+                        y = np.concatenate(audio_frames, axis=1).squeeze()
+            except Exception as e:
+                print(f"[AUDIO DECODE NOTICE] {e}")
 
-        # ---------------------------------------------------------
-        # STEP 1: SOUND / VOICE ACTIVITY DETECTION (VAD)
-        # ---------------------------------------------------------
-        peak = float(np.max(np.abs(y)))
-        raw_rms = librosa.feature.rms(y=y)[0]
-        max_raw_rms = float(np.max(raw_rms)) if len(raw_rms) > 0 else 0.0
-        mean_raw_rms = float(np.mean(raw_rms)) if len(raw_rms) > 0 else 0.0
-        duration = float(librosa.get_duration(y=y, sr=sr_rate))
-        
-        print(f"[STEP 1: VAD] Peak: {peak:.4f}, Max RMS: {max_raw_rms:.4f}, Duration: {duration:.2f}s")
-        
-        has_sound = (peak >= 0.005 and max_raw_rms >= 0.002 and duration >= 0.20)
-        
-        if not has_sound:
-            print("[STEP 1: REJECTED] No voice sound detected in audio.")
-            return {
-                "step": 1,
-                "sound_detected": False,
-                "words_correct": False,
-                "pronunciation_correct": False,
-                "overall_score": 0.0,
-                "status": "NO_SOUND",
-                "status_title_si": "ශබ්දයක් හඳුනා නොගැනිණි",
-                "status_message_si": "මයික්‍රෆෝනයෙන් කිසිදු කථන හඬක් හඳුනා නොගැනිණි. කරුණාකර මයික්‍රෆෝනය ළඟට ගෙන ශබ්ද නගා කතා කරන්න.",
-                "transcript": "(No sound detected)",
-                "target_text": target_text,
-                "diagnostics": {"pronunciation": 0.0, "sound_level": round(peak * 100, 1)}
-            }
-
-        # Normalize audio amplitude
-        if peak > 0.0001:
-            y_norm = (y / peak) * 0.90
+        if y is not None and len(y) > 0:
+            if y.ndim > 1:
+                y = y.mean(axis=1)
+            peak = float(np.max(np.abs(y)))
+            y_norm = (y / peak) * 0.90 if peak > 0.0001 else y
         else:
-            y_norm = y
+            y_norm = np.zeros(1600, dtype=np.float32)
 
-        # ---------------------------------------------------------
-        # STEP 2: SPEECH-TO-TEXT & SPOKEN WORD CHECK
-        # ---------------------------------------------------------
-        recognized_text = ""
-        try:
-            wav_io = io.BytesIO()
-            sf.write(wav_io, y_norm, 16000, format='WAV', subtype='PCM_16')
-            wav_io.seek(0)
-            
-            recognizer = sr.Recognizer()
-            recognizer.energy_threshold = 300
-            recognizer.dynamic_energy_threshold = False
-            
-            with sr.AudioFile(wav_io) as source:
-                audio_data = recognizer.record(source)
-            recognized_text = recognizer.recognize_google(audio_data, language='en-US')
-            print(f"[STEP 2: ASR] SpeechRecognition recognized: '{recognized_text}'")
-        except Exception as asr_err:
-            print(f"[STEP 2: ASR] SpeechRecognition notice: {asr_err}")
-            recognized_text = client_transcript or ""
+        # 1. Speech-to-Text
+        recognized_text = client_transcript or ""
+        if y is not None and len(y) > 3200 and not recognized_text:
+            try:
+                wav_io = io.BytesIO()
+                sf.write(wav_io, y_norm, 16000, format='WAV', subtype='PCM_16')
+                wav_io.seek(0)
+                recognizer = sr.Recognizer()
+                with sr.AudioFile(wav_io) as source:
+                    audio_data = recognizer.record(source)
+                recognized_text = recognizer.recognize_google(audio_data, language='en-US')
+            except Exception:
+                pass
 
         if not recognized_text and client_transcript:
             recognized_text = client_transcript
 
+        # 2. Fluency & Prosody Analysis (All 6 Features)
+        fluency_res = {}
+        if fluency_prosody_analyzer is not None:
+            fluency_res = fluency_prosody_analyzer.analyze(
+                y=y_norm,
+                spoken_text=recognized_text,
+                target_text=target_text,
+                response_latency_ms=response_latency_ms
+            )
+
+        # 3. 12 Sri Lankan MTI Pattern Analysis
+        mti_detected = []
+        if sri_lankan_mti_engine is not None:
+            # Check text-level substitutions
+            mti_text_patterns = sri_lankan_mti_engine.analyze_spoken_text(recognized_text, target_text)
+            # Check acoustic signal patterns
+            mti_acoustic_res = sri_lankan_mti_engine.evaluate(y_norm, target_word=target_text)
+            
+            seen_keys = set()
+            for p in mti_text_patterns:
+                if p["key"] not in seen_keys:
+                    seen_keys.add(p["key"])
+                    mti_detected.append(p)
+            for p in mti_acoustic_res.get("detected_patterns", []):
+                if p["key"] not in seen_keys:
+                    seen_keys.add(p["key"])
+                    mti_detected.append(p)
+
+        # 4. Word Level Alignment & Accuracy
         spoken_clean = re.sub(r'[^a-zA-Z0-9 ]', '', recognized_text).lower().strip()
         target_clean = re.sub(r'[^a-zA-Z0-9 ]', '', target_text).lower().strip()
-        
         spoken_words = spoken_clean.split()
         target_words = target_clean.split()
+
+        matches = sum(1 for w in target_words if w in spoken_words)
+        total_words = max(1, len(target_words))
+        word_accuracy = round((matches / total_words) * 100.0, 1)
         
-        # Word verification logic
-        if len(target_words) == 1:
-            target_word = target_words[0]
-            words_correct = (target_word in spoken_words) or (spoken_clean == target_word)
-            word_accuracy = 100.0 if words_correct else 0.0
-        else:
-            matches = sum(1 for w in target_words if w in spoken_words)
-            word_accuracy = (matches / len(target_words)) * 100.0 if target_words else 0.0
-            words_correct = (word_accuracy >= 70.0)
+        # 100% Pass Standard
+        is_passed = (matches == total_words and len(mti_detected) == 0 and word_accuracy == 100.0)
 
-        print(f"[STEP 2: WORD MATCH] spoken='{spoken_clean}', target='{target_clean}', correct={words_correct}, acc={word_accuracy}%")
-
-        if not words_correct:
-            # Spoken word is incorrect (e.g. child said "And" or "cat" when target was "hand")
-            return {
-                "step": 2,
-                "sound_detected": True,
-                "words_correct": False,
-                "pronunciation_correct": False,
-                "overall_score": 25.0,
-                "status": "WRONG_WORD",
-                "status_title_si": "පැවසූ වචනය වැරදියි",
-                "status_message_si": f"ඔබ පැවසූ වචනය '{recognized_text or spoken_clean}' වේ. අපේක්ෂිත වචනය '{target_text}' වේ.",
-                "transcript": recognized_text or "(Wrong word)",
-                "target_text": target_text,
-                "diagnostics": {
-                    "sound_level": round(peak * 100, 1),
-                    "word_accuracy": round(word_accuracy, 1),
-                    "pronunciation": 25.0
-                }
-            }
-
-        # ---------------------------------------------------------
-        # STEP 3: PRONUNCIATION QUALITY & PHONETIC ACCURACY
-        # ---------------------------------------------------------
-        pronunciation_score = 90.0
-        fluency_score = 85.0
-        prosody_score = 85.0
-        
-        # Run phoneme analysis if available
-        if sri_lankan_mti_engine is not None:
-            try:
-                mti_res = sri_lankan_mti_engine.evaluate(y_norm, target_word=target_text)
-                if mti_res and "phoneme_accuracy" in mti_res:
-                    pronunciation_score = float(mti_res["phoneme_accuracy"])
-            except Exception as mti_err:
-                print(f"[STEP 3: MTI] notice: {mti_err}")
-
-        # Run prosody analysis if available
-        if fluency_prosody_analyzer is not None:
-            try:
-                prosody_res = fluency_prosody_analyzer.analyze(y_norm, target_text=target_text)
-                if prosody_res:
-                    fluency_score = float(prosody_res.get("fluency_score", 85.0))
-                    prosody_score = float(prosody_res.get("prosody_score", 85.0))
-            except Exception as p_err:
-                print(f"[STEP 3: Prosody] notice: {p_err}")
-
-        final_score = (0.50 * pronunciation_score) + (0.30 * fluency_score) + (0.20 * prosody_score)
-        final_score = float(round(max(0.0, min(100.0, final_score)), 1))
-        is_passed = (final_score >= 75.0)
-
-        print(f"[STEP 3: PRONUNCIATION COMPLETE] Score: {final_score}%, Passed: {is_passed}")
-
-        if is_passed:
-            return {
-                "step": 3,
-                "sound_detected": True,
-                "words_correct": True,
-                "pronunciation_correct": True,
-                "overall_score": final_score,
-                "status": "PASSED",
-                "status_title_si": "විශිෂ්ට උච්චාරණයක්! (Passed)",
-                "status_message_si": "ඔබේ උච්චාරණය සහ කථන රිද්මය ඉතා පැහැදිලියි.",
-                "transcript": recognized_text or target_text,
-                "target_text": target_text,
-                "diagnostics": {
-                    "sound_level": round(peak * 100, 1),
-                    "word_accuracy": 100.0,
-                    "pronunciation": round(pronunciation_score, 1),
-                    "fluency": round(fluency_score, 1),
-                    "prosody": round(prosody_score, 1)
-                }
-            }
-        else:
-            return {
-                "step": 3,
-                "sound_detected": True,
-                "words_correct": True,
-                "pronunciation_correct": False,
-                "overall_score": final_score,
-                "status": "NEEDS_PRACTICE",
-                "status_title_si": "උච්චාරණය තවදුරටත් පුහුණු වන්න",
-                "status_message_si": "වචනය නිවැරදියි, නමුත් උච්චාරණය වඩාත් පැහැදිලිව පුහුණු වන්න.",
-                "transcript": recognized_text or target_text,
-                "target_text": target_text,
-                "diagnostics": {
-                    "sound_level": round(peak * 100, 1),
-                    "word_accuracy": 100.0,
-                    "pronunciation": round(pronunciation_score, 1),
-                    "fluency": round(fluency_score, 1),
-                    "prosody": round(prosody_score, 1)
-                }
-            }
+        return {
+            "sound_detected": bool(peak >= 0.005 or len(spoken_clean) > 0),
+            "words_correct": (matches == total_words),
+            "pronunciation_correct": is_passed,
+            "overall_score": word_accuracy if not mti_detected else min(70.0, word_accuracy),
+            "is_passed": is_passed,
+            "transcript": recognized_text or "(No speech)",
+            "target_text": target_text,
+            "word_accuracy": word_accuracy,
+            "matched_words_count": matches,
+            "total_words_count": total_words,
+            "mti_analysis": {
+                "has_mti": len(mti_detected) > 0,
+                "detected_count": len(mti_detected),
+                "patterns": mti_detected
+            },
+            "fluency": fluency_res.get("fluency", {}),
+            "intonation_rhythm": fluency_res.get("intonation_rhythm", {}),
+            "volume_clarity": fluency_res.get("volume_clarity", {}),
+            "non_mti_errors": fluency_res.get("non_mti_errors", {}),
+            "engagement": fluency_res.get("engagement", {})
+        }
 
     except Exception as e:
-        print(f"[ENDPOINT ERROR] {str(e)}")
+        print(f"[ENGLISH PRONUNCIATION ENDPOINT ERROR] {e}")
         return {
-            "step": 1,
-            "sound_detected": False,
+            "sound_detected": True,
             "words_correct": False,
             "pronunciation_correct": False,
             "overall_score": 0.0,
-            "status": "ERROR",
-            "status_title_si": "දෝෂයක් සිදුවිය",
-            "status_message_si": f"කථන සැකසුම් දෝෂය: {str(e)}",
-            "transcript": "(Error)",
-            "target_text": target_text
+            "is_passed": False,
+            "transcript": client_transcript or "",
+            "target_text": target_text,
+            "mti_analysis": {"has_mti": False, "detected_count": 0, "patterns": []},
+            "fluency": {},
+            "intonation_rhythm": {},
+            "volume_clarity": {},
+            "non_mti_errors": {},
+            "engagement": {}
         }
 
-
-# ---------------------------------------------------------
-# 3. Vishmi - Sinhala Handwriting CNN
-# ---------------------------------------------------------
 @app.post("/api/ai/handwriting/evaluate")
 def evaluate_handwriting_endpoint(data: HandwritingImageData):
     """
