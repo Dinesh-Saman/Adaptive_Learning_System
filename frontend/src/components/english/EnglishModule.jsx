@@ -871,6 +871,38 @@ export default function EnglishModule({ onExit }) {
   const animFrameRef = useRef(null);
   const volumeSamplesRef = useRef([]);
 
+  // ── Pre-warm microphone when entering MTI Lab so first button click is instant ──
+  React.useEffect(() => {
+    if (viewState === 'mti_lab') {
+      if (!mediaStreamRef.current) {
+        navigator.mediaDevices?.getUserMedia({
+          audio: {
+            echoCancellation: { ideal: true },
+            noiseSuppression: { ideal: true },
+            autoGainControl: { ideal: true },
+            channelCount: { ideal: 1 },
+            sampleRate: { ideal: 16000 },
+            googEchoCancellation: { ideal: true },
+            googAutoGainControl: { ideal: true },
+            googNoiseSuppression: { ideal: true },
+            googHighpassFilter: { ideal: true },
+            googNoiseSuppression2: { ideal: true },
+            googEchoCancellation2: { ideal: true },
+            googTypingNoiseDetection: { ideal: true }
+          }
+        }).then(stream => {
+          mediaStreamRef.current = stream;
+        }).catch(e => console.log('MTI Lab mic pre-warm notice:', e));
+      }
+    } else {
+      // Release mic when leaving MTI Lab to free hardware resource
+      if (mediaStreamRef.current && viewState !== 'quiz') {
+        try { mediaStreamRef.current.getTracks().forEach(t => t.stop()); } catch (e) {}
+        mediaStreamRef.current = null;
+      }
+    }
+  }, [viewState]);
+
   // LocalStorage Paper History
   const [paperHistory, setPaperHistory] = useState(() => {
     try {
@@ -1282,10 +1314,13 @@ export default function EnglishModule({ onExit }) {
 
   const startMtiLabRecording = async () => {
     playSound('click');
-    stopListening();
 
-    // Small delay so previous stream fully tears down before new mic request
-    await new Promise(resolve => setTimeout(resolve, 150));
+    // Tear down any existing recognition only — keep mic stream alive if already open
+    isListeningRef.current = false;
+    if (recognitionRef.current) {
+      try { recognitionRef.current.onend = null; recognitionRef.current.abort(); } catch (e) {}
+      recognitionRef.current = null;
+    }
 
     setMtiLabResult(null);
     setMtiLabLiveTranscript('සවන් දෙමින්...');
@@ -1293,26 +1328,29 @@ export default function EnglishModule({ onExit }) {
     isListeningRef.current = true;
     latestTranscriptRef.current = '';
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: { ideal: true },
-          noiseSuppression: { ideal: true },
-          autoGainControl: { ideal: true },
-          channelCount: { ideal: 1 },
-          sampleRate: { ideal: 16000 },
-          googEchoCancellation: { ideal: true },
-          googAutoGainControl: { ideal: true },
-          googNoiseSuppression: { ideal: true },
-          googHighpassFilter: { ideal: true },
-          googNoiseSuppression2: { ideal: true },
-          googEchoCancellation2: { ideal: true },
-          googTypingNoiseDetection: { ideal: true }
-        }
-      });
-      mediaStreamRef.current = stream;
-    } catch (e) {
-      console.log("MTI Lab mic stream notice:", e);
+    // Only open mic stream if not already open (pre-warmed)
+    if (!mediaStreamRef.current) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: { ideal: true },
+            noiseSuppression: { ideal: true },
+            autoGainControl: { ideal: true },
+            channelCount: { ideal: 1 },
+            sampleRate: { ideal: 16000 },
+            googEchoCancellation: { ideal: true },
+            googAutoGainControl: { ideal: true },
+            googNoiseSuppression: { ideal: true },
+            googHighpassFilter: { ideal: true },
+            googNoiseSuppression2: { ideal: true },
+            googEchoCancellation2: { ideal: true },
+            googTypingNoiseDetection: { ideal: true }
+          }
+        });
+        mediaStreamRef.current = stream;
+      } catch (e) {
+        console.log("MTI Lab mic stream notice:", e);
+      }
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1325,54 +1363,68 @@ export default function EnglishModule({ onExit }) {
 
     let hasRetried = false;
     let hardTimeoutId = null;
+    let resultDelivered = false;
 
-    const processResult = (event) => {
+    const deliverResult = (heard, alts, recoRef) => {
+      if (resultDelivered) return;
+      resultDelivered = true;
       if (hardTimeoutId) { clearTimeout(hardTimeoutId); hardTimeoutId = null; }
 
-      let finalStr = '';
-      let interimStr = '';
-      const alts = [];
+      latestTranscriptRef.current = heard;
+      setMtiLabLiveTranscript(heard);
+      const res = evaluate6DimensionalSpeech(heard, mtiLabTargetWord, true, 1.5, 60, alts);
+      setMtiLabResult(res);
 
-      for (let i = 0; i < event.results.length; ++i) {
-        const resItem = event.results[i];
-        for (let k = 0; k < resItem.length; k++) {
-          const altText = resItem[k]?.transcript?.trim();
-          if (altText) {
-            altText.toLowerCase().split(/\s+/).forEach(tok => {
-              const cleanTok = tok.replace(/[^a-z0-9]/g, '');
-              if (cleanTok) alts.push(cleanTok);
-            });
-          }
-        }
-        const primary = resItem[0]?.transcript?.trim() || '';
-        if (resItem.isFinal) finalStr += primary + ' ';
-        else interimStr += primary + ' ';
-      }
-
-      const currentHeard = (finalStr.trim() || interimStr.trim());
-      if (currentHeard) {
-        latestTranscriptRef.current = currentHeard;
-        setMtiLabLiveTranscript(currentHeard);
-        const res = evaluate6DimensionalSpeech(currentHeard, mtiLabTargetWord, true, 1.5, 60, alts);
-        setMtiLabResult(res);
-      }
+      // ── KEY FIX: stop recognition immediately after first result ──
+      // This bypasses Chrome's 1.5-2s silence endpoint detection wait
+      setMtiLabListening(false);
+      isListeningRef.current = false;
+      try { recoRef.stop(); } catch (e) {}
     };
 
     try {
       const reco = new SpeechRecognition();
       reco.continuous = false;
-      reco.interimResults = true;
+      reco.interimResults = true;   // Fire immediately on partial results
       reco.lang = 'en-US';
       reco.maxAlternatives = 5;
 
       reco.onsoundstart = () => setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
       reco.onspeechstart = () => setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
-      reco.onresult = processResult;
+
+      reco.onresult = (event) => {
+        let finalStr = '';
+        let interimStr = '';
+        const alts = [];
+
+        for (let i = 0; i < event.results.length; ++i) {
+          const resItem = event.results[i];
+          for (let k = 0; k < resItem.length; k++) {
+            const altText = resItem[k]?.transcript?.trim();
+            if (altText) {
+              altText.toLowerCase().split(/\s+/).forEach(tok => {
+                const cleanTok = tok.replace(/[^a-z0-9]/g, '');
+                if (cleanTok) alts.push(cleanTok);
+              });
+            }
+          }
+          const primary = resItem[0]?.transcript?.trim() || '';
+          if (resItem.isFinal) finalStr += primary + ' ';
+          else interimStr += primary + ' ';
+        }
+
+        const heard = finalStr.trim() || interimStr.trim();
+        if (heard) {
+          // Deliver result immediately on first interim — don't wait for Chrome silence detection
+          deliverResult(heard, alts, reco);
+        }
+      };
 
       reco.onerror = (event) => {
         console.log('MTI Lab reco error:', event.error);
         if (event.error === 'no-speech' && !hasRetried && isListeningRef.current && !latestTranscriptRef.current) {
           hasRetried = true;
+          resultDelivered = false;
           setMtiLabLiveTranscript('නැවතත් කතා කරන්න... (Speak again)');
           try { reco.start(); return; } catch (e2) {}
         }
@@ -1395,7 +1447,7 @@ export default function EnglishModule({ onExit }) {
         }
       };
 
-      // 8s hard timeout: if nothing heard, show message and stop
+      // 8s hard timeout: if nothing heard at all, show message and stop
       hardTimeoutId = setTimeout(() => {
         if (isListeningRef.current && !latestTranscriptRef.current) {
           setMtiLabLiveTranscript('(ශබ්දයක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)');
