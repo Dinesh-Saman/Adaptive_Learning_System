@@ -464,12 +464,14 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
   const detected = [];
 
   targetWords.forEach(tw => {
-    // 1. S-Cluster Prosthesis (e.g. target: 'star' -> spoken: 'esta', 'easter', 'istar', 'estar', 'is star', 'east star')
-    if (/^s[cptkmn]/.test(tw)) {
+    // 1. S-Cluster Prosthesis (e.g. target: 'spring', 'star', 'station', 'school' -> spoken: "it's spring", "is spring", "ispring", "east spring", "esta", "easter")
+    if (/^s[cptkmnr]/.test(tw) || tw.startsWith('sp') || tw.startsWith('st') || tw.startsWith('sc') || tw.startsWith('sk') || tw.startsWith('sm') || tw.startsWith('sn')) {
       const hasProstheticPrefix = spokenWords.some(sw => 
         sw === 'i' + tw || 
         sw === 'is' + tw.slice(1) || 
         sw === 'es' + tw.slice(1) ||
+        sw === 'ispring' ||
+        sw === 'espring' ||
         sw === 'esta' ||
         sw === 'easter' ||
         sw === 'estar' ||
@@ -479,12 +481,18 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
         sw === 'ischool' ||
         sw === 'ispoon' ||
         sw === 'istudy' ||
-        sw === 'ispeak'
+        sw === 'ispeak' ||
+        sw === 'istop' ||
+        sw.startsWith('is' + tw) ||
+        sw.startsWith('es' + tw) ||
+        sw.startsWith('i' + tw)
       ) || (
-        spokenWords.some(sw => ['is', 'es', 'east', 'easter', 'esta', 'his', 'its', 'a', 'e'].includes(sw)) && 
-        spokenWords.some(sw => sw === tw || sw.startsWith(tw.slice(0, 2)) || sw === 'ta' || sw === 'tar')
+        spokenWords.some(sw => ['is', 'es', 'east', 'easter', 'esta', 'his', 'its', 'it', 's', 'a', 'e'].includes(sw)) && 
+        spokenWords.some(sw => sw === tw || sw.startsWith(tw.slice(0, 2)) || sw === 'ta' || sw === 'tar' || sw === 'pring')
       ) || (
         tw === 'star' && spokenWords.some(sw => ['esta', 'estar', 'easter', 'istar', 'aster', 'is'].includes(sw))
+      ) || (
+        tw === 'spring' && spokenWords.some(sw => ['ispring', 'espring', 'springs'].includes(sw))
       );
 
       if (hasProstheticPrefix) {
@@ -559,28 +567,33 @@ function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally
   const spokenWords = spokenClean.split(/\s+/).filter(Boolean);
   const targetWords = targetClean.split(/\s+/).filter(Boolean);
 
-  // ── 1. Single Word Evaluation (Easy Level) ──
+  // ── 1. Single Word Evaluation (Easy Level & MTI Lab) ──
   if (targetWords.length === 1) {
     const targetWord = targetWords[0];
-    let matched = (spokenWords.includes(targetWord)) || (spokenClean === targetWord);
+    const mtiPatterns = detectSriLankanMTIPatterns(spokenWords, targetWords);
+    
+    let matchedExact = (spokenClean === targetWord);
+    let matchedInWords = spokenWords.includes(targetWord);
 
-    if (!matched && spokenWords.length > 0) {
+    if (!matchedExact && !matchedInWords && spokenWords.length > 0) {
       for (const sw of spokenWords) {
         if (isWordMatch(targetWord, sw)) {
-          matched = true;
+          matchedInWords = true;
           break;
         }
       }
     }
 
-    const mtiPatterns = detectSriLankanMTIPatterns(spokenWords, targetWords);
-    const accuracy = (matched && mtiPatterns.length === 0) ? 100 : (matched ? 70 : 25);
+    // If extra prosthetic words were spoken before a single target (e.g. "It's spring", "is station"), it is an MTI error
+    const isCleanSingleUtterance = (matchedExact || (matchedInWords && spokenWords.length === 1)) && mtiPatterns.length === 0;
+    const wordsCorrect = isCleanSingleUtterance;
+    const accuracy = isCleanSingleUtterance ? 100 : (mtiPatterns.length > 0 ? 70 : (matchedInWords ? 60 : 25));
     const isPassed = (accuracy === 100);
 
     return {
       step: isPassed ? 3 : 2,
       soundDetected: true,
-      wordsCorrect: matched,
+      wordsCorrect: wordsCorrect,
       pronunciationCorrect: isPassed,
       accuracy: accuracy,
       statusTitle: isPassed ? 'විශිෂ්ට උච්චාරණයක්! (100% Passed)' : 'උච්චාරණය තවදුරටත් පුහුණු වන්න (Needs Practice)',
@@ -590,8 +603,8 @@ function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally
         ? `MTI රටාව හඳුනා ගැනිණි: ${mtiPatterns[0].name_si}.`
         : `ඔබ පැවසූ වචනය '${spokenText}' වේ. අපේක්ෂිත වචනය '${targetText}' වේ.`,
       transcript: spokenText,
-      wordResults: [{ word: targetWord, matched: matched, spoken: spokenWords[0] || '' }],
-      missedWords: matched ? [] : [targetWord],
+      wordResults: [{ word: targetWord, matched: isCleanSingleUtterance, spoken: spokenWords[0] || '' }],
+      missedWords: isCleanSingleUtterance ? [] : [targetWord],
       mtiPatterns: mtiPatterns,
       fluency: {
         wpm: Math.round((1 / Math.max(0.5, recordingDuration)) * 60),
