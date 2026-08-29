@@ -265,7 +265,7 @@ function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = fal
 
   const totalWords = targetWords.length;
   const accuracy = Math.round((matchedCount / totalWords) * 100);
-  const isPassed = accuracy >= 75;
+  const isPassed = (accuracy === 100);
   const allWordsCorrect = (matchedCount === totalWords);
 
   return {
@@ -278,10 +278,8 @@ function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = fal
       ? 'විශිෂ්ට උච්චාරණයක්! (Passed)' 
       : 'උච්චාරණය තවදුරටත් පුහුණු වන්න (Needs Practice)',
     statusMessage: isPassed 
-      ? (allWordsCorrect
-          ? 'ඔබේ උච්චාරණය සහ කථන රිද්මය ඉතා විශිෂ්ටයි.'
-          : `වචන ${matchedCount}/${totalWords} නිවැරදියි (${accuracy}%). සාර්ථකයි!${missedWords.length > 0 ? ` '${missedWords.join(', ')}' වචනය පුහුණු වන්න.` : ''}`)
-      : `වචන ${matchedCount}/${totalWords} නිවැරදියි (${accuracy}%). සමත් වීමට 75% ක් හෝ ඊට වැඩි විය යුතුය.`,
+      ? 'ඔබේ උච්චාරණය සහ කථන රිද්මය ඉතා විශිෂ්ටයි (100%).'
+      : `වචන ${matchedCount}/${totalWords} නිවැරදියි (${accuracy}%). සම්පූර්ණ ලකුණු (100%) සඳහා '${missedWords.join(', ')}' වචනය නිවැරදිව පවසන්න.`,
     transcript: spokenText,
     wordResults: wordResults,
     missedWords: missedWords,
