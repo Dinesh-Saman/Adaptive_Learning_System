@@ -870,22 +870,59 @@ export default function EnglishModule({ onExit }) {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+        audio: {
+          echoCancellation: { ideal: true },
+          noiseSuppression: { ideal: true },
+          autoGainControl: { ideal: true },
+          channelCount: { ideal: 1 },
+          sampleRate: { ideal: 16000 },
+          googEchoCancellation: { ideal: true },
+          googAutoGainControl: { ideal: true },
+          googNoiseSuppression: { ideal: true },
+          googHighpassFilter: { ideal: true },
+          googNoiseSuppression2: { ideal: true },
+          googEchoCancellation2: { ideal: true },
+          googTypingNoiseDetection: { ideal: true }
+        }
       });
       mediaStreamRef.current = stream;
 
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       audioContextRef.current = audioCtx;
 
+      // ── Stage 1: Highpass Filter (85 Hz) - Rejects sub-bass rumble, fan vibrations, AC hum ──
+      const highpassFilter = audioCtx.createBiquadFilter();
+      highpassFilter.type = 'highpass';
+      highpassFilter.frequency.value = 85;
+      highpassFilter.Q.value = 0.707;
+
+      // ── Stage 2: Lowpass Filter (7500 Hz) - Rejects high-frequency hiss, coil whine ──
+      const lowpassFilter = audioCtx.createBiquadFilter();
+      lowpassFilter.type = 'lowpass';
+      lowpassFilter.frequency.value = 7500;
+      lowpassFilter.Q.value = 0.707;
+
+      // ── Stage 3: Notch Filter (50 Hz / 60 Hz) - Rejects electrical power line hum ──
+      const notchFilter = audioCtx.createBiquadFilter();
+      notchFilter.type = 'notch';
+      notchFilter.frequency.value = 50;
+      notchFilter.Q.value = 4.0;
+
       const analyser = audioCtx.createAnalyser();
       analyser.fftSize = 256;
-      analyser.smoothingTimeConstant = 0.3;
+      analyser.smoothingTimeConstant = 0.4;
 
       const source = audioCtx.createMediaStreamSource(stream);
-      source.connect(analyser);
+      // Connect filter pipeline: source -> highpass -> notch -> lowpass -> analyser
+      source.connect(highpassFilter);
+      highpassFilter.connect(notchFilter);
+      notchFilter.connect(lowpassFilter);
+      lowpassFilter.connect(analyser);
 
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
+
+      let ambientNoiseFloor = 4; // Adaptive background noise threshold
 
       const updateMeter = () => {
         if (!isListeningRef.current) return;
@@ -897,12 +934,19 @@ export default function EnglishModule({ onExit }) {
         }
         const avg = sum / bufferLength;
         const normalized = Math.min(100, Math.round((avg / 100) * 100));
-        
-        setLiveVolume(normalized);
-        volumeSamplesRef.current.push(normalized);
 
-        if (normalized >= 5) {
-          soundHeardRef.current = true;
+        // Adaptive Noise Gate: Zero out ambient room noise below floor
+        if (normalized <= ambientNoiseFloor) {
+          ambientNoiseFloor = Math.min(10, Math.max(3, (ambientNoiseFloor * 0.95) + (normalized * 0.05)));
+          setLiveVolume(0);
+        } else {
+          const gatedVolume = Math.min(100, Math.round(((normalized - ambientNoiseFloor) / (100 - ambientNoiseFloor)) * 100));
+          setLiveVolume(gatedVolume);
+          volumeSamplesRef.current.push(gatedVolume);
+
+          if (gatedVolume >= 5) {
+            soundHeardRef.current = true;
+          }
         }
 
         animFrameRef.current = requestAnimationFrame(updateMeter);

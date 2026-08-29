@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 import torch
+import numpy as np
 
 # Add core_math to path so we can import modules
 sys.path.append(os.path.join(os.path.dirname(__file__), 'core_math'))
@@ -571,9 +572,33 @@ def submit_grade3_answer(data: Grade3AnswerSubmitData):
     }
 
 
-# ---------------------------------------------------------
-# 2. Suvinya - English Pronunciation AI
-# ---------------------------------------------------------
+def denoise_audio_signal(y: np.ndarray, sr: int = 16000) -> np.ndarray:
+    """
+    Advanced DSP background noise suppression:
+    1. Bandpass filter 85Hz - 7500Hz (removes low rumble, fan vibrations, 50Hz/60Hz hum, ultrasonic hiss)
+    2. Dynamic Noise Gate (attenuates stationary background noise floor)
+    """
+    if y is None or len(y) < 160:
+        return y
+    try:
+        from scipy.signal import butter, sosfilt
+        sos = butter(4, [85, 7500], btype='bandpass', fs=sr, output='sos')
+        y_filtered = sosfilt(sos, y)
+        
+        frame_len = int(0.025 * sr)
+        hop_len = int(0.010 * sr)
+        if len(y_filtered) > frame_len:
+            rms = librosa.feature.rms(y=y_filtered, frame_length=frame_len, hop_length=hop_len)[0]
+            noise_floor = np.percentile(rms, 15)
+            gate_th = max(0.005, noise_floor * 1.4)
+            gain = np.clip((rms - gate_th) / (gate_th + 1e-6), 0.0, 1.0)
+            gain_interp = np.interp(np.arange(len(y_filtered)), np.arange(len(gain)) * hop_len, gain)
+            y_denoised = y_filtered * gain_interp
+            return y_denoised.astype(np.float32)
+        return y_filtered.astype(np.float32)
+    except Exception:
+        return y
+
 # ---------------------------------------------------------
 # 2. Suvinya - Multi-Stage English Pronunciation, Fluency & Speaking Assessment
 # ---------------------------------------------------------
@@ -626,7 +651,7 @@ def analyze_pronunciation(data: SpeechAudioData):
                 else:
                     import av
                     container = av.open(io.BytesIO(audio_bytes))
-                    stream = container.streams.audio[0]
+                    stream = next(s for s in container.streams if s.type == 'audio')
                     resampler = av.AudioResampler(format='fltp', layout='mono', rate=16000)
                     audio_frames = []
                     for frame in container.decode(stream):
@@ -640,12 +665,14 @@ def analyze_pronunciation(data: SpeechAudioData):
         if y is not None and len(y) > 0:
             if y.ndim > 1:
                 y = y.mean(axis=1)
+            # Apply DSP Background Noise Suppression
+            y = denoise_audio_signal(y, sr=16000)
             peak = float(np.max(np.abs(y)))
             y_norm = (y / peak) * 0.90 if peak > 0.0001 else y
         else:
             y_norm = np.zeros(1600, dtype=np.float32)
 
-        # 1. Speech-to-Text
+        # 1. Speech-to-Text with Ambient Noise Adjustment
         recognized_text = client_transcript or ""
         if y is not None and len(y) > 3200 and not recognized_text:
             try:
@@ -653,7 +680,10 @@ def analyze_pronunciation(data: SpeechAudioData):
                 sf.write(wav_io, y_norm, 16000, format='WAV', subtype='PCM_16')
                 wav_io.seek(0)
                 recognizer = sr.Recognizer()
+                recognizer.energy_threshold = 300
+                recognizer.dynamic_energy_threshold = True
                 with sr.AudioFile(wav_io) as source:
+                    recognizer.adjust_for_ambient_noise(source, duration=0.15)
                     audio_data = recognizer.record(source)
                 recognized_text = recognizer.recognize_google(audio_data, language='en-US')
             except Exception:
