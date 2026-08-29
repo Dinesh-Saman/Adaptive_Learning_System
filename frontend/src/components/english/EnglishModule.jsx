@@ -262,17 +262,23 @@ function speakEnglish(text) {
 function extractCleanEnglishTranscript(event) {
   let finalStr = '';
   let interimStr = '';
+  const allAltTokens = [];
 
   for (let i = 0; i < event.results.length; ++i) {
     const resItem = event.results[i];
     let chosenTranscript = '';
 
-    // Check all alternatives for pure English (Latin) text
+    // Check all alternatives for pure English (Latin) text and collect raw phonetic hypotheses
     for (let k = 0; k < resItem.length; k++) {
       const altText = (resItem[k]?.transcript || '').trim();
-      if (/^[a-zA-Z0-9\s.,'?!-–—]+$/.test(altText)) {
+      if (altText) {
+        altText.toLowerCase().split(/\s+/).forEach(tok => {
+          const cleanTok = tok.replace(/[^a-z0-9]/g, '');
+          if (cleanTok) allAltTokens.push(cleanTok);
+        });
+      }
+      if (/^[a-zA-Z0-9\s.,'?!-–—]+$/.test(altText) && !chosenTranscript) {
         chosenTranscript = altText;
-        break;
       }
     }
 
@@ -288,7 +294,11 @@ function extractCleanEnglishTranscript(event) {
     }
   }
 
-  return (finalStr + interimStr).trim();
+  const primary = (finalStr + interimStr).trim();
+  return {
+    transcript: primary,
+    alternatives: Array.from(new Set(allAltTokens))
+  };
 }
 
 // Phonetic & stem word similarity helper
@@ -319,41 +329,26 @@ function alignWordsLCS(targetWords, spokenWords) {
     }
   }
   
+  // Backtrack to build aligned word statuses
+  const aligned = [];
   let i = n;
   let j = m;
-  const aligned = [];
-  
-  while (i > 0 && j > 0) {
-    if (isWordMatch(targetWords[i - 1], spokenWords[j - 1])) {
-      aligned.push({
-        word: targetWords[i - 1],
-        matched: true,
-        spoken: spokenWords[j - 1]
-      });
+
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && isWordMatch(targetWords[i - 1], spokenWords[j - 1])) {
+      aligned.unshift({ word: targetWords[i - 1], matched: true, spoken: spokenWords[j - 1] });
       i--;
       j--;
-    } else if (dp[i - 1][j] >= dp[i][j - 1]) {
-      aligned.push({
-        word: targetWords[i - 1],
-        matched: false,
-        spoken: ''
-      });
-      i--;
+    } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+      // Extra spoken word inserted
+      j--;
     } else {
-      j--;
+      // Missing expected word
+      aligned.unshift({ word: targetWords[i - 1], matched: false, spoken: '' });
+      i--;
     }
   }
   
-  while (i > 0) {
-    aligned.push({
-      word: targetWords[i - 1],
-      matched: false,
-      spoken: ''
-    });
-    i--;
-  }
-  
-  aligned.reverse();
   return aligned;
 }
 
@@ -464,7 +459,7 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
   const detected = [];
 
   targetWords.forEach(tw => {
-    // 1. S-Cluster Prosthesis (e.g. target: 'study', 'spring', 'star', 'station', 'school')
+    // 1. S-Cluster Prosthesis
     if (/^s[cptkmnr]/.test(tw) || tw.startsWith('sp') || tw.startsWith('st') || tw.startsWith('sc') || tw.startsWith('sk') || tw.startsWith('sm') || tw.startsWith('sn')) {
       const hasProstheticPrefix = spokenWords.some(sw => 
         sw === 'i' + tw || 
@@ -506,36 +501,118 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
     }
 
     // 2. V/W Merger
-    if (tw.startsWith('v') && spokenWords.some(sw => sw === 'w' + tw.slice(1) || sw === 'wary' || sw === 'worry')) {
-      detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'V_W_MERGER'));
-    } else if (tw.startsWith('w') && spokenWords.some(sw => sw === 'v' + tw.slice(1) || sw === 'vater' || sw === 'voter' || sw === 'vin')) {
-      detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'V_W_MERGER'));
+    if (tw.startsWith('v')) {
+      if (spokenWords.some(sw => sw === 'w' + tw.slice(1) || ['wary', 'worry', 'wery', 'where', 'ware', 'wan', 'one', 'when', 'wew', 'woice', 'willage'].includes(sw))) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'V_W_MERGER'));
+      }
+    } else if (tw.startsWith('w')) {
+      if (spokenWords.some(sw => sw === 'v' + tw.slice(1) || ['vater', 'voter', 'varta', 'vin', 'vindow', 'vinda'].includes(sw))) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'V_W_MERGER'));
+      }
     }
 
-    // 3. TH Substitution
-    if (['three', 'think', 'this', 'that', 'there', 'the'].includes(tw)) {
-      if (tw === 'three' && (spokenWords.includes('tree') || spokenWords.includes('tray') || spokenWords.includes('free'))) {
+    // 3. TH Substitution (TH -> T/D)
+    if (['three', 'think', 'this', 'that', 'there', 'the', 'mother', 'father'].includes(tw)) {
+      if (tw === 'three' && spokenWords.some(sw => ['tree', 'tray', 'free', 'thee', 'tri'].includes(sw))) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
-      } else if (tw === 'think' && (spokenWords.includes('tink') || spokenWords.includes('sink') || spokenWords.includes('pink'))) {
+      } else if (tw === 'think' && spokenWords.some(sw => ['tink', 'sink', 'pink', 'thing', 'tin'].includes(sw))) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
-      } else if (['this', 'that'].includes(tw) && (spokenWords.includes('dis') || spokenWords.includes('dat') || spokenWords.includes('tis') || spokenWords.includes('tat'))) {
+      } else if (tw === 'this' && spokenWords.some(sw => ['dis', 'tis', 'miss', 'thiss'].includes(sw))) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
+      } else if (tw === 'that' && spokenWords.some(sw => ['dat', 'tat', 'cat', 'dot'].includes(sw))) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
+      } else if (tw === 'there' && spokenWords.some(sw => ['dare', 'tare', 'their', 'dey'].includes(sw))) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
+      } else if (tw === 'the' && spokenWords.some(sw => ['de', 'te', 'da'].includes(sw))) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
+      } else if (tw === 'mother' && spokenWords.some(sw => ['mudder', 'moder', 'matter', 'madar'].includes(sw))) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
+      } else if (tw === 'father' && spokenWords.some(sw => ['fadder', 'fader', 'pada'].includes(sw))) {
         detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
       }
     }
 
-    // 4. F/P Substitution
-    if (tw.startsWith('f') && spokenWords.some(sw => sw === 'p' + tw.slice(1) || sw === 'pan' || sw === 'pilm' || sw === 'pood' || sw === 'pone' || sw === 'pour')) {
-      detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'F_P_SUBSTITUTION'));
+    // 4. F/P Substitution (e.g. target: 'elephant', 'fan', 'film', 'food', 'phone', 'fish', 'feather', 'four')
+    if (tw.startsWith('f') || tw.includes('ph') || tw === 'elephant') {
+      const hasFp = spokenWords.some(sw => 
+        sw === 'p' + tw.slice(1) || 
+        ['pan', 'pilm', 'pood', 'pone', 'pour', 'pish', 'push', 'dish', 'pedder', 'peather', 'peter', 'elepant', 'elephent', 'aliphant', 'oliphant', 'elipant', 'elephan', 'eliphant', 'pud', 'put', 'pill'].includes(sw) ||
+        (tw === 'elephant' && (sw.includes('pant') || sw.includes('plant') || sw.includes('pent') || sw === 'elepant'))
+      );
+      if (hasFp) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'F_P_SUBSTITUTION'));
+      }
     }
 
-    // 5. Paragoge
-    if (['bus', 'milk', 'book', 'good', 'cake', 'stamp'].includes(tw) && spokenWords.some(sw => [tw + 'a', tw + 'er', tw + 'e', 'busa', 'milka', 'booka', 'gooda'].includes(sw))) {
-      detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'PARAGOGE'));
+    // 5. Paragoge (e.g. target: 'bus', 'milk', 'book')
+    if (['bus', 'milk', 'book', 'good', 'cake', 'stamp', 'park', 'pen'].includes(tw)) {
+      if (spokenWords.some(sw => 
+        [tw + 'a', tw + 'er', tw + 'e', tw + 'i', 'busa', 'basa', 'bassa', 'milka', 'booka', 'buku', 'gooda', 'guda', 'keka', 'keki', 'stampa', 'parka', 'paka', 'pena'].includes(sw)
+      )) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'PARAGOGE'));
+      }
     }
 
-    // 6. Initial H Dropping
-    if (tw.startsWith('h') && tw.length > 2 && (spokenWords.includes(tw.slice(1)) || spokenWords.includes('ouse') || spokenWords.includes('appy') || spokenWords.includes('ello'))) {
-      detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'INITIAL_H_DELETION'));
+    // 6. Final Consonant Weakening (e.g. target: 'but', 'cat', 'hand')
+    if (['but', 'good', 'that', 'friend', 'cat', 'hand', 'red', 'bird'].includes(tw)) {
+      if (spokenWords.some(sw => 
+        ['bu', 'ba', 'bah', 'goo', 'gu', 'tha', 'fren', 'ca', 'kah', 'han', 're', 'ray', 'ber', 'bur'].includes(sw)
+      )) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'FINAL_CONSONANT_WEAKENING'));
+      }
+    }
+
+    // 7. Consonant Cluster Simplification (e.g. target: 'next', 'friend', 'stamp')
+    if (['next', 'friend', 'stamp', 'product', 'desk', 'fast', 'best', 'plant'].includes(tw)) {
+      if (spokenWords.some(sw => 
+        ['neks', 'necks', 'nex', 'neck', 'fren', 'stam', 'stem', 'produk', 'produc', 'des', 'dec', 'fas', 'pass', 'bes', 'bet', 'plan', 'plen'].includes(sw)
+      )) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'CLUSTER_SIMPLIFICATION'));
+      }
+    }
+
+    // 8. Short/Long Vowel Confusion (e.g. target: 'cake', 'boat', 'great')
+    if (['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit'].includes(tw)) {
+      if (
+        (tw === 'cake' && spokenWords.some(sw => ['kek', 'kake'].includes(sw))) ||
+        (tw === 'boat' && spokenWords.some(sw => ['bot', 'bought'].includes(sw))) ||
+        (tw === 'great' && spokenWords.some(sw => ['gret', 'get'].includes(sw))) ||
+        (tw === 'note' && spokenWords.some(sw => ['not', 'nut'].includes(sw))) ||
+        (tw === 'feet' && spokenWords.some(sw => ['fit', 'foot'].includes(sw))) ||
+        (tw === 'fit' && spokenWords.some(sw => ['feet'].includes(sw))) ||
+        (tw === 'seat' && spokenWords.some(sw => ['sit', 'set'].includes(sw))) ||
+        (tw === 'sit' && spokenWords.some(sw => ['seat'].includes(sw)))
+      ) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'VOWEL_LENGTH_CONFUSION'));
+      }
+    }
+
+    // 9. Initial H Dropping (e.g. target: 'house', 'happy', 'hello')
+    if (['house', 'happy', 'hello', 'hot', 'hat', 'hear', 'help'].includes(tw)) {
+      if (spokenWords.some(sw => 
+        ['ouse', 'ause', 'our', 'appy', 'api', 'ello', 'elo', 'ot', 'ought', 'at', 'act', 'ear', 'air', 'elp', 'alp'].includes(sw) ||
+        sw === tw.slice(1)
+      )) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'INITIAL_H_DELETION'));
+      }
+    }
+
+    // 10. Z/S Confusion (e.g. target: 'zoo', 'busy', 'please')
+    if (['zoo', 'busy', 'please', 'zero', 'zebra', 'music', 'noise', 'rose'].includes(tw)) {
+      if (spokenWords.some(sw => 
+        ['soo', 'sue', 'bissy', 'bisi', 'pleas', 'police', 'sero', 'siro', 'sebra', 'mewsic', 'mousic', 'noiss', 'nice', 'ross', 'rows'].includes(sw)
+      )) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'Z_S_CONFUSION'));
+      }
+    }
+
+    // 11. Back Vowel Confusion (e.g. target: 'hall', 'cup', 'ball')
+    if (['hall', 'cup', 'ball', 'call', 'walk', 'tall'].includes(tw)) {
+      if (spokenWords.some(sw => 
+        ['hol', 'hole', 'hull', 'cap', 'cop', 'bol', 'bowl', 'col', 'coal', 'wok', 'woke', 'tol', 'toll'].includes(sw)
+      )) {
+        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'BACK_VOWEL_CONFUSION'));
+      }
     }
   });
 
@@ -543,7 +620,7 @@ function detectSriLankanMTIPatterns(spokenWords, targetWords) {
 }
 
 // 100% Strict 6-Dimensional Speech & Pronunciation Assessment
-function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally = false, recordingDuration = 2.0, avgVolume = 50) {
+function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally = false, recordingDuration = 2.0, avgVolume = 50, extraAlternativeWords = []) {
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
 
@@ -571,11 +648,12 @@ function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally
 
   const spokenWords = spokenClean.split(/\s+/).filter(Boolean);
   const targetWords = targetClean.split(/\s+/).filter(Boolean);
+  const allCandidateTokens = Array.from(new Set([...spokenWords, ...(extraAlternativeWords || [])]));
 
   // ── 1. Single Word Evaluation (Easy Level & MTI Lab) ──
   if (targetWords.length === 1) {
     const targetWord = targetWords[0];
-    const mtiPatterns = detectSriLankanMTIPatterns(spokenWords, targetWords);
+    const mtiPatterns = detectSriLankanMTIPatterns(allCandidateTokens, targetWords);
     
     let matchedExact = (spokenClean === targetWord);
     let matchedInWords = spokenWords.includes(targetWord);
@@ -718,6 +796,7 @@ export default function EnglishModule({ onExit }) {
   const recognitionRef = useRef(null);
   const isListeningRef = useRef(false);
   const latestTranscriptRef = useRef('');
+  const latestAlternativesRef = useRef([]);
   const soundHeardRef = useRef(false);
   const timerIntervalRef = useRef(null);
   const audioContextRef = useRef(null);
@@ -980,10 +1059,11 @@ export default function EnglishModule({ onExit }) {
 
         reco.onresult = (event) => {
           soundHeardRef.current = true;
-          const combined = extractCleanEnglishTranscript(event);
-          if (combined) {
-            latestTranscriptRef.current = combined;
-            setLiveTranscript(combined);
+          const { transcript, alternatives } = extractCleanEnglishTranscript(event);
+          if (transcript) {
+            latestTranscriptRef.current = transcript;
+            setLiveTranscript(transcript);
+            latestAlternativesRef.current = alternatives || [];
           }
         };
 
@@ -1024,7 +1104,14 @@ export default function EnglishModule({ onExit }) {
     const currentQ = paperQuestions[currentQIndex];
     const targetText = currentQ ? currentQ.target_text : '';
 
-    const res = evaluate6DimensionalSpeech(finalHeardText, targetText, soundDetected, duration, avgVol);
+    const res = evaluate6DimensionalSpeech(
+      finalHeardText, 
+      targetText, 
+      soundDetected, 
+      duration, 
+      avgVol, 
+      latestAlternativesRef.current || []
+    );
     setAssessmentResult(res);
     setIsAnswered(true);
 
@@ -1077,6 +1164,7 @@ export default function EnglishModule({ onExit }) {
       setIsAnswered(false);
       setRecordingSeconds(0);
       latestTranscriptRef.current = '';
+      latestAlternativesRef.current = [];
       soundHeardRef.current = false;
       volumeSamplesRef.current = [];
     } else {
@@ -1115,6 +1203,7 @@ export default function EnglishModule({ onExit }) {
     setIsAnswered(false);
     setRecordingSeconds(0);
     latestTranscriptRef.current = '';
+    latestAlternativesRef.current = [];
     soundHeardRef.current = false;
     volumeSamplesRef.current = [];
   };
@@ -1140,11 +1229,18 @@ export default function EnglishModule({ onExit }) {
       reco.maxAlternatives = 5;
 
       reco.onresult = (event) => {
-        const combined = extractCleanEnglishTranscript(event);
-        if (combined) {
-          setMtiLabLiveTranscript(combined);
-          // Instant real-time diagnostic evaluation
-          const res = evaluate6DimensionalSpeech(combined, mtiLabTargetWord, true, 1.5, 60);
+        const { transcript, alternatives } = extractCleanEnglishTranscript(event);
+        if (transcript) {
+          setMtiLabLiveTranscript(transcript);
+          // Instant real-time diagnostic evaluation using both primary and all acoustic alternatives
+          const res = evaluate6DimensionalSpeech(
+            transcript, 
+            mtiLabTargetWord, 
+            true, 
+            1.5, 
+            60, 
+            alternatives || []
+          );
           setMtiLabResult(res);
         }
       };

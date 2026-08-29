@@ -184,37 +184,84 @@ class SriLankanMTIRuleEngine:
                     detected.append(self._build_pattern_entry("S_CLUSTER_PROSTHESIS", tw, "is-" + tw))
 
             # 2. V/W Merger (e.g. target: 'very', spoken: 'wery')
-            if tw.startswith('v') and any(sw == 'w' + tw[1:] for sw in spoken_words):
-                detected.append(self._build_pattern_entry("V_W_MERGER", tw, 'w' + tw[1:]))
-            elif tw.startswith('w') and any(sw == 'v' + tw[1:] for sw in spoken_words):
-                detected.append(self._build_pattern_entry("V_W_MERGER", tw, 'v' + tw[1:]))
+            if tw.startswith('v'):
+                if any(sw in ['w' + tw[1:], 'wary', 'worry', 'wery', 'where', 'ware', 'wan', 'one', 'when', 'wew', 'woice', 'willage'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("V_W_MERGER", tw, 'w' + tw[1:]))
+            elif tw.startswith('w'):
+                if any(sw in ['v' + tw[1:], 'vater', 'voter', 'varta', 'vin', 'vindow', 'vinda'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("V_W_MERGER", tw, 'v' + tw[1:]))
 
             # 3. TH Substitution (e.g. target: 'three', spoken: 'tree')
-            if tw in ['three', 'think', 'this', 'that', 'there', 'the']:
-                if tw == 'three' and any(sw == 'tree' for sw in spoken_words):
+            if tw in ['three', 'think', 'this', 'that', 'there', 'the', 'mother', 'father']:
+                if tw == 'three' and any(sw in ['tree', 'tray', 'free', 'thee', 'tri'] for sw in spoken_words):
                     detected.append(self._build_pattern_entry("TH_SUBSTITUTION", tw, "tree"))
-                elif tw in ['this', 'that'] and any(sw in ['dis', 'dat'] for sw in spoken_words):
+                elif tw == 'think' and any(sw in ['tink', 'sink', 'pink', 'thing', 'tin'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("TH_SUBSTITUTION", tw, "tink"))
+                elif tw in ['this', 'that'] and any(sw in ['dis', 'dat', 'tis', 'tat', 'thiss', 'dot'] for sw in spoken_words):
                     detected.append(self._build_pattern_entry("TH_SUBSTITUTION", tw, "dis/dat"))
+                elif tw == 'there' and any(sw in ['dare', 'tare', 'their', 'dey'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("TH_SUBSTITUTION", tw, "dare"))
+                elif tw == 'the' and any(sw in ['de', 'te', 'da'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("TH_SUBSTITUTION", tw, "de"))
+                elif tw == 'mother' and any(sw in ['mudder', 'moder', 'matter', 'madar'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("TH_SUBSTITUTION", tw, "mudder"))
+                elif tw == 'father' and any(sw in ['fadder', 'fader', 'pada'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("TH_SUBSTITUTION", tw, "fadder"))
 
-            # 4. F/P Substitution (e.g. target: 'fan', spoken: 'pan')
-            if tw.startswith('f') and any(sw == 'p' + tw[1:] for sw in spoken_words):
-                detected.append(self._build_pattern_entry("F_P_SUBSTITUTION", tw, 'p' + tw[1:]))
+            # 4. F/P Substitution (e.g. target: 'elephant', 'fan', 'film', 'food')
+            if tw.startswith('f') or 'ph' in tw or tw == 'elephant':
+                has_fp = any(
+                    sw == 'p' + tw[1:] or 
+                    sw in ['pan', 'pilm', 'pood', 'pone', 'pour', 'pish', 'push', 'dish', 'pedder', 'peather', 'peter', 'elepant', 'elephent', 'aliphant', 'oliphant', 'elipant', 'elephan', 'eliphant', 'pud', 'put', 'pill'] or
+                    (tw == 'elephant' and ('pant' in sw or 'plant' in sw or 'pent' in sw or sw == 'elepant'))
+                    for sw in spoken_words
+                )
+                if has_fp:
+                    detected.append(self._build_pattern_entry("F_P_SUBSTITUTION", tw, 'p' + tw[1:] if tw.startswith('f') else 'elepant'))
 
             # 5. Paragoge (e.g. target: 'bus', spoken: 'busa')
-            if tw in ['bus', 'milk', 'book', 'good', 'cake', 'stamp'] and any(sw in [tw + 'a', tw + 'er', tw + 'e'] for sw in spoken_words):
-                detected.append(self._build_pattern_entry("PARAGOGE", tw, tw + 'a'))
+            if tw in ['bus', 'milk', 'book', 'good', 'cake', 'stamp', 'park', 'pen']:
+                if any(sw in [tw + 'a', tw + 'er', tw + 'e', tw + 'i', 'busa', 'basa', 'bassa', 'milka', 'booka', 'buku', 'gooda', 'guda', 'keka', 'keki', 'stampa', 'parka', 'paka', 'pena'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("PARAGOGE", tw, tw + 'a'))
 
-            # 6. Final Consonant Weakening
-            if tw.endswith(('t', 'd', 'k', 'p')) and len(tw) > 2:
-                stem = tw[:-1]
-                if any(sw == stem for sw in spoken_words) and stem not in target_words:
-                    detected.append(self._build_pattern_entry("FINAL_CONSONANT_WEAKENING", tw, stem))
+            # 6. Final Consonant Weakening (e.g. target: 'but', spoken: 'bu')
+            if tw in ['but', 'good', 'that', 'friend', 'cat', 'hand', 'red', 'bird']:
+                if any(sw in ['bu', 'ba', 'bah', 'goo', 'gu', 'tha', 'fren', 'ca', 'kah', 'han', 're', 'ray', 'ber', 'bur'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("FINAL_CONSONANT_WEAKENING", tw, tw[:-1]))
 
-            # 7. Initial H Dropping (e.g. target: 'house', spoken: 'ouse')
-            if tw.startswith('h') and len(tw) > 2:
-                stem = tw[1:]
-                if any(sw == stem for sw in spoken_words):
-                    detected.append(self._build_pattern_entry("INITIAL_H_DELETION", tw, stem))
+            # 7. Consonant Cluster Simplification (e.g. target: 'next', spoken: 'neks')
+            if tw in ['next', 'friend', 'stamp', 'product', 'desk', 'fast', 'best', 'plant']:
+                if any(sw in ['neks', 'necks', 'nex', 'neck', 'fren', 'stam', 'stem', 'produk', 'produc', 'des', 'dec', 'fas', 'pass', 'bes', 'bet', 'plan', 'plen'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("CLUSTER_SIMPLIFICATION", tw, 'neks'))
+
+            # 8. Short/Long Vowel Confusion (e.g. target: 'cake', spoken: 'kek')
+            if tw in ['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit']:
+                if (
+                    (tw == 'cake' and any(sw in ['kek', 'kake'] for sw in spoken_words)) or
+                    (tw == 'boat' and any(sw in ['bot', 'bought'] for sw in spoken_words)) or
+                    (tw == 'great' and any(sw in ['gret', 'get'] for sw in spoken_words)) or
+                    (tw == 'note' and any(sw in ['not', 'nut'] for sw in spoken_words)) or
+                    (tw == 'feet' and any(sw in ['fit', 'foot'] for sw in spoken_words)) or
+                    (tw == 'fit' and any(sw in ['feet'] for sw in spoken_words)) or
+                    (tw == 'seat' and any(sw in ['sit', 'set'] for sw in spoken_words)) or
+                    (tw == 'sit' and any(sw in ['seat'] for sw in spoken_words))
+                ):
+                    detected.append(self._build_pattern_entry("VOWEL_LENGTH_CONFUSION", tw, 'kek/bot'))
+
+            # 9. Initial H Dropping (e.g. target: 'house', spoken: 'ouse')
+            if tw in ['house', 'happy', 'hello', 'hot', 'hat', 'hear', 'help']:
+                if any(sw in ['ouse', 'ause', 'our', 'appy', 'api', 'ello', 'elo', 'ot', 'ought', 'at', 'act', 'ear', 'air', 'elp', 'alp'] for sw in spoken_words) or any(sw == tw[1:] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("INITIAL_H_DELETION", tw, tw[1:]))
+
+            # 10. Z/S Confusion (e.g. target: 'zoo', spoken: 'soo')
+            if tw in ['zoo', 'busy', 'please', 'zero', 'zebra', 'music', 'noise', 'rose']:
+                if any(sw in ['soo', 'sue', 'bissy', 'bisi', 'pleas', 'police', 'sero', 'siro', 'sebra', 'mewsic', 'mousic', 'noiss', 'nice', 'ross', 'rows'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("Z_S_CONFUSION", tw, 'soo'))
+
+            # 11. Back Vowel Confusion (e.g. target: 'hall', spoken: 'hol')
+            if tw in ['hall', 'cup', 'ball', 'call', 'walk', 'tall']:
+                if any(sw in ['hol', 'hole', 'hull', 'cap', 'cop', 'bol', 'bowl', 'col', 'coal', 'wok', 'woke', 'tol', 'toll'] for sw in spoken_words):
+                    detected.append(self._build_pattern_entry("BACK_VOWEL_CONFUSION", tw, 'hol/cap'))
 
         # Deduplicate
         seen = set()
