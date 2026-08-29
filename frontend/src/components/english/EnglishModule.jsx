@@ -117,7 +117,7 @@ function speakEnglish(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-// Guaranteed 3-Stage Speech & Word Alignment Evaluation
+// One-Shot 3-Stage Speech & Word Alignment Evaluation
 function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = false) {
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
@@ -235,11 +235,9 @@ function evaluate3StageSpeech(spokenText, targetText, soundDetectedLocally = fal
   let isPassed = false;
 
   if (missedContentWords.length > 0) {
-    // Content word missed: score capped at 65-68% (Needs Practice)
     accuracy = Math.min(68, Math.round(matchRatio * 85));
     isPassed = false;
   } else if (matchRatio >= 0.80) {
-    // All content words matched and >=80% total words matched
     accuracy = Math.round(matchRatio * 100);
     isPassed = true;
   } else {
@@ -299,6 +297,7 @@ export default function EnglishModule({ onExit }) {
   const audioContextRef = useRef(null);
   const mediaStreamRef = useRef(null);
   const animFrameRef = useRef(null);
+  const autoEvaluateTimeoutRef = useRef(null);
 
   // LocalStorage Paper History
   const [paperHistory, setPaperHistory] = useState(() => {
@@ -394,6 +393,11 @@ export default function EnglishModule({ onExit }) {
       timerIntervalRef.current = null;
     }
 
+    if (autoEvaluateTimeoutRef.current) {
+      clearTimeout(autoEvaluateTimeoutRef.current);
+      autoEvaluateTimeoutRef.current = null;
+    }
+
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
@@ -424,7 +428,7 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Hybrid Real-Time Audio + Web Speech Pipeline
+  // Start One-Shot Voice Recording
   const startRecording = async () => {
     playSound('click');
     stopListening(); // Fully clear previous session
@@ -483,12 +487,13 @@ export default function EnglishModule({ onExit }) {
       console.log("Local audio context notice:", err);
     }
 
-    // 2. SpeechRecognition for instant text streaming
+    // 2. One-Shot SpeechRecognition (continuous: false = Instant 1-Shot Result!)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       try {
         const reco = new SpeechRecognition();
-        reco.continuous = true;
+        // Set continuous to false so it finalizes immediately on the very first utterance in 1 shot!
+        reco.continuous = false;
         reco.interimResults = true;
         reco.lang = 'en-US';
         reco.maxAlternatives = 3;
@@ -505,23 +510,30 @@ export default function EnglishModule({ onExit }) {
           soundHeardRef.current = true;
         };
 
+        // Instant Real-Time Output on First Syllable/Word
         reco.onresult = (event) => {
           soundHeardRef.current = true;
 
-          let finalStr = '';
-          let interimStr = '';
+          let transcriptText = '';
           for (let i = 0; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-              finalStr += event.results[i][0].transcript + ' ';
-            } else {
-              interimStr += event.results[i][0].transcript;
+            transcriptText += event.results[i][0].transcript;
+          }
+          transcriptText = transcriptText.trim();
+          
+          if (transcriptText) {
+            latestTranscriptRef.current = transcriptText;
+            setLiveTranscript(transcriptText); // Immediate 1-shot display!
+          }
+        };
+
+        reco.onspeechend = () => {
+          // As soon as the user finishes speaking, auto-evaluate in 1 shot after 350ms pause!
+          if (autoEvaluateTimeoutRef.current) clearTimeout(autoEvaluateTimeoutRef.current);
+          autoEvaluateTimeoutRef.current = setTimeout(() => {
+            if (isListeningRef.current && latestTranscriptRef.current) {
+              stopRecordingAndEvaluate();
             }
-          }
-          const combined = (finalStr + interimStr).trim();
-          if (combined) {
-            latestTranscriptRef.current = combined;
-            setLiveTranscript(combined); // Real-time immediate update!
-          }
+          }, 450);
         };
 
         reco.onerror = (event) => {
@@ -529,8 +541,11 @@ export default function EnglishModule({ onExit }) {
         };
 
         reco.onend = () => {
-          // Auto-restart if user has not clicked 'Stop' yet
-          if (isListeningRef.current) {
+          // If ended and user has spoken, evaluate immediately
+          if (isListeningRef.current && latestTranscriptRef.current) {
+            stopRecordingAndEvaluate();
+          } else if (isListeningRef.current) {
+            // Restart if user hasn't spoken yet
             try {
               reco.start();
             } catch (e) {}
@@ -548,7 +563,7 @@ export default function EnglishModule({ onExit }) {
     }, 1000);
   };
 
-  // Instant Stop Recording & Fast Evaluation
+  // Instant Stop Recording & Fast 1-Shot Evaluation
   const stopRecordingAndEvaluate = () => {
     playSound('click');
     const finalHeardText = latestTranscriptRef.current || liveTranscript || '';
@@ -926,7 +941,7 @@ export default function EnglishModule({ onExit }) {
                 </button>
               </div>
 
-              {/* Instant Live Listening & Real-Time Animated Equalizer Bars */}
+              {/* One-Shot Live Listening & Real-Time Animated Equalizer Bars */}
               {isListening && (
                 <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 space-y-3 animate-fade-in">
                   
@@ -955,11 +970,11 @@ export default function EnglishModule({ onExit }) {
                     </span>
                   </div>
 
-                  {/* Real-time recognized text preview (Instant display on every word) */}
+                  {/* Real-time recognized text preview (1-Shot Instant Output!) */}
                   {liveTranscript ? (
                     <div className="p-3.5 bg-white rounded-2xl border-2 border-emerald-300 text-center animate-scale-up shadow-sm">
                       <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                        ඔබ පවසන දෙය (Live Speech):
+                        ඔබ පවසන දෙය (One-Shot Recognized):
                       </span>
                       <span className="text-2xl sm:text-3xl font-black text-emerald-800 font-sans">
                         "{liveTranscript}"
@@ -967,7 +982,7 @@ export default function EnglishModule({ onExit }) {
                     </div>
                   ) : (
                     <p className="text-xs text-emerald-700 font-medium">
-                      (මයික්‍රෆෝනයට පැහැදිලිව කතා කරන්න, ඔබ පවසන වචන මෙහි ක්ෂණිකව දිස්වනු ඇත)
+                      (වචනය 1 වරක් පැහැදිලිව පවසන්න — පද්ධතිය ක්ෂණිකව එය හඳුනාගනු ඇත)
                     </p>
                   )}
                 </div>
