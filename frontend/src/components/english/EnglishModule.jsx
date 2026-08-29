@@ -508,7 +508,7 @@ export default function EnglishModule({ onExit }) {
         reco.continuous = true;
         reco.interimResults = true;
         reco.lang = 'en-US';
-        reco.maxAlternatives = 3;
+        reco.maxAlternatives = 5;
 
         reco.onstart = () => {
           if (isListeningRef.current) setIsListening(true);
@@ -522,7 +522,7 @@ export default function EnglishModule({ onExit }) {
           soundHeardRef.current = true;
         };
 
-        // Real-Time Cumulative Speech Streaming
+        // Real-Time Cumulative Speech Streaming with Multi-Alternative Inspection
         reco.onresult = (event) => {
           soundHeardRef.current = true;
 
