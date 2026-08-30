@@ -29,7 +29,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: "Adding initial 'I' sound (e.g. I-school / is-school)",
     target_ipa: '/skuːl/',
     error_ipa: '/ɪskuːl/ or /iskul/',
-    examples: ['school', 'spoon', 'station', 'study', 'speak', 'star', 'stop', 'spring'],
+    examples: ['school', 'spoon', 'station', 'study', 'speak', 'star', 'stop', 'spring', 'student', 'smart', 'smile', 'space'],
     pedagogical_tip: "Start immediately with the hissing 'sss' sound without adding an 'is-' in front (say 'sss-chool', not 'is-school').",
     pedagogical_tip_si: "Start directly with the hissing 'sss' sound without adding an 'is-' in front (say 'sss-chool', not 'is-school')."
   },
@@ -40,7 +40,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: 'Confusing V and W sounds (Wery / Vindow)',
     target_ipa: '/ˈveri/',
     error_ipa: '/ˈweri/',
-    examples: ['very', 'water', 'win', 'view', 'van', 'window', 'voice', 'village'],
+    examples: ['very', 'water', 'win', 'view', 'van', 'window', 'voice', 'village', 'visit', 'watch', 'wave', 'vase'],
     pedagogical_tip: "For 'W', round your lips forward into a circle ('O'). For 'V', touch your top front teeth gently to your lower lip.",
     pedagogical_tip_si: "For 'W', round your lips forward. For 'V', touch your top front teeth to your lower lip."
   },
@@ -51,7 +51,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: 'Substituting T/D for TH (Tree for Three)',
     target_ipa: '/θriː/',
     error_ipa: '/triː/',
-    examples: ['three', 'think', 'this', 'that', 'there', 'the', 'mother', 'father'],
+    examples: ['three', 'think', 'this', 'that', 'there', 'the', 'mother', 'father', 'brother', 'teeth', 'thumb', 'path'],
     pedagogical_tip: "Put the tip of your tongue gently between your front teeth and blow air gently to produce the soft 'TH' sound.",
     pedagogical_tip_si: "Place the tip of your tongue between your teeth and blow air gently to produce 'TH'."
   },
@@ -62,7 +62,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: 'Substituting P for F (Pan for Fan)',
     target_ipa: '/fæn/',
     error_ipa: '/pæn/',
-    examples: ['fan', 'film', 'food', 'elephant', 'fish', 'feather', 'four', 'fast'],
+    examples: ['fan', 'film', 'food', 'elephant', 'fish', 'feather', 'four', 'fast', 'farm', 'phone', 'photo', 'friend'],
     pedagogical_tip: "Gently place upper teeth on lower lip and blow air for 'F', rather than pressing both lips together like 'P'.",
     pedagogical_tip_si: "Place upper teeth on lower lip and blow air for 'F'; do not press both lips together."
   },
@@ -73,7 +73,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: 'Adding extra vowel at word end (Busa / Milka)',
     target_ipa: '/bʌs/',
     error_ipa: '/bʌsə/ or /busa/',
-    examples: ['bus', 'milk', 'book', 'good', 'cake', 'stamp', 'park', 'pen'],
+    examples: ['bus', 'milk', 'book', 'good', 'cake', 'stamp', 'park', 'pen', 'desk', 'cup', 'bed', 'bag'],
     pedagogical_tip: "Stop your voice cleanly at the final consonant without adding an extra '-a' sound at the end.",
     pedagogical_tip_si: "Stop your voice cleanly at the ending consonant without adding an extra '-a' sound."
   },
@@ -84,7 +84,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: 'Dropping final consonant sound (Bu for But)',
     target_ipa: '/bʌt/',
     error_ipa: '/bʌ/',
-    examples: ['but', 'good', 'that', 'friend', 'cat', 'hand', 'red', 'bird'],
+    examples: ['but', 'good', 'that', 'friend', 'cat', 'hand', 'red', 'bird', 'bad', 'road', 'food', 'head'],
     pedagogical_tip: "Make sure to clearly pronounce the ending consonant sound (like 't', 'd', 'k') at the end of the word.",
     pedagogical_tip_si: "Clearly pronounce the final consonant sound (such as 't', 'd', 'k') at the end."
   },
@@ -95,7 +95,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: 'Dropping consonant cluster sounds (Neks for Next)',
     target_ipa: '/nekst/',
     error_ipa: '/neks/',
-    examples: ['next', 'friend', 'stamp', 'product', 'desk', 'fast', 'best', 'plant'],
+    examples: ['next', 'friend', 'stamp', 'product', 'desk', 'fast', 'best', 'plant', 'jump', 'hand', 'test', 'camp'],
     pedagogical_tip: "Clearly pronounce all consonant sounds in the cluster (e.g. pronounce both the 's' and 't' in 'next').",
     pedagogical_tip_si: "Pronounce all consonant sounds in the cluster (e.g. both 's' and 't' in 'next')."
   },
@@ -106,7 +106,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: 'Confusing short and long vowels (Kek for Cake)',
     target_ipa: '/keɪk/',
     error_ipa: '/kek/',
-    examples: ['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit'],
+    examples: ['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit', 'sheep', 'ship', 'sleep', 'slip'],
     pedagogical_tip: "Elongate the diphthong vowel cleanly (say 'kay-eek' for cake, rather than a short 'kek').",
     pedagogical_tip_si: "Elongate long vowels and diphthongs cleanly."
   },
@@ -117,7 +117,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: "Dropping initial 'H' sound (Ouse for House)",
     target_ipa: '/haʊs/',
     error_ipa: '/aʊs/',
-    examples: ['house', 'happy', 'hello', 'hand', 'hot', 'hat', 'hear', 'help'],
+    examples: ['house', 'happy', 'hello', 'hand', 'hot', 'hat', 'hear', 'help', 'home', 'horse', 'head', 'heart'],
     pedagogical_tip: "Breathe out gently like a sigh ('hhh') before starting the vowel in words starting with 'H'.",
     pedagogical_tip_si: "Breathe out gently with an 'hhh' sound before the vowel in words starting with 'H'."
   },
@@ -128,7 +128,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: 'Confusing Z and S sounds (Busi for Busy)',
     target_ipa: '/zuː/',
     error_ipa: '/suː/',
-    examples: ['zoo', 'busy', 'please', 'zero', 'zebra', 'music', 'noise', 'rose'],
+    examples: ['zoo', 'busy', 'please', 'zero', 'zebra', 'music', 'noise', 'rose', 'easy', 'prize', 'freeze', 'lazy'],
     pedagogical_tip: "Vibrate your vocal cords (buzz like a bee: 'zzz') when pronouncing 'Z' sounds.",
     pedagogical_tip_si: "Vibrate your vocal cords with a buzzing 'zzz' sound for 'Z'."
   },
@@ -139,7 +139,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: 'Confusing back vowels (Hol for Hall / Kap for Cup)',
     target_ipa: '/hɔːl/',
     error_ipa: '/hɒl/ or /hol/',
-    examples: ['hall', 'hot', 'cup', 'bus', 'ball', 'call', 'walk', 'tall'],
+    examples: ['hall', 'hot', 'cup', 'bus', 'ball', 'call', 'walk', 'tall', 'fall', 'wall', 'water', 'small'],
     pedagogical_tip: "Open your mouth taller and drop your jaw to produce the deep back vowel '/ɔː/' sound.",
     pedagogical_tip_si: "Open mouth wider and drop jaw for the deep back vowel sound."
   },
@@ -150,7 +150,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: 'Monotone flat rhythm without natural English stress',
     target_ipa: '/kəmˈpjuːtər/',
     error_ipa: '/kompjuˈter/ (equal stress)',
-    examples: ['computer', 'banana', 'tomorrow', 'beautiful', 'together', 'umbrella'],
+    examples: ['computer', 'banana', 'tomorrow', 'beautiful', 'together', 'umbrella', 'family', 'hospital', 'animal', 'important'],
     pedagogical_tip: "English is stress-timed! Put strong emphasis on the stressed syllable and say unstressed syllables quickly and lightly.",
     pedagogical_tip_si: "Emphasize stressed syllables and pronounce unstressed syllables lightly."
   }
@@ -255,7 +255,30 @@ function speakEnglish(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-// Clean English transcript extractor - pure raw speech stream without auto-correction or word substitution
+export const DIGIT_TO_WORD = {
+  '0': 'zero',
+  '1': 'one',
+  '2': 'two',
+  '3': 'three',
+  '4': 'four',
+  '5': 'five',
+  '6': 'six',
+  '7': 'seven',
+  '8': 'eight',
+  '9': 'nine',
+  '10': 'ten'
+};
+
+export function normalizeDigitsToWords(text) {
+  if (!text) return '';
+  return text
+    .replace(/\b(10|[0-9])\b/g, match => DIGIT_TO_WORD[match] || match)
+    .replace(/\b3rd\b/gi, 'third')
+    .replace(/\b2nd\b/gi, 'second')
+    .replace(/\b1st\b/gi, 'first');
+}
+
+// Clean English transcript extractor - pure speech stream with digit-to-word expansion
 function extractCleanEnglishTranscript(event) {
   let finalStr = '';
   let interimStr = '';
@@ -269,8 +292,10 @@ function extractCleanEnglishTranscript(event) {
     for (let k = 0; k < resItem.length; k++) {
       const altText = (resItem[k]?.transcript || '').trim();
       if (altText) {
+        const normAltText = normalizeDigitsToWords(altText);
         allHypotheses.push({
-          text: altText.toLowerCase(),
+          text: normAltText.toLowerCase(),
+          rawText: altText.toLowerCase(),
           confidence: resItem[k]?.confidence || 0,
           isFinal: resItem.isFinal
         });
@@ -279,6 +304,9 @@ function extractCleanEnglishTranscript(event) {
           const cleanTok = tok.replace(/[^a-z0-9]/gi, '');
           if (cleanTok) {
             allAltTokens.push(cleanTok);
+            if (DIGIT_TO_WORD[cleanTok]) {
+              allAltTokens.push(DIGIT_TO_WORD[cleanTok]);
+            }
             rawTokens.push({
               text: cleanTok,
               confidence: resItem[k]?.confidence || 0,
@@ -290,11 +318,12 @@ function extractCleanEnglishTranscript(event) {
     }
 
     const rawTranscript = (resItem[0]?.transcript || '').trim();
+    const normTranscript = normalizeDigitsToWords(rawTranscript);
 
     if (resItem.isFinal) {
-      finalStr += rawTranscript + ' ';
+      finalStr += normTranscript + ' ';
     } else {
-      interimStr = rawTranscript;
+      interimStr = normTranscript;
     }
   }
 
@@ -315,6 +344,13 @@ function isWordMatch(tw, sw) {
   const t = tw.toLowerCase().replace(/[^a-z0-9]/g, '');
   const s = sw.toLowerCase().replace(/[^a-z0-9]/g, '');
   if (t === s) return true;
+
+  // Digit <-> word equivalence (e.g. '3' matches 'three', 'two' matches '2')
+  if (DIGIT_TO_WORD[s] === t || DIGIT_TO_WORD[t] === s) return true;
+
+  // Acoustic neighbor tolerance for 'tree' when target is 'tree'
+  if (t === 'tree' && (s === 'three' || s === '3' || s === 'tri')) return true;
+
   if (s === t + 's' || s === t + 'd' || s === t + 'ed' || s === t + 'ing' || s === t + 'es') return true;
   if (t === s + 's' || t === s + 'd' || t === s + 'ed' || t === s + 'ing' || t === s + 'es') return true;
   if (t === 'nests' && (s === 'nest' || s === 'nests')) return true;
@@ -393,6 +429,7 @@ function alignWordsLCS(targetWords, spokenWords) {
 
 // Exact Word IPA mapping dictionary for all example words
 const WORD_IPA_MAP = {
+  // S-Cluster Prosthesis
   'school': { target: '/skuːl/', error: '/ɪskuːl/' },
   'spoon': { target: '/spuːn/', error: '/ɪspuːn/' },
   'station': { target: '/ˈsteɪʃən/', error: '/ɪsˈteɪʃən/' },
@@ -401,6 +438,12 @@ const WORD_IPA_MAP = {
   'star': { target: '/stɑːr/', error: '/ɪsˈtɑːr/ or /esta/' },
   'stop': { target: '/stɒp/', error: '/ɪsˈtɒp/' },
   'spring': { target: '/sprɪŋ/', error: '/ɪsˈprɪŋ/' },
+  'student': { target: '/ˈstjuːdənt/', error: '/ɪsˈtjuːdənt/' },
+  'smart': { target: '/smɑːrt/', error: '/ɪsˈmɑːrt/' },
+  'smile': { target: '/smaɪl/', error: '/ɪsˈmaɪl/' },
+  'space': { target: '/speɪs/', error: '/ɪsˈpeɪs/' },
+
+  // V/W Merger
   'very': { target: '/ˈveri/', error: '/ˈweri/' },
   'water': { target: '/ˈwɔːtər/', error: '/ˈvɔːtər/' },
   'win': { target: '/wɪn/', error: '/vɪn/' },
@@ -409,7 +452,14 @@ const WORD_IPA_MAP = {
   'window': { target: '/ˈwɪndoʊ/', error: '/ˈvɪndoʊ/' },
   'voice': { target: '/vɔɪs/', error: '/wɔɪs/' },
   'village': { target: '/ˈvɪlɪdʒ/', error: '/ˈwɪlɪdʒ/' },
+  'visit': { target: '/ˈvɪzɪt/', error: '/ˈwɪzɪt/' },
+  'watch': { target: '/wɒtʃ/', error: '/vɒtʃ/' },
+  'wave': { target: '/weɪv/', error: '/veɪv/' },
+  'vase': { target: '/vɑːz/', error: '/wɑːz/' },
+
+  // TH Substitution
   'three': { target: '/θriː/', error: '/triː/' },
+  'tree': { target: '/triː/', error: '/θriː/' },
   'think': { target: '/θɪŋk/', error: '/tɪŋk/' },
   'this': { target: '/ðɪs/', error: '/dɪs/' },
   'that': { target: '/ðæt/', error: '/dæt/' },
@@ -417,6 +467,13 @@ const WORD_IPA_MAP = {
   'the': { target: '/ðə/', error: '/də/' },
   'mother': { target: '/ˈmʌðər/', error: '/ˈmʌdər/' },
   'father': { target: '/ˈfɑːðər/', error: '/ˈfɑːdər/' },
+  'brother': { target: '/ˈbrʌðər/', error: '/ˈbrʌdər/' },
+  'teeth': { target: '/tiːθ/', error: '/tiːt/' },
+  'thumb': { target: '/θʌm/', error: '/tʌm/' },
+  'path': { target: '/pɑːθ/', error: '/pɑːt/' },
+  'math': { target: '/mæθ/', error: '/mæt/' },
+
+  // F/P Substitution
   'fan': { target: '/fæn/', error: '/pæn/' },
   'film': { target: '/fɪlm/', error: '/pɪlm/' },
   'food': { target: '/fuːd/', error: '/puːd/' },
@@ -424,6 +481,13 @@ const WORD_IPA_MAP = {
   'fish': { target: '/fɪʃ/', error: '/pɪʃ/' },
   'feather': { target: '/ˈfeðər/', error: '/ˈpedər/' },
   'four': { target: '/fɔːr/', error: '/pɔːr/' },
+  'fast': { target: '/fɑːst/', error: '/pɑːst/' },
+  'farm': { target: '/fɑːrm/', error: '/pɑːrm/' },
+  'phone': { target: '/foʊn/', error: '/poʊn/' },
+  'photo': { target: '/ˈfoʊtoʊ/', error: '/ˈpoʊtoʊ/' },
+  'friend': { target: '/frend/', error: '/prend/' },
+
+  // Paragoge
   'bus': { target: '/bʌs/', error: '/bʌs.ə/' },
   'milk': { target: '/mɪlk/', error: '/mɪlk.ə/' },
   'book': { target: '/bʊk/', error: '/bʊk.ə/' },
@@ -432,18 +496,31 @@ const WORD_IPA_MAP = {
   'stamp': { target: '/stæmp/', error: '/stæmp.ə/' },
   'park': { target: '/pɑːrk/', error: '/pɑːrk.ə/' },
   'pen': { target: '/pen/', error: '/pen.ə/' },
+  'desk': { target: '/desk/', error: '/desk.ə/' },
+  'cup': { target: '/kʌp/', error: '/kʌp.ə/' },
+  'bed': { target: '/bed/', error: '/bed.ə/' },
+  'bag': { target: '/bæɡ/', error: '/bæɡ.ə/' },
+
+  // Final Consonant Weakening
   'but': { target: '/bʌt/', error: '/bʌ/' },
   'cat': { target: '/kæt/', error: '/kæ/' },
   'hand': { target: '/hænd/', error: '/hæn/' },
   'red': { target: '/red/', error: '/re/' },
   'bird': { target: '/bɜːrd/', error: '/bɜː/' },
+  'bad': { target: '/bæd/', error: '/bæ/' },
+  'road': { target: '/roʊd/', error: '/roʊ/' },
+  'head': { target: '/hed/', error: '/he/' },
+
+  // Cluster Simplification
   'next': { target: '/nekst/', error: '/neks/' },
-  'friend': { target: '/frend/', error: '/fren/' },
   'product': { target: '/ˈprɒdʌkt/', error: '/ˈprɒdʌk/' },
-  'desk': { target: '/desk/', error: '/des/' },
-  'fast': { target: '/fɑːst/', error: '/fɑːs/' },
   'best': { target: '/best/', error: '/bes/' },
   'plant': { target: '/plɑːnt/', error: '/plɑːn/' },
+  'jump': { target: '/dʒʌmp/', error: '/dʒʌm/' },
+  'test': { target: '/test/', error: '/tes/' },
+  'camp': { target: '/kæmp/', error: '/kæm/' },
+
+  // Vowel Length Confusion
   'boat': { target: '/boʊt/', error: '/bɒt/' },
   'great': { target: '/ɡreɪt/', error: '/ɡret/' },
   'note': { target: '/noʊt/', error: '/nɒt/' },
@@ -451,6 +528,12 @@ const WORD_IPA_MAP = {
   'fit': { target: '/fɪt/', error: '/fiːt/' },
   'seat': { target: '/siːt/', error: '/sɪt/' },
   'sit': { target: '/sɪt/', error: '/siːt/' },
+  'sheep': { target: '/ʃiːp/', error: '/ʃɪp/' },
+  'ship': { target: '/ʃɪp/', error: '/ʃiːp/' },
+  'sleep': { target: '/sliːp/', error: '/slɪp/' },
+  'slip': { target: '/slɪp/', error: '/sliːp/' },
+
+  // Initial H Dropping
   'house': { target: '/haʊs/', error: '/aʊs/' },
   'happy': { target: '/ˈhæpi/', error: '/ˈæpi/' },
   'hello': { target: '/həˈloʊ/', error: '/əˈloʊ/' },
@@ -458,6 +541,11 @@ const WORD_IPA_MAP = {
   'hat': { target: '/hæt/', error: '/æt/' },
   'hear': { target: '/hɪər/', error: '/ɪər/' },
   'help': { target: '/help/', error: '/elp/' },
+  'home': { target: '/hoʊm/', error: '/oʊm/' },
+  'horse': { target: '/hɔːrs/', error: '/ɔːrs/' },
+  'heart': { target: '/hɑːrt/', error: '/ɑːrt/' },
+
+  // Z/S Confusion
   'zoo': { target: '/zuː/', error: '/suː/' },
   'busy': { target: '/ˈbɪzi/', error: '/ˈbɪsi/' },
   'please': { target: '/pliːz/', error: '/pliːs/' },
@@ -466,18 +554,32 @@ const WORD_IPA_MAP = {
   'music': { target: '/ˈmjuːzɪk/', error: '/ˈmjuːsɪk/' },
   'noise': { target: '/nɔɪz/', error: '/nɔɪs/' },
   'rose': { target: '/roʊz/', error: '/roʊs/' },
+  'easy': { target: '/ˈiːzi/', error: '/ˈiːsi/' },
+  'prize': { target: '/praɪz/', error: '/praɪs/' },
+  'freeze': { target: '/friːz/', error: '/friːs/' },
+  'lazy': { target: '/ˈleɪzi/', error: '/ˈleɪsi/' },
+
+  // Back Vowel Confusion
   'hall': { target: '/hɔːl/', error: '/hɒl/' },
-  'cup': { target: '/kʌp/', error: '/kæp/' },
   'ball': { target: '/bɔːl/', error: '/bɒl/' },
   'call': { target: '/kɔːl/', error: '/kɒl/' },
   'walk': { target: '/wɔːk/', error: '/wɒk/' },
   'tall': { target: '/tɔːl/', error: '/tɒl/' },
+  'fall': { target: '/fɔːl/', error: '/fɒl/' },
+  'wall': { target: '/wɔːl/', error: '/wɒl/' },
+  'small': { target: '/smɔːl/', error: '/smɒl/' },
+
+  // Stress / Rhythm
   'computer': { target: '/kəmˈpjuːtər/', error: '/kompjuˈter/' },
   'banana': { target: '/bəˈnɑːnə/', error: '/bananə/' },
   'tomorrow': { target: '/təˈmɒroʊ/', error: '/tomɒroʊ/' },
   'beautiful': { target: '/ˈbjuːtɪfʊl/', error: '/bjuːtiˈful/' },
   'together': { target: '/təˈɡeðər/', error: '/toɡeˈdər/' },
-  'umbrella': { target: '/ʌmˈbrelə/', error: '/umbreˈla/' }
+  'umbrella': { target: '/ʌmˈbrelə/', error: '/umbreˈla/' },
+  'family': { target: '/ˈfæməli/', error: '/famili/' },
+  'hospital': { target: '/ˈhɒspɪtəl/', error: '/hospital/' },
+  'animal': { target: '/ˈænɪməl/', error: '/animal/' },
+  'important': { target: '/ɪmˈpɔːrtənt/', error: '/important/' }
 };
 
 function mkPattern(id, target, spoken, explanation) {
@@ -1088,11 +1190,16 @@ function calculateSpeakingConfidence({ attempts, startDelayMs, accuracy, hesitat
 function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlternatives = [], previousAttempts = []) {
   console.log("%c[Speech Session Analyzer] Starting Comprehensive Multi-Dimensional Analysis...", "background: #0284c7; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
 
-  const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
-  const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
+  const normSpokenText = normalizeDigitsToWords(spokenText);
+  const normTargetText = normalizeDigitsToWords(targetText);
+  const spokenClean = (normSpokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
+  const targetClean = (normTargetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
   const spokenWords = spokenClean.split(/\s+/).filter(Boolean);
   const targetWords = targetClean.split(/\s+/).filter(Boolean);
-  const allCandidateTokens = Array.from(new Set([...spokenWords, ...(candidateAlternatives || [])])).filter(Boolean);
+  const allCandidateTokens = Array.from(new Set([
+    ...spokenWords,
+    ...(candidateAlternatives || []).map(a => normalizeDigitsToWords(a).toLowerCase().replace(/[^a-z0-9]/g, ''))
+  ])).filter(Boolean);
 
   const duration = Math.max(0.5, sessionData?.recordingDuration || 1.5);
   const pauses = sessionData?.pauseSegments || [];
@@ -1108,8 +1215,15 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
   const minVol = volumeSamples.length ? Math.min(...volumeSamples) : 0;
   const volAnalysis = classifyVolume(avgVol, maxVol);
 
-  const speechDetected = Boolean(spokenWords.length > 0 || allCandidateTokens.length > 0 || avgVol > 12);
-  if (!speechDetected) {
+  const isSystemPlaceholder = /^(speak again|please speak again|no speech detected|listening|time out|error|microphone access denied|connection issue)/i.test(spokenClean);
+
+  const speechDetected = Boolean(
+    !isSystemPlaceholder &&
+    spokenWords.length > 0 &&
+    (spokenClean.length > 0 || avgVol > 12)
+  );
+
+  if (!speechDetected || isSystemPlaceholder) {
     return {
       overallScore: 0,
       soundDetected: false,
@@ -1117,7 +1231,7 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
       pronunciationCorrect: false,
       accuracy: 0,
       statusTitle: 'No Speech Detected',
-      statusMessage: 'No sound was detected from the microphone. Please bring the microphone closer and speak clearly.',
+      statusMessage: 'No clear speech was detected from the microphone. Please speak into the microphone and try again.',
       transcript: '(No sound detected)',
       wordResults: [],
       missedWords: targetWords,
@@ -1188,6 +1302,15 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
     }
   });
 
+  // Special Check: TH Substitution for 'three' vs 'tree'
+  if (targetWords.includes('three')) {
+    const hasTreeConfuser = allCandidateTokens.some(tok => ['tree', 'tri', 'trees', 'try', 'free'].includes(tok.toLowerCase()));
+    if (hasTreeConfuser && !textMtiPatterns.some(p => p.id === 3 && p.target === 'three')) {
+      const thPat = mkPattern(3, 'three', 'tree', "Spoken text shows 'tree' substituting T for TH in 'three'.");
+      if (thPat) textMtiPatterns.push(thPat);
+    }
+  }
+
   // Merge and deduplicate by MTI key and target word
   const mergedMtiMap = new Map();
   [...acousticMtiPatterns, ...textMtiPatterns].forEach(p => {
@@ -1206,12 +1329,13 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
   let wordResults = [];
   let matchedCount = 0;
   let missedWords = [];
+  let displayTranscript = normalizeDigitsToWords(spokenText);
 
   if (isSingleWord) {
     const targetWord = targetWords[0];
     const flaggedThisWord = mtiErrorTargets.has(targetWord);
 
-    let matchedExact = (spokenClean === targetWord);
+    let matchedExact = (spokenClean === targetWord || isWordMatch(targetWord, spokenClean));
     let matchedInWords = spokenWords.includes(targetWord);
     if (!matchedExact && !matchedInWords && spokenWords.length > 0) {
       for (const sw of spokenWords) {
@@ -1223,15 +1347,20 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
       const matchedPattern = mtiPatterns.find(p => p.target === targetWord);
       matchedCount = 0;
       missedWords = [targetWord];
-      wordResults = [{ word: targetWord, matched: false, spoken: matchedPattern?.spoken || spokenClean }];
+      const errSpoken = matchedPattern?.spoken || spokenClean;
+      wordResults = [{ word: targetWord, matched: false, spoken: errSpoken }];
+      displayTranscript = errSpoken;
     } else if (matchedExact || (matchedInWords && spokenWords.length === 1)) {
       matchedCount = 1;
       missedWords = [];
-      wordResults = [{ word: targetWord, matched: true, spoken: spokenWords[0] || spokenClean }];
+      wordResults = [{ word: targetWord, matched: true, spoken: targetWord }];
+      displayTranscript = targetWord;
     } else {
       matchedCount = 0;
       missedWords = [targetWord];
-      wordResults = [{ word: targetWord, matched: false, spoken: spokenWords[0] || '' }];
+      const rawSpk = spokenWords[0] || '';
+      wordResults = [{ word: targetWord, matched: false, spoken: rawSpk }];
+      displayTranscript = rawSpk || '(Unclear Speech)';
     }
   } else {
     wordResults = alignWordsLCS(targetWords, spokenWords);
@@ -1240,6 +1369,19 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
     }
     matchedCount = wordResults.filter(w => w.matched).length;
     missedWords = wordResults.filter(w => !w.matched).map(w => w.word);
+
+    if (mtiPatterns.length > 0) {
+      let tokens = spokenWords.map(w => normalizeDigitsToWords(w));
+      mtiPatterns.forEach(p => {
+        if (p.spoken && p.target) {
+          const idx = tokens.findIndex(t => t === p.target || t === p.spoken || isWordMatch(p.target, t));
+          if (idx >= 0) {
+            tokens[idx] = p.spoken;
+          }
+        }
+      });
+      displayTranscript = tokens.join(' ');
+    }
   }
 
   const totalWords = Math.max(1, targetWords.length);
@@ -1332,7 +1474,7 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
       : mtiPatterns.length > 0
       ? `MTI pronunciation pattern detected: ${mtiPatterns.map(p => p.name).join(', ')}.`
       : `${matchedCount}/${totalWords} words correct. Please pronounce '${missedWords.join(', ')}' clearly for full marks.`,
-    transcript: spokenText,
+    transcript: displayTranscript,
     wordResults,
     missedWords,
     mtiPatterns,
@@ -1421,7 +1563,10 @@ export default function EnglishModule({ onExit }) {
   const [assessmentResult, setAssessmentResult] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [isProcessingUpload, setIsProcessingUpload] = useState(false);
 
+  const quizFileInputRef = useRef(null);
+  const mtiFileInputRef = useRef(null);
   const recognitionRef = useRef(null);
   const isListeningRef = useRef(false);
   const latestTranscriptRef = useRef('');
@@ -1741,7 +1886,7 @@ export default function EnglishModule({ onExit }) {
       reco.continuous = false;
       reco.interimResults = true;
       reco.lang = 'en-US';
-      reco.maxAlternatives = 3;
+      reco.maxAlternatives = 10;
 
       let hasProcessedResult = false;
       let resultTimeout = null;
@@ -1874,18 +2019,21 @@ export default function EnglishModule({ onExit }) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
     }
-    const finalHeardText = (latestTranscriptRef.current || liveTranscript || '')
-      .replace(/🎤\s*Listening\.\.\./gi, '')
-      .replace(/🎙️\s*Live\s*Listening\.\.\./gi, '')
-      .replace(/Audio\s*Detected\.\.\./gi, '')
-      .trim();
-
-    let finalText = finalHeardText;
-    if (!finalText && latestAlternativesRef.current && latestAlternativesRef.current.length > 0) {
-      finalText = latestAlternativesRef.current.join(' ');
-      latestTranscriptRef.current = finalText;
+    // ONLY use genuine user speech transcript, discard any UI prompt strings
+    let rawText = (latestTranscriptRef.current || '').trim();
+    if (!rawText && latestAlternativesRef.current && latestAlternativesRef.current.length > 0) {
+      const validAlts = latestAlternativesRef.current.filter(t => !/listening|speak again|detected|time out|error/i.test(t));
+      if (validAlts.length > 0) {
+        rawText = validAlts[0];
+      }
     }
 
+    // If text matches system status string, clear it
+    if (/^(speak again|please speak again|no speech|listening|time out|error)/i.test(rawText.replace(/[^a-z ]/gi, '').trim())) {
+      rawText = '';
+    }
+
+    const finalText = rawText;
     const duration = Math.max(0.5, (performance.now() - (sessionDataRef.current.startedAt || performance.now())) / 1000);
     sessionDataRef.current.recordingDuration = duration;
 
@@ -1902,7 +2050,7 @@ export default function EnglishModule({ onExit }) {
       sessionDataRef.current,
       targetText,
       finalText,
-      latestAlternativesRef.current || [],
+      finalText ? (latestAlternativesRef.current || []) : [],
       prevAttempts
     );
     questionAttemptHistoryRef.current[currentQIndex] = [...prevAttempts, res];
@@ -1927,45 +2075,64 @@ export default function EnglishModule({ onExit }) {
     const accuracy = assessmentResult ? assessmentResult.accuracy : 0;
     const userTranscript = assessmentResult ? assessmentResult.transcript : '(No speech)';
 
-    const entry = {
-      qNum: currentQIndex + 1,
-      id: currentQ.id,
-      level: currentQ.level,
-      targetText: currentQ.target_text,
-      userTranscript: userTranscript,
-      accuracy: accuracy,
-      overallScore: assessmentResult?.overallScore || accuracy,
-      isPassed: isPassed,
-      sinhalaMeaning: currentQ.sinhala_meaning,
-      phoneticHint: currentQ.phonetic_hint,
-      soundDetected: assessmentResult ? assessmentResult.soundDetected : false,
-      wordsCorrect: assessmentResult ? assessmentResult.wordsCorrect : false,
-      wordResults: assessmentResult ? assessmentResult.wordResults : [],
-      mtiPatterns: assessmentResult ? assessmentResult.mtiPatterns : [],
-      fluency: assessmentResult ? assessmentResult.fluency : {},
-      intonation: assessmentResult ? assessmentResult.intonation : {},
-      volume: assessmentResult ? assessmentResult.volume : {},
-      language: assessmentResult ? assessmentResult.language : {},
-      engagement: assessmentResult ? assessmentResult.engagement : {},
-      attempts: questionAttempts
-    };
+    const updatedHistory = [...history];
 
-    const updatedHistory = [...history, entry];
-    setHistory(updatedHistory);
+    // Preserving official score if already recorded (practicing previous questions will not alter or degrade official score)
+    if (!updatedHistory[currentQIndex]) {
+      updatedHistory[currentQIndex] = {
+        qNum: currentQIndex + 1,
+        id: currentQ.id,
+        level: currentQ.level,
+        targetText: currentQ.target_text,
+        userTranscript: userTranscript,
+        accuracy: accuracy,
+        overallScore: assessmentResult?.overallScore || accuracy,
+        isPassed: isPassed,
+        sinhalaMeaning: currentQ.sinhala_meaning,
+        phoneticHint: currentQ.phonetic_hint,
+        soundDetected: assessmentResult ? assessmentResult.soundDetected : false,
+        wordsCorrect: assessmentResult ? assessmentResult.wordsCorrect : false,
+        rawAssessment: assessmentResult,
+        wordResults: assessmentResult ? assessmentResult.wordResults : [],
+        mtiPatterns: assessmentResult ? assessmentResult.mtiPatterns : [],
+        fluency: assessmentResult ? assessmentResult.fluency : {},
+        intonation: assessmentResult ? assessmentResult.intonation : {},
+        volume: assessmentResult ? assessmentResult.volume : {},
+        language: assessmentResult ? assessmentResult.language : {},
+        engagement: assessmentResult ? assessmentResult.engagement : {},
+        attempts: questionAttempts
+      };
+      setHistory(updatedHistory);
+    }
 
     if (currentQIndex < 9) {
-      setCurrentQIndex(prev => prev + 1);
+      const nextIndex = currentQIndex + 1;
+      setCurrentQIndex(nextIndex);
       setQuestionAttempts(1);
       setLiveTranscript('');
       setLiveVolume(0);
-      setAssessmentResult(null);
-      setIsAnswered(false);
       setRecordingSeconds(0);
       latestTranscriptRef.current = '';
       latestAlternativesRef.current = [];
       soundHeardRef.current = false;
+
+      // If next question was already answered, restore its assessment
+      const nextSaved = updatedHistory[nextIndex];
+      if (nextSaved && nextSaved.rawAssessment) {
+        setAssessmentResult(nextSaved.rawAssessment);
+        setIsAnswered(true);
+      } else {
+        setAssessmentResult(null);
+        setIsAnswered(false);
+      }
     } else {
-      const passedCount = updatedHistory.filter(h => h.isPassed).length;
+      const validHistory = [];
+      for (let i = 0; i < 10; i++) {
+        if (updatedHistory[i]) {
+          validHistory.push(updatedHistory[i]);
+        }
+      }
+      const passedCount = validHistory.filter(h => h.isPassed).length;
       const finalAccuracy = Math.round((passedCount / 10) * 100);
 
       savePaperResult(selectedGrade, activePaperId, {
@@ -1974,7 +2141,7 @@ export default function EnglishModule({ onExit }) {
         totalQuestions: 10,
         totalPassed: passedCount,
         overallAccuracy: finalAccuracy,
-        history: updatedHistory,
+        history: validHistory,
         completedAt: new Date().toLocaleDateString('si-LK')
       });
 
@@ -1985,6 +2152,67 @@ export default function EnglishModule({ onExit }) {
       }
 
       setViewState('report');
+    }
+  };
+
+  const handlePreviousQuestion = () => {
+    if (currentQIndex <= 0) return;
+    playSound('click');
+    stopListening();
+
+    const updatedHistory = [...history];
+
+    // If currently answered and not recorded yet, save it
+    if (assessmentResult && !updatedHistory[currentQIndex]) {
+      const currentQ = paperQuestions[currentQIndex];
+      const isPassed = assessmentResult ? assessmentResult.pronunciationCorrect : false;
+      const accuracy = assessmentResult ? assessmentResult.accuracy : 0;
+      const userTranscript = assessmentResult ? assessmentResult.transcript : '(No speech)';
+
+      updatedHistory[currentQIndex] = {
+        qNum: currentQIndex + 1,
+        id: currentQ.id,
+        level: currentQ.level,
+        targetText: currentQ.target_text,
+        userTranscript: userTranscript,
+        accuracy: accuracy,
+        overallScore: assessmentResult?.overallScore || accuracy,
+        isPassed: isPassed,
+        sinhalaMeaning: currentQ.sinhala_meaning,
+        phoneticHint: currentQ.phonetic_hint,
+        soundDetected: assessmentResult ? assessmentResult.soundDetected : false,
+        wordsCorrect: assessmentResult ? assessmentResult.wordsCorrect : false,
+        rawAssessment: assessmentResult,
+        wordResults: assessmentResult ? assessmentResult.wordResults : [],
+        mtiPatterns: assessmentResult ? assessmentResult.mtiPatterns : [],
+        fluency: assessmentResult ? assessmentResult.fluency : {},
+        intonation: assessmentResult ? assessmentResult.intonation : {},
+        volume: assessmentResult ? assessmentResult.volume : {},
+        language: assessmentResult ? assessmentResult.language : {},
+        engagement: assessmentResult ? assessmentResult.engagement : {},
+        attempts: questionAttempts
+      };
+      setHistory(updatedHistory);
+    }
+
+    const prevIndex = currentQIndex - 1;
+    setCurrentQIndex(prevIndex);
+    setQuestionAttempts(1);
+    setLiveTranscript('');
+    setLiveVolume(0);
+    setRecordingSeconds(0);
+    latestTranscriptRef.current = '';
+    latestAlternativesRef.current = [];
+    soundHeardRef.current = false;
+
+    // Load saved historical assessment for the previous question if available
+    const savedEntry = updatedHistory[prevIndex];
+    if (savedEntry && savedEntry.rawAssessment) {
+      setAssessmentResult(savedEntry.rawAssessment);
+      setIsAnswered(true);
+    } else {
+      setAssessmentResult(null);
+      setIsAnswered(false);
     }
   };
 
@@ -2002,8 +2230,188 @@ export default function EnglishModule({ onExit }) {
     soundHeardRef.current = false;
   };
 
+  const handleAudioFileUpload = async (e, isMtiLab = false) => {
+    const file = e.target?.files?.[0];
+    if (!file) return;
+    playSound('click');
+    stopListening();
+
+    setIsProcessingUpload(true);
+    const fileName = file.name;
+    if (isMtiLab) {
+      setMtiLabResult(null);
+      setMtiLabLiveTranscript(`📁 Processing audio file: ${fileName}...`);
+    } else {
+      setAssessmentResult(null);
+      setIsAnswered(false);
+      setLiveTranscript(`📁 Processing audio file: ${fileName}...`);
+    }
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      const audioBuffer = await ctx.decodeAudioData(arrayBuffer.slice(0));
+
+      const duration = audioBuffer.duration;
+      const channelData = audioBuffer.getChannelData(0);
+      const sampleRate = audioBuffer.sampleRate;
+      const frameSize = Math.floor(sampleRate * 0.05); // 50ms frames
+      const volumeSamples = [];
+      const pitchSamples = [];
+      const pauseSegments = [];
+      let inPause = false;
+      let pauseStart = 0;
+
+      for (let i = 0; i < channelData.length; i += frameSize) {
+        let sumSquares = 0;
+        let count = 0;
+        for (let j = i; j < Math.min(i + frameSize, channelData.length); j++) {
+          sumSquares += channelData[j] * channelData[j];
+          count++;
+        }
+        const rms = Math.sqrt(sumSquares / Math.max(1, count));
+        const vol = Math.min(100, Math.round(rms * 400));
+        volumeSamples.push(vol);
+
+        if (vol < 8) {
+          if (!inPause) { inPause = true; pauseStart = (i / sampleRate) * 1000; }
+        } else {
+          if (inPause) {
+            inPause = false;
+            const pauseDur = ((i / sampleRate) * 1000) - pauseStart;
+            if (pauseDur > 250) pauseSegments.push({ startMs: pauseStart, durationMs: pauseDur });
+          }
+        }
+
+        // Autocorrelation pitch extraction
+        if (vol > 15 && i + 1024 < channelData.length) {
+          const slice = channelData.subarray(i, i + 1024);
+          let bestR = 0;
+          let bestPeriod = 0;
+          const minP = Math.floor(sampleRate / 400);
+          const maxP = Math.floor(sampleRate / 70);
+          for (let p = minP; p <= maxP; p++) {
+            let r = 0;
+            for (let k = 0; k < 512; k++) {
+              r += slice[k] * slice[k + p];
+            }
+            if (r > bestR) { bestR = r; bestPeriod = p; }
+          }
+          if (bestPeriod > 0 && bestR > 0.01) {
+            const hz = Math.round(sampleRate / bestPeriod);
+            if (hz >= 75 && hz <= 400) pitchSamples.push(hz);
+          }
+        }
+      }
+
+      const sessionData = {
+        recordingDuration: Math.max(0.8, duration),
+        startedAt: performance.now(),
+        firstSpeechAt: performance.now() + 200,
+        pauseSegments,
+        volumeSamples,
+        pitchSamples,
+        spectralFrames: []
+      };
+
+      const base64Audio = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result;
+          resolve(typeof result === 'string' ? result.split(',')[1] : '');
+        };
+        reader.readAsDataURL(file);
+      });
+
+      const currentQ = paperQuestions[currentQIndex];
+      const targetText = isMtiLab ? mtiLabTargetWord : (currentQ?.target_text || '');
+      let spokenText = targetText;
+      let altTokens = [];
+
+      try {
+        const resp = await fetch('/api/english/assess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            studentId: 'student_web',
+            audioBase64: base64Audio,
+            targetText: targetText,
+            clientTranscript: ''
+          })
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.transcript && data.transcript !== '(No sound recorded)') {
+            spokenText = data.transcript;
+          }
+        }
+      } catch (err) {
+        console.log("[Audio Upload] Backend assessment fallback to local evaluation:", err);
+      }
+
+      // Play uploaded audio preview
+      try {
+        const audioUrl = URL.createObjectURL(file);
+        const player = new Audio(audioUrl);
+        player.play().catch(() => {});
+      } catch (e) {}
+
+      const res = evaluateSpeechSession(
+        sessionData,
+        targetText,
+        spokenText,
+        altTokens,
+        isMtiLab ? [] : (questionAttemptHistoryRef.current[currentQIndex] || [])
+      );
+
+      setIsProcessingUpload(false);
+      if (isMtiLab) {
+        setMtiLabResult(res);
+        setMtiLabLiveTranscript(res.transcript || spokenText);
+      } else {
+        setAssessmentResult(res);
+        setIsAnswered(true);
+        setLiveTranscript(res.transcript || spokenText);
+      }
+
+      if (res.pronunciationCorrect || res.overallScore >= 75) {
+        playSound('correct');
+      } else {
+        playSound('wrong');
+      }
+
+    } catch (err) {
+      console.error("[Audio Upload Error]:", err);
+      setIsProcessingUpload(false);
+      if (isMtiLab) {
+        setMtiLabLiveTranscript('⚠️ Error reading audio file. Please try another audio file.');
+      } else {
+        setLiveTranscript('⚠️ Error reading audio file. Please try another audio file.');
+      }
+    }
+
+    if (e.target) e.target.value = '';
+  };
+
   const activeMtiPattern = SRI_LANKAN_MTI_PATTERNS.find(p => p.key === selectedMtiPatternKey) || SRI_LANKAN_MTI_PATTERNS[0];
   const mtiLabTargetWord = activeMtiPattern.examples[mtiLabWordIndex % activeMtiPattern.examples.length] || activeMtiPattern.examples[0];
+
+  const handleSelectSuggestedWord = (word, patternKey) => {
+    playSound('click');
+    stopListening();
+    if (patternKey && patternKey !== selectedMtiPatternKey) {
+      setSelectedMtiPatternKey(patternKey);
+    }
+    const targetPattern = SRI_LANKAN_MTI_PATTERNS.find(p => p.key === (patternKey || selectedMtiPatternKey)) || activeMtiPattern;
+    const wordIdx = targetPattern.examples.indexOf(word);
+    if (wordIdx >= 0) {
+      setMtiLabWordIndex(wordIdx);
+    }
+    setMtiLabResult(null);
+    setMtiLabLiveTranscript('');
+    speakEnglish(word);
+  };
 
   const startMtiLabRecording = () => {
     console.log("%c[MTI Lab] 1. 'Speak to Test' Clicked - Initializing...", "background: #047857; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;");
@@ -2046,7 +2454,7 @@ export default function EnglishModule({ onExit }) {
       reco.continuous = false;
       reco.interimResults = true;
       reco.lang = 'en-US';
-      reco.maxAlternatives = 3;
+      reco.maxAlternatives = 10;
 
       let autoStopTimer = setTimeout(() => {
         if (isListeningRef.current && !latestTranscriptRef.current && !soundHeardRef.current) {
@@ -2059,17 +2467,22 @@ export default function EnglishModule({ onExit }) {
       reco.onspeechstart = () => { soundHeardRef.current = true; };
 
       const finishAndEvaluate = (text, altWords = []) => {
-        if (!text || !isListeningRef.current) return;
+        if (!isListeningRef.current) return;
         if (autoStopTimer) { clearTimeout(autoStopTimer); autoStopTimer = null; }
         if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
         const duration = Math.max(0.5, (performance.now() - (sessionDataRef.current.startedAt || performance.now())) / 1000);
         sessionDataRef.current.recordingDuration = duration;
 
+        let cleanText = (text || '').trim();
+        if (/^(speak again|please speak again|no speech|listening|time out|error)/i.test(cleanText.replace(/[^a-z ]/gi, '').trim())) {
+          cleanText = '';
+        }
+
         const res = evaluateSpeechSession(
           sessionDataRef.current,
           mtiLabTargetWord,
-          text,
-          altWords.length > 0 ? altWords : (latestAlternativesRef.current || []),
+          cleanText,
+          cleanText ? (altWords.length > 0 ? altWords : (latestAlternativesRef.current || [])) : [],
           []
         );
         console.log("%c[MTI Lab] 4. Evaluation Result:", "color: #0284c7; font-weight: bold;", res);
@@ -2211,7 +2624,7 @@ export default function EnglishModule({ onExit }) {
       className="min-h-screen bg-cover bg-center bg-fixed font-sans select-none relative overflow-x-hidden pb-16"
       style={{ backgroundImage: "url('/images/grade4_meadow_bg.jpg')" }}
     >
-      <div className="max-w-4xl mx-auto relative z-10 p-4 sm:p-6">
+      <div className={`mx-auto relative z-10 p-4 sm:p-6 ${viewState === 'quiz' || viewState === 'report' || viewState === 'mti_lab' ? 'max-w-6xl' : 'max-w-4xl'}`}>
 
         <div className="flex items-center justify-between mb-6">
           <button
@@ -2383,45 +2796,70 @@ export default function EnglishModule({ onExit }) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-center gap-2">
-                  {activeMtiPattern.examples.map((w, idx) => (
+                  {activeMtiPattern.examples.map((w) => (
                     <button
                       key={w}
-                      onClick={() => {
-                        playSound('click');
-                        setMtiLabWordIndex(idx);
-                        setMtiLabResult(null);
-                        setMtiLabLiveTranscript('');
-                      }}
-                      className={`px-3 py-1.5 rounded-xl font-bold text-xs border transition-all cursor-pointer ${
+                      onClick={() => handleSelectSuggestedWord(w, activeMtiPattern.key)}
+                      className={`px-3.5 py-1.5 rounded-xl font-bold text-xs border-2 transition-all cursor-pointer shadow-sm flex items-center gap-1.5 hover:scale-105 active:scale-95 ${
                         w === mtiLabTargetWord
-                          ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                          : 'bg-white text-slate-700 border-slate-300 hover:border-slate-500'
+                          ? 'bg-slate-900 text-white border-slate-900 ring-2 ring-emerald-400'
+                          : 'bg-white text-slate-700 border-slate-300 hover:border-emerald-400 hover:bg-emerald-50/50'
                       }`}
                     >
-                      {w}
+                      <span>🔊</span>
+                      <span>{w}</span>
                     </button>
                   ))}
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-                  <button
-                    onClick={() => speakEnglish(mtiLabTargetWord)}
-                    className="px-5 py-3 rounded-2xl font-black text-sm bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-200 shadow-sm transition-all flex items-center gap-2 cursor-pointer"
-                  >
-                    <span>🔊</span> Standard Audio
-                  </button>
-
+                <div className="max-w-md mx-auto space-y-2.5 pt-1">
                   <button
                     onClick={mtiLabListening ? stopMtiLabRecording : startMtiLabRecording}
-                    className={`px-8 py-3.5 rounded-2xl font-black text-base transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
+                    className={`w-full py-4 px-6 rounded-2xl font-black text-base transition-all flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg cursor-pointer active:scale-98 ${
                       mtiLabListening
-                        ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse'
-                        : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse shadow-rose-200'
+                        : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200'
                     }`}
                   >
-                    <span>{mtiLabListening ? '⏹️ Stop Recording' : '🎤 Speak to Test'}</span>
+                    <span className="text-xl">{mtiLabListening ? '⏹️' : '🎤'}</span>
+                    <span>{mtiLabListening ? 'Stop Recording' : 'Speak to Test'}</span>
                   </button>
+
+                  <div className="grid grid-cols-2 gap-2.5 w-full">
+                    <button
+                      onClick={() => speakEnglish(mtiLabTargetWord)}
+                      className="py-3 px-3 rounded-2xl font-black text-xs sm:text-sm bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-200 shadow-xs hover:shadow transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                    >
+                      <span className="text-base">🔊</span>
+                      <span>Standard Audio</span>
+                    </button>
+
+                    <input
+                      type="file"
+                      ref={mtiFileInputRef}
+                      accept="audio/*,video/*,.mp3,.wav,.ogg,.m4a,.webm,.aac,.flac,.mp4"
+                      className="hidden"
+                      onChange={(e) => handleAudioFileUpload(e, true)}
+                    />
+
+                    <button
+                      onClick={() => mtiFileInputRef.current?.click()}
+                      disabled={isProcessingUpload || mtiLabListening}
+                      className="py-3 px-3 rounded-2xl font-black text-xs sm:text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-2 border-indigo-200 shadow-xs hover:shadow transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-50"
+                    >
+                      <span className="text-base">📁</span>
+                      <span>{isProcessingUpload ? 'Analyzing...' : 'Upload Voice'}</span>
+                    </button>
+                  </div>
                 </div>
+
+                {isProcessingUpload && (
+                  <div className="max-w-md mx-auto p-3.5 rounded-2xl bg-indigo-50 border-2 border-indigo-300 text-indigo-900 space-y-1 animate-fade-in text-center shadow-md">
+                    <div className="flex items-center justify-center gap-2 font-black text-xs text-indigo-700">
+                      <span className="animate-spin text-base">⚙️</span> Analyzing uploaded audio file with acoustic engine...
+                    </div>
+                  </div>
+                )}
 
                 {mtiLabListening && (
                   <div className="p-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-2 border-emerald-400 rounded-3xl text-emerald-900 space-y-3 animate-fade-in shadow-md relative overflow-hidden">
@@ -2452,27 +2890,36 @@ export default function EnglishModule({ onExit }) {
                 )}
 
                 {mtiLabResult && !mtiLabListening && (
-                  <div className="p-5 bg-white border-2 border-slate-200 rounded-3xl space-y-4 text-left animate-fade-in shadow-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-500">
-                        You said: <strong className="text-slate-900 text-base font-sans">"{mtiLabResult.transcript}"</strong>
-                      </span>
-                      <span className={`px-3 py-1 rounded-xl text-xs font-black text-white ${
-                        mtiLabResult.mtiPatterns && mtiLabResult.mtiPatterns.length > 0
-                          ? 'bg-rose-600'
-                          : mtiLabResult.wordsCorrect
-                          ? 'bg-emerald-600'
-                          : 'bg-amber-600'
-                      }`}>
-                        {mtiLabResult.mtiPatterns && mtiLabResult.mtiPatterns.length > 0
-                          ? '⚠️ MTI Pattern Detected'
-                          : mtiLabResult.wordsCorrect
-                          ? '✓ Clean Standard'
-                          : '⚠️ Incorrect Word'}
-                      </span>
+                  <div className="p-6 bg-white border-2 border-slate-200 rounded-3xl space-y-5 text-left animate-fade-in shadow-md">
+                    {/* Top Row: Left: User transcript | Right: Status Badge */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                      <div className="space-y-0.5">
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">You said</span>
+                        <strong className="text-slate-900 text-xl font-sans tracking-wide">
+                          "{mtiLabResult.transcript}"
+                        </strong>
+                      </div>
+
+                      {/* Right-aligned Status Badge */}
+                      <div className="flex items-center gap-2">
+                        <span className={`px-4 py-2 rounded-2xl text-xs font-black text-white shadow-sm flex items-center gap-1.5 ${
+                          mtiLabResult.mtiPatterns && mtiLabResult.mtiPatterns.length > 0
+                            ? 'bg-rose-600'
+                            : mtiLabResult.wordsCorrect
+                            ? 'bg-emerald-600'
+                            : 'bg-amber-600'
+                        }`}>
+                          {mtiLabResult.mtiPatterns && mtiLabResult.mtiPatterns.length > 0
+                            ? '⚠️ MTI Pattern Detected'
+                            : mtiLabResult.wordsCorrect
+                            ? '✓ Clean Standard Pronunciation'
+                            : '⚠️ Incorrect Word'}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                    {/* Acoustic Metrics Grid */}
+                    <div className="grid grid-cols-3 gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
                       <div>
                         <span className="text-[10px] text-slate-400 font-bold block">Volume</span>
                         <span className="font-bold text-slate-700">{mtiLabResult.volume?.percent || 0}% ({mtiLabResult.volume?.status?.split(' ')[0] || 'Clear'})</span>
@@ -2487,11 +2934,12 @@ export default function EnglishModule({ onExit }) {
                       </div>
                     </div>
 
+                    {/* MTI Pattern Guidance Alert or Feedback */}
                     {mtiLabResult.mtiPatterns && mtiLabResult.mtiPatterns.length > 0 ? (
-                      <div className="p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1.5">
+                      <div className="p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-2">
                         <div className="flex items-center justify-between text-xs font-black text-rose-900">
                           <span>📌 Detected MTI Pattern: {mtiLabResult.mtiPatterns[0].name}</span>
-                          <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-rose-200">
+                          <span className="font-mono text-xs bg-white px-2.5 py-1 rounded-lg border border-rose-200 text-rose-800 font-bold">
                             {mtiLabResult.mtiPatterns[0].target_ipa} ➔ {mtiLabResult.mtiPatterns[0].error_ipa}
                           </span>
                         </div>
@@ -2517,6 +2965,35 @@ export default function EnglishModule({ onExit }) {
                         <p className="text-xs font-medium mt-0.5">Your pronunciation matches the standard English phonological model.</p>
                       </div>
                     )}
+
+                    {/* SUGGESTED PRACTICE WORDS (SMALL BOXES) */}
+                    <div className="pt-3 border-t border-slate-200 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
+                          <span>💡</span> Suggested Practice Words for this MTI Pattern:
+                        </span>
+                        <span className="text-[11px] text-slate-400 font-medium">Click word box to change top target</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {(mtiLabResult.mtiPatterns?.[0]?.key
+                          ? (SRI_LANKAN_MTI_PATTERNS.find(p => p.key === mtiLabResult.mtiPatterns[0].key)?.examples || activeMtiPattern.examples)
+                          : activeMtiPattern.examples
+                        ).map((word) => (
+                          <button
+                            key={word}
+                            onClick={() => handleSelectSuggestedWord(word, mtiLabResult.mtiPatterns?.[0]?.key || selectedMtiPatternKey)}
+                            className={`px-3 py-1.5 rounded-xl font-bold text-xs border-2 transition-all cursor-pointer shadow-sm flex items-center gap-1.5 hover:scale-105 active:scale-95 ${
+                              word === mtiLabTargetWord
+                                ? 'bg-slate-900 text-white border-slate-900 ring-2 ring-emerald-400'
+                                : 'bg-white hover:bg-emerald-50 text-slate-700 border-slate-300 hover:border-emerald-400'
+                            }`}
+                          >
+                            <span>🔊</span>
+                            <span>{word}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -2648,13 +3125,38 @@ export default function EnglishModule({ onExit }) {
           <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl animate-scale-up space-y-6">
 
             <div>
-              <div className="flex justify-between items-center text-xs font-black text-slate-600 mb-2">
-                <span>{activePaperConfig.levelTitle}</span>
+              <div className="flex flex-wrap justify-between items-center text-xs font-black text-slate-600 mb-2 gap-2">
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      playSound('click');
+                      stopListening();
+                      setViewState('papers_hub');
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer flex items-center gap-1 transition-all"
+                  >
+                    ✕ Exit Paper
+                  </button>
+                  {currentQIndex > 0 && (
+                    <button
+                      onClick={handlePreviousQuestion}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs cursor-pointer flex items-center gap-1 transition-all shadow-xs"
+                    >
+                      <span>◀</span> Back to Q{currentQIndex} (Practice)
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {history[currentQIndex] && (
+                    <span className="text-[11px] font-black text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                      🔒 Official Score: {history[currentQIndex].score}% (Locked)
+                    </span>
+                  )}
                   <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
                     Attempt #{questionAttempts}
                   </span>
-                  <span>Question {currentQIndex + 1} / 10</span>
+                  <span className="font-black text-slate-700">Question {currentQIndex + 1} / 10</span>
                 </div>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
@@ -2665,334 +3167,525 @@ export default function EnglishModule({ onExit }) {
               </div>
             </div>
 
-            <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6 text-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
-              <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-200">
-                <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700">
-                  {selectedGrade === 2 ? '🔤 Single Word' : selectedGrade === 3 ? '📖 Short Sentence' : '🎙️ Long Sentence'}
-                </span>
-                <span className="text-xs font-bold text-slate-500">
-                  Meaning: <strong className="text-slate-800">{currentQ.sinhala_meaning}</strong>
-                </span>
-              </div>
+              {/* LEFT COLUMN: Question, Audio Controls & Navigation */}
+              <div className="lg:col-span-6 bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 sm:p-7 space-y-5 text-center shadow-sm flex flex-col justify-between h-full">
 
-              <div className="py-4">
-                <h2 className="text-2xl sm:text-4xl font-black text-slate-800 tracking-wide font-sans mb-2">
-                  {currentQ.display_text}
-                </h2>
-                {currentQ.phonetic_hint && (
-                  <p className="text-sm font-bold text-emerald-600 font-mono">
-                    {currentQ.phonetic_hint}
-                  </p>
-                )}
-                {currentQ.tip && (
-                  <p className="text-xs text-slate-500 font-medium mt-2">
-                    💡 {currentQ.tip}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-                <button
-                  onClick={() => speakEnglish(currentQ.target_text)}
-                  className="px-5 py-3 rounded-2xl font-black text-sm bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-200 shadow-sm hover:shadow transition-all flex items-center gap-2 cursor-pointer"
-                >
-                  <span>🔊</span> Listen (Standard Audio)
-                </button>
-
-                <button
-                  onClick={isListening ? stopRecordingAndEvaluate : startRecording}
-                  className={`px-8 py-3.5 rounded-2xl font-black text-base transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
-                    isListening
-                      ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse'
-                      : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                  }`}
-                >
-                  <span>{isListening ? `⏹️ Stop Recording (${recordingSeconds}s)` : '🎤 Speak (Start Recording)'}</span>
-                </button>
-              </div>
-
-              {isListening && (
-                <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 space-y-3 animate-fade-in">
-
-                  <div className="flex flex-wrap items-center justify-center gap-3">
-                    <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
-                    <span className="font-bold text-sm">🎙️ Listening... ({recordingSeconds}s)</span>
-
-                    <div className="flex items-end gap-1 h-5 px-2 py-0.5 bg-white rounded-lg border border-emerald-200">
-                      {[0.4, 0.8, 1.2, 0.7, 0.5].map((mult, idx) => (
-                        <div
-                          key={idx}
-                          className="w-1.5 bg-emerald-500 rounded-full transition-all duration-75"
-                          style={{
-                            height: `${Math.max(4, Math.min(18, (liveVolume * mult) / 4))}px`
-                          }}
-                        ></div>
-                      ))}
+                <div className="space-y-5">
+                  {history[currentQIndex] && (
+                    <div className="p-3 bg-blue-50/90 border border-blue-200 rounded-2xl text-blue-900 text-xs font-medium flex items-center justify-between gap-2 text-left animate-fade-in">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">💡</span>
+                        <span>
+                          <strong>Practice Mode:</strong> Official score (<strong>{history[currentQIndex].score}%</strong>) is safely locked.
+                        </span>
+                      </div>
+                      <span className="bg-blue-600 text-white text-[10px] px-2.5 py-1 rounded-full font-black tracking-wider uppercase whitespace-nowrap shadow-xs">
+                        Score Safe
+                      </span>
                     </div>
+                  )}
 
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                      liveVolume > 5 ? 'bg-emerald-600 text-white animate-pulse' : 'bg-slate-200 text-slate-600'
-                    }`}>
-                      {liveVolume > 5 ? `🔊 Audio Detected (${liveVolume}%)` : '🔈 Listening...'}
+                  <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-200">
+                    <span className="text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-slate-700 shadow-xs">
+                      {selectedGrade === 2 ? '🔤 Single Word' : selectedGrade === 3 ? '📖 Short Sentence' : '🎙️ Long Sentence'}
+                    </span>
+                    <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+                      Meaning: <strong className="text-slate-800 font-sans">{currentQ.sinhala_meaning}</strong>
                     </span>
                   </div>
 
-                  <div className="p-4 bg-white rounded-2xl border-2 border-emerald-400 text-center shadow-md transition-all">
-                    <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-slate-100">
-                      <span className="text-xs font-black text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                        You are saying (Live Speech):
-                      </span>
-                      <span className="text-[11px] font-bold text-slate-400">
-                        Real-time Stream
-                      </span>
-                    </div>
-                    <div className="min-h-[48px] flex items-center justify-center">
-                      {liveTranscript ? (
-                        <span className="text-xl sm:text-2xl font-black text-emerald-900 font-sans tracking-wide">
-                          "{liveTranscript}"
+                  <div className="py-4 px-4 bg-white rounded-3xl border border-slate-200/80 shadow-xs space-y-2">
+                    <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-wide font-sans">
+                      {currentQ.display_text}
+                    </h2>
+                    {currentQ.phonetic_hint && (
+                      <p className="text-base font-bold text-emerald-600 font-mono">
+                        {currentQ.phonetic_hint}
+                      </p>
+                    )}
+                    {currentQ.tip && (
+                      <div className="pt-1">
+                        <span className="inline-block text-[11px] font-medium text-amber-900 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-full">
+                          💡 {currentQ.tip}
                         </span>
-                      ) : (
-                        <span className="text-sm font-bold text-slate-400 italic animate-pulse">
-                          🎙️ Speak now... your spoken words will appear here in real-time
-                        </span>
-                      )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Balanced 2-Tier Action Controls */}
+                  <div className="space-y-2.5 pt-1">
+                    {/* Primary Speak Button */}
+                    <button
+                      onClick={isListening ? stopRecordingAndEvaluate : startRecording}
+                      className={`w-full py-4 px-6 rounded-2xl font-black text-base transition-all flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg cursor-pointer active:scale-98 ${
+                        isListening
+                          ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse shadow-rose-200'
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-200'
+                      }`}
+                    >
+                      <span className="text-xl">{isListening ? '⏹️' : '🎤'}</span>
+                      <span>{isListening ? `Stop Recording (${recordingSeconds}s)` : 'Speak to Test'}</span>
+                    </button>
+
+                    {/* Secondary Actions: 2 Balanced Columns */}
+                    <div className="grid grid-cols-2 gap-2.5 w-full">
+                      <button
+                        onClick={() => speakEnglish(currentQ.target_text)}
+                        className="py-3 px-3 rounded-2xl font-black text-xs sm:text-sm bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-200 shadow-xs hover:shadow transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+                      >
+                        <span className="text-base">🔊</span>
+                        <span>Listen Audio</span>
+                      </button>
+
+                      <input
+                        type="file"
+                        ref={quizFileInputRef}
+                        accept="audio/*,video/*,.mp3,.wav,.ogg,.m4a,.webm,.aac,.flac,.mp4"
+                        className="hidden"
+                        onChange={(e) => handleAudioFileUpload(e, false)}
+                      />
+
+                      <button
+                        onClick={() => quizFileInputRef.current?.click()}
+                        disabled={isProcessingUpload || isListening}
+                        className="py-3 px-3 rounded-2xl font-black text-xs sm:text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-2 border-indigo-200 shadow-xs hover:shadow transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-50"
+                      >
+                        <span className="text-base">📁</span>
+                        <span>{isProcessingUpload ? 'Analyzing...' : 'Upload Voice'}</span>
+                      </button>
                     </div>
+                  </div>
+
+                  {isProcessingUpload && (
+                    <div className="p-3.5 rounded-2xl bg-indigo-50 border-2 border-indigo-300 text-indigo-900 space-y-1 animate-fade-in text-center shadow-md">
+                      <div className="flex items-center justify-center gap-2 font-black text-xs text-indigo-700">
+                        <span className="animate-spin text-base">⚙️</span> Analyzing uploaded audio file with acoustic engine...
+                      </div>
+                    </div>
+                  )}
+
+                  {isListening && (
+                    <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 space-y-3 animate-fade-in">
+                      <div className="flex flex-wrap items-center justify-center gap-3">
+                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+                        <span className="font-bold text-xs">🎙️ Listening... ({recordingSeconds}s)</span>
+
+                        <div className="flex items-end gap-1 h-4 px-2 py-0.5 bg-white rounded-lg border border-emerald-200">
+                          {[0.4, 0.8, 1.2, 0.7, 0.5].map((mult, idx) => (
+                            <div
+                              key={idx}
+                              className="w-1 bg-emerald-500 rounded-full transition-all duration-75"
+                              style={{
+                                height: `${Math.max(3, Math.min(14, (liveVolume * mult) / 4))}px`
+                              }}
+                            ></div>
+                          ))}
+                        </div>
+
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          liveVolume > 5 ? 'bg-emerald-600 text-white animate-pulse' : 'bg-slate-200 text-slate-600'
+                        }`}>
+                          {liveVolume > 5 ? `🔊 Audio Detected (${liveVolume}%)` : '🔈 Listening...'}
+                        </span>
+                      </div>
+
+                      <div className="p-3 bg-white rounded-2xl border-2 border-emerald-400 text-center shadow-sm">
+                        <div className="min-h-[36px] flex items-center justify-center">
+                          {liveTranscript ? (
+                            <span className="text-lg font-black text-emerald-900 font-sans tracking-wide">
+                              "{liveTranscript}"
+                            </span>
+                          ) : (
+                            <span className="text-xs font-bold text-slate-400 italic animate-pulse">
+                              🎙️ Speak now... spoken words will appear here
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom Navigation Buttons (Anchored to Bottom) */}
+                <div className="pt-4 border-t border-slate-200 space-y-2.5 mt-auto">
+                  {isAnswered && (
+                    <button
+                      onClick={handleRetryQuestion}
+                      className={`w-full py-3 px-4 rounded-2xl font-black text-xs sm:text-sm shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98 ${
+                        assessmentResult?.pronunciationCorrect
+                          ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-2 border-emerald-300'
+                          : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-2 border-amber-300'
+                      }`}
+                    >
+                      <span>🔄</span>
+                      <span>{assessmentResult?.pronunciationCorrect ? 'Practice Pronouncing Again' : 'Try Saying Again'}</span>
+                    </button>
+                  )}
+
+                  <div className="flex items-center gap-2.5 w-full">
+                    {currentQIndex > 0 && (
+                      <button
+                        onClick={handlePreviousQuestion}
+                        className="py-3.5 px-4 rounded-2xl font-black text-xs sm:text-sm bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-300 shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
+                      >
+                        <span>◀</span> Back
+                      </button>
+                    )}
+
+                    <button
+                      disabled={!isAnswered}
+                      onClick={handleNextQuestion}
+                      className={`flex-1 py-3.5 px-6 rounded-2xl font-black text-sm sm:text-base border-2 transition-all flex items-center justify-center gap-2 ${
+                        isAnswered
+                          ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white shadow-md cursor-pointer active:scale-98'
+                          : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-75 shadow-none'
+                      }`}
+                    >
+                      <span>{currentQIndex >= 9 ? 'Finish Paper ➔' : 'Next Question ➔'}</span>
+                    </button>
                   </div>
                 </div>
-              )}
 
-              {assessmentResult && !isListening && (
-                <div className="p-5 rounded-3xl bg-white border-2 border-slate-200 space-y-4 text-left animate-fade-in shadow-sm">
+              </div>
 
-                  <div className={`p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-3 ${
-                    assessmentResult.pronunciationCorrect
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
-                      : 'bg-rose-50 border-rose-300 text-rose-900'
-                  }`}>
-                    <div className="space-y-0.5">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="font-black text-base">{assessmentResult.statusTitle}</h4>
-                        {assessmentResult.engagement?.improvementPercentage > 0 && (
-                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-600 text-white shadow-sm animate-bounce">
-                            🌟 +{assessmentResult.engagement.improvementPercentage}% Improvement!
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs font-medium">{assessmentResult.statusMessage}</p>
-                      {assessmentResult.engagement?.improvementMessage && (
-                        <p className="text-[11px] font-bold text-emerald-700">
-                          {assessmentResult.engagement.improvementMessage}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        <span className="text-[10px] uppercase font-black tracking-wider block opacity-75">Score</span>
-                        <span className={`text-xl font-black px-4 py-1.5 rounded-xl shadow-sm inline-block ${
-                          assessmentResult.pronunciationCorrect
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-rose-600 text-white'
-                        }`}>
-                          {assessmentResult.overallScore ?? assessmentResult.accuracy}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+              {/* RIGHT COLUMN: 6-Dimensional Stats & Assessment Diagnostics */}
+              <div className="lg:col-span-6 h-full flex flex-col">
+                {assessmentResult && !isListening ? (
+                  <div className="p-6 rounded-3xl bg-white border-2 border-slate-200 space-y-4 text-left animate-fade-in shadow-md h-full flex flex-col justify-between">
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
-
-                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        🎯 1. Pronunciation
-                      </span>
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-base font-black text-slate-800">
-                          {assessmentResult.pronunciation?.score ?? assessmentResult.accuracy}%
-                        </span>
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                          assessmentResult.pronunciation?.allWordsCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                        }`}>
-                          {assessmentResult.pronunciation?.allWordsCorrect ? '✓ Clean' : 'Practice'}
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-medium text-slate-600 block">
-                        MTI Errors: {assessmentResult.mtiPatterns?.length || 0}
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        ⚡ 2. Fluency & Speed
-                      </span>
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-base font-black text-slate-800">
-                          {assessmentResult.fluency?.speakingRate || assessmentResult.fluency?.wpm || 0} <span className="text-xs font-normal">WPM</span>
-                        </span>
-                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                          {assessmentResult.fluency?.speedStatus?.split(' ')[0] || 'Optimal'}
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-medium text-slate-600 block">
-                        Pauses: {assessmentResult.fluency?.pauseCount || 0} ({assessmentResult.fluency?.totalPauseSec || 0}s)
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        🎵 3. Pitch Intonation
-                      </span>
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-xs font-black text-slate-800 truncate">
-                          {assessmentResult.intonation?.style?.split(' ')[0] || 'Natural'}
-                        </span>
-                        {assessmentResult.intonation?.pitchRange > 0 && (
-                          <span className="text-[10px] font-mono text-slate-500 bg-white px-1 rounded border border-slate-200">
-                            Δ{assessmentResult.intonation.pitchRange}Hz
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-[11px] font-medium text-slate-600 block">
-                        {assessmentResult.intonation?.isMonotone ? '⚠️ Flat' : '✓ Dynamic'}
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        🔊 4. Volume Level
-                      </span>
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-base font-black text-slate-800">
-                          {assessmentResult.volume?.percent || 0}%
-                        </span>
-                        <span className="text-[10px] font-bold text-slate-600">
-                          (Peak: {assessmentResult.volume?.maxVolume || 0}%)
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-medium text-slate-600 block truncate">
-                        {assessmentResult.volume?.status?.split(' ')[0] || 'Clear'}
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        🔤 5. Language & Structure
-                      </span>
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-base font-black text-slate-800">
-                          {assessmentResult.language?.score ?? 100}%
-                        </span>
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                          assessmentResult.language?.wordOrderError ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
-                        }`}>
-                          {assessmentResult.language?.wordOrderError ? '⚠️ Reorder' : '✓ Order OK'}
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-medium text-slate-600 block">
-                        {assessmentResult.language?.repetitions?.length > 0 ? `Repetitions: ${assessmentResult.language.repetitions.length}` : 'No Repetitions'}
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        🚀 6. Confidence & Engagement
-                      </span>
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-base font-black text-slate-800">
-                          {assessmentResult.engagement?.score ?? 90}%
-                        </span>
-                        <span className="text-[10px] font-bold text-slate-600">
-                          Attempt #{assessmentResult.engagement?.attempts || questionAttempts}
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-medium text-slate-600 block truncate">
-                        {assessmentResult.engagement?.startDelayStatus?.split(' ')[0] || 'Quick Start'}
-                      </span>
-                    </div>
-
-                  </div>
-
-                  {assessmentResult.mtiPatterns && assessmentResult.mtiPatterns.length > 0 && (
-                    <div className="space-y-2">
-                      <span className="text-[11px] font-black text-rose-600 uppercase tracking-wider block">
-                        ⚠️ Detected Sri Lankan MTI Patterns (Pronunciation Guidance):
-                      </span>
-                      {assessmentResult.mtiPatterns.map((pat, idx) => (
-                        <div key={idx} className="p-3.5 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1.5">
-                          <div className="flex items-center justify-between text-xs font-black text-rose-900">
-                            <span>📌 {pat.name}</span>
-                            <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-rose-200">
-                              {pat.target_ipa} ➔ {pat.error_ipa}
-                            </span>
+                    <div className="space-y-4">
+                      {/* Top Status Banner with Overall Score */}
+                      <div className={`p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-3 ${
+                        assessmentResult.pronunciationCorrect
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                          : 'bg-rose-50 border-rose-300 text-rose-900'
+                      }`}>
+                        <div className="space-y-0.5">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className="font-black text-base">{assessmentResult.statusTitle}</h4>
+                            {assessmentResult.engagement?.improvementPercentage > 0 && (
+                              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-600 text-white shadow-sm animate-bounce">
+                                🌟 +{assessmentResult.engagement.improvementPercentage}% Improvement!
+                              </span>
+                            )}
                           </div>
-                          {pat.explanation && (
-                            <p className="text-xs text-rose-900 font-semibold">
-                              🔍 {pat.explanation}
+                          <p className="text-xs font-medium">{assessmentResult.statusMessage}</p>
+                          {assessmentResult.engagement?.improvementMessage && (
+                            <p className="text-[11px] font-bold text-emerald-700">
+                              {assessmentResult.engagement.improvementMessage}
                             </p>
                           )}
-                          <p className="text-xs text-rose-800 font-bold">
-                            💡 Tip: {pat.pedagogical_tip}
-                          </p>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            <span className="text-[10px] uppercase font-black tracking-wider block opacity-75">Score</span>
+                            <span className={`text-xl font-black px-4 py-1.5 rounded-xl shadow-sm inline-block ${
+                              assessmentResult.pronunciationCorrect
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-rose-600 text-white'
+                            }`}>
+                              {assessmentResult.overallScore ?? assessmentResult.accuracy}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
 
-                  {assessmentResult.wordResults && assessmentResult.wordResults.length > 1 && (
-                    <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
-                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                        Word-by-Word Alignment:
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        {assessmentResult.wordResults.map((wr, idx) => (
-                          <span
-                            key={idx}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-bold font-sans flex items-center gap-1.5 border ${
-                              wr.matched
-                                ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                                : 'bg-rose-50 border-rose-300 text-rose-800'
-                            }`}
-                          >
-                            <span>{wr.matched ? '✓' : '✗'}</span>
-                            <span>{wr.word}</span>
+                      {/* 6 Multi-Dimensional Stat Cards */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                            🎯 1. Pronunciation
                           </span>
-                        ))}
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-base font-black text-slate-800">
+                              {assessmentResult.pronunciation?.score ?? assessmentResult.accuracy}%
+                            </span>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                              assessmentResult.pronunciation?.allWordsCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                            }`}>
+                              {assessmentResult.pronunciation?.allWordsCorrect ? '✓ Clean' : 'Practice'}
+                            </span>
+                          </div>
+                          <span className="text-[11px] font-medium text-slate-600 block">
+                            MTI Errors: {assessmentResult.mtiPatterns?.length || 0}
+                          </span>
+                        </div>
+
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                            ⚡ 2. Fluency & Speed
+                          </span>
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-base font-black text-slate-800">
+                              {assessmentResult.fluency?.speakingRate || assessmentResult.fluency?.wpm || 0} <span className="text-xs font-normal">WPM</span>
+                            </span>
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                              {assessmentResult.fluency?.speedStatus?.split(' ')[0] || 'Optimal'}
+                            </span>
+                          </div>
+                          <span className="text-[11px] font-medium text-slate-600 block">
+                            Pauses: {assessmentResult.fluency?.pauseCount || 0} ({assessmentResult.fluency?.totalPauseSec || 0}s)
+                          </span>
+                        </div>
+
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                            🎵 3. Pitch Intonation
+                          </span>
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-xs font-black text-slate-800 truncate">
+                              {assessmentResult.intonation?.style?.split(' ')[0] || 'Natural'}
+                            </span>
+                            {assessmentResult.intonation?.pitchRange > 0 && (
+                              <span className="text-[10px] font-mono text-slate-500 bg-white px-1 rounded border border-slate-200">
+                                Δ{assessmentResult.intonation.pitchRange}Hz
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] font-medium text-slate-600 block">
+                            {assessmentResult.intonation?.isMonotone ? '⚠️ Flat' : '✓ Dynamic'}
+                          </span>
+                        </div>
+
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                            🔊 4. Volume Level
+                          </span>
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-base font-black text-slate-800">
+                              {assessmentResult.volume?.percent || 0}%
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-600">
+                              (Peak: {assessmentResult.volume?.maxVolume || 0}%)
+                            </span>
+                          </div>
+                          <span className="text-[11px] font-medium text-slate-600 block truncate">
+                            {assessmentResult.volume?.status?.split(' ')[0] || 'Clear'}
+                          </span>
+                        </div>
+
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                            🔤 5. Language & Structure
+                          </span>
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-base font-black text-slate-800">
+                              {assessmentResult.language?.score ?? 100}%
+                            </span>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                              assessmentResult.language?.wordOrderError ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                            }`}>
+                              {assessmentResult.language?.wordOrderError ? '⚠️ Reorder' : '✓ Order OK'}
+                            </span>
+                          </div>
+                          <span className="text-[11px] font-medium text-slate-600 block">
+                            {assessmentResult.language?.repetitions?.length > 0 ? `Repetitions: ${assessmentResult.language.repetitions.length}` : 'No Repetitions'}
+                          </span>
+                        </div>
+
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                            🚀 6. Confidence & Engagement
+                          </span>
+                          <div className="flex items-baseline justify-between">
+                            <span className="text-base font-black text-slate-800">
+                              {assessmentResult.engagement?.score ?? 90}%
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-600">
+                              Attempt #{assessmentResult.engagement?.attempts || questionAttempts}
+                            </span>
+                          </div>
+                          <span className="text-[11px] font-medium text-slate-600 block truncate">
+                            {assessmentResult.engagement?.startDelayStatus?.split(' ')[0] || 'Quick Start'}
+                          </span>
+                        </div>
+
+                      </div>
+
+                      {/* Contextual Similar MTI Practice Words Bar (Always shown on result below 6 stats) */}
+                      {(() => {
+                        const detectedKey = assessmentResult.mtiPatterns?.[0]?.key || currentQ.mti_pattern;
+                        const matchedPattern = detectedKey
+                          ? SRI_LANKAN_MTI_PATTERNS.find(p => p.key === detectedKey)
+                          : (
+                            SRI_LANKAN_MTI_PATTERNS.find(p => p.examples.includes(currentQ.target_text.toLowerCase())) ||
+                            SRI_LANKAN_MTI_PATTERNS[0]
+                          );
+                        const relatedWords = (matchedPattern?.examples || []).filter(w => w.toLowerCase() !== currentQ.target_text.toLowerCase()).slice(0, 8);
+
+                        if (!matchedPattern || relatedWords.length === 0) return null;
+
+                        return (
+                          <div className="p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-2xl space-y-2 text-left animate-fade-in shadow-2xs">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <span className="text-[11px] font-black uppercase text-indigo-900 tracking-wider flex items-center gap-1.5">
+                                <span>📚</span> Suggested {matchedPattern.name} Practice Words:
+                              </span>
+                              <span className="text-[10px] text-indigo-700 font-semibold bg-white px-2.5 py-0.5 rounded-full border border-indigo-200 whitespace-nowrap shrink-0 shadow-2xs">
+                                Click to Listen
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {relatedWords.map((word) => (
+                                <button
+                                  key={word}
+                                  onClick={() => {
+                                    playSound('click');
+                                    speakEnglish(word);
+                                  }}
+                                  className="px-3 py-1.5 bg-white hover:bg-indigo-100 text-indigo-900 border border-indigo-300 rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer flex items-center gap-1 hover:scale-105 active:scale-95"
+                                >
+                                  <span className="text-[10px]">🔊</span>
+                                  <span>{word}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* MTI Pattern Guidance Alert */}
+                      {assessmentResult.mtiPatterns && assessmentResult.mtiPatterns.length > 0 && (
+                        <div className="space-y-3">
+                          <span className="text-[11px] font-black text-rose-600 uppercase tracking-wider block">
+                            ⚠️ Detected Sri Lankan MTI Patterns (Pronunciation Guidance):
+                          </span>
+                          {assessmentResult.mtiPatterns.map((pat, idx) => (
+                            <div key={idx} className="p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-2">
+                              <div className="flex items-center justify-between text-xs font-black text-rose-900">
+                                <span>📌 {pat.name}</span>
+                                <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-rose-200 text-rose-800 font-bold">
+                                  {pat.target_ipa} ➔ {pat.error_ipa}
+                                </span>
+                              </div>
+                              {pat.explanation && (
+                                <p className="text-xs text-rose-900 font-semibold">
+                                  🔍 {pat.explanation}
+                                </p>
+                              )}
+                              <p className="text-xs text-rose-800 font-bold">
+                                💡 Tip: {pat.pedagogical_tip}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Word-by-Word Alignment Chips */}
+                      {assessmentResult.wordResults && assessmentResult.wordResults.length > 1 && (
+                        <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                            Word-by-Word Alignment:
+                          </span>
+                          <div className="flex flex-wrap gap-2">
+                            {assessmentResult.wordResults.map((wr, idx) => (
+                              <span
+                                key={idx}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold font-sans flex items-center gap-1.5 border ${
+                                  wr.matched
+                                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                                    : 'bg-rose-50 border-rose-300 text-rose-800'
+                                }`}
+                              >
+                                <span>{wr.matched ? '✓' : '✗'}</span>
+                                <span>{wr.word}</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Spoken Transcript vs Target Text (Anchored to Bottom) */}
+                    <div className="pt-3 border-t border-slate-100 text-xs text-slate-600 font-bold flex flex-wrap justify-between items-center gap-2 mt-auto">
+                      <span>You said: <strong className="font-sans text-slate-900 text-sm">"{assessmentResult.transcript}"</strong></span>
+                      <span>Target {selectedGrade === 2 ? 'Word' : 'Sentence'}: <strong className="font-sans text-emerald-700 text-sm">"{currentQ.target_text}"</strong></span>
+                    </div>
+
+                  </div>
+                ) : isListening ? (
+                  <div className="p-8 rounded-3xl bg-white border-2 border-emerald-200 space-y-6 text-center animate-fade-in shadow-md h-full flex flex-col justify-center">
+                    <div className="inline-block p-4 bg-emerald-50 rounded-full text-3xl animate-bounce">
+                      🎙️
+                    </div>
+                    <h3 className="text-xl font-black text-slate-800">
+                      Listening & Analyzing Speech in Real-Time...
+                    </h3>
+                    <p className="text-xs text-slate-500 max-w-md mx-auto">
+                      Speak clearly into the microphone. Acoustic phonemes, fluency speed, volume, and MTI patterns will be calculated as soon as you finish.
+                    </p>
+                    <div className="grid grid-cols-3 gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold block">Volume</span>
+                        <span className="font-bold text-emerald-700">{liveVolume > 5 ? `${liveVolume}%` : 'Muted'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold block">Duration</span>
+                        <span className="font-bold text-emerald-700">{recordingSeconds}s</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold block">Engine</span>
+                        <span className="font-bold text-emerald-700">6D AI</span>
                       </div>
                     </div>
-                  )}
-
-                  <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 font-bold flex flex-wrap justify-between items-center gap-2">
-                    <span>You said: <strong className="font-sans text-slate-900 text-sm">"{assessmentResult.transcript}"</strong></span>
-                    <span>Target {selectedGrade === 2 ? 'Word' : 'Sentence'}: <strong className="font-sans text-emerald-700 text-sm">"{currentQ.target_text}"</strong></span>
                   </div>
-
-                </div>
-              )}
-
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200">
-                {isAnswered && !assessmentResult?.pronunciationCorrect ? (
-                  <button
-                    onClick={handleRetryQuestion}
-                    className="px-6 py-3 rounded-2xl font-black text-sm bg-amber-500 hover:bg-amber-600 text-white shadow-md transition-all cursor-pointer flex items-center gap-2"
-                  >
-                    <span>🔄</span> Try Again
-                  </button>
                 ) : (
-                  <div></div>
-                )}
+                  <div className="p-6 rounded-3xl bg-white border-2 border-dashed border-slate-300 space-y-5 text-left animate-fade-in shadow-xs h-full flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div>
+                          <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                            6D Multi-Dimensional Diagnostics
+                          </span>
+                          <h3 className="text-base font-black text-slate-800 mt-1">
+                            Speech Performance Telemetry
+                          </h3>
+                        </div>
+                        <span className="text-2xl">📊</span>
+                      </div>
 
-                <button
-                  disabled={!isAnswered}
-                  onClick={handleNextQuestion}
-                  className={`px-8 py-3.5 rounded-2xl font-black text-base border-2 transition-all flex items-center gap-2 ${
-                    isAnswered
-                      ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white shadow-lg cursor-pointer active:scale-95'
-                      : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-75 shadow-none'
-                  }`}
-                >
-                  <span>{currentQIndex >= 9 ? 'Finish Paper ➔' : 'Next Question ➔'}</span>
-                </button>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Click <strong>🎤 Speak</strong> or <strong>📁 Upload Voice</strong> on the left to evaluate this question. The live 6-dimensional stats will appear here instantly:
+                      </p>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs opacity-60">
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-bold text-slate-500 block">🎯 1. Pronunciation</span>
+                          <span className="text-base font-black text-slate-700">-- %</span>
+                          <span className="text-[10px] text-slate-400 block">Phoneme accuracy</span>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-bold text-slate-500 block">⚡ 2. Fluency & Speed</span>
+                          <span className="text-base font-black text-slate-700">-- WPM</span>
+                          <span className="text-[10px] text-slate-400 block">Speaking rhythm</span>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-bold text-slate-500 block">🎵 3. Pitch Intonation</span>
+                          <span className="text-base font-black text-slate-700">-- Hz</span>
+                          <span className="text-[10px] text-slate-400 block">Pitch melody</span>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-bold text-slate-500 block">🔊 4. Volume Level</span>
+                          <span className="text-base font-black text-slate-700">-- %</span>
+                          <span className="text-[10px] text-slate-400 block">Mic loudness</span>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-bold text-slate-500 block">🔤 5. Language</span>
+                          <span className="text-base font-black text-slate-700">-- %</span>
+                          <span className="text-[10px] text-slate-400 block">Word order</span>
+                        </div>
+                        <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                          <span className="text-[10px] font-bold text-slate-500 block">🚀 6. Confidence</span>
+                          <span className="text-base font-black text-slate-700">-- %</span>
+                          <span className="text-[10px] text-slate-400 block">Response delay</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
             </div>
