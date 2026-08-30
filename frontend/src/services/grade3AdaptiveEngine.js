@@ -230,6 +230,7 @@ class Grade3AdaptiveEngine {
       return {
         questionId: q.id,
         category: q.category,
+        passage: q.passage || '',
         prompt: q.prompt,
         options: q.options,
         studentAnswer: studentAns || 'මඟ හැරිණි',

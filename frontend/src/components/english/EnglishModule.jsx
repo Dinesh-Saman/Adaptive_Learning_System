@@ -62,7 +62,7 @@ const SRI_LANKAN_MTI_PATTERNS = [
     name_si: 'F වෙනුවට P ශබ්දය භාවිතය (Pan for Fan)',
     target_ipa: '/fæn/',
     error_ipa: '/pæn/',
-    examples: ['fan', 'film', 'food', 'elephant', 'fish', 'feather', 'four'],
+    examples: ['fan', 'film', 'food', 'elephant', 'fish', 'feather', 'four', 'fast'],
     pedagogical_tip: "Gently place upper teeth on lower lip and blow air for 'F', rather than pressing both lips together like 'P'.",
     pedagogical_tip_si: "'F' ශබ්දයට උඩු දත් යටි තොල මත තබා හුළං පිඹින්න (තොල් දෙකම එකතු කර 'P' ශබ්දය නොගන්න)."
   },
@@ -252,81 +252,57 @@ function speakEnglish(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-// Clean English-only transcript extractor with multi-alternative foreign script rejection
+// Clean English transcript extractor - pure raw speech stream without auto-correction or word substitution
 function extractCleanEnglishTranscript(event) {
   let finalStr = '';
   let interimStr = '';
   const allAltTokens = [];
+  const rawTokens = [];
+  const allHypotheses = [];
 
   for (let i = 0; i < event.results.length; ++i) {
     const resItem = event.results[i];
-    let chosenTranscript = '';
 
-    // Check all alternatives for speech text and collect raw phonetic hypotheses
-    let candidateTranscripts = [];
     for (let k = 0; k < resItem.length; k++) {
       const altText = (resItem[k]?.transcript || '').trim();
       if (altText) {
-        altText.toLowerCase().split(/\s+/).forEach(tok => {
-          const cleanTok = tok.replace(/[^a-z0-9]/g, '');
-          if (cleanTok) allAltTokens.push(cleanTok);
+        allHypotheses.push({
+          text: altText.toLowerCase(),
+          confidence: resItem[k]?.confidence || 0,
+          isFinal: resItem.isFinal
         });
-        candidateTranscripts.push(altText);
+
+        altText.toLowerCase().split(/\s+/).forEach(tok => {
+          const cleanTok = tok.replace(/[^a-z0-9]/gi, '');
+          if (cleanTok) {
+            allAltTokens.push(cleanTok);
+            rawTokens.push({
+              text: cleanTok,
+              confidence: resItem[k]?.confidence || 0,
+              isFinal: resItem.isFinal
+            });
+          }
+        });
       }
     }
 
-    // Pick the most authentic phonetic transcript from candidates
-    if (candidateTranscripts.length > 0) {
-      // If any candidate is an explicit MTI confuser, prioritize raw spoken pronunciation
-      const mtiConfuserCandidate = candidateTranscripts.find(c => {
-        const cLower = c.toLowerCase().trim().replace(/['’]/g, "'");
-        return [
-          'tree', 'tray', 'tri', 'tee', 'tea', 'ti', 'tink', 'sink', 'dis', 'dat', 'pan', 'pish', 'push', 'pour', 
-          'wery', 'vater', 'ischool', 'is-school', 'its cool', "it's cool", 'it cool', 
-          'is cool', 'istar', 'ispoon', 'mudder', 'fadder', 'film', 'pilm',
-          'so', 'su', 'soo', 'sue', 'sew', 'sow',
-          'milkha', 'milka', 'melka', 'busa', 'booka',
-          'farce', 'fas', 'fass', 'neks', 'necks',
-          'bout', 'baut', 'bot', 'board', 'bode',
-          'owls', 'owl', 'ows', 'ouse', 'ause'
-        ].includes(cLower);
-      });
-      chosenTranscript = mtiConfuserCandidate || candidateTranscripts[0];
-    }
-
-    // Fallback: sanitize any foreign non-Latin scripts
-    if (!chosenTranscript && resItem[0]?.transcript) {
-      chosenTranscript = resItem[0].transcript.replace(/[^\x00-\x7F]/g, '').trim();
-    }
+    const rawTranscript = (resItem[0]?.transcript || '').trim();
 
     if (resItem.isFinal) {
-      finalStr += (chosenTranscript || '') + ' ';
+      finalStr += rawTranscript + ' ';
     } else {
-      interimStr = (chosenTranscript || '');
+      interimStr = rawTranscript;
     }
   }
 
-  const numberWordMap = {
-    '0': 'zero', '1': 'one', '2': 'two', '3': 'three', '4': 'four',
-    '5': 'five', '6': 'six', '7': 'seven', '8': 'eight', '9': 'nine', '10': 'ten'
-  };
-
-  let primary = (finalStr + interimStr).trim();
-  // Normalize digit tokens to English words (e.g. "3" -> "three", "3." -> "three")
-  primary = primary.replace(/\b([0-9]|10)\b/g, (match) => numberWordMap[match] || match);
-
-  // Also populate alternative tokens with digit conversions
-  const normalizedAltTokens = [];
-  allAltTokens.forEach(tok => {
-    if (numberWordMap[tok]) {
-      normalizedAltTokens.push(numberWordMap[tok]);
-    }
-    normalizedAltTokens.push(tok);
-  });
+  const primary = (finalStr + interimStr).trim();
 
   return {
     transcript: primary,
-    alternatives: Array.from(new Set(normalizedAltTokens))
+    alternatives: Array.from(new Set(allAltTokens)),
+    rawTokens: rawTokens,
+    rawTranscript: primary,
+    allHypotheses: allHypotheses
   };
 }
 
@@ -338,21 +314,12 @@ function isWordMatch(tw, sw) {
   if (t === s) return true;
   if (s === t + 's' || s === t + 'd' || s === t + 'ed' || s === t + 'ing' || s === t + 'es') return true;
   if (t === s + 's' || t === s + 'd' || t === s + 'ed' || t === s + 'ing' || t === s + 'es') return true;
-
-  // Specific phonetic mergers & compound word boundaries
-  if (t === 'nests' && (s === 'ness' || s === 'nest' || s === 'warmness' || s === 'nes')) return true;
-  if (t === 'warm' && (s === 'warmness' || s === 'worm')) return true;
-  if (t === 'tall' && (s === 'to' || s === 'the' || s === 'all' || s === 'tol' || s === 'tool')) return true;
-  if (t === 'in' && (s === 'into' || s === 'in')) return true;
-
-  // Substring root match for compound/fused speech
-  if (s.startsWith(t) && (s.length === t.length + 1 || s.length === t.length + 2)) return true;
-  if (t.startsWith(s) && (t.length === s.length + 1 || t.length === s.length + 2)) return true;
-
+  if (t === 'nests' && (s === 'nest' || s === 'nests')) return true;
+  if (t === 'in' && s === 'in') return true;
   return false;
 }
 
-// Preprocess fused / compound spoken words (e.g. 'warmness' -> 'warm' + 'nests', 'into' -> 'in' + 'tall')
+// Preprocess fused / compound spoken words
 function preprocessFusedSpokenWords(targetWords, spokenWords) {
   const expanded = [];
   let tIdx = 0;
@@ -361,7 +328,6 @@ function preprocessFusedSpokenWords(targetWords, spokenWords) {
     const s = sw.toLowerCase().replace(/[^a-z0-9]/g, '');
     let decomposed = false;
 
-    // Check if sw fuses two consecutive target words (e.g. 'warmness' for 'warm' + 'nests')
     if (tIdx < targetWords.length - 1) {
       const t1 = targetWords[tIdx].toLowerCase().replace(/[^a-z0-9]/g, '');
       const t2 = targetWords[tIdx + 1].toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -389,9 +355,9 @@ function alignWordsLCS(targetWords, spokenWords) {
   const processedSpoken = preprocessFusedSpokenWords(targetWords, spokenWords);
   const n = targetWords.length;
   const m = processedSpoken.length;
-  
+
   const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
-  
+
   for (let i = 1; i <= n; i++) {
     for (let j = 1; j <= m; j++) {
       if (isWordMatch(targetWords[i - 1], processedSpoken[j - 1])) {
@@ -401,8 +367,7 @@ function alignWordsLCS(targetWords, spokenWords) {
       }
     }
   }
-  
-  // Backtrack to build aligned word statuses
+
   const aligned = [];
   let i = n;
   let j = m;
@@ -413,21 +378,18 @@ function alignWordsLCS(targetWords, spokenWords) {
       i--;
       j--;
     } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
-      // Extra spoken word inserted
       j--;
     } else {
-      // Missing expected word
       aligned.unshift({ word: targetWords[i - 1], matched: false, spoken: '' });
       i--;
     }
   }
-  
+
   return aligned;
 }
 
 // Exact Word IPA mapping dictionary for all example words
 const WORD_IPA_MAP = {
-  // Pattern 1: S-Cluster Prosthesis
   'school': { target: '/skuːl/', error: '/ɪskuːl/' },
   'spoon': { target: '/spuːn/', error: '/ɪspuːn/' },
   'station': { target: '/ˈsteɪʃən/', error: '/ɪsˈteɪʃən/' },
@@ -436,7 +398,6 @@ const WORD_IPA_MAP = {
   'star': { target: '/stɑːr/', error: '/ɪsˈtɑːr/ or /esta/' },
   'stop': { target: '/stɒp/', error: '/ɪsˈtɒp/' },
   'spring': { target: '/sprɪŋ/', error: '/ɪsˈprɪŋ/' },
-  // Pattern 2: V/W Merger
   'very': { target: '/ˈveri/', error: '/ˈweri/' },
   'water': { target: '/ˈwɔːtər/', error: '/ˈvɔːtər/' },
   'win': { target: '/wɪn/', error: '/vɪn/' },
@@ -445,7 +406,6 @@ const WORD_IPA_MAP = {
   'window': { target: '/ˈwɪndoʊ/', error: '/ˈvɪndoʊ/' },
   'voice': { target: '/vɔɪs/', error: '/wɔɪs/' },
   'village': { target: '/ˈvɪlɪdʒ/', error: '/ˈwɪlɪdʒ/' },
-  // Pattern 3: TH Substitution
   'three': { target: '/θriː/', error: '/triː/' },
   'think': { target: '/θɪŋk/', error: '/tɪŋk/' },
   'this': { target: '/ðɪs/', error: '/dɪs/' },
@@ -454,7 +414,6 @@ const WORD_IPA_MAP = {
   'the': { target: '/ðə/', error: '/də/' },
   'mother': { target: '/ˈmʌðər/', error: '/ˈmʌdər/' },
   'father': { target: '/ˈfɑːðər/', error: '/ˈfɑːdər/' },
-  // Pattern 4: F/P Substitution
   'fan': { target: '/fæn/', error: '/pæn/' },
   'film': { target: '/fɪlm/', error: '/pɪlm/' },
   'food': { target: '/fuːd/', error: '/puːd/' },
@@ -462,7 +421,6 @@ const WORD_IPA_MAP = {
   'fish': { target: '/fɪʃ/', error: '/pɪʃ/' },
   'feather': { target: '/ˈfeðər/', error: '/ˈpedər/' },
   'four': { target: '/fɔːr/', error: '/pɔːr/' },
-  // Pattern 5: Paragoge
   'bus': { target: '/bʌs/', error: '/bʌs.ə/' },
   'milk': { target: '/mɪlk/', error: '/mɪlk.ə/' },
   'book': { target: '/bʊk/', error: '/bʊk.ə/' },
@@ -471,13 +429,11 @@ const WORD_IPA_MAP = {
   'stamp': { target: '/stæmp/', error: '/stæmp.ə/' },
   'park': { target: '/pɑːrk/', error: '/pɑːrk.ə/' },
   'pen': { target: '/pen/', error: '/pen.ə/' },
-  // Pattern 6: Final Consonant Weakening
   'but': { target: '/bʌt/', error: '/bʌ/' },
   'cat': { target: '/kæt/', error: '/kæ/' },
   'hand': { target: '/hænd/', error: '/hæn/' },
   'red': { target: '/red/', error: '/re/' },
   'bird': { target: '/bɜːrd/', error: '/bɜː/' },
-  // Pattern 7: Consonant Cluster Simplification
   'next': { target: '/nekst/', error: '/neks/' },
   'friend': { target: '/frend/', error: '/fren/' },
   'product': { target: '/ˈprɒdʌkt/', error: '/ˈprɒdʌk/' },
@@ -485,7 +441,6 @@ const WORD_IPA_MAP = {
   'fast': { target: '/fɑːst/', error: '/fɑːs/' },
   'best': { target: '/best/', error: '/bes/' },
   'plant': { target: '/plɑːnt/', error: '/plɑːn/' },
-  // Pattern 8: Short/Long Vowel Confusion
   'boat': { target: '/boʊt/', error: '/bɒt/' },
   'great': { target: '/ɡreɪt/', error: '/ɡret/' },
   'note': { target: '/noʊt/', error: '/nɒt/' },
@@ -493,7 +448,6 @@ const WORD_IPA_MAP = {
   'fit': { target: '/fɪt/', error: '/fiːt/' },
   'seat': { target: '/siːt/', error: '/sɪt/' },
   'sit': { target: '/sɪt/', error: '/siːt/' },
-  // Pattern 9: Initial H Dropping
   'house': { target: '/haʊs/', error: '/aʊs/' },
   'happy': { target: '/ˈhæpi/', error: '/ˈæpi/' },
   'hello': { target: '/həˈloʊ/', error: '/əˈloʊ/' },
@@ -501,7 +455,6 @@ const WORD_IPA_MAP = {
   'hat': { target: '/hæt/', error: '/æt/' },
   'hear': { target: '/hɪər/', error: '/ɪər/' },
   'help': { target: '/help/', error: '/elp/' },
-  // Pattern 10: Z/S Confusion
   'zoo': { target: '/zuː/', error: '/suː/' },
   'busy': { target: '/ˈbɪzi/', error: '/ˈbɪsi/' },
   'please': { target: '/pliːz/', error: '/pliːs/' },
@@ -510,14 +463,12 @@ const WORD_IPA_MAP = {
   'music': { target: '/ˈmjuːzɪk/', error: '/ˈmjuːsɪk/' },
   'noise': { target: '/nɔɪz/', error: '/nɔɪs/' },
   'rose': { target: '/roʊz/', error: '/roʊs/' },
-  // Pattern 11: Back Vowel Confusion
   'hall': { target: '/hɔːl/', error: '/hɒl/' },
   'cup': { target: '/kʌp/', error: '/kæp/' },
   'ball': { target: '/bɔːl/', error: '/bɒl/' },
   'call': { target: '/kɔːl/', error: '/kɒl/' },
   'walk': { target: '/wɔːk/', error: '/wɒk/' },
   'tall': { target: '/tɔːl/', error: '/tɒl/' },
-  // Pattern 12: Equal Stress / Syllable-Timed Rhythm
   'computer': { target: '/kəmˈpjuːtər/', error: '/kompjuˈter/' },
   'banana': { target: '/bəˈnɑːnə/', error: '/bananə/' },
   'tomorrow': { target: '/təˈmɒroʊ/', error: '/tomɒroʊ/' },
@@ -526,234 +477,627 @@ const WORD_IPA_MAP = {
   'umbrella': { target: '/ʌmˈbrelə/', error: '/umbreˈla/' }
 };
 
-// Client-Side Sri Lankan MTI Pattern Detector
-function detectSriLankanMTIPatterns(spokenWords, targetWords) {
+function mkPattern(id, target, spoken, explanation) {
+  const p = SRI_LANKAN_MTI_PATTERNS.find(x => x.id === id);
+  if (!p) return null;
+
+  let targetIpa = WORD_IPA_MAP[target]?.target || p.target_ipa;
+  let errorIpa = `/${spoken}/`;
+
+  if (p.id === 5) {
+    errorIpa = `/${target}.ə/`;
+  } else if (p.id === 1) {
+    errorIpa = `/ɪ${target}/`;
+  } else if (p.id === 4) {
+    errorIpa = targetIpa.replace(/\/f/i, '/p').replace(/f/g, 'p');
+  } else if (p.id === 9) {
+    errorIpa = targetIpa.replace(/\/h/i, '/');
+  } else if (p.id === 7) {
+    errorIpa = (target === 'fast') ? '/fɑːs/' : (WORD_IPA_MAP[target]?.error || targetIpa.replace(/t\//, '/').replace(/d\//, '/'));
+  } else if (p.id === 3) {
+    errorIpa = targetIpa.replace(/θ/g, 't').replace(/ð/g, 'd');
+  } else if (p.id === 2) {
+    errorIpa = targetIpa.replace(/v/g, 'w').replace(/w/g, 'v');
+  } else if (WORD_IPA_MAP[target]?.error) {
+    errorIpa = WORD_IPA_MAP[target].error;
+  }
+
+  return {
+    id: p.id,
+    key: p.key,
+    name: p.name,
+    name_si: p.name_si,
+    target,
+    spoken,
+    target_ipa: targetIpa,
+    error_ipa: errorIpa,
+    pedagogical_tip: p.pedagogical_tip,
+    pedagogical_tip_si: p.pedagogical_tip_si,
+    explanation
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ── 1. LEXICAL / TEXT-BASED MTI ERROR DETECTOR (ALL 12 PATTERNS) ──
+// ══════════════════════════════════════════════════════════════════════
+export function detectTextMTIErrors(targetWord, spokenWord) {
+  if (!targetWord || !spokenWord) return null;
+  const tw = targetWord.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const sw = spokenWord.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!tw || !sw || tw === sw) return null;
+
+  // ── 1. S-Cluster Prosthesis (school -> ischool / eschool) ──
+  if ((/^s[cptkmnr]/.test(tw) || /^s[lw]/.test(tw)) &&
+      (sw === 'i' + tw || sw === 'e' + tw || sw === 'is' + tw.slice(1) || sw === 'es' + tw.slice(1))) {
+    return mkPattern(1, tw, sw, `Spoken text shows '${sw}' with an initial prosthesis vowel added before '${tw}'.`);
+  }
+
+  // ── 2. V/W Merger (very -> wery / win -> vin) ──
+  if (tw.startsWith('v') && (sw === 'w' + tw.slice(1) || (sw.startsWith('w') && sw.slice(1) === tw.slice(1)))) {
+    return mkPattern(2, tw, sw, `Spoken text shows '${sw}' with 'w' substituted for 'v' in '${tw}'.`);
+  }
+  if (tw.startsWith('w') && (sw === 'v' + tw.slice(1) || (sw.startsWith('v') && sw.slice(1) === tw.slice(1)))) {
+    return mkPattern(2, tw, sw, `Spoken text shows '${sw}' with 'v' substituted for 'w' in '${tw}'.`);
+  }
+
+  // ── 3. TH Substitution (three -> tree / that -> dat) ──
+  if (tw.startsWith('th')) {
+    if (sw === 't' + tw.slice(2) || sw === 'd' + tw.slice(2) ||
+        (tw === 'three' && (sw === 'tree' || sw === 'tri')) ||
+        (tw === 'think' && sw === 'tink') ||
+        (tw === 'this' && sw === 'dis') ||
+        (tw === 'that' && sw === 'dat') ||
+        (tw === 'there' && sw === 'dere') ||
+        (tw === 'the' && sw === 'de')) {
+      return mkPattern(3, tw, sw, `Spoken text shows '${sw}' substituting T/D for TH in '${tw}'.`);
+    }
+  }
+  if (tw.includes('th')) {
+    const dSub = tw.replace('th', 'd');
+    const tSub = tw.replace('th', 't');
+    if (sw === dSub || sw === tSub ||
+        (tw === 'mother' && sw === 'moder') ||
+        (tw === 'father' && sw === 'fader')) {
+      return mkPattern(3, tw, sw, `Spoken text shows '${sw}' substituting T/D for TH in '${tw}'.`);
+    }
+  }
+
+  // ── 4. F/P Substitution (film -> pilm / fan -> pan / fast -> past) ──
+  if (tw.startsWith('f') && (sw === 'p' + tw.slice(1) ||
+      (tw === 'film' && sw === 'pilm') ||
+      (tw === 'fan' && sw === 'pan') ||
+      (tw === 'fast' && sw === 'past') ||
+      (tw === 'food' && sw === 'pood') ||
+      (tw === 'fish' && sw === 'pish') ||
+      (tw === 'feather' && sw === 'peder') ||
+      (tw === 'four' && sw === 'pour'))) {
+    return mkPattern(4, tw, sw, `Spoken text shows '${sw}' substituting 'p' for 'f' in '${tw}'.`);
+  }
+  if (tw.includes('f') && sw === tw.replace(/f/g, 'p')) {
+    return mkPattern(4, tw, sw, `Spoken text shows '${sw}' substituting 'p' for 'f' in '${tw}'.`);
+  }
+
+  // ── 5. Paragoge (Ending Vowel Addition) (milk -> milka, bus -> busa, book -> booka, etc.) ──
+  const paragogeSuffixes = ['a', 'u', 'e', 'er', 'ah', 'uh', 'o', 'i', 'ey', 'ya', 'ka', 'sa', 'ta', 'da', 'pa', 'ba', 'ga'];
+  for (const suf of paragogeSuffixes) {
+    if (sw === tw + suf) {
+      return mkPattern(5, tw, sw, `Spoken text shows '${sw}' with an extra trailing vowel sound added to '${tw}'.`);
+    }
+  }
+  if (tw.length >= 3 && sw.startsWith(tw) && (sw.length === tw.length + 1 || (sw.length === tw.length + 2 && /[aeiouy]/.test(sw.slice(-1))))) {
+    return mkPattern(5, tw, sw, `Spoken text shows '${sw}' with an extra trailing vowel sound added to '${tw}'.`);
+  }
+
+  // ── 6. Final Consonant Weakening (but -> bu, good -> goo, cat -> ca, hand -> han, red -> re, bird -> bir) ──
+  if (tw.length >= 3 && sw === tw.slice(0, -1) && !/(st|xt|kt|pt|ft|sk|nd|mp|nt|ct)$/.test(tw)) {
+    return mkPattern(6, tw, sw, `Spoken text shows '${sw}' dropping the final consonant of '${tw}'.`);
+  }
+
+  // ── 7. Consonant Cluster Simplification (fast -> fas, next -> neks, best -> bes, desk -> des, plant -> plan, friend -> fren, product -> produk) ──
+  if (/(st|xt|kt|pt|ft|sk|nd|mp|nt|ct)$/.test(tw)) {
+    const simp1 = tw.replace(/(st|xt|kt|pt|ft|sk|nd|mp|nt|ct)$/, m => m[0]);
+    const simp2 = tw.slice(0, -1);
+    if (sw === simp1 || sw === simp2 ||
+        (tw === 'next' && (sw === 'neks' || sw === 'nex')) ||
+        (tw === 'fast' && (sw === 'fas' || sw === 'pass' || sw === 'faz')) ||
+        (tw === 'best' && sw === 'bes') ||
+        (tw === 'desk' && sw === 'des') ||
+        (tw === 'product' && (sw === 'produc' || sw === 'produk')) ||
+        (tw === 'friend' && (sw === 'fren' || sw === 'frend'))) {
+      return mkPattern(7, tw, sw, `Spoken text shows '${sw}' simplifying the consonant cluster in '${tw}'.`);
+    }
+  }
+
+  // ── 8. Vowel Length Confusion (cake -> kek, boat -> bot, note -> not, feet -> fit, seat -> sit) ──
+  if ((tw === 'cake' && sw === 'kek') ||
+      (tw === 'boat' && (sw === 'bot' || sw === 'bawt')) ||
+      (tw === 'great' && sw === 'gret') ||
+      (tw === 'note' && sw === 'not') ||
+      (tw === 'feet' && sw === 'fit') ||
+      (tw === 'seat' && sw === 'sit') ||
+      (tw === 'fit' && sw === 'feet') ||
+      (tw === 'sit' && sw === 'seat')) {
+    return mkPattern(8, tw, sw, `Spoken text shows vowel length deviation in '${sw}' for '${tw}'.`);
+  }
+
+  // ── 9. Initial H Dropping (house -> ouse, hat -> at, hot -> ot, hand -> and, happy -> appy, hello -> ello, hear -> ear, help -> elp) ──
+  if (tw.startsWith('h') && (sw === tw.slice(1) ||
+      (tw === 'house' && (sw === 'ouse' || sw === 'ows' || sw === 'hows')) ||
+      (tw === 'happy' && sw === 'appy') ||
+      (tw === 'hello' && sw === 'ello') ||
+      (tw === 'hand' && sw === 'and') ||
+      (tw === 'hot' && sw === 'ot') ||
+      (tw === 'hat' && sw === 'at') ||
+      (tw === 'hear' && sw === 'ear') ||
+      (tw === 'help' && sw === 'elp'))) {
+    return mkPattern(9, tw, sw, `Spoken text shows '${sw}' with the initial 'h' sound dropped from '${tw}'.`);
+  }
+
+  // ── 10. Z/S Confusion (zoo -> su, busy -> busi, please -> plees, zero -> sero, zebra -> sebra, music -> musik, noise -> nois, rose -> ros) ──
+  if ((tw === 'zoo' && (sw === 'su' || sw === 'soo' || sw === 'so')) ||
+      (tw === 'busy' && (sw === 'busi' || sw === 'bisi')) ||
+      (tw === 'please' && (sw === 'pleas' || sw === 'plees' || sw === 'plis')) ||
+      (tw === 'zero' && sw === 'sero') ||
+      (tw === 'zebra' && sw === 'sebra') ||
+      (tw === 'music' && (sw === 'musik' || sw === 'musick')) ||
+      (tw === 'noise' && sw === 'nois') ||
+      (tw === 'rose' && sw === 'ros')) {
+    return mkPattern(10, tw, sw, `Spoken text shows '${sw}' confusing voiced 'z' with voiceless 's' for '${tw}'.`);
+  }
+
+  // ── 11. Back Vowel Confusion (hall -> hol, cup -> cap/kap, ball -> bol, call -> col, walk -> wolk, tall -> tol) ──
+  if ((tw === 'hall' && (sw === 'hol' || sw === 'holl')) ||
+      (tw === 'cup' && (sw === 'cap' || sw === 'kap')) ||
+      (tw === 'ball' && sw === 'bol') ||
+      (tw === 'call' && sw === 'col') ||
+      (tw === 'walk' && sw === 'wolk') ||
+      (tw === 'tall' && sw === 'tol') ||
+      (tw === 'hot' && sw === 'hat') ||
+      (tw === 'bus' && sw === 'bas')) {
+    return mkPattern(11, tw, sw, `Spoken text shows back vowel confusion in '${sw}' for '${tw}'.`);
+  }
+
+  // ── 12. Stress / Rhythm Deviation ──
+  if ((tw === 'computer' && sw === 'kompjuter') ||
+      (tw === 'banana' && sw === 'banan') ||
+      (tw === 'tomorrow' && sw === 'tomoro') ||
+      (tw === 'together' && sw === 'togeder')) {
+    return mkPattern(12, tw, sw, `Spoken text shows flat/syllable-timed stress deviation in '${sw}' for '${tw}'.`);
+  }
+
+  return null;
+}
+
+// Standalone Helper
+export function detectMTIErrors(targetText, spokenText) {
+  const targetWords = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim().split(/\s+/).filter(Boolean);
+  const spokenWords = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim().split(/\s+/).filter(Boolean);
   const detected = [];
+  targetWords.forEach(tw => {
+    spokenWords.forEach(sw => {
+      const p = detectTextMTIErrors(tw, sw);
+      if (p && !detected.some(d => d.id === p.id && d.target === p.target)) {
+        detected.push(p);
+      }
+    });
+  });
+  return detected;
+}
 
-  targetWords.forEach((tw, twIdx) => {
-    // 1. S-Cluster Prosthesis
-    if (/^s[cptkmnr]/.test(tw) || tw.startsWith('sp') || tw.startsWith('st') || tw.startsWith('sc') || tw.startsWith('sk') || tw.startsWith('sm') || tw.startsWith('sn')) {
-      const isSchoolTarget = (tw === 'school');
-      const hasDirectProsthesis = spokenWords.some(sw => 
-        sw === 'i' + tw || 
-        sw === 'is' + tw.slice(1) || 
-        sw === 'es' + tw.slice(1) ||
-        sw === 'ispring' ||
-        sw === 'espring' ||
-        sw === 'est' ||
-        sw === 'esta' ||
-        sw === 'easter' ||
-        sw === 'estar' ||
-        sw === 'istar' ||
-        sw === 'aster' ||
-        sw === 'istation' ||
-        sw === 'ischool' ||
-        sw === 'ispoon' ||
-        sw === 'istudy' ||
-        sw === 'estudy' ||
-        sw === 'history' ||
-        sw === 'histories' ||
-        sw === 'ispeak' ||
-        sw === 'istop' ||
-        sw.startsWith('is' + tw) ||
-        sw.startsWith('es' + tw) ||
-        sw.startsWith('i' + tw) ||
-        (isSchoolTarget && (sw === 'itscool' || sw === 'iscool' || sw === 'iscool' || sw === 'escool'))
-      );
+// ══════════════════════════════════════════════════════════════════════
+// ── 2. ACOUSTIC-ONLY MTI DETECTOR (calibrated per-utterance statistics) ──
+// ══════════════════════════════════════════════════════════════════════
+function computeUtteranceStats(frames) {
+  if (!frames || frames.length === 0) {
+    return { peakLow: 1, peakMid: 1, peakHigh: 1, peakVol: 1, avgLow: 0, avgMid: 0, avgHigh: 0 };
+  }
+  let peakLow = 0, peakMid = 0, peakHigh = 0, peakVol = 0;
+  let sumLow = 0, sumMid = 0, sumHigh = 0;
+  frames.forEach(f => {
+    peakLow = Math.max(peakLow, f.low || 0);
+    peakMid = Math.max(peakMid, f.mid || 0);
+    peakHigh = Math.max(peakHigh, f.high || 0);
+    peakVol = Math.max(peakVol, f.vol || 0);
+    sumLow += f.low || 0;
+    sumMid += f.mid || 0;
+    sumHigh += f.high || 0;
+  });
+  return {
+    peakLow: Math.max(1, peakLow),
+    peakMid: Math.max(1, peakMid),
+    peakHigh: Math.max(1, peakHigh),
+    peakVol: Math.max(1, peakVol),
+    avgLow: sumLow / frames.length,
+    avgMid: sumMid / frames.length,
+    avgHigh: sumHigh / frames.length
+  };
+}
 
-      let hasSeparatedProsthesis = false;
-      if (targetWords.length === 1) {
-        const hasTargetOrConfuser = spokenWords.some(sw => 
-          sw === tw || 
-          sw.startsWith(tw.slice(0, 3)) || 
-          isWordMatch(tw, sw) ||
-          (isSchoolTarget && ['cool', 'kool', 'pool', 'tool', 'call', 'coo', 'cl'].includes(sw))
+function analyzeAcousticPhonology(sessionData, targetWords, spokenWords = []) {
+  const frames = sessionData?.spectralFrames || [];
+  const acousticDetections = [];
+  if (!frames || frames.length < 8) {
+    return acousticDetections;
+  }
+
+  const activeFrames = frames.filter(f => f.vol > 6);
+  if (activeFrames.length < 6) {
+    return acousticDetections;
+  }
+
+  const stats = computeUtteranceStats(activeFrames);
+  if (stats.peakVol < 12) {
+    return acousticDetections;
+  }
+
+  const LOW_REL = stats.peakLow * 0.4;
+  const HIGH_REL = stats.peakHigh * 0.4;
+
+  targetWords.forEach(twRaw => {
+    const twClean = (twRaw || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (!twClean) return;
+
+    // Check if the ASR text was an exact clean match for this word
+    const isExactTextMatch = spokenWords.some(sw => sw.toLowerCase().replace(/[^a-z0-9]/g, '') === twClean);
+
+    // If the word was cleanly matched in text, do NOT allow acoustic heuristic false-positives
+    if (isExactTextMatch) {
+      return;
+    }
+
+    // ── 1. Initial H Dropping (house -> ouse, hat -> at) ──
+    if (twClean.startsWith('h') && twClean.length >= 3) {
+      const head = activeFrames.slice(0, Math.min(6, activeFrames.length));
+      if (head.length >= 4) {
+        const firstVoicedIdx = head.findIndex(f => f.pitch && f.pitch > 75 && f.low > LOW_REL);
+        const hasAspirationLead = head.slice(0, Math.max(1, firstVoicedIdx)).some(
+          f => (!f.pitch || f.pitch <= 0) && f.low < LOW_REL * 0.5 && (f.high > HIGH_REL * 0.5 || f.mid > HIGH_REL * 0.5)
         );
-        hasSeparatedProsthesis = hasTargetOrConfuser && spokenWords.some(sw => 
-          ['is', 'es', 'est', 'east', 'easter', 'esta', 'his', 'he', 'its', "it's", 'it'].includes(sw)
+        if (firstVoicedIdx === 0 && !hasAspirationLead) {
+          const spokenWord = twClean.slice(1);
+          acousticDetections.push(mkPattern(9, twClean, spokenWord,
+            `Acoustic onset shows immediate voiced vowel energy with no /h/ aspiration lead-in for '${twClean}'.`));
+        }
+      }
+    }
+
+    // ── 2. F/P Substitution (film -> pilm, fan -> pan) ──
+    if (twClean.startsWith('f') && twClean.length >= 3) {
+      const head = activeFrames.slice(0, Math.min(8, activeFrames.length));
+      if (head.length >= 4) {
+        const hasInitialFrication = head.slice(0, 4).some(
+          f => f.high > HIGH_REL * 0.6 && (!f.pitch || f.pitch <= 0)
         );
-      } else {
-        // In full sentences, check if an un-expected prosthetic prefix was placed immediately before tw
-        for (let sIdx = 0; sIdx < spokenWords.length; sIdx++) {
-          const sw = spokenWords[sIdx];
-          if (sw === tw || sw.startsWith(tw.slice(0, 3))) {
-            if (sIdx > 0 && ['is', 'es', 'est', 'east', 'esta', 'its', "it's"].includes(spokenWords[sIdx - 1])) {
-              const expectedPrev = twIdx > 0 ? targetWords[twIdx - 1] : '';
-              if (spokenWords[sIdx - 1] !== expectedPrev) {
-                hasSeparatedProsthesis = true;
-                break;
-              }
-            }
+        if (!hasInitialFrication) {
+          const firstFrameVoiced = head[0].pitch && head[0].pitch > 70;
+          if (firstFrameVoiced) {
+            const spokenWord = 'p' + twClean.slice(1);
+            acousticDetections.push(mkPattern(4, twClean, spokenWord,
+              `Acoustic onset lacks /f/ frication and exhibits plosive energy for '${twClean}'.`));
           }
         }
       }
+    }
 
-      if (hasDirectProsthesis || hasSeparatedProsthesis) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'S_CLUSTER_PROSTHESIS'));
+    // ── 3. Consonant Cluster Simplification (fast -> fas, next -> neks) ──
+    const isClusterTail = ['fast', 'next', 'best', 'desk', 'plant', 'friend', 'product', 'test', 'past', 'last'].includes(twClean)
+      || /(st|xt|kt|pt|ft|sk)$/.test(twClean);
+    if (isClusterTail) {
+      const tail = activeFrames.slice(-Math.min(10, Math.floor(activeFrames.length * 0.4)));
+      if (tail.length >= 4) {
+        const endsInUnstoppedSibilant = tail.slice(-2).every(f => f.high > HIGH_REL && (!f.pitch || f.pitch <= 0));
+        if (endsInUnstoppedSibilant) {
+          const spokenWord = twClean.replace(/(st|xt|kt|pt|ft|sk)$/, m => m[0]);
+          acousticDetections.push(mkPattern(7, twClean, spokenWord,
+            `Acoustic tail shows prolonged unreleased frication with no terminal stop closure for '${twClean}'.`));
+        }
       }
     }
 
-    // 2. V/W Merger
-    if (tw.startsWith('v')) {
-      if (spokenWords.some(sw => sw === 'w' + tw.slice(1) || ['wary', 'worry', 'wery', 'where', 'ware', 'wan', 'one', 'when', 'wew', 'woice', 'willage'].includes(sw))) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'V_W_MERGER'));
-      }
-    } else if (tw.startsWith('w')) {
-      if (spokenWords.some(sw => sw === 'v' + tw.slice(1) || ['vater', 'voter', 'varta', 'vin', 'vindow', 'vinda'].includes(sw))) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'V_W_MERGER'));
-      }
-    }
-
-    // 3. TH Substitution (TH -> T/D)
-    if (['three', 'think', 'this', 'that', 'there', 'the', 'mother', 'father'].includes(tw)) {
-      if (tw === 'three' && spokenWords.some(sw => ['tree', 'tray', 'free', 'thee', 'tri', 'tee', 'tea', 'ti', 't'].includes(sw))) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
-      } else if (tw === 'think' && spokenWords.some(sw => ['tink', 'sink', 'pink', 'thing', 'tin'].includes(sw))) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
-      } else if (tw === 'this' && spokenWords.some(sw => ['dis', 'tis', 'miss', 'thiss'].includes(sw))) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
-      } else if (tw === 'that' && spokenWords.some(sw => ['dat', 'tat', 'cat', 'dot'].includes(sw))) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
-      } else if (tw === 'there' && spokenWords.some(sw => ['dare', 'tare', 'their', 'dey'].includes(sw))) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
-      } else if (tw === 'the' && spokenWords.some(sw => ['de', 'te', 'da'].includes(sw))) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
-      } else if (tw === 'mother' && spokenWords.some(sw => ['mudder', 'moder', 'matter', 'madar'].includes(sw))) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
-      } else if (tw === 'father' && spokenWords.some(sw => ['fadder', 'fader', 'pada'].includes(sw))) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'TH_SUBSTITUTION'));
+    // ── 4. S-Cluster Prosthesis (school -> ischool, star -> istar) ──
+    if (/^s[cptkmnr]/.test(twClean) || /^s[lw]/.test(twClean)) {
+      const head = activeFrames.slice(0, Math.min(8, activeFrames.length));
+      const sibilantIdx = head.findIndex(f => f.high > HIGH_REL && (!f.pitch || f.pitch <= 0));
+      if (sibilantIdx > 1) {
+        const hasPreVowel = head.slice(0, sibilantIdx).some(
+          f => f.pitch && f.pitch > 70 && f.low > LOW_REL
+        );
+        if (hasPreVowel) {
+          const spokenWord = 'i' + twClean;
+          acousticDetections.push(mkPattern(1, twClean, spokenWord,
+            `Acoustic onset shows a voiced vowel formant before the /s/ hissing in '${twClean}'.`));
+        }
       }
     }
 
-    // 4. F/P Substitution (e.g. target: 'elephant', 'fan', 'film', 'food', 'phone', 'fish', 'feather', 'four')
-    if (tw.startsWith('f') || tw.includes('ph') || tw === 'elephant') {
-      const isFish = (tw === 'fish');
-      const hasFp = spokenWords.some(sw => 
-        sw === 'p' + tw.slice(1) || 
-        ['pan', 'pen', 'pilm', 'film', 'pood', 'pone', 'pour', 'pore', 'poor', 'paw', 'po', 'pole', 'poll', 'par', 'per', 'port', 'pot', 'pish', 'push', 'dish', 'pedder', 'peather', 'peter', 'elepant', 'elephent', 'aliphant', 'oliphant', 'elipant', 'elephan', 'eliphant', 'pud', 'put', 'pill', 'peace', 'piece'].includes(sw) ||
-        (isFish && ['pish', 'push', 'peach', 'pitch', 'piss', 'pis', 'dish', 'phish', 'posh'].includes(sw)) ||
-        (tw.startsWith('f') && (sw.startsWith('p' + tw.slice(1, 3)) || sw.startsWith('po') || sw.startsWith('pa') || sw.startsWith('pe') || sw.startsWith('pi'))) ||
-        (tw === 'elephant' && (sw.includes('pant') || sw.includes('plant') || sw.includes('pent') || sw === 'elepant'))
-      );
-      if (hasFp) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'F_P_SUBSTITUTION'));
+    // ── 5. Paragoge (bus -> busa, milk -> milka) ──
+    if (['bus', 'milk', 'book', 'good', 'cake', 'stamp', 'park', 'pen', 'cat', 'dog', 'cup', 'hall'].includes(twClean)) {
+      const tail = activeFrames.slice(-Math.min(8, Math.floor(activeFrames.length * 0.4)));
+      if (tail.length >= 4) {
+        const lastTwo = tail.slice(-2);
+        const midTail = tail.slice(0, Math.max(1, tail.length - 2));
+        const hasConsonantThenTrailingVowel = midTail.some(f => f.high > HIGH_REL || f.mid > HIGH_REL)
+          && lastTwo.every(f => f.pitch && f.pitch > 70 && f.low > LOW_REL);
+        if (hasConsonantThenTrailingVowel) {
+          const spokenWord = twClean + 'a';
+          acousticDetections.push(mkPattern(5, twClean, spokenWord,
+            `Acoustic offset shows a trailing pitched vowel resonance after '${twClean}'.`));
+        }
       }
     }
 
-    // 5. Paragoge (e.g. target: 'bus', 'milk', 'book')
-    if (['bus', 'milk', 'book', 'good', 'cake', 'stamp', 'park', 'pen'].includes(tw)) {
-      if (spokenWords.some(sw => 
-        [tw + 'a', tw + 'ha', tw + 'er', tw + 'e', tw + 'i', 'milkha', 'milka', 'melka', 'melkha', 'busa', 'basa', 'bassa', 'booka', 'buku', 'gooda', 'guda', 'keka', 'keki', 'stampa', 'parka', 'paka', 'pena'].includes(sw) ||
-        (tw === 'milk' && ['milkha', 'milka', 'melka', 'milki', 'melkha', 'milkah'].includes(sw))
-      )) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'PARAGOGE'));
+    // ── 6. V/W Merger (very -> wery, van -> wan) ──
+    if (twClean.startsWith('v') && twClean.length >= 3) {
+      const head = activeFrames.slice(0, Math.min(6, activeFrames.length));
+      const maxHigh = Math.max(...head.map(f => f.high || 0));
+      const avgLow = head.reduce((s, f) => s + (f.low || 0), 0) / head.length;
+      const hasVoicing = head.some(f => f.pitch && f.pitch > 70);
+      if (maxHigh < HIGH_REL * 0.4 && avgLow > LOW_REL && hasVoicing) {
+        const spokenWord = 'w' + twClean.slice(1);
+        acousticDetections.push(mkPattern(2, twClean, spokenWord,
+          `Acoustic onset lacks labiodental /v/ frication and shows a glide resonance for '${twClean}'.`));
       }
     }
 
-    // 6. Final Consonant Weakening (e.g. target: 'but', 'cat', 'hand')
-    if (['but', 'good', 'that', 'friend', 'cat', 'hand', 'red', 'bird'].includes(tw)) {
-      if (spokenWords.some(sw => 
-        ['bu', 'ba', 'bah', 'goo', 'gu', 'tha', 'fren', 'ca', 'kah', 'han', 're', 'ray', 'ber', 'bur'].includes(sw)
-      )) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'FINAL_CONSONANT_WEAKENING'));
-      }
-    }
-
-    // 7. Consonant Cluster Simplification (e.g. target: 'next', 'friend', 'stamp', 'fast')
-    if (['next', 'friend', 'stamp', 'product', 'desk', 'fast', 'best', 'plant'].includes(tw)) {
-      const isFast = (tw === 'fast');
-      if (spokenWords.some(sw => 
-        ['neks', 'necks', 'nex', 'neck', 'fren', 'stam', 'stem', 'produk', 'produc', 'des', 'dec', 'fas', 'fass', 'pass', 'farce', 'face', 'bes', 'bet', 'plan', 'plen'].includes(sw) ||
-        (isFast && ['farce', 'fas', 'fass', 'pass', 'face', 'first', 'force'].includes(sw))
-      )) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'CLUSTER_SIMPLIFICATION'));
-      }
-    }
-
-    // 8. Short/Long Vowel Confusion (e.g. target: 'cake', 'boat', 'great')
-    if (['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit'].includes(tw)) {
-      if (
-        (tw === 'cake' && spokenWords.some(sw => ['kek', 'kake'].includes(sw))) ||
-        (tw === 'boat' && spokenWords.some(sw => ['bot', 'bought', 'board', 'bode', 'bod', 'bowt', 'bout', 'baut', 'butt', 'bat'].includes(sw))) ||
-        (tw === 'great' && spokenWords.some(sw => ['gret', 'get'].includes(sw))) ||
-        (tw === 'note' && spokenWords.some(sw => ['not', 'nut'].includes(sw))) ||
-        (tw === 'feet' && spokenWords.some(sw => ['fit', 'foot'].includes(sw))) ||
-        (tw === 'fit' && spokenWords.some(sw => ['feet'].includes(sw))) ||
-        (tw === 'seat' && spokenWords.some(sw => ['sit', 'set'].includes(sw))) ||
-        (tw === 'sit' && spokenWords.some(sw => ['seat'].includes(sw)))
-      ) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'VOWEL_LENGTH_CONFUSION'));
-      }
-    }
-
-    // 9. Initial H Dropping (e.g. target: 'house', 'happy', 'hello', 'hand', 'hot', 'hat', 'hear', 'help')
-    if (['house', 'happy', 'hello', 'hand', 'hot', 'hat', 'hear', 'help'].includes(tw) || tw.startsWith('h')) {
-      if (spokenWords.some(sw => 
-        ['ouse', 'ause', 'our', 'hour', 'appy', 'api', 'ello', 'elo', 'and', 'end', 'ot', 'ought', 'art', 'out', 'at', 'act', 'ear', 'air', 'elp', 'alp', 'aut', 'aot', 'owls', 'owl', 'ows', 'auls'].includes(sw) ||
-        (tw.startsWith('h') && sw === tw.slice(1)) ||
-        (tw === 'hot' && ['ot', 'ought', 'art', 'out', 'aat', 'aut'].includes(sw)) ||
-        (tw === 'hand' && ['and', 'end', 'ant'].includes(sw)) ||
-        (tw === 'hat' && ['at', 'act', 'et'].includes(sw)) ||
-        (tw === 'house' && ['ouse', 'ause', 'out', 'owls', 'owl', 'ows', 'auls', 'hows'].includes(sw)) ||
-        (tw === 'happy' && ['appy', 'api'].includes(sw)) ||
-        (tw === 'hello' && ['ello', 'elo', 'yellow'].includes(sw)) ||
-        (tw === 'help' && ['elp', 'alp'].includes(sw)) ||
-        (tw === 'hear' && ['ear', 'air', 'here'].includes(sw) && sw === 'ear')
-      )) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'INITIAL_H_DELETION'));
-      }
-    }
-
-    // 10. Z/S Confusion (e.g. target: 'zoo', 'busy', 'please')
-    if (['zoo', 'busy', 'please', 'zero', 'zebra', 'music', 'noise', 'rose'].includes(tw) || tw.startsWith('z')) {
-      const isZoo = (tw === 'zoo');
-      if (spokenWords.some(sw => 
-        ['soo', 'sue', 'so', 'su', 'sew', 'sow', 'sou', 'bissy', 'bisi', 'pleas', 'police', 'sero', 'siro', 'sebra', 'mewsic', 'mousic', 'noiss', 'nice', 'ross', 'rows'].includes(sw) ||
-        (isZoo && ['so', 'su', 'soo', 'sue', 'sew', 'sow', 'sou', 'soon', 'siu'].includes(sw)) ||
-        (tw.startsWith('z') && sw === 's' + tw.slice(1))
-      )) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'Z_S_CONFUSION'));
-      }
-    }
-
-    // 11. Back Vowel Confusion (e.g. target: 'hall', 'cup', 'ball')
-    if (['hall', 'cup', 'ball', 'call', 'walk', 'tall'].includes(tw)) {
-      if (spokenWords.some(sw => 
-        ['hol', 'hole', 'hull', 'cap', 'cop', 'bol', 'bowl', 'col', 'coal', 'wok', 'woke', 'tol', 'toll'].includes(sw)
-      )) {
-        detected.push(SRI_LANKAN_MTI_PATTERNS.find(p => p.key === 'BACK_VOWEL_CONFUSION'));
+    // ── 7. TH Substitution (three -> tree, that -> dat) ──
+    if (twClean === 'three' || twClean.startsWith('th')) {
+      const head = activeFrames.slice(0, Math.min(6, activeFrames.length));
+      if (head.length >= 3) {
+        const hasDentalFrication = head.some(
+          f => f.high > HIGH_REL * 0.6 && (!f.pitch || f.pitch <= 0)
+        );
+        const hasImmediateBurst = head[0].vol > stats.peakVol * 0.4 && head[0].pitch && head[0].pitch > 70;
+        if (!hasDentalFrication && hasImmediateBurst) {
+          const spokenWord = twClean === 'three' ? 'tree' : 't' + twClean.slice(2);
+          acousticDetections.push(mkPattern(3, twClean, spokenWord,
+            `Acoustic onset shows a plosive attack instead of dental frication for '${twClean}'.`));
+        }
       }
     }
   });
 
-  return Array.from(new Set(detected.filter(Boolean)));
+  return acousticDetections;
 }
 
-// 100% Strict 6-Dimensional Speech & Pronunciation Assessment
-function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally = false, recordingDuration = 2.0, avgVolume = 50, extraAlternativeWords = []) {
-  console.log("%c[Speaking Paper Evaluator] ──────── STEP-BY-STEP EVALUATION START ────────", "background: #0284c7; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
-  console.log(`[Step 1 Input] Spoken Text: "${spokenText}" | Target Text: "${targetText}" | Duration: ${recordingDuration}s`);
-  console.log(`[Step 1 Acoustic Alternatives]:`, extraAlternativeWords);
+// Time-Domain Autocorrelation for Pitch (F0) Extraction (in Hz)
+function autoCorrelate(buffer, sampleRate) {
+  const SIZE = buffer.length;
+  let sumOfSquares = 0;
+  for (let i = 0; i < SIZE; i++) {
+    sumOfSquares += buffer[i] * buffer[i];
+  }
+  const rootMeanSquare = Math.sqrt(sumOfSquares / SIZE);
+  if (rootMeanSquare < 0.012) return -1;
+
+  let r1 = 0, r2 = SIZE - 1;
+  const thres = 0.2;
+  for (let i = 0; i < SIZE / 2; i++) {
+    if (Math.abs(buffer[i]) < thres) { r1 = i; break; }
+  }
+  for (let i = 1; i < SIZE / 2; i++) {
+    if (Math.abs(buffer[SIZE - i]) < thres) { r2 = SIZE - i; break; }
+  }
+
+  const trimmed = buffer.slice(r1, r2);
+  if (trimmed.length < 32) return -1;
+
+  const c = new Array(trimmed.length).fill(0);
+  for (let i = 0; i < trimmed.length; i++) {
+    for (let j = 0; j < trimmed.length - i; j++) {
+      c[i] = c[i] + trimmed[j] * trimmed[j + i];
+    }
+  }
+
+  let d = 0;
+  while (c[d] > c[d + 1]) d++;
+  let maxval = -1, maxpos = -1;
+  for (let i = d; i < trimmed.length; i++) {
+    if (c[i] > maxval) {
+      maxval = c[i];
+      maxpos = i;
+    }
+  }
+  let T0 = maxpos;
+  if (T0 <= 0) return -1;
+
+  const x1 = c[T0 - 1] || 0, x2 = c[T0], x3 = c[T0 + 1] || 0;
+  const a = (x1 + x3 - 2 * x2) / 2;
+  const b = (x3 - x1) / 2;
+  if (a) T0 = T0 - b / (2 * a);
+
+  const pitch = sampleRate / T0;
+  if (pitch >= 70 && pitch <= 500) {
+    return pitch;
+  }
+  return -1;
+}
+
+function classifyVolume(avg, max) {
+  if (avg < 15) {
+    return { status: 'Too Soft (ශබ්දය මදි)', score: 60 };
+  }
+  if (avg > 82 || max > 98) {
+    return { status: 'Too Loud (ශබ්දය වැඩියි)', score: 70 };
+  }
+  return { status: 'Clear & Optimal (පැහැදිලියි)', score: 95 };
+}
+
+function detectRepetitions(words) {
+  const repetitions = [];
+  for (let i = 1; i < words.length; i++) {
+    if (words[i] && words[i] === words[i - 1]) {
+      repetitions.push({ word: words[i], type: 'single-word-repetition' });
+    }
+  }
+  for (let i = 2; i < words.length; i++) {
+    const prev = `${words[i - 2]} ${words[i - 1]}`;
+    const curr = `${words[i - 1]} ${words[i]}`;
+    if (prev === curr && words[i - 2] !== words[i - 1]) {
+      repetitions.push({ phrase: curr, type: 'phrase-repetition' });
+    }
+  }
+  return repetitions;
+}
+
+const HESITATION_WORDS = new Set(['um', 'uh', 'er', 'erm', 'hmm', 'ah', 'umm', 'uhh']);
+function detectHesitations(words, pauses) {
+  const fillerWords = words.filter(w => HESITATION_WORDS.has(w));
+  const longPauses = (pauses || []).filter(p => p.durationMs >= 1000);
+  return {
+    fillerCount: fillerWords.length,
+    fillerWords,
+    longPauseCount: longPauses.length,
+    hesitationCount: fillerWords.length + longPauses.length
+  };
+}
+
+function detectWordOrderError(targetWords, spokenWords) {
+  const targetFiltered = targetWords.filter(w => !STOP_WORDS.has(w));
+  const spokenFiltered = spokenWords.filter(w => !STOP_WORDS.has(w));
+  const targetPositions = new Map();
+  targetFiltered.forEach((word, index) => {
+    if (!targetPositions.has(word)) targetPositions.set(word, []);
+    targetPositions.get(word).push(index);
+  });
+
+  let lastPosition = -1;
+  let disorderCount = 0;
+  for (const word of spokenFiltered) {
+    const positions = targetPositions.get(word);
+    if (!positions) continue;
+    const position = positions.find(p => p >= lastPosition);
+    if (position === undefined) {
+      disorderCount++;
+    } else {
+      if (position < lastPosition) disorderCount++;
+      lastPosition = position;
+    }
+  }
+  return {
+    hasWordOrderError: disorderCount > 0,
+    disorderCount
+  };
+}
+
+function detectNonEnglishWords(spokenWords) {
+  return spokenWords.filter(word => {
+    if (SINHALA_CODE_WORDS.has(word)) return true;
+    return /^(m|k|h|w|n|o|a|e).*(aa|ee|oo|th|dh|kh|ng)$/i.test(word);
+  });
+}
+
+function analysePitch(pitchSamples) {
+  const valid = (pitchSamples || []).filter(p => Number.isFinite(p) && p >= 70 && p <= 500);
+  if (valid.length < 4) {
+    return {
+      pitchAvailable: false,
+      isMonotone: false,
+      pitchRange: 0,
+      meanPitch: 0,
+      pitchStdDev: 0,
+      score: 80,
+      style: 'Short Utterance (කෙටි ශබ්දය)'
+    };
+  }
+  const min = Math.min(...valid);
+  const max = Math.max(...valid);
+  const range = max - min;
+  const mean = valid.reduce((a, b) => a + b, 0) / valid.length;
+  const variance = valid.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / valid.length;
+  const stdDev = Math.sqrt(variance);
+
+  const isMonotone = (range < 20 || stdDev < 8);
+  let style = 'Natural Variation (ස්වභාවික විචලනය)';
+  let score = 90;
+  if (isMonotone) {
+    style = 'Flat / Monotone (ඒකාකාරී ස්වරය)';
+    score = 65;
+  } else if (range > 65 || stdDev > 22) {
+    style = 'Highly Expressive (ඉතා ප්‍රකාශනාත්මක)';
+    score = 95;
+  }
+
+  return {
+    pitchAvailable: true,
+    isMonotone,
+    pitchRange: Math.round(range),
+    meanPitch: Math.round(mean),
+    pitchStdDev: Math.round(stdDev),
+    score,
+    style
+  };
+}
+
+function analyseQuestionIntonation(pitchSamples, targetText) {
+  if (!targetText.trim().endsWith('?')) {
+    return { isQuestion: false, rising: null, status: 'Statement (ප්‍රකාශනයක්)' };
+  }
+  const valid = (pitchSamples || []).filter(p => p >= 70 && p <= 500);
+  if (valid.length < 8) {
+    return { isQuestion: true, rising: null, status: 'Insufficient pitch data' };
+  }
+  const lastCount = Math.max(4, Math.floor(valid.length * 0.25));
+  const firstPart = valid.slice(-lastCount * 2, -lastCount);
+  const finalPart = valid.slice(-lastCount);
+  const firstAvg = firstPart.reduce((a, b) => a + b, 0) / Math.max(1, firstPart.length);
+  const finalAvg = finalPart.reduce((a, b) => a + b, 0) / Math.max(1, finalPart.length);
+  const rise = finalAvg - firstAvg;
+  return {
+    isQuestion: true,
+    rising: rise > 10,
+    finalPitchChange: Math.round(rise),
+    status: rise > 10 ? 'Rising Question Intonation (ප්‍රශ්නාර්ථ ස්වරය)' : 'Flat/Falling Intonation (පැතලි ස්වරය)'
+  };
+}
+
+function classifyStartDelay(ms) {
+  if (ms < 1500) return { delayMs: Math.round(ms), status: 'Quick Start (ක්ෂණික ආරම්භය)' };
+  if (ms < 3500) return { delayMs: Math.round(ms), status: 'Normal Start (සාමාන්‍ය)' };
+  if (ms < 6000) return { delayMs: Math.round(ms), status: 'Slow Start (මන්දගාමී)' };
+  return { delayMs: Math.round(ms), status: 'Hesitant Start (ප්‍රමාදයි)' };
+}
+
+function calculateSpeakingConfidence({ attempts, startDelayMs, accuracy, hesitationCount }) {
+  let score = 100;
+  if (attempts === 2) score -= 10;
+  if (attempts >= 3) score -= 20;
+  if (startDelayMs > 3500) score -= 10;
+  if (startDelayMs > 6000) score -= 15;
+  if (hesitationCount > 0) score -= Math.min(20, hesitationCount * 8);
+  if (accuracy < 80) score -= (100 - accuracy) * 0.2;
+  return Math.max(20, Math.min(100, Math.round(score)));
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ── TRUE 6-DIMENSIONAL SPEECH SESSION EVALUATOR ──
+// ══════════════════════════════════════════════════════════════════════
+function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlternatives = [], previousAttempts = []) {
+  console.log("%c[Speech Session Analyzer] Starting Comprehensive Multi-Dimensional Analysis...", "background: #0284c7; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
 
   const spokenClean = (spokenText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
   const targetClean = (targetText || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
-
   const spokenWords = spokenClean.split(/\s+/).filter(Boolean);
   const targetWords = targetClean.split(/\s+/).filter(Boolean);
-  const allCandidateTokens = Array.from(new Set([...spokenWords, ...(extraAlternativeWords || [])])).filter(Boolean);
+  const allCandidateTokens = Array.from(new Set([...spokenWords, ...(candidateAlternatives || [])])).filter(Boolean);
 
-  console.log(`[Step 1 Tokenized] Spoken Tokens:`, spokenWords);
-  console.log(`[Step 1 Tokenized] Target Tokens:`, targetWords);
-  console.log(`[Step 1 Tokenized] All Candidate Tokens:`, allCandidateTokens);
+  const duration = Math.max(0.5, sessionData?.recordingDuration || 1.5);
+  const pauses = sessionData?.pauseSegments || [];
+  const pauseCount = pauses.length;
+  const totalPauseMs = pauses.reduce((sum, p) => sum + p.durationMs, 0);
+  const totalPauseSec = Number((totalPauseMs / 1000).toFixed(2));
+  const averagePauseSec = pauseCount > 0 ? Number((totalPauseSec / pauseCount).toFixed(2)) : 0;
+  const longestPauseSec = pauseCount > 0 ? Number((Math.max(0, ...pauses.map(p => p.durationMs)) / 1000).toFixed(2)) : 0;
 
-  // ── Step 1: Strict Sound & Human Speech Validation ──
-  const speechDetected = Boolean(spokenWords.length > 0 || allCandidateTokens.length > 0);
-  console.log(`[Step 1 Status] Speech Detected: ${speechDetected}`);
+  const volumeSamples = sessionData?.volumeSamples || [];
+  const avgVol = volumeSamples.length ? Math.round(volumeSamples.reduce((a, b) => a + b, 0) / volumeSamples.length) : 0;
+  const maxVol = volumeSamples.length ? Math.max(...volumeSamples) : 0;
+  const minVol = volumeSamples.length ? Math.min(...volumeSamples) : 0;
+  const volAnalysis = classifyVolume(avgVol, maxVol);
 
+  const speechDetected = Boolean(spokenWords.length > 0 || allCandidateTokens.length > 0 || avgVol > 12);
   if (!speechDetected) {
-    console.warn("%c[Step 1 Result] No speech detected - returning 0%", "color: #ef4444; font-weight: bold;");
     return {
-      step: 1,
+      overallScore: 0,
       soundDetected: false,
       wordsCorrect: false,
       pronunciationCorrect: false,
@@ -764,127 +1108,241 @@ function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally
       wordResults: [],
       missedWords: targetWords,
       mtiPatterns: [],
-      fluency: { wpm: 0, speedStatus: 'No Speech' },
-      intonation: { isMonotone: false, style: 'None' },
-      volume: { percent: 0, status: 'Muted' }
+      pronunciation: { score: 0, wordAccuracy: 0, mtiPenalty: 0, allWordsCorrect: false },
+      fluency: { score: 0, wpm: 0, speakingRate: 0, pauseCount: 0, totalPauseSec: 0, averagePauseSec: 0, longestPauseSec: 0, hesitationCount: 0, fillerWords: [], speedStatus: 'No Speech' },
+      intonation: { score: 0, isMonotone: false, pitchRange: 0, meanPitch: 0, pitchStdDev: 0, style: 'No Signal', questionAnalysis: { isQuestion: false, rising: null, status: 'No Signal' } },
+      volume: { score: 0, percent: 0, maxVolume: 0, minVolume: 0, status: 'Muted' },
+      language: { score: 0, missingWords: targetWords, extraWords: [], wordOrderError: false, disorderCount: 0, repetitions: [], sinhalaWords: [] },
+      engagement: { score: 0, attempts: previousAttempts.length + 1, startDelayMs: 0, startDelayStatus: 'None', improvementPercentage: 0, improvementMessage: '' }
     };
   }
 
-  // ── 1. Single Word Evaluation (Easy Level & MTI Lab) ──
-  if (targetWords.length === 1) {
+  const isSingleWord = (targetWords.length === 1);
+
+  // ── DUAL-LAYER MTI DETECTION: Acoustic analysis + Lexical text analysis ──
+  const acousticMtiPatterns = analyzeAcousticPhonology(sessionData, targetWords, spokenWords);
+  const textMtiPatterns = [];
+
+  targetWords.forEach(twRaw => {
+    const twClean = (twRaw || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (!twClean) return;
+
+    for (const sw of allCandidateTokens) {
+      const swClean = (sw || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!swClean || swClean === twClean) continue;
+      const detected = detectTextMTIErrors(twClean, swClean);
+      if (detected) {
+        textMtiPatterns.push(detected);
+        break;
+      }
+    }
+  });
+
+  // Merge and deduplicate by MTI key and target word
+  const mergedMtiMap = new Map();
+  [...acousticMtiPatterns, ...textMtiPatterns].forEach(p => {
+    if (!p) return;
+    const mapKey = `${p.key}_${p.target}`;
+    if (!mergedMtiMap.has(mapKey)) {
+      mergedMtiMap.set(mapKey, p);
+    }
+  });
+  const mtiPatterns = Array.from(mergedMtiMap.values());
+  if (mtiPatterns.length > 0) {
+    console.log("%c[MTI Diagnostics] 🎙️ MTI Evidence Detected:", "background: #dc2626; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;", mtiPatterns);
+  }
+  const mtiErrorTargets = new Set(mtiPatterns.map(p => p.target));
+
+  let wordResults = [];
+  let matchedCount = 0;
+  let missedWords = [];
+
+  if (isSingleWord) {
     const targetWord = targetWords[0];
-    console.log(`[Step 2 Single Word] Checking MTI patterns for word: "${targetWord}"...`);
-    const mtiPatterns = detectSriLankanMTIPatterns(allCandidateTokens, targetWords);
-    console.log(`[Step 2 MTI Patterns Detected]:`, mtiPatterns);
-    
+    const flaggedThisWord = mtiErrorTargets.has(targetWord);
+
     let matchedExact = (spokenClean === targetWord);
     let matchedInWords = spokenWords.includes(targetWord);
-
     if (!matchedExact && !matchedInWords && spokenWords.length > 0) {
       for (const sw of spokenWords) {
-        if (isWordMatch(targetWord, sw)) {
-          matchedInWords = true;
-          break;
-        }
+        if (isWordMatch(targetWord, sw)) { matchedInWords = true; break; }
       }
     }
 
-    // If extra prosthetic words were spoken before a single target (e.g. "It's spring", "is station"), it is an MTI error
-    const isCleanSingleUtterance = (matchedExact || (matchedInWords && spokenWords.length === 1)) && mtiPatterns.length === 0;
-    const wordsCorrect = isCleanSingleUtterance;
-    const accuracy = isCleanSingleUtterance ? 100 : (mtiPatterns.length > 0 ? 70 : (matchedInWords ? 60 : 25));
-    const isPassed = (accuracy === 100);
-
-    console.log(`[Step 3 Single Word Result] matchedExact: ${matchedExact}, matchedInWords: ${matchedInWords}, isPassed: ${isPassed}, accuracy: ${accuracy}%`);
-    console.log("%c[Speaking Paper Evaluator] ──────── EVALUATION COMPLETE ────────", "background: #059669; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
-
-    return {
-      step: isPassed ? 3 : 2,
-      soundDetected: true,
-      wordsCorrect: wordsCorrect,
-      pronunciationCorrect: isPassed,
-      accuracy: accuracy,
-      statusTitle: isPassed ? 'විශිෂ්ට උච්චාරණයක්! (100% Passed)' : 'උච්චාරණය තවදුරටත් පුහුණු වන්න (Needs Practice)',
-      statusMessage: isPassed 
-        ? 'ඔබේ උච්චාරණය ඉතා පැහැදිලියි (100%).' 
-        : mtiPatterns.length > 0
-        ? `MTI රටාව හඳුනා ගැනිණි: ${mtiPatterns[0].name_si}.`
-        : `ඔබ පැවසූ වචනය '${spokenText}' වේ. අපේක්ෂිත වචනය '${targetText}' වේ.`,
-      transcript: spokenText,
-      wordResults: [{ word: targetWord, matched: isCleanSingleUtterance, spoken: spokenWords[0] || '' }],
-      missedWords: isCleanSingleUtterance ? [] : [targetWord],
-      mtiPatterns: mtiPatterns,
-      fluency: {
-        wpm: Math.round((1 / Math.max(0.5, recordingDuration)) * 60),
-        speedStatus: 'Optimal (ස්වභාවික වේගය)'
-      },
-      intonation: {
-        isMonotone: false,
-        style: 'Clean Single Utterance'
-      },
-      volume: {
-        percent: avgVolume,
-        status: avgVolume > 85 ? 'Too Loud (ශබ්දය වැඩියි)' : avgVolume < 20 ? 'Too Soft (ශබ්දය මදි)' : 'Clear & Optimal (පැහැදිලියි)'
-      }
-    };
+    if (flaggedThisWord) {
+      const matchedPattern = mtiPatterns.find(p => p.target === targetWord);
+      matchedCount = 0;
+      missedWords = [targetWord];
+      wordResults = [{ word: targetWord, matched: false, spoken: matchedPattern?.spoken || spokenClean }];
+    } else if (matchedExact || (matchedInWords && spokenWords.length === 1)) {
+      matchedCount = 1;
+      missedWords = [];
+      wordResults = [{ word: targetWord, matched: true, spoken: spokenWords[0] || spokenClean }];
+    } else {
+      matchedCount = 0;
+      missedWords = [targetWord];
+      wordResults = [{ word: targetWord, matched: false, spoken: spokenWords[0] || '' }];
+    }
+  } else {
+    wordResults = alignWordsLCS(targetWords, spokenWords);
+    if (mtiErrorTargets.size > 0) {
+      wordResults = wordResults.map(wr => mtiErrorTargets.has(wr.word) ? { ...wr, matched: false } : wr);
+    }
+    matchedCount = wordResults.filter(w => w.matched).length;
+    missedWords = wordResults.filter(w => !w.matched).map(w => w.word);
   }
 
-  // ── 2. Multi-Word Sentence DP Alignment (Medium & Hard Levels) ──
-  const wordResults = alignWordsLCS(targetWords, spokenWords);
-  const matchedCount = wordResults.filter(w => w.matched).length;
-  const missedWords = wordResults.filter(w => !w.matched).map(w => w.word);
-  const mtiPatterns = detectSriLankanMTIPatterns(spokenWords, targetWords);
-
-  // Fluency: WPM Calculation
-  const totalWords = targetWords.length;
-  const wpm = Math.round((spokenWords.length / Math.max(0.8, recordingDuration)) * 60);
-  let speedStatus = 'Optimal / Natural (ස්වභාවික වේගය)';
-  if (wpm < 70) speedStatus = 'Too Slow (මන්දගාමී)';
-  else if (wpm > 160) speedStatus = 'Too Fast (ඉතා වේගවත්)';
-
-  // Non-MTI Errors
-  const sinhalaMixed = spokenWords.filter(w => SINHALA_CODE_WORDS.has(w));
-  
-  // Strict 100% Question Pass Standard
-  const rawAccuracy = Math.round((matchedCount / totalWords) * 100);
-  const accuracy = mtiPatterns.length > 0 ? Math.min(70, rawAccuracy) : rawAccuracy;
-  const isPassed = (matchedCount === totalWords && mtiPatterns.length === 0 && accuracy === 100);
+  const totalWords = Math.max(1, targetWords.length);
+  const wordAccuracy = Math.round((matchedCount / totalWords) * 100);
+  const mtiPenalty = mtiPatterns.length * 15;
+  const pronunciationScore = Math.max(0, wordAccuracy - mtiPenalty);
   const allWordsCorrect = (matchedCount === totalWords);
+  const pronunciationCorrect = (allWordsCorrect && mtiPatterns.length === 0);
+
+  const actualSpeakingSec = Math.max(0.4, duration - totalPauseSec);
+  const overallWpm = Math.round((spokenWords.length / duration) * 60);
+  const speakingRate = Math.round((spokenWords.length / actualSpeakingSec) * 60);
+  const hesitations = detectHesitations(spokenWords, pauses);
+
+  let speedStatus = 'Optimal / Natural (ස්වභාවික වේගය)';
+  let fluencyScore = 90;
+  if (speakingRate < 60) {
+    speedStatus = 'Too Slow (මන්දගාමී)';
+    fluencyScore -= 20;
+  } else if (speakingRate > 175) {
+    speedStatus = 'Too Fast (ඉතා වේගවත්)';
+    fluencyScore -= 15;
+  }
+  if (pauseCount > 2) fluencyScore -= Math.min(25, (pauseCount - 2) * 8);
+  if (hesitations.hesitationCount > 0) fluencyScore -= Math.min(20, hesitations.hesitationCount * 10);
+  fluencyScore = Math.max(20, Math.min(100, fluencyScore));
+
+  const pitchAnalysis = analysePitch(sessionData?.pitchSamples);
+  const questionIntonation = analyseQuestionIntonation(sessionData?.pitchSamples, targetText);
+  let intonationScore = pitchAnalysis.score;
+  if (questionIntonation.isQuestion && questionIntonation.rising === false) {
+    intonationScore -= 15;
+  }
+  intonationScore = Math.max(20, Math.min(100, intonationScore));
+
+  const volumeScore = volAnalysis.score;
+
+  const orderAnalysis = detectWordOrderError(targetWords, spokenWords);
+  const repetitions = detectRepetitions(spokenWords);
+  const sinhalaWords = detectNonEnglishWords(spokenWords);
+  let languageScore = 100;
+  if (orderAnalysis.hasWordOrderError) languageScore -= orderAnalysis.disorderCount * 15;
+  if (repetitions.length > 0) languageScore -= repetitions.length * 10;
+  if (sinhalaWords.length > 0) languageScore -= sinhalaWords.length * 15;
+  if (missedWords.length > 0) languageScore -= Math.round((missedWords.length / totalWords) * 30);
+  languageScore = Math.max(20, Math.min(100, languageScore));
+
+  const startDelayMs = sessionData?.firstSpeechAt ? Math.max(0, sessionData.firstSpeechAt - sessionData.startedAt) : Math.min(3000, duration * 300);
+  const startDelayInfo = classifyStartDelay(startDelayMs);
+  const confidenceScore = calculateSpeakingConfidence({
+    attempts: previousAttempts.length + 1,
+    startDelayMs,
+    accuracy: pronunciationScore,
+    hesitationCount: hesitations.hesitationCount
+  });
+
+  let improvementPercentage = 0;
+  let improvementMessage = '';
+  if (previousAttempts.length > 0) {
+    const firstScore = previousAttempts[0]?.overallScore || previousAttempts[0]?.accuracy || 50;
+    improvementPercentage = Math.round(pronunciationScore - firstScore);
+    if (improvementPercentage > 0) {
+      improvementMessage = `උත්සාහය #${previousAttempts.length + 1}: පසුගිය වාරයට වඩා +${improvementPercentage}% ක දියුණුවක්!`;
+    }
+  }
+
+  let overallScore = Math.round(
+    pronunciationScore * 0.40 +
+    fluencyScore * 0.20 +
+    intonationScore * 0.15 +
+    volumeScore * 0.10 +
+    languageScore * 0.10 +
+    confidenceScore * 0.05
+  );
+  if (pronunciationCorrect) {
+    overallScore = Math.max(90, overallScore);
+  }
 
   return {
-    step: isPassed ? 3 : (matchedCount > 0 ? 2 : 1),
+    overallScore,
+    accuracy: pronunciationScore,
     soundDetected: true,
     wordsCorrect: allWordsCorrect,
-    pronunciationCorrect: isPassed,
-    accuracy: accuracy,
-    statusTitle: isPassed 
-      ? 'විශිෂ්ට උච්චාරණයක්! (100% Passed)' 
+    pronunciationCorrect,
+    statusTitle: pronunciationCorrect
+      ? 'විශිෂ්ට උච්චාරණයක්! (100% Passed)'
       : 'උච්චාරණය තවදුරටත් පුහුණු වන්න (Needs Practice)',
-    statusMessage: isPassed 
-      ? 'ඔබේ උච්චාරණය සහ කථන රිද්මය ඉතා විශිෂ්ටයි (100%).'
+    statusMessage: pronunciationCorrect
+      ? 'ඔබේ උච්චාරණය, ස්වර රිද්මය සහ කථන වේගය ඉතා විශිෂ්ටයි (100%).'
       : mtiPatterns.length > 0
-      ? `MTI උච්චාරණ දෝෂයක් හඳුනා ගැනිණි: ${mtiPatterns.map(p => p.name_si).join(', ')}.`
-      : `වචන ${matchedCount}/${totalWords} නිවැරදියි (${accuracy}%). සම්පූර්ණ ලකුණු (100%) සඳහා '${missedWords.join(', ')}' වචනය නිවැරදිව පවසන්න.`,
+      ? `MTI උච්චාරණ රටාවක් හඳුනා ගැනිණි: ${mtiPatterns.map(p => p.name_si).join(', ')}.`
+      : `වචන ${matchedCount}/${totalWords} නිවැරදියි. සම්පූර්ණ ලකුණු සඳහා '${missedWords.join(', ')}' නිවැරදිව පවසන්න.`,
     transcript: spokenText,
-    wordResults: wordResults,
-    missedWords: missedWords,
-    mtiPatterns: mtiPatterns,
+    wordResults,
+    missedWords,
+    mtiPatterns,
+
+    pronunciation: {
+      score: pronunciationScore,
+      wordAccuracy,
+      mtiPenalty,
+      allWordsCorrect
+    },
+
     fluency: {
-      wpm: wpm,
-      speedStatus: speedStatus,
-      durationSec: recordingDuration
+      score: fluencyScore,
+      wpm: overallWpm,
+      speakingRate,
+      pauseCount,
+      totalPauseSec,
+      averagePauseSec,
+      longestPauseSec,
+      hesitationCount: hesitations.hesitationCount,
+      fillerWords: hesitations.fillerWords,
+      speedStatus,
+      durationSec: duration
     },
+
     intonation: {
-      isMonotone: false,
-      style: 'Expressive & Dynamic (ස්වභාවික රිද්මය)'
+      score: intonationScore,
+      isMonotone: pitchAnalysis.isMonotone,
+      pitchRange: pitchAnalysis.pitchRange,
+      meanPitch: pitchAnalysis.meanPitch,
+      pitchStdDev: pitchAnalysis.pitchStdDev,
+      style: pitchAnalysis.style,
+      questionAnalysis: questionIntonation
     },
+
     volume: {
-      percent: avgVolume,
-      status: avgVolume > 85 ? 'Too Loud (ශබ්දය වැඩියි)' : avgVolume < 20 ? 'Too Soft (ශබ්දය මදි)' : 'Clear & Optimal (පැහැදිලියි)'
+      score: volumeScore,
+      percent: avgVol,
+      maxVolume: maxVol,
+      minVolume: minVol,
+      status: volAnalysis.status
     },
-    nonMtiErrors: {
-      hasSinhalaWords: sinhalaMixed.length > 0,
-      sinhalaWords: sinhalaMixed
+
+    language: {
+      score: languageScore,
+      missingWords: missedWords,
+      extraWords: spokenWords.filter(sw => !targetWords.includes(sw)),
+      wordOrderError: orderAnalysis.hasWordOrderError,
+      disorderCount: orderAnalysis.disorderCount,
+      repetitions,
+      sinhalaWords
+    },
+
+    engagement: {
+      score: confidenceScore,
+      attempts: previousAttempts.length + 1,
+      startDelayMs: startDelayInfo.delayMs,
+      startDelayStatus: startDelayInfo.status,
+      improvementPercentage,
+      improvementMessage
     }
   };
 }
@@ -892,25 +1350,21 @@ function evaluate6DimensionalSpeech(spokenText, targetText, soundDetectedLocally
 export default function EnglishModule({ onExit }) {
   const navigate = useNavigate();
 
-  // Navigation State: 'grades_hub' | 'papers_hub' | 'quiz' | 'report' | 'mti_lab'
   const [viewState, setViewState] = useState('grades_hub');
   const [selectedGrade, setSelectedGrade] = useState(2);
   const [activePaperId, setActivePaperId] = useState(1);
 
-  // Active Paper State (10 Questions)
   const [paperQuestions, setPaperQuestions] = useState([]);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [history, setHistory] = useState([]);
   const [questionAttempts, setQuestionAttempts] = useState(1);
 
-  // Dedicated MTI Diagnostics Lab State
   const [selectedMtiPatternKey, setSelectedMtiPatternKey] = useState('S_CLUSTER_PROSTHESIS');
   const [mtiLabWordIndex, setMtiLabWordIndex] = useState(0);
   const [mtiLabLiveTranscript, setMtiLabLiveTranscript] = useState('');
   const [mtiLabResult, setMtiLabResult] = useState(null);
   const [mtiLabListening, setMtiLabListening] = useState(false);
 
-  // Recording & Assessment State
   const [isListening, setIsListening] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState('');
   const [liveVolume, setLiveVolume] = useState(0);
@@ -922,14 +1376,29 @@ export default function EnglishModule({ onExit }) {
   const isListeningRef = useRef(false);
   const latestTranscriptRef = useRef('');
   const latestAlternativesRef = useRef([]);
+  const noSpeechAttemptsRef = useRef(0);
   const soundHeardRef = useRef(false);
   const timerIntervalRef = useRef(null);
   const audioContextRef = useRef(null);
   const mediaStreamRef = useRef(null);
+  const analyserRef = useRef(null);
   const animFrameRef = useRef(null);
-  const volumeSamplesRef = useRef([]);
+  const silenceTimerRef = useRef(null);
 
-  // LocalStorage Paper History
+  const sessionDataRef = useRef({
+    startedAt: 0,
+    firstSpeechAt: null,
+    pauseSegments: [],
+    volumeSamples: [],
+    pitchSamples: [],
+    spectralFrames: []
+  });
+  const currentlySpeakingRef = useRef(false);
+  const lastSpeechTimeRef = useRef(0);
+  const pauseStartedAtRef = useRef(null);
+
+  const questionAttemptHistoryRef = useRef({});
+
   const [paperHistory, setPaperHistory] = useState(() => {
     try {
       const g2 = JSON.parse(localStorage.getItem('g2_english_paper_history') || '{}');
@@ -956,21 +1425,11 @@ export default function EnglishModule({ onExit }) {
     } catch (e) {}
   };
 
-  // Check if a paper is unlocked
   const isPaperUnlocked = (pId) => {
-    if (pId === 1) return true;
-    if (pId === 2) {
-      const p1Result = paperHistory[selectedGrade]?.[1];
-      return p1Result && p1Result.overallAccuracy >= 75;
-    }
-    if (pId === 3) {
-      const p2Result = paperHistory[selectedGrade]?.[2];
-      return p2Result && p2Result.overallAccuracy >= 75;
-    }
-    return false;
+    // Temporarily unlocked all English speaking question papers
+    return true;
   };
 
-  // Fetch fixed 10 questions for the specific grade and paper (covers all MTI patterns)
   const generatePaperQuestions = (grade, paperId) => {
     const fixedList = FIXED_PAPERS[grade]?.[paperId] || FIXED_PAPERS[2]?.[1] || [];
     return fixedList.map(q => ({
@@ -980,12 +1439,12 @@ export default function EnglishModule({ onExit }) {
     }));
   };
 
-  // Start a specific paper
   const handleStartPaper = (pId) => {
     if (!isPaperUnlocked(pId)) return;
     playSound('click');
     setActivePaperId(pId);
     setHistory([]);
+    questionAttemptHistoryRef.current = {};
 
     const qList = generatePaperQuestions(selectedGrade, pId);
     setPaperQuestions(qList);
@@ -997,11 +1456,9 @@ export default function EnglishModule({ onExit }) {
     setIsAnswered(false);
     latestTranscriptRef.current = '';
     soundHeardRef.current = false;
-    volumeSamplesRef.current = [];
     setViewState('quiz');
   };
 
-  // View saved paper report
   const handleViewSavedPaperReport = (pId) => {
     playSound('click');
     const saved = paperHistory[selectedGrade]?.[pId];
@@ -1014,12 +1471,121 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Complete cleanup of all audio resources
+  const setupAudioAnalyser = () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+      if (!isListeningRef.current) {
+        stream.getTracks().forEach(t => t.stop());
+        return;
+      }
+      mediaStreamRef.current = stream;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        const ctx = new AudioCtx();
+        audioContextRef.current = ctx;
+        const source = ctx.createMediaStreamSource(stream);
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+        analyserRef.current = analyser;
+
+        const updateAudioMetrics = () => {
+          if (!isListeningRef.current || !analyserRef.current || !audioContextRef.current) return;
+          const an = analyserRef.current;
+          const sampleRate = audioContextRef.current.sampleRate;
+
+          const freqData = new Uint8Array(an.frequencyBinCount);
+          an.getByteFrequencyData(freqData);
+          let sum = 0;
+          for (let i = 0; i < freqData.length; i++) sum += freqData[i];
+          const avg = sum / freqData.length;
+          const volPercent = Math.min(100, Math.round((avg / 128) * 100));
+          setLiveVolume(volPercent);
+          sessionDataRef.current.volumeSamples.push(volPercent);
+
+          const binWidth = sampleRate / an.fftSize;
+          const lowEndBin = Math.max(1, Math.floor(800 / binWidth));
+          const midEndBin = Math.max(lowEndBin + 1, Math.floor(2500 / binWidth));
+          const highEndBin = Math.min(freqData.length - 1, Math.floor(8000 / binWidth));
+
+          let lowSum = 0, midSum = 0, highSum = 0;
+          for (let i = 0; i < lowEndBin; i++) lowSum += freqData[i];
+          for (let i = lowEndBin; i < midEndBin; i++) midSum += freqData[i];
+          for (let i = midEndBin; i <= highEndBin; i++) highSum += freqData[i];
+
+          const lowEnergy = lowSum / lowEndBin;
+          const midEnergy = midSum / Math.max(1, midEndBin - lowEndBin);
+          const highEnergy = highSum / Math.max(1, highEndBin - midEndBin);
+
+          const timeData = new Float32Array(an.fftSize);
+          an.getFloatTimeDomainData(timeData);
+          const pitch = autoCorrelate(timeData, sampleRate);
+          if (pitch >= 70 && pitch <= 500) {
+            sessionDataRef.current.pitchSamples.push(pitch);
+          }
+
+          const now = performance.now();
+          if (sessionDataRef.current.spectralFrames.length < 500) {
+            sessionDataRef.current.spectralFrames.push({
+              t: now,
+              vol: volPercent,
+              pitch: pitch > 0 ? pitch : null,
+              low: lowEnergy,
+              mid: midEnergy,
+              high: highEnergy
+            });
+          }
+
+          const SILENCE_THRESHOLD = 8;
+          const MIN_PAUSE_MS = 350;
+
+          if (volPercent > SILENCE_THRESHOLD) {
+            if (!currentlySpeakingRef.current) {
+              currentlySpeakingRef.current = true;
+              if (pauseStartedAtRef.current !== null) {
+                const pauseDuration = now - pauseStartedAtRef.current;
+                if (pauseDuration >= MIN_PAUSE_MS) {
+                  sessionDataRef.current.pauseSegments.push({
+                    start: pauseStartedAtRef.current,
+                    end: now,
+                    durationMs: pauseDuration
+                  });
+                }
+                pauseStartedAtRef.current = null;
+              }
+              if (!sessionDataRef.current.firstSpeechAt) {
+                sessionDataRef.current.firstSpeechAt = now;
+              }
+            }
+            lastSpeechTimeRef.current = now;
+            soundHeardRef.current = true;
+          } else {
+            if (currentlySpeakingRef.current && now - lastSpeechTimeRef.current >= MIN_PAUSE_MS) {
+              currentlySpeakingRef.current = false;
+              pauseStartedAtRef.current = lastSpeechTimeRef.current;
+            }
+          }
+
+          animFrameRef.current = requestAnimationFrame(updateAudioMetrics);
+        };
+
+        updateAudioMetrics();
+      }
+    }).catch(err => {
+      console.log("[Audio Analyzer] Fallback / mic permission info:", err);
+    });
+  };
+
   const stopListening = () => {
     isListeningRef.current = false;
     setIsListening(false);
     setMtiLabListening(false);
     setLiveVolume(0);
+
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
 
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
@@ -1035,6 +1601,7 @@ export default function EnglishModule({ onExit }) {
       try {
         recognitionRef.current.onend = null;
         recognitionRef.current.onerror = null;
+        recognitionRef.current.onresult = null;
         recognitionRef.current.stop();
       } catch (e) {
         try { recognitionRef.current.abort(); } catch (err) {}
@@ -1057,8 +1624,24 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Full-Sentence Continuous Recording
-  // Full Continuous & Single-Word Recording
+  const MAX_NO_SPEECH_RETRIES = 3;
+  const restartRecognitionIfNeeded = (recoInstance, onGiveUp) => {
+    if (!isListeningRef.current) return;
+    if (noSpeechAttemptsRef.current >= MAX_NO_SPEECH_RETRIES) {
+      onGiveUp && onGiveUp();
+      return;
+    }
+    setTimeout(() => {
+      if (isListeningRef.current && recognitionRef.current === recoInstance && !latestTranscriptRef.current) {
+        try {
+          recoInstance.start();
+        } catch (e) {
+          // Already started or invalid state - ignore, next onend cycle will retry.
+        }
+      }
+    }, 250);
+  };
+
   const startRecording = () => {
     console.log("%c[Speaking Paper] 1. 'Speak' Button Clicked - Starting Recording...", "background: #047857; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
     playSound('click');
@@ -1067,14 +1650,28 @@ export default function EnglishModule({ onExit }) {
     setAssessmentResult(null);
     setIsAnswered(false);
     setLiveTranscript('');
-    setLiveVolume(50);
+    setLiveVolume(0);
     setRecordingSeconds(0);
     latestTranscriptRef.current = '';
     latestAlternativesRef.current = [];
+    noSpeechAttemptsRef.current = 0;
     soundHeardRef.current = false;
-    volumeSamplesRef.current = [];
     isListeningRef.current = true;
     setIsListening(true);
+
+    sessionDataRef.current = {
+      startedAt: performance.now(),
+      firstSpeechAt: null,
+      pauseSegments: [],
+      volumeSamples: [],
+      pitchSamples: [],
+      spectralFrames: []
+    };
+    currentlySpeakingRef.current = false;
+    lastSpeechTimeRef.current = performance.now();
+    pauseStartedAtRef.current = null;
+
+    setupAudioAnalyser();
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -1085,61 +1682,124 @@ export default function EnglishModule({ onExit }) {
       return;
     }
 
+    const currentQ = paperQuestions[currentQIndex];
+    const isSingleWordQ = currentQ && (!currentQ.target_text || !currentQ.target_text.includes(' '));
+
     try {
-      console.log("%c[Speaking Paper] 2. Initializing SpeechRecognition (lang: en-US, maxAlternatives: 5)...", "color: #0284c7; font-weight: bold;");
+      console.log("%c[Speaking Paper] 2. Initializing SpeechRecognition (lang: en-US)...", "color: #0284c7; font-weight: bold;");
       const reco = new SpeechRecognition();
-      reco.continuous = true;
+      reco.continuous = false;
       reco.interimResults = true;
       reco.lang = 'en-US';
-      reco.maxAlternatives = 5;
+      reco.maxAlternatives = 3;
+
+      let hasProcessedResult = false;
+      let resultTimeout = null;
 
       reco.onstart = () => {
         console.log("%c[Speaking Paper] 2.1 onstart: Recognizer active and listening", "color: #059669; font-weight: bold;");
         if (isListeningRef.current) setIsListening(true);
+        noSpeechAttemptsRef.current = 0;
+        hasProcessedResult = false;
       };
 
-      reco.onsoundstart = () => {
-        console.log("%c[Speaking Paper] 2.2 onsoundstart: Audio signal detected", "color: #10b981;");
-        soundHeardRef.current = true;
-      };
-
-      reco.onspeechstart = () => {
-        console.log("%c[Speaking Paper] 2.3 onspeechstart: Human speech recognized", "color: #10b981; font-weight: bold;");
-        soundHeardRef.current = true;
-      };
+      reco.onsoundstart = () => { soundHeardRef.current = true; };
+      reco.onspeechstart = () => { soundHeardRef.current = true; };
 
       reco.onresult = (event) => {
         soundHeardRef.current = true;
+        noSpeechAttemptsRef.current = 0;
+
         const { transcript, alternatives } = extractCleanEnglishTranscript(event);
-        console.log(`%c[Speaking Paper] 3. onresult received -> transcript: "${transcript}"`, "background: #7c3aed; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;");
-        console.log(`[Speaking Paper] Acoustic Alternatives for this event:`, alternatives);
+        console.log(`%c[Speaking Paper] 3. onresult -> transcript: "${transcript}"`, "background: #7c3aed; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;");
 
         if (transcript) {
           latestTranscriptRef.current = transcript;
           setLiveTranscript(transcript);
         }
         if (alternatives && alternatives.length > 0) {
-          const merged = Array.from(new Set([...latestAlternativesRef.current, ...alternatives]));
-          latestAlternativesRef.current = merged;
-          console.log(`[Speaking Paper] Merged Session Alternatives:`, merged);
+          latestAlternativesRef.current = Array.from(new Set([...latestAlternativesRef.current, ...alternatives]));
+        }
+
+        const hasFinal = Array.from(event.results).some(r => r.isFinal);
+
+        if (hasFinal && transcript) {
+          hasProcessedResult = true;
+          if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
+          if (resultTimeout) { clearTimeout(resultTimeout); resultTimeout = null; }
+
+          const delay = isSingleWordQ ? 200 : 500;
+          resultTimeout = setTimeout(() => {
+            if (isListeningRef.current && latestTranscriptRef.current) {
+              stopRecordingAndEvaluate();
+            }
+          }, delay);
+        } else if (transcript && !hasFinal) {
+          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = setTimeout(() => {
+            if (isListeningRef.current && latestTranscriptRef.current && !hasProcessedResult) {
+              stopRecordingAndEvaluate();
+            }
+          }, isSingleWordQ ? 600 : 1200);
+        }
+
+        if (hasFinal && !transcript && latestAlternativesRef.current.length > 0) {
+          const altText = latestAlternativesRef.current.join(' ');
+          latestTranscriptRef.current = altText;
+          setLiveTranscript(altText);
+          setTimeout(() => {
+            if (isListeningRef.current) stopRecordingAndEvaluate();
+          }, 300);
         }
       };
 
       reco.onerror = (event) => {
         console.warn(`%c[Speaking Paper] ⚠️ onerror: ${event.error}`, "color: #ef4444; font-weight: bold;");
-        if (isListeningRef.current) {
-          try {
-            reco.start();
-          } catch (e) {}
+
+        if (event.error === 'no-speech') {
+          noSpeechAttemptsRef.current++;
+          setLiveTranscript(`🎤 සවන් දෙමින්... (නැවත කතා කරන්න)`);
+          restartRecognitionIfNeeded(reco, () => {
+            setLiveTranscript('🎤 හඬක් හඳුනා නොගැනිණි. නැවත උත්සාහ කරන්න.');
+            stopListening();
+          });
+          return;
+        }
+
+        if (event.error === 'not-allowed') {
+          setLiveTranscript('🎤 මයික්‍රෆෝනයට අවසර නැත.');
+          stopListening();
+        }
+
+        if (event.error === 'audio-capture' || event.error === 'network') {
+          setLiveTranscript('🎤 සම්බන්ධතා ගැටළුවක්. නැවත උත්සාහ කරන්න.');
+          setTimeout(() => {
+            if (isListeningRef.current && recognitionRef.current) {
+              try { recognitionRef.current.start(); } catch (e) {}
+            }
+          }, 400);
         }
       };
 
       reco.onend = () => {
         console.log("%c[Speaking Paper] 2.4 onend: Recognizer cycle ended", "color: #64748b;");
-        if (isListeningRef.current) {
-          try {
-            reco.start();
-          } catch (e) {}
+
+        if (hasProcessedResult) return;
+
+        const hasTranscript = Boolean(latestTranscriptRef.current && latestTranscriptRef.current.length > 0);
+
+        if (hasTranscript && isListeningRef.current) {
+          setTimeout(() => {
+            if (isListeningRef.current) stopRecordingAndEvaluate();
+          }, 200);
+          return;
+        }
+
+        if (isListeningRef.current && !hasTranscript) {
+          restartRecognitionIfNeeded(reco, () => {
+            setLiveTranscript('🎤 හඬක් හඳුනා නොගැනිණි. නැවත උත්සාහ කරන්න.');
+            stopListening();
+          });
         }
       };
 
@@ -1147,6 +1807,9 @@ export default function EnglishModule({ onExit }) {
       reco.start();
     } catch (e) {
       console.error("[Speaking Paper] SpeechRecognition init error:", e);
+      setIsListening(false);
+      isListeningRef.current = false;
+      setLiveTranscript('🎤 දෝෂයක් ඇතිවිය. නැවත උත්සාහ කරන්න.');
     }
 
     timerIntervalRef.current = setInterval(() => {
@@ -1154,32 +1817,42 @@ export default function EnglishModule({ onExit }) {
     }, 1000);
   };
 
-  // Student clicks Stop when they finish speaking
   const stopRecordingAndEvaluate = () => {
-    console.log("%c[Speaking Paper] 4. 'Stop & Evaluate' Button Clicked", "background: #e11d48; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
+    console.log("%c[Speaking Paper] 4. 'Stop & Evaluate' Executing...", "background: #e11d48; color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
     playSound('click');
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
     const finalHeardText = (latestTranscriptRef.current || liveTranscript || '').replace('සවන් දෙමින්...', '').replace('හඬ ලැබෙමින් පවතී...', '').trim();
-    const soundDetected = soundHeardRef.current || Boolean(finalHeardText.trim());
-    const duration = Math.max(1, recordingSeconds);
-    const avgVol = 70;
 
-    console.log(`[Speaking Paper] Final Heard Text: "${finalHeardText}"`);
-    console.log(`[Speaking Paper] Sound Detected: ${soundDetected} | Duration: ${duration}s`);
-    console.log(`[Speaking Paper] Session Alternatives to Evaluate:`, latestAlternativesRef.current);
+    let finalText = finalHeardText;
+    if (!finalText && latestAlternativesRef.current && latestAlternativesRef.current.length > 0) {
+      finalText = latestAlternativesRef.current.join(' ');
+      latestTranscriptRef.current = finalText;
+    }
+
+    const duration = Math.max(0.5, (performance.now() - (sessionDataRef.current.startedAt || performance.now())) / 1000);
+    sessionDataRef.current.recordingDuration = duration;
+
+    console.log(`[Speaking Paper] Final Heard Text: "${finalText}"`);
+    console.log(`[Speaking Paper] Session Duration: ${duration.toFixed(2)}s | Spectral frames: ${sessionDataRef.current.spectralFrames.length}`);
 
     stopListening();
 
     const currentQ = paperQuestions[currentQIndex];
     const targetText = currentQ ? currentQ.target_text : '';
 
-    const res = evaluate6DimensionalSpeech(
-      finalHeardText, 
-      targetText, 
-      soundDetected, 
-      duration, 
-      avgVol, 
-      latestAlternativesRef.current || []
+    const prevAttempts = questionAttemptHistoryRef.current[currentQIndex] || [];
+    const res = evaluateSpeechSession(
+      sessionDataRef.current,
+      targetText,
+      finalText,
+      latestAlternativesRef.current || [],
+      prevAttempts
     );
+    questionAttemptHistoryRef.current[currentQIndex] = [...prevAttempts, res];
+
     console.log("%c[Speaking Paper] 5. Final Evaluated Result:", "color: #0284c7; font-weight: bold;", res);
     setAssessmentResult(res);
     setIsAnswered(true);
@@ -1191,7 +1864,6 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Move to next question or complete paper
   const handleNextQuestion = () => {
     playSound('click');
     stopListening();
@@ -1208,6 +1880,7 @@ export default function EnglishModule({ onExit }) {
       targetText: currentQ.target_text,
       userTranscript: userTranscript,
       accuracy: accuracy,
+      overallScore: assessmentResult?.overallScore || accuracy,
       isPassed: isPassed,
       sinhalaMeaning: currentQ.sinhala_meaning,
       phoneticHint: currentQ.phonetic_hint,
@@ -1216,7 +1889,10 @@ export default function EnglishModule({ onExit }) {
       wordResults: assessmentResult ? assessmentResult.wordResults : [],
       mtiPatterns: assessmentResult ? assessmentResult.mtiPatterns : [],
       fluency: assessmentResult ? assessmentResult.fluency : {},
+      intonation: assessmentResult ? assessmentResult.intonation : {},
       volume: assessmentResult ? assessmentResult.volume : {},
+      language: assessmentResult ? assessmentResult.language : {},
+      engagement: assessmentResult ? assessmentResult.engagement : {},
       attempts: questionAttempts
     };
 
@@ -1224,7 +1900,6 @@ export default function EnglishModule({ onExit }) {
     setHistory(updatedHistory);
 
     if (currentQIndex < 9) {
-      // Next question
       setCurrentQIndex(prev => prev + 1);
       setQuestionAttempts(1);
       setLiveTranscript('');
@@ -1235,9 +1910,7 @@ export default function EnglishModule({ onExit }) {
       latestTranscriptRef.current = '';
       latestAlternativesRef.current = [];
       soundHeardRef.current = false;
-      volumeSamplesRef.current = [];
     } else {
-      // Paper Completed (10 questions finished)
       const passedCount = updatedHistory.filter(h => h.isPassed).length;
       const finalAccuracy = Math.round((passedCount / 10) * 100);
 
@@ -1261,7 +1934,6 @@ export default function EnglishModule({ onExit }) {
     }
   };
 
-  // Retry the current question
   const handleRetryQuestion = () => {
     playSound('click');
     stopListening();
@@ -1274,10 +1946,8 @@ export default function EnglishModule({ onExit }) {
     latestTranscriptRef.current = '';
     latestAlternativesRef.current = [];
     soundHeardRef.current = false;
-    volumeSamplesRef.current = [];
   };
 
-  // ── MTI LAB SANDBOX CONTROLS ──
   const activeMtiPattern = SRI_LANKAN_MTI_PATTERNS.find(p => p.key === selectedMtiPatternKey) || SRI_LANKAN_MTI_PATTERNS[0];
   const mtiLabTargetWord = activeMtiPattern.examples[mtiLabWordIndex % activeMtiPattern.examples.length] || activeMtiPattern.examples[0];
 
@@ -1287,14 +1957,30 @@ export default function EnglishModule({ onExit }) {
     stopListening();
 
     setMtiLabResult(null);
-    setMtiLabLiveTranscript('සවන් දෙමින්...');
+    setMtiLabLiveTranscript('');
     setMtiLabListening(true);
     isListeningRef.current = true;
     latestTranscriptRef.current = '';
+    latestAlternativesRef.current = [];
+    noSpeechAttemptsRef.current = 0;
+    soundHeardRef.current = false;
+
+    sessionDataRef.current = {
+      startedAt: performance.now(),
+      firstSpeechAt: null,
+      pauseSegments: [],
+      volumeSamples: [],
+      pitchSamples: [],
+      spectralFrames: []
+    };
+    currentlySpeakingRef.current = false;
+    lastSpeechTimeRef.current = performance.now();
+    pauseStartedAtRef.current = null;
+
+    setupAudioAnalyser();
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      console.error("[MTI Lab] SpeechRecognition API not supported on this browser!");
       setMtiLabListening(false);
       isListeningRef.current = false;
       setMtiLabLiveTranscript('(Browser speech recognition not supported)');
@@ -1302,80 +1988,130 @@ export default function EnglishModule({ onExit }) {
     }
 
     try {
-      console.log("%c[MTI Lab] 2. Starting SpeechRecognition...", "color: #0284c7;");
       const reco = new SpeechRecognition();
-      reco.continuous = true;
+      reco.continuous = false;
       reco.interimResults = true;
       reco.lang = 'en-US';
-      reco.maxAlternatives = 5;
+      reco.maxAlternatives = 3;
 
-      reco.onstart = () => {
-        console.log("%c[MTI Lab] 2.1 onstart: Recognizer active and listening", "color: #059669;");
-      };
+      let autoStopTimer = setTimeout(() => {
+        if (isListeningRef.current && !latestTranscriptRef.current && !soundHeardRef.current) {
+          setMtiLabLiveTranscript('⏰ කාලය ඉකුත් විය. 🎤 නැවත ඔබන්න.');
+        }
+      }, 6000);
 
-      reco.onsoundstart = () => {
-        console.log("%c[MTI Lab] 2.2 onsoundstart: Audio energy detected", "color: #10b981;");
-        setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
-      };
+      reco.onstart = () => { noSpeechAttemptsRef.current = 0; };
+      reco.onsoundstart = () => { soundHeardRef.current = true; };
+      reco.onspeechstart = () => { soundHeardRef.current = true; };
 
-      reco.onspeechstart = () => {
-        console.log("%c[MTI Lab] 2.3 onspeechstart: Human speech detected", "color: #10b981;");
-        setMtiLabLiveTranscript('හඬ ලැබෙමින් පවතී...');
+      const finishAndEvaluate = (text, altWords = []) => {
+        if (!text || !isListeningRef.current) return;
+        if (autoStopTimer) { clearTimeout(autoStopTimer); autoStopTimer = null; }
+        if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
+        const duration = Math.max(0.5, (performance.now() - (sessionDataRef.current.startedAt || performance.now())) / 1000);
+        sessionDataRef.current.recordingDuration = duration;
+
+        const res = evaluateSpeechSession(
+          sessionDataRef.current,
+          mtiLabTargetWord,
+          text,
+          altWords.length > 0 ? altWords : (latestAlternativesRef.current || []),
+          []
+        );
+        console.log("%c[MTI Lab] 4. Evaluation Result:", "color: #0284c7; font-weight: bold;", res);
+        setMtiLabResult(res);
+        setMtiLabListening(false);
+        isListeningRef.current = false;
+        try {
+          reco.onend = null;
+          reco.stop();
+        } catch (e) {}
       };
 
       reco.onresult = (event) => {
+        soundHeardRef.current = true;
+        noSpeechAttemptsRef.current = 0;
         const { transcript, alternatives } = extractCleanEnglishTranscript(event);
-        console.log(`%c[MTI Lab] 3. onresult received -> "${transcript}"`, "background: #7c3aed; color: #fff; font-weight: bold; padding: 2px 6px; border-radius: 4px;");
 
         if (transcript) {
           latestTranscriptRef.current = transcript;
           setMtiLabLiveTranscript(transcript);
+        }
+        if (alternatives && alternatives.length > 0) {
+          latestAlternativesRef.current = Array.from(new Set([...latestAlternativesRef.current, ...alternatives]));
+        }
 
-          const res = evaluate6DimensionalSpeech(
-            transcript,
-            mtiLabTargetWord,
-            true,
-            1.5,
-            60,
-            alternatives || []
-          );
-          console.log("%c[MTI Lab] 4. Evaluation Result:", "color: #0284c7; font-weight: bold;", res);
-          setMtiLabResult(res);
-          setMtiLabListening(false);
-          isListeningRef.current = false;
+        const hasFinal = Array.from(event.results).some(r => r.isFinal);
 
-          try {
-            reco.onend = null;
-            reco.stop();
-          } catch (e) {}
+        if (transcript) {
+          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = setTimeout(() => {
+            if (isListeningRef.current && latestTranscriptRef.current) {
+              finishAndEvaluate(latestTranscriptRef.current, latestAlternativesRef.current);
+            }
+          }, 500);
+        }
+
+        if (hasFinal && !transcript && latestAlternativesRef.current.length > 0) {
+          const altText = latestAlternativesRef.current.join(' ');
+          latestTranscriptRef.current = altText;
+          setMtiLabLiveTranscript(altText);
+          setTimeout(() => {
+            if (isListeningRef.current) finishAndEvaluate(altText, latestAlternativesRef.current);
+          }, 300);
         }
       };
 
       reco.onerror = (event) => {
         console.warn(`%c[MTI Lab] ⚠️ onerror: ${event.error}`, "color: #ef4444; font-weight: bold;");
-        if (!latestTranscriptRef.current && event.error !== 'no-speech') {
-          setMtiLabLiveTranscript('(ශබ්දයක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)');
+
+        if (event.error === 'no-speech') {
+          noSpeechAttemptsRef.current++;
+          setMtiLabLiveTranscript(`🎤 සවන් දෙමින්... (නැවත කතා කරන්න)`);
+          restartRecognitionIfNeeded(reco, () => {
+            setMtiLabLiveTranscript('🎤 හඬක් හඳුනා නොගැනිණි. නැවත උත්සාහ කරන්න.');
+            setMtiLabListening(false);
+            isListeningRef.current = false;
+            try { reco.stop(); } catch (e) {}
+          });
+          return;
+        }
+
+        if (event.error === 'not-allowed') {
+          setMtiLabLiveTranscript('🎤 මයික්‍රෆෝනයට අවසර නැත.');
           setMtiLabListening(false);
           isListeningRef.current = false;
+        }
+
+        if (event.error === 'audio-capture' || event.error === 'network') {
+          setMtiLabLiveTranscript('🎤 සම්බන්ධතා ගැටළුවක්. නැවත උත්සාහ කරන්න.');
+          setTimeout(() => {
+            if (isListeningRef.current && recognitionRef.current) {
+              try { recognitionRef.current.start(); } catch (e) {}
+            }
+          }, 400);
         }
       };
 
       reco.onend = () => {
-        console.log("%c[MTI Lab] 5. onend: Session ended", "color: #64748b;");
-        if (isListeningRef.current && !latestTranscriptRef.current) {
-          try {
-            reco.start();
-            return;
-          } catch (e) {}
+        if (autoStopTimer) { clearTimeout(autoStopTimer); autoStopTimer = null; }
+        if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
+
+        const hasTranscript = Boolean(latestTranscriptRef.current && latestTranscriptRef.current.length > 0);
+
+        if (hasTranscript && isListeningRef.current) {
+          setTimeout(() => {
+            if (isListeningRef.current) finishAndEvaluate(latestTranscriptRef.current, latestAlternativesRef.current);
+          }, 200);
+          return;
         }
-        setMtiLabListening(false);
-        isListeningRef.current = false;
-        if (!latestTranscriptRef.current) {
-          setMtiLabLiveTranscript(prev =>
-            (prev === 'සවන් දෙමින්...' || prev === 'හඬ ලැබෙමින් පවතී...')
-              ? '(හඬක් හඳුනා නොගැනිණි — 🎤 නැවතත් ඔබන්න)'
-              : prev
-          );
+
+        if (isListeningRef.current && !hasTranscript) {
+          restartRecognitionIfNeeded(reco, () => {
+            setMtiLabListening(false);
+            isListeningRef.current = false;
+            setMtiLabLiveTranscript('🎤 හඬක් හඳුනා නොගැනිණි. නැවත උත්සාහ කරන්න.');
+          });
         }
       };
 
@@ -1391,6 +2127,10 @@ export default function EnglishModule({ onExit }) {
 
   const stopMtiLabRecording = () => {
     playSound('click');
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
     setMtiLabListening(false);
     isListeningRef.current = false;
     if (recognitionRef.current) {
@@ -1413,13 +2153,12 @@ export default function EnglishModule({ onExit }) {
   const hasPassedThreshold = overallReportAccuracy >= 75;
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-cover bg-center bg-fixed font-sans select-none relative overflow-x-hidden pb-16"
       style={{ backgroundImage: "url('/images/grade4_meadow_bg.jpg')" }}
     >
       <div className="max-w-4xl mx-auto relative z-10 p-4 sm:p-6">
-        
-        {/* Top Navigation */}
+
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => {
@@ -1470,7 +2209,6 @@ export default function EnglishModule({ onExit }) {
           )}
         </div>
 
-        {/* ── SCREEN 1: GRADE SELECTOR HUB ── */}
         {viewState === 'grades_hub' && (
           <div className="space-y-6 animate-fade-in">
             <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl text-center relative overflow-hidden">
@@ -1523,7 +2261,6 @@ export default function EnglishModule({ onExit }) {
           </div>
         )}
 
-        {/* ── SCREEN: DEDICATED SRI LANKAN MTI DIAGNOSTICS LAB ── */}
         {viewState === 'mti_lab' && (
           <div className="space-y-6 animate-fade-in">
             <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 border-2 border-rose-200 shadow-xl space-y-4">
@@ -1544,7 +2281,6 @@ export default function EnglishModule({ onExit }) {
                 </button>
               </div>
 
-              {/* 12 MTI Pattern Selector Grid */}
               <div className="space-y-2">
                 <span className="text-xs font-black uppercase text-slate-500 tracking-wider">
                   පරීක්ෂා කිරීමට MTI රටාවක් තෝරන්න (Select 1 of 12 Patterns):
@@ -1573,7 +2309,6 @@ export default function EnglishModule({ onExit }) {
                 </div>
               </div>
 
-              {/* Active Practice Card */}
               <div className="p-6 bg-slate-50 border-2 border-slate-200 rounded-3xl space-y-6 text-center">
                 <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-200">
                   <span className="text-xs font-black text-rose-700 bg-rose-100 px-3 py-1 rounded-full">
@@ -1584,7 +2319,6 @@ export default function EnglishModule({ onExit }) {
                   </span>
                 </div>
 
-                {/* Target Word Display */}
                 <div>
                   <h3 className="text-4xl sm:text-5xl font-black text-slate-800 tracking-wide font-sans mb-1">
                     {mtiLabTargetWord}
@@ -1594,7 +2328,6 @@ export default function EnglishModule({ onExit }) {
                   </p>
                 </div>
 
-                {/* Word Navigation */}
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   {activeMtiPattern.examples.map((w, idx) => (
                     <button
@@ -1616,7 +2349,6 @@ export default function EnglishModule({ onExit }) {
                   ))}
                 </div>
 
-                {/* Voice Controls */}
                 <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                   <button
                     onClick={() => speakEnglish(mtiLabTargetWord)}
@@ -1637,15 +2369,13 @@ export default function EnglishModule({ onExit }) {
                   </button>
                 </div>
 
-                {/* Live Transcript Stream & Analyzing Animation */}
                 {mtiLabListening && (
                   <div className="p-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-2 border-emerald-400 rounded-3xl text-emerald-900 space-y-3 animate-fade-in shadow-md relative overflow-hidden">
                     <div className="flex items-center justify-between">
                       <span className="flex items-center gap-2 text-xs font-black text-emerald-700 uppercase tracking-wider">
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping inline-block"></span>
-                        🎙️ හඬ විශ්ලේෂණය වෙමින් පවතී (Analyzing Speech...)
+                        🎙️ සජීවීව සවන් දෙමින් පවතී (Live Listening...)
                       </span>
-                      {/* Audio frequency wave visualizer */}
                       <div className="flex items-center gap-1">
                         <span className="w-1 h-5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0ms]"></span>
                         <span className="w-1 h-8 bg-teal-500 rounded-full animate-bounce [animation-delay:150ms]"></span>
@@ -1655,19 +2385,18 @@ export default function EnglishModule({ onExit }) {
                       </div>
                     </div>
 
-                    <div className="py-2">
-                      <span className="text-3xl sm:text-4xl font-black text-emerald-900 font-sans tracking-wide">
-                        "{mtiLabLiveTranscript || 'සවන් දෙමින්...'}"
+                    <div className="py-3 bg-white/90 rounded-2xl border border-emerald-200 text-center min-h-[56px] flex items-center justify-center">
+                      <span className="text-2xl sm:text-3xl font-black text-emerald-900 font-sans tracking-wide">
+                        {mtiLabLiveTranscript ? `"${mtiLabLiveTranscript}"` : '🎙️ දැන් කතා කරන්න... (Speak now)'}
                       </span>
                     </div>
 
                     <div className="text-[11px] text-emerald-700 font-bold flex items-center justify-center gap-1.5">
-                      <span className="animate-spin text-sm">⚙️</span> MTI රටා 12 සහ Phoneme සංසන්දනය වෙමින් පවතී...
+                      <span className="animate-spin text-sm">⚙️</span> සජීවී හඬ විශ්ලේෂණය සහ Phoneme සංසන්දනය...
                     </div>
                   </div>
                 )}
 
-                {/* Real-time MTI Result Display */}
                 {mtiLabResult && !mtiLabListening && (
                   <div className="p-5 bg-white border-2 border-slate-200 rounded-3xl space-y-4 text-left animate-fade-in shadow-sm">
                     <div className="flex items-center justify-between">
@@ -1689,12 +2418,34 @@ export default function EnglishModule({ onExit }) {
                       </span>
                     </div>
 
-                    {/* MTI Pattern Advice Card */}
+                    <div className="grid grid-cols-3 gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold block">Volume (ශබ්දය)</span>
+                        <span className="font-bold text-slate-700">{mtiLabResult.volume?.percent || 0}% ({mtiLabResult.volume?.status?.split(' ')[0] || 'Clear'})</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold block">Pitch (ස්වර විචලනය)</span>
+                        <span className="font-bold text-slate-700">{mtiLabResult.intonation?.pitchRange || 0} Hz ({mtiLabResult.intonation?.style?.split(' ')[0] || 'Natural'})</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-400 font-bold block">Start Delay (ආරම්භය)</span>
+                        <span className="font-bold text-slate-700">{mtiLabResult.engagement?.startDelayStatus?.split(' ')[0] || 'Quick'}</span>
+                      </div>
+                    </div>
+
                     {mtiLabResult.mtiPatterns && mtiLabResult.mtiPatterns.length > 0 ? (
                       <div className="p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1.5">
-                        <div className="text-xs font-black text-rose-900">
-                          📌 හඳුනාගත් MTI රටාව: {mtiLabResult.mtiPatterns[0].name} ({mtiLabResult.mtiPatterns[0].name_si})
+                        <div className="flex items-center justify-between text-xs font-black text-rose-900">
+                          <span>📌 හඳුනාගත් MTI රටාව: {mtiLabResult.mtiPatterns[0].name} ({mtiLabResult.mtiPatterns[0].name_si})</span>
+                          <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-rose-200">
+                            {mtiLabResult.mtiPatterns[0].target_ipa} ➔ {mtiLabResult.mtiPatterns[0].error_ipa}
+                          </span>
                         </div>
+                        {mtiLabResult.mtiPatterns[0].explanation && (
+                          <p className="text-xs text-rose-900 font-semibold">
+                            🔍 {mtiLabResult.mtiPatterns[0].explanation}
+                          </p>
+                        )}
                         <p className="text-xs text-rose-800 font-bold">
                           💡 උපදෙස: {mtiLabResult.mtiPatterns[0].pedagogical_tip_si}
                         </p>
@@ -1723,7 +2474,6 @@ export default function EnglishModule({ onExit }) {
           </div>
         )}
 
-        {/* ── SCREEN 2: 3 PAPERS HUB ── */}
         {viewState === 'papers_hub' && (
           <div className="space-y-6 animate-fade-in">
             <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl text-center relative overflow-hidden">
@@ -1750,13 +2500,13 @@ export default function EnglishModule({ onExit }) {
                   : 'දිගු වාක්‍ය සහ චතුර කථනය (MTI රටා ආවරණය)';
 
                 return (
-                  <div 
+                  <div
                     key={p.id}
                     className={`bg-white rounded-3xl p-6 border-2 transition-all duration-300 shadow-lg flex flex-col justify-between hover:shadow-2xl relative overflow-hidden ${
-                      !unlocked 
-                        ? 'opacity-75 bg-slate-50 border-slate-300' 
-                        : isCompleted 
-                        ? 'border-emerald-300 bg-emerald-50/20' 
+                      !unlocked
+                        ? 'opacity-75 bg-slate-50 border-slate-300'
+                        : isCompleted
+                        ? 'border-emerald-300 bg-emerald-50/20'
                         : 'border-slate-200 hover:-translate-y-1'
                     }`}
                   >
@@ -1804,7 +2554,7 @@ export default function EnglishModule({ onExit }) {
 
                       {!unlocked && (
                         <div className="mt-4 p-3 bg-amber-50 rounded-2xl border border-amber-200 text-[11px] font-bold text-amber-800">
-                          🔒 ප්‍රශ්න පත්‍රය 0{p.id - 1} සඳහා 75% ක් ලබාගෙන මෙය අගුළු හරින්න.
+                          🔒 ප්‍රශ්න පත්‍රය 0${p.id - 1} සඳහා 75% ක් ලබාගෙන මෙය අගුළු හරින්න.
                         </div>
                       )}
                     </div>
@@ -1843,11 +2593,9 @@ export default function EnglishModule({ onExit }) {
           </div>
         )}
 
-        {/* ── SCREEN 3: ACTIVE SPEAKING QUIZ (10 QUESTIONS) ── */}
         {viewState === 'quiz' && currentQ && (
           <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl animate-scale-up space-y-6">
-            
-            {/* Level Stepper and Progress */}
+
             <div>
               <div className="flex justify-between items-center text-xs font-black text-slate-600 mb-2">
                 <span>{activePaperConfig.levelTitle}</span>
@@ -1859,16 +2607,15 @@ export default function EnglishModule({ onExit }) {
                 </div>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
-                <div 
+                <div
                   className={`h-3 rounded-full transition-all duration-300 bg-gradient-to-r ${activePaperConfig.color}`}
                   style={{ width: `${((currentQIndex + 1) / 10) * 100}%` }}
                 ></div>
               </div>
             </div>
 
-            {/* Speaking Activity Card */}
             <div className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6 text-center">
-              
+
               <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-200">
                 <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700">
                   {selectedGrade === 2 ? '🔤 Single Word (තනි වචන)' : selectedGrade === 3 ? '📖 Short Sentence (කෙටි වාක්‍ය)' : '🎙️ Long Sentence (දිගු වාක්‍ය)'}
@@ -1878,7 +2625,6 @@ export default function EnglishModule({ onExit }) {
                 </span>
               </div>
 
-              {/* Target Prompt Display */}
               <div className="py-4">
                 <h2 className="text-2xl sm:text-4xl font-black text-slate-800 tracking-wide font-sans mb-2">
                   {currentQ.display_text}
@@ -1895,7 +2641,6 @@ export default function EnglishModule({ onExit }) {
                 )}
               </div>
 
-              {/* Interactive Audio & Mic Controls */}
               <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                 <button
                   onClick={() => speakEnglish(currentQ.target_text)}
@@ -1916,16 +2661,13 @@ export default function EnglishModule({ onExit }) {
                 </button>
               </div>
 
-              {/* Continuous Live Listening & Real-Time Animated Equalizer Bars */}
               {isListening && (
                 <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 space-y-3 animate-fade-in">
-                  
-                  {/* Real-time Hardware Audio Equalizer */}
+
                   <div className="flex flex-wrap items-center justify-center gap-3">
                     <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
                     <span className="font-bold text-sm">🎙️ සවන් දෙමින් පවතී ({recordingSeconds}s)</span>
-                    
-                    {/* Dynamic Equalizer Visualizer Bars */}
+
                     <div className="flex items-end gap-1 h-5 px-2 py-0.5 bg-white rounded-lg border border-emerald-200">
                       {[0.4, 0.8, 1.2, 0.7, 0.5].map((mult, idx) => (
                         <div
@@ -1945,96 +2687,201 @@ export default function EnglishModule({ onExit }) {
                     </span>
                   </div>
 
-                  {/* Real-time recognized text preview (Streams full sentence uninterrupted) */}
-                  {liveTranscript ? (
-                    <div className="p-3.5 bg-white rounded-2xl border-2 border-emerald-300 text-center animate-scale-up shadow-sm">
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                  <div className="p-4 bg-white rounded-2xl border-2 border-emerald-400 text-center shadow-md transition-all">
+                    <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-slate-100">
+                      <span className="text-xs font-black text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
                         ඔබ පවසන දෙය (Live Speech):
                       </span>
-                      <span className="text-xl sm:text-2xl font-black text-emerald-800 font-sans">
-                        "{liveTranscript}"
+                      <span className="text-[11px] font-bold text-slate-400">
+                        Real-time Stream
                       </span>
                     </div>
-                  ) : (
-                    <p className="text-xs text-emerald-700 font-medium">
-                      (සම්පූර්ණ වාක්‍යය ඔබේ ස්වභාවික රිද්මයෙන් කියවන්න — අවසන් වූ පසු 'අවසන් කරන්න' ඔබන්න)
-                    </p>
-                  )}
+                    <div className="min-h-[48px] flex items-center justify-center">
+                      {liveTranscript ? (
+                        <span className="text-xl sm:text-2xl font-black text-emerald-900 font-sans tracking-wide">
+                          "{liveTranscript}"
+                        </span>
+                      ) : (
+                        <span className="text-sm font-bold text-slate-400 italic animate-pulse">
+                          🎙️ දැන් කතා කරන්න... ඔබ පවසන වචන මෙතැන සජීවීව දිස්වේ (Speak now...)
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 
-              {/* ── 6-DIMENSIONAL ASSESSMENT BREAKDOWN ── */}
               {assessmentResult && !isListening && (
                 <div className="p-5 rounded-3xl bg-white border-2 border-slate-200 space-y-4 text-left animate-fade-in shadow-sm">
-                  
-                  {/* Status Banner */}
-                  <div className={`p-4 rounded-2xl border flex items-center justify-between ${
+
+                  <div className={`p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-3 ${
                     assessmentResult.pronunciationCorrect
                       ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
                       : 'bg-rose-50 border-rose-300 text-rose-900'
                   }`}>
-                    <div>
-                      <h4 className="font-black text-base">{assessmentResult.statusTitle}</h4>
-                      <p className="text-xs font-medium mt-0.5">{assessmentResult.statusMessage}</p>
+                    <div className="space-y-0.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="font-black text-base">{assessmentResult.statusTitle}</h4>
+                        {assessmentResult.engagement?.improvementPercentage > 0 && (
+                          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-600 text-white shadow-sm animate-bounce">
+                            🌟 +{assessmentResult.engagement.improvementPercentage}% දියුණුවක්!
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs font-medium">{assessmentResult.statusMessage}</p>
+                      {assessmentResult.engagement?.improvementMessage && (
+                        <p className="text-[11px] font-bold text-emerald-700">
+                          {assessmentResult.engagement.improvementMessage}
+                        </p>
+                      )}
                     </div>
-                    <span className={`text-lg font-black px-4 py-1.5 rounded-xl shadow-sm ${
-                      assessmentResult.pronunciationCorrect
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-rose-600 text-white'
-                    }`}>
-                      {assessmentResult.accuracy}%
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <span className="text-[10px] uppercase font-black tracking-wider block opacity-75">ලකුණු</span>
+                        <span className={`text-xl font-black px-4 py-1.5 rounded-xl shadow-sm inline-block ${
+                          assessmentResult.pronunciationCorrect
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-rose-600 text-white'
+                        }`}>
+                          {assessmentResult.overallScore ?? assessmentResult.accuracy}%
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* 3 Core Checkpoints */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs">
-                    
-                    {/* Step 1: Sound Check */}
-                    <div className={`p-2.5 rounded-xl border flex items-center gap-2 font-bold ${
-                      assessmentResult.soundDetected ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'
-                    }`}>
-                      <span>{assessmentResult.soundDetected ? '✓' : '✗'}</span>
-                      <span>1. ශබ්ද හඳුනා ගැනීම</span>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                        🎯 1. උච්චාරණය (Pronunciation)
+                      </span>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-base font-black text-slate-800">
+                          {assessmentResult.pronunciation?.score ?? assessmentResult.accuracy}%
+                        </span>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                          assessmentResult.pronunciation?.allWordsCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                        }`}>
+                          {assessmentResult.pronunciation?.allWordsCorrect ? '✓ Clean' : 'Practice'}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-medium text-slate-600 block">
+                        MTI දෝෂ: {assessmentResult.mtiPatterns?.length || 0}
+                      </span>
                     </div>
 
-                    {/* Step 2: Word Check */}
-                    <div className={`p-2.5 rounded-xl border flex items-center gap-2 font-bold ${
-                      assessmentResult.wordsCorrect
-                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                        : 'bg-rose-50 border-rose-200 text-rose-800'
-                    }`}>
-                      <span>{assessmentResult.wordsCorrect ? '✓' : '✗'}</span>
-                      <span>2. වචන නිරවද්‍යතාව</span>
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                        ⚡ 2. කථන වේගය (Fluency)
+                      </span>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-base font-black text-slate-800">
+                          {assessmentResult.fluency?.speakingRate || assessmentResult.fluency?.wpm || 0} <span className="text-xs font-normal">WPM</span>
+                        </span>
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                          {assessmentResult.fluency?.speedStatus?.split(' ')[0] || 'Optimal'}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-medium text-slate-600 block">
+                        විරාම: {assessmentResult.fluency?.pauseCount || 0} ({assessmentResult.fluency?.totalPauseSec || 0}s)
+                      </span>
                     </div>
 
-                    {/* Step 3: Pronunciation & MTI Check */}
-                    <div className={`p-2.5 rounded-xl border flex items-center gap-2 font-bold ${
-                      assessmentResult.pronunciationCorrect
-                        ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                        : 'bg-rose-50 border-rose-200 text-rose-800'
-                    }`}>
-                      <span>{assessmentResult.pronunciationCorrect ? '✓' : '✗'}</span>
-                      <span>3. 100% උච්චාරණ මට්ටම</span>
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                        🎵 3. ස්වර රිද්මය (Intonation)
+                      </span>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-xs font-black text-slate-800 truncate">
+                          {assessmentResult.intonation?.style?.split(' ')[0] || 'Natural'}
+                        </span>
+                        {assessmentResult.intonation?.pitchRange > 0 && (
+                          <span className="text-[10px] font-mono text-slate-500 bg-white px-1 rounded border border-slate-200">
+                            Δ{assessmentResult.intonation.pitchRange}Hz
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[11px] font-medium text-slate-600 block">
+                        {assessmentResult.intonation?.isMonotone ? '⚠️ Flat' : '✓ Dynamic'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                        🔊 4. ශබ්ද මට්ටම (Volume)
+                      </span>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-base font-black text-slate-800">
+                          {assessmentResult.volume?.percent || 0}%
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-600">
+                          (Peak: {assessmentResult.volume?.maxVolume || 0}%)
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-medium text-slate-600 block truncate">
+                        {assessmentResult.volume?.status?.split(' ')[0] || 'Clear'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                        🔤 5. වචන පිළිවෙළ (Language)
+                      </span>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-base font-black text-slate-800">
+                          {assessmentResult.language?.score ?? 100}%
+                        </span>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                          assessmentResult.language?.wordOrderError ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                        }`}>
+                          {assessmentResult.language?.wordOrderError ? '⚠️ Reorder' : '✓ Order OK'}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-medium text-slate-600 block">
+                        {assessmentResult.language?.repetitions?.length > 0 ? `නැවත කීම්: ${assessmentResult.language.repetitions.length}` : 'නැවත කීම් නැත'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
+                      <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
+                        🚀 6. විශ්වාසය & ආරම්භය (Engagement)
+                      </span>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-base font-black text-slate-800">
+                          {assessmentResult.engagement?.score ?? 90}%
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-600">
+                          උත්සාහ #{assessmentResult.engagement?.attempts || questionAttempts}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-medium text-slate-600 block truncate">
+                        {assessmentResult.engagement?.startDelayStatus?.split(' ')[0] || 'Quick Start'}
+                      </span>
                     </div>
 
                   </div>
 
-                  {/* ── SRI LANKAN MTI ERROR ADVICE CARDS ── */}
                   {assessmentResult.mtiPatterns && assessmentResult.mtiPatterns.length > 0 && (
                     <div className="space-y-2">
                       <span className="text-[11px] font-black text-rose-600 uppercase tracking-wider block">
                         ⚠️ හඳුනාගත් ශ්‍රී ලාංකික MTI උච්චාරණ රටා (Pronunciation Tips):
                       </span>
                       {assessmentResult.mtiPatterns.map((pat, idx) => (
-                        <div key={idx} className="p-3.5 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1">
+                        <div key={idx} className="p-3.5 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1.5">
                           <div className="flex items-center justify-between text-xs font-black text-rose-900">
                             <span>📌 {pat.name} ({pat.name_si})</span>
                             <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-rose-200">
                               {pat.target_ipa} ➔ {pat.error_ipa}
                             </span>
                           </div>
+                          {pat.explanation && (
+                            <p className="text-xs text-rose-900 font-semibold">
+                              🔍 {pat.explanation}
+                            </p>
+                          )}
                           <p className="text-xs text-rose-800 font-bold">
-                            💡 {pat.pedagogical_tip_si}
+                            💡 උපදෙස: {pat.pedagogical_tip_si}
                           </p>
                           <p className="text-[11px] text-slate-600 italic">
                             ({pat.pedagogical_tip})
@@ -2044,46 +2891,10 @@ export default function EnglishModule({ onExit }) {
                     </div>
                   )}
 
-                  {/* ── MULTI-DIMENSIONAL ACOUSTIC & FLUENCY METRICS ── */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs">
-                    
-                    {/* Fluency & Speed */}
-                    <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-1">
-                      <span className="text-[10px] font-black uppercase text-slate-400 block">1. කථන වේගය (Speed / WPM)</span>
-                      <p className="font-black text-slate-800 text-sm">
-                        {assessmentResult.fluency?.wpm || 0} WPM
-                      </p>
-                      <span className="text-[11px] font-bold text-emerald-700 block">
-                        {assessmentResult.fluency?.speedStatus || 'Optimal'}
-                      </span>
-                    </div>
-
-                    {/* Intonation & Rhythm */}
-                    <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-1">
-                      <span className="text-[10px] font-black uppercase text-slate-400 block">2. ස්වර රිද්මය (Intonation)</span>
-                      <p className="font-bold text-slate-800 text-xs mt-1">
-                        {assessmentResult.intonation?.style || 'Expressive'}
-                      </p>
-                    </div>
-
-                    {/* Volume & Clarity */}
-                    <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-1">
-                      <span className="text-[10px] font-black uppercase text-slate-400 block">3. ශබ්ද මට්ටම (Volume & Clarity)</span>
-                      <p className="font-black text-slate-800 text-sm">
-                        {assessmentResult.volume?.percent || 50}%
-                      </p>
-                      <span className="text-[11px] font-bold text-slate-600 block">
-                        {assessmentResult.volume?.status || 'Clear'}
-                      </span>
-                    </div>
-
-                  </div>
-
-                  {/* Word-by-Word Visual Breakdown for Sentences */}
                   {assessmentResult.wordResults && assessmentResult.wordResults.length > 1 && (
                     <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
                       <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                        වචන අනුව විශ්ලේෂණය (Word Breakdown):
+                        වචන අනුව විශ්ලේෂණය (Word-by-Word Alignment):
                       </span>
                       <div className="flex flex-wrap gap-2">
                         {assessmentResult.wordResults.map((wr, idx) => (
@@ -2103,7 +2914,6 @@ export default function EnglishModule({ onExit }) {
                     </div>
                   )}
 
-                  {/* Spoken Transcript */}
                   <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 font-bold flex flex-wrap justify-between items-center gap-2">
                     <span>ඔබ පැවසූ දෙය: <strong className="font-sans text-slate-900 text-sm">"{assessmentResult.transcript}"</strong></span>
                     <span>අපේක්ෂිත {selectedGrade === 2 ? 'වචනය' : 'වාක්‍යය'}: <strong className="font-sans text-emerald-700 text-sm">"{currentQ.target_text}"</strong></span>
@@ -2112,7 +2922,6 @@ export default function EnglishModule({ onExit }) {
                 </div>
               )}
 
-              {/* Actions */}
               <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200">
                 {isAnswered && !assessmentResult?.pronunciationCorrect ? (
                   <button
@@ -2142,10 +2951,9 @@ export default function EnglishModule({ onExit }) {
           </div>
         )}
 
-        {/* ── SCREEN 4: COMPREHENSIVE PAPER REPORT ── */}
         {viewState === 'report' && (
           <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-emerald-200 shadow-2xl space-y-8 animate-scale-up">
-            
+
             <div className="text-center pb-6 border-b border-slate-200">
               <h2 className="text-3xl font-black text-slate-800 mb-1 font-sinhala">
                 {selectedGrade} ශ්‍රේණිය — {activePaperConfig.title} වාර්තාව
@@ -2155,7 +2963,6 @@ export default function EnglishModule({ onExit }) {
               </p>
             </div>
 
-            {/* Score Metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
                 <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">100% සාර්ථක ප්‍රශ්න</p>
@@ -2173,15 +2980,14 @@ export default function EnglishModule({ onExit }) {
               </div>
             </div>
 
-            {/* Unlock Status Alert */}
             {hasPassedThreshold ? (
               <div className="p-5 bg-emerald-50 rounded-2xl border-2 border-emerald-200 flex items-center gap-4">
                 <span className="text-3xl">🎉</span>
                 <div>
                   <h4 className="font-black text-emerald-900 text-base">විශිෂ්ටයි! ඔබ 75% කට වඩා ලබා ගත්තා!</h4>
                   <p className="text-xs text-emerald-700 font-medium mt-0.5">
-                    {activePaperId < 3 
-                      ? `ඊළඟ ප්‍රශ්න පත්‍රය 0${activePaperId + 1} (${PAPERS_CONFIG[activePaperId].badge}) දැන් අගුළු හැරී ඇත.` 
+                    {activePaperId < 3
+                      ? `ඊළඟ ප්‍රශ්න පත්‍රය 0${activePaperId + 1} (${PAPERS_CONFIG[activePaperId].badge}) දැන් අගුළු හැරී ඇත.`
                       : 'ඔබ සියලුම මට්ටම් (Easy, Medium, Hard) සාර්ථකව සම්පූර්ණ කළා!'}
                   </p>
                 </div>
@@ -2198,15 +3004,14 @@ export default function EnglishModule({ onExit }) {
               </div>
             )}
 
-            {/* Detailed Question Review */}
             <div>
               <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
                 <span>📋</span> ප්‍රශ්න 10 සමාලෝචනය
               </h3>
               <div className="space-y-3">
                 {history.map((h, idx) => (
-                  <div 
-                    key={idx} 
+                  <div
+                    key={idx}
                     className={`p-4 rounded-2xl border-2 ${
                       h.isPassed ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'
                     }`}
@@ -2218,13 +3023,13 @@ export default function EnglishModule({ onExit }) {
                       <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${
                         h.isPassed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                       }`}>
-                        {h.accuracy}% {h.isPassed ? '✓ Passed (100%)' : '✗ Needs Practice'}
+                        {h.overallScore || h.accuracy}% {h.isPassed ? '✓ Passed (100%)' : '✗ Practice'}
                       </span>
                     </div>
                     <p className="text-xs text-slate-600 font-bold">
                       ඔබ පැවසූ දෙය: <span className="font-sans text-slate-800">"{h.userTranscript}"</span>
                     </p>
-                    
+
                     {h.mtiPatterns && h.mtiPatterns.length > 0 && (
                       <div className="mt-2 p-2 bg-white rounded-xl border border-rose-200 text-xs text-rose-800 font-bold">
                         ⚠️ MTI රටා: {h.mtiPatterns.map(p => p.name_si).join(', ')}
@@ -2232,20 +3037,25 @@ export default function EnglishModule({ onExit }) {
                     )}
 
                     <div className="flex flex-wrap items-center gap-2 mt-2 pt-2 border-t border-slate-200 text-[11px] font-bold text-slate-500">
-                      <span>1. Sound: {h.soundDetected ? '✓' : '✗'}</span>
+                      <span>🎯 Words: {h.wordsCorrect ? '✓ Clean' : 'Practice'}</span>
                       <span>•</span>
-                      <span>2. Word: {h.wordsCorrect ? '✓' : '✗'}</span>
+                      <span>⚡ Speed: {h.fluency?.speakingRate || h.fluency?.wpm || 0} WPM</span>
                       <span>•</span>
-                      <span>3. Speed: {h.fluency?.wpm || 0} WPM</span>
+                      <span>🎵 Pitch: {h.intonation?.style?.split(' ')[0] || 'Natural'}</span>
                       <span>•</span>
-                      <span>4. Volume: {h.volume?.percent || 50}%</span>
+                      <span>🔊 Vol: {h.volume?.percent || 0}%</span>
+                      {h.attempts > 1 && (
+                        <>
+                          <span>•</span>
+                          <span className="text-emerald-700 font-black">උත්සාහ #{h.attempts}</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-200">
               <button
                 onClick={() => handleStartPaper(activePaperId)}
@@ -2253,8 +3063,8 @@ export default function EnglishModule({ onExit }) {
               >
                 🔄 නැවත කරන්න (ප්‍රශ්න පත්‍රය 0{activePaperId})
               </button>
-              
-              {hasPassedThreshold && activePaperId < 3 && (
+
+              {activePaperId < 3 && (
                 <button
                   onClick={() => handleStartPaper(activePaperId + 1)}
                   className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-3.5 px-6 rounded-2xl shadow-md transition-all cursor-pointer text-center"

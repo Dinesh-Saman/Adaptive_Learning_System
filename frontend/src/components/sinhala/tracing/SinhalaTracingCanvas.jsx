@@ -58,7 +58,7 @@ export default function SinhalaTracingCanvas({
   const displayText = guideText || targetText || targetCharacter || 'ක';
   const isInputLocked = isReadOnly || isConfirmed || !isOptionSelected;
 
-  // ── Render 3 Ruled Lines and Crisp Dotted Sinhala Glyph ──
+  // ── Render 4 Ruled Lines and Dashed Hollow Sinhala Tracing Glyph ──
   const drawGuide = useCallback(() => {
     const canvas = guideCanvasRef.current;
     if (!canvas) return;
@@ -71,8 +71,8 @@ export default function SinhalaTracingCanvas({
     // 1. Determine font size
     const isSingleChar = displayText.length === 1;
     const fontSize = isSingleChar 
-      ? Math.round(height * 0.65) 
-      : (displayText.length <= 2 ? Math.round(height * 0.54) : Math.round(height * 0.42));
+      ? Math.round(height * 0.58) 
+      : (displayText.length <= 2 ? Math.round(height * 0.48) : Math.round(height * 0.38));
 
     ctx.font = `600 ${fontSize}px "Noto Sans Sinhala", "Iskoola Pota", "Nirmala UI", sans-serif`;
     ctx.textAlign = 'center';
@@ -83,54 +83,71 @@ export default function SinhalaTracingCanvas({
     // 2. Extract Base Consonant to define the consonant body bounds
     const baseChar = displayText.replace(/[ුූ්]/g, '').charAt(0) || 'ක';
 
-    // Place baseline at 68% of canvas height so papili ('ු', 'ූ') has ample descender space below
-    const yBase = Math.round(height * 0.68);
+    // Place baseline at 76% of canvas height so ascenders and descenders fit perfectly
+    const yBase = Math.round(height * 0.76);
 
     // Measure height of base consonant body
     const refMetrics = ctx.measureText(baseChar);
-    const consonantAscent = refMetrics.actualBoundingBoxAscent || Math.round(fontSize * 0.58);
+    const consonantAscent = refMetrics.actualBoundingBoxAscent || Math.round(fontSize * 0.56);
 
-    // Line 1 (Top Line): Touches top of the consonant body
-    const yTop = Math.round(yBase - consonantAscent);
-    // Line 2 (Middle Line): Center waistline of the consonant body
-    const yMiddle = Math.round((yTop + yBase) / 2);
+    // 4 Ruled Lines Calculation (හතර රූල් - 4-Line Primary Writing Book Standard)
+    // Equal vertical spacing between the 4 ruled lines
+    const lineSpacing = Math.round(consonantAscent * 0.5);
+    const yLine4 = yBase; // Line 4: Baseline
+    const yLine3 = Math.round(yBase - lineSpacing); // Line 3: Lower Midline
+    const yLine2 = Math.round(yBase - lineSpacing * 2); // Line 2: Upper Headline
+    const yLine1 = Math.round(yBase - lineSpacing * 3); // Line 1: Top Ascender Line
 
-    // 3. Draw 3 Horizontal Primary Ruled Lines (තුන් රූල්)
-    // Line 1: Top Guide Line (touches top arch of consonant body)
+    // 3. Draw 4 Horizontal Primary Ruled Lines (හතර රූල්)
+    // Line 1: Top Ascender Line (Sky Blue 1.5px)
     ctx.strokeStyle = '#38BDF8';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(8, yTop);
-    ctx.lineTo(width - 8, yTop);
+    ctx.moveTo(0, yLine1);
+    ctx.lineTo(width, yLine1);
     ctx.stroke();
 
-    // Line 2: Middle Guide Line (center waist of consonant body)
+    // Line 2: Upper Guideline / Top of Consonant Body (Sky Blue 1.5px)
     ctx.strokeStyle = '#38BDF8';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(8, yMiddle);
-    ctx.lineTo(width - 8, yMiddle);
+    ctx.moveTo(0, yLine2);
+    ctx.lineTo(width, yLine2);
     ctx.stroke();
 
-    // Line 3: Baseline (bottom sitting line of consonant body - Darker Blue 2.2px)
+    // Line 3: Middle Guideline / Waistline of Consonant Body (Sky Blue 1.5px)
+    ctx.strokeStyle = '#38BDF8';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, yLine3);
+    ctx.lineTo(width, yLine3);
+    ctx.stroke();
+
+    // Line 4: Baseline (Darker Solid Blue 2.4px)
     ctx.strokeStyle = '#0284C7';
-    ctx.lineWidth = 2.2;
+    ctx.lineWidth = 2.4;
     ctx.beginPath();
-    ctx.moveTo(8, yBase);
-    ctx.lineTo(width - 8, yBase);
+    ctx.moveTo(0, yLine4);
+    ctx.lineTo(width, yLine4);
     ctx.stroke();
 
-    // 4. Render Target Text Sitting on Baseline (yBase)
-    // Soft Clear Ghost Letter Body
-    ctx.fillStyle = 'rgba(226, 232, 240, 0.85)';
+    // 4. Render Letter Glyph with Hollow Dashed Tunnel + Centerline Guideline
+    // Layer A: Soft light blue-gray ghost body fill
+    ctx.fillStyle = 'rgba(224, 231, 255, 0.75)';
     ctx.fillText(displayText, centerX, yBase);
 
-    // Crisp Circular Dotted Outline
+    // Layer B: Outer Dashed Border Outline
     ctx.strokeStyle = '#334155';
-    ctx.lineWidth = 2.0;
-    ctx.setLineDash([4, 6]);
+    ctx.lineWidth = 2.4;
+    ctx.setLineDash([5, 4]);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    ctx.strokeText(displayText, centerX, yBase);
+
+    // Layer C: Fine Inner Center Dashed Spine Guideline
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.0;
+    ctx.setLineDash([3, 4]);
     ctx.strokeText(displayText, centerX, yBase);
     ctx.setLineDash([]);
   }, [displayText]);
@@ -476,11 +493,11 @@ export default function SinhalaTracingCanvas({
             <Pencil className="w-4 h-4" />
           </span>
           <div>
-            <h4 className="text-xs font-black text-slate-800">
-              තුන් රූල් අතර නිවැරදිව ලියන්න (3-Line Primary Ruled Tracing)
+            <h4 className="text-xs md:text-sm font-black text-slate-800 whitespace-nowrap">
+              හතර රූල් අතර නිවැරදිව ලියන්න
             </h4>
             <p className="text-[11px] text-slate-500">
-              ඉලක්කය: <span className="font-black text-indigo-700 text-base">“{displayText}”</span> | Threshold: <span className="font-bold text-slate-700">{passThreshold}%</span>
+              ඉලක්කය: <span className="font-black text-indigo-700 text-base">“{displayText}”</span>
             </p>
           </div>
         </div>
@@ -517,7 +534,7 @@ export default function SinhalaTracingCanvas({
         )}
       </div>
 
-      {/* 3-Line Ruled Canvas Container (තුන් රූල්) */}
+      {/* 4-Line Ruled Canvas Container (හතර රූල්) */}
       <div className={`relative w-full max-w-[420px] h-[220px] bg-white rounded-2xl border-2 overflow-hidden shadow-inner touch-none ${
         isConfirmed 
           ? 'border-indigo-300 bg-slate-50/50 cursor-not-allowed' 
@@ -548,13 +565,11 @@ export default function SinhalaTracingCanvas({
           className={`absolute inset-0 w-full h-full ${!isOptionSelected ? 'pointer-events-none' : ''}`}
         />
 
-
-
         {/* Lock Overlay when Confirmed */}
         {isConfirmed && (
           <div className="absolute top-2 right-2 bg-indigo-900/80 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 backdrop-blur-xs pointer-events-none shadow-xs">
             <Lock className="w-3 h-3 text-amber-300" />
-            ස්ථිරයි (Locked)
+            ස්ථිරයි
           </div>
         )}
       </div>
@@ -663,7 +678,7 @@ export default function SinhalaTracingCanvas({
               className="px-4 py-1.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-slate-300 disabled:to-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-black text-xs shadow-xs hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
-              ස්ථිර කරන්න (Confirm)
+              ස්ථිර කරන්න
             </button>
           ) : (
             <div className="px-3.5 py-1.5 bg-slate-100 text-slate-600 border border-slate-200 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-2xs">

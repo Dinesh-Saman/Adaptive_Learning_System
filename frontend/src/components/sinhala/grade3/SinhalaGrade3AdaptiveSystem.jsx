@@ -200,7 +200,7 @@ export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 pt-8">
+      <main className={`mx-auto px-4 ${viewMode === 'test' ? 'max-w-5xl pt-2 pb-4' : 'max-w-5xl pt-8 pb-16'}`}>
 
         {/* ══════════════════════════════════════════════════════════════
             VIEW 1: ROADMAP / PAPERS OVERVIEW
@@ -234,9 +234,6 @@ export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
                         ? Math.round(Object.values(session.paperHistory).reduce((acc, p) => acc + p.percentage, 0) / session.completedPapers.length) + '%'
                         : '0%'}
                     </span>
-                  </div>
-                  <div className="bg-white/15 backdrop-blur-sm px-4 py-2 rounded-2xl border border-white/20 text-xs font-bold">
-                    🚫 නැවත නොඇසීමේ නියමය: <span className="text-purple-200">100% Unique Questions</span>
                   </div>
                 </div>
               </div>
@@ -414,21 +411,22 @@ export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
         )}
 
         {/* ══════════════════════════════════════════════════════════════
-            VIEW 2: ACTIVE QUESTION TEST VIEW (20 QUESTIONS)
+            VIEW 2: ACTIVE QUESTION TEST VIEW (COMPACT NO-SCROLL LAYOUT)
            ══════════════════════════════════════════════════════════════ */}
         {viewMode === 'test' && currentQ && (
-          <div className="space-y-6 max-w-3xl mx-auto animate-fade-in">
-            <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 flex items-center justify-between">
+          <div className="space-y-3 max-w-4xl mx-auto animate-fade-in">
+            {/* Top Status Header */}
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl py-2.5 px-4 shadow-sm border border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="bg-purple-600 text-white text-xs font-black px-3.5 py-1.5 rounded-2xl">
+                <span className="bg-purple-600 text-white text-xs font-black px-3 py-1 rounded-xl">
                   Paper {activePaperNumber}
                 </span>
-                <span className="text-sm font-bold text-slate-500">
+                <span className="text-xs md:text-sm font-bold text-slate-600">
                   ප්‍රශ්නය {currentQIndex + 1} / {currentQuestions.length}
                 </span>
               </div>
 
-              <div className="w-40 md:w-64 h-3 bg-slate-100 rounded-full overflow-hidden">
+              <div className="w-32 md:w-56 h-2.5 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-300"
                   style={{ width: `${((currentQIndex + 1) / currentQuestions.length) * 100}%` }}
@@ -437,70 +435,128 @@ export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
 
               <button
                 onClick={() => setViewMode('overview')}
-                className="text-xs font-bold text-slate-400 hover:text-slate-600"
+                className="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 පසුව කරන්න
               </button>
             </div>
 
-            <div className="bg-white rounded-[2.5rem] p-6 md:p-10 shadow-lg border border-purple-50 relative overflow-hidden">
-              <div className="flex items-center justify-between mb-6">
-                <span className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-800 text-xs font-black px-3.5 py-1.5 rounded-full border border-purple-200">
+            {/* Question Card */}
+            <div className="bg-white rounded-3xl p-4 md:p-6 shadow-md border border-purple-50 relative overflow-hidden">
+              <div className="flex items-center justify-between mb-3">
+                <span className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-800 text-xs font-black px-3 py-1 rounded-full border border-purple-200">
                   <span>{GRADE3_SINHALA_CATEGORIES[currentQ.category]?.icon}</span>
                   <span>{GRADE3_SINHALA_CATEGORIES[currentQ.category]?.name}</span>
                 </span>
 
                 <button
                   onClick={() => speakSinhala(currentQ.audioPrompt || currentQ.prompt)}
-                  className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-1.5 rounded-2xl text-xs font-bold transition-all"
+                  className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer"
                 >
-                  <Volume2 className="w-4 h-4 text-purple-600" />
+                  <Volume2 className="w-3.5 h-3.5 text-purple-600" />
                   හඬින් අසන්න
                 </button>
               </div>
 
-              <div className="mb-8">
-                <h3 className="text-xl md:text-2xl font-black text-slate-800 leading-snug">
-                  {currentQ.prompt}
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {currentQ.options.map((opt, idx) => {
-                  const isSelected = userAnswers[currentQ.id] === opt;
-
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => handleSelectAnswer(currentQ.id, opt)}
-                      className={`p-4 rounded-2xl font-bold text-left transition-all flex items-center justify-between border-2 ${
-                        isSelected
-                          ? 'bg-purple-50 border-purple-500 text-purple-950 shadow-md transform scale-[1.02]'
-                          : 'bg-slate-50 border-slate-200 hover:border-purple-300 text-slate-700'
-                      }`}
-                    >
-                      <span className="text-base">{opt}</span>
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 ${
-                        isSelected
-                          ? 'border-purple-500 bg-purple-500 text-white'
-                          : 'border-slate-300'
-                      }`}>
-                        {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+              {currentQ.passage ? (
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-2">
+                  <div className="md:col-span-6 p-3.5 md:p-4 bg-amber-50/90 border border-amber-200 rounded-2xl text-slate-800 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="font-extrabold text-amber-900 text-xs flex items-center gap-1">
+                          <span>📖</span> ඡේදය කියවන්න:
+                        </span>
+                        <button
+                          onClick={() => speakSinhala(currentQ.passage)}
+                          className="text-[10px] font-bold text-amber-800 hover:text-amber-950 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-lg transition-all flex items-center gap-1 cursor-pointer"
+                        >
+                          <Volume2 className="w-3 h-3" />
+                          ඡේදය අසන්න
+                        </button>
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
+                      <p className="font-medium text-slate-800 leading-relaxed text-sm md:text-[15px]">{currentQ.passage}</p>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-6 flex flex-col justify-between space-y-2.5">
+                    <h3 className="text-base md:text-lg font-black text-slate-800 leading-snug">
+                      {currentQ.prompt}
+                    </h3>
+                    <div className="grid grid-cols-1 gap-2">
+                      {currentQ.options.map((opt, idx) => {
+                        const isSelected = userAnswers[currentQ.id] === opt;
+
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => handleSelectAnswer(currentQ.id, opt)}
+                            className={`p-2.5 md:p-3 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer ${
+                              isSelected
+                                ? 'bg-purple-50 border-purple-500 text-purple-950 shadow-xs transform scale-[1.01]'
+                                : 'bg-slate-50 border-slate-200 hover:border-purple-300 text-slate-700'
+                            }`}
+                          >
+                            <span className="text-sm md:text-base">{opt}</span>
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${
+                              isSelected
+                                ? 'border-purple-500 bg-purple-500 text-white'
+                                : 'border-slate-300'
+                            }`}>
+                              {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="mb-4">
+                    <h3 className="text-lg md:text-xl font-black text-slate-800 leading-snug">
+                      {currentQ.prompt}
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {currentQ.options.map((opt, idx) => {
+                      const isSelected = userAnswers[currentQ.id] === opt;
+
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => handleSelectAnswer(currentQ.id, opt)}
+                          className={`p-3 md:p-3.5 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer ${
+                            isSelected
+                              ? 'bg-purple-50 border-purple-500 text-purple-950 shadow-xs transform scale-[1.01]'
+                              : 'bg-slate-50 border-slate-200 hover:border-purple-300 text-slate-700'
+                          }`}
+                        >
+                          <span className="text-base">{opt}</span>
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${
+                            isSelected
+                              ? 'border-purple-500 bg-purple-500 text-white'
+                              : 'border-slate-300'
+                          }`}>
+                            {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center justify-between pt-2">
+            {/* Bottom Actions */}
+            <div className="flex items-center justify-between pt-1">
               <button
                 disabled={currentQIndex === 0}
                 onClick={() => {
                   playSound('click');
                   setCurrentQIndex(prev => prev - 1);
                 }}
-                className="px-5 py-3 rounded-2xl font-bold text-sm bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                className="px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 පෙර ප්‍රශ්නය
@@ -514,7 +570,7 @@ export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
                     const nextQ = currentQuestions[currentQIndex + 1];
                     if (nextQ) speakSinhala(nextQ.audioPrompt || nextQ.prompt);
                   }}
-                  className="px-6 py-3.5 bg-purple-700 hover:bg-purple-800 text-white rounded-2xl font-black text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+                  className="px-5 py-2.5 bg-purple-700 hover:bg-purple-800 text-white rounded-xl font-black text-xs md:text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   ඊළඟ ප්‍රශ්නය
                   <ArrowRight className="w-4 h-4" />
@@ -522,9 +578,9 @@ export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
               ) : (
                 <button
                   onClick={handleSubmitTest}
-                  className="px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-2xl font-black text-base shadow-xl transform hover:scale-105 transition-all flex items-center gap-2"
+                  className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-black text-sm shadow-md transform hover:scale-102 transition-all flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Trophy className="w-5 h-5" />
+                  <Trophy className="w-4 h-4" />
                   ප්‍රශ්න පත්‍රය අවසන් කරන්න ➔
                 </button>
               )}
@@ -641,6 +697,11 @@ export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
                             {item.category}: {GRADE3_SINHALA_CATEGORIES[item.category]?.name}
                           </span>
                         </div>
+                        {item.passage && (
+                          <div className="mt-1.5 p-2.5 bg-amber-50/80 border border-amber-200 rounded-xl text-xs text-slate-700 leading-relaxed">
+                            <span className="font-bold text-amber-800">📖 ඡේදය:</span> {item.passage}
+                          </div>
+                        )}
                         <p className="font-extrabold text-slate-900 text-sm mt-1">{item.prompt}</p>
                         {item.explanation && (
                           <p className="text-xs text-slate-500 font-medium mt-1">💡 {item.explanation}</p>
