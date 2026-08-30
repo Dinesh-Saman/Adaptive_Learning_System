@@ -26,157 +26,160 @@ const SRI_LANKAN_MTI_PATTERNS = [
     id: 1,
     key: 'S_CLUSTER_PROSTHESIS',
     name: 'S-Cluster Prosthesis',
-    name_si: "වචන මුලට 'ඉ' ශබ්දය එකතු කිරීම (I-school)",
+    name_si: "Adding initial 'I' sound (e.g. I-school / is-school)",
     target_ipa: '/skuːl/',
     error_ipa: '/ɪskuːl/ or /iskul/',
     examples: ['school', 'spoon', 'station', 'study', 'speak', 'star', 'stop', 'spring'],
     pedagogical_tip: "Start immediately with the hissing 'sss' sound without adding an 'is-' in front (say 'sss-chool', not 'is-school').",
-    pedagogical_tip_si: "වචනය ආරම්භයේදී 'ඉස්' (Is-) වෙනුවට 'ස්ස්' (sss-) ශබ්දයෙන් කෙලින්ම ආරම්භ කරන්න."
+    pedagogical_tip_si: "Start directly with the hissing 'sss' sound without adding an 'is-' in front (say 'sss-chool', not 'is-school')."
   },
   {
     id: 2,
     key: 'V_W_MERGER',
     name: 'V/W Merger',
-    name_si: 'V සහ W ශබ්ද පටලවා ගැනීම (Wery / Vindow)',
+    name_si: 'Confusing V and W sounds (Wery / Vindow)',
     target_ipa: '/ˈveri/',
     error_ipa: '/ˈweri/',
     examples: ['very', 'water', 'win', 'view', 'van', 'window', 'voice', 'village'],
     pedagogical_tip: "For 'W', round your lips forward into a circle ('O'). For 'V', touch your top front teeth gently to your lower lip.",
-    pedagogical_tip_si: "'W' අකුරට තොල් රවුම් කරන්න. 'V' අකුරට උඩු දත් යටි තොල මත තබා කතා කරන්න."
+    pedagogical_tip_si: "For 'W', round your lips forward. For 'V', touch your top front teeth to your lower lip."
   },
   {
     id: 3,
     key: 'TH_SUBSTITUTION',
     name: 'TH Substitution (TH → T/D)',
-    name_si: 'TH ශබ්දය වෙනුවට T/D භාවිතය (Tree for Three)',
+    name_si: 'Substituting T/D for TH (Tree for Three)',
     target_ipa: '/θriː/',
     error_ipa: '/triː/',
     examples: ['three', 'think', 'this', 'that', 'there', 'the', 'mother', 'father'],
     pedagogical_tip: "Put the tip of your tongue gently between your front teeth and blow air gently to produce the soft 'TH' sound.",
-    pedagogical_tip_si: "දිව දත් දෙක අතර මඳක් තබා වාතය පිටකරමින් මෘදු 'TH' ශබ්දය උච්චාරණය කරන්න."
+    pedagogical_tip_si: "Place the tip of your tongue between your teeth and blow air gently to produce 'TH'."
   },
   {
     id: 4,
     key: 'F_P_SUBSTITUTION',
     name: 'F/P Substitution',
-    name_si: 'F වෙනුවට P ශබ්දය භාවිතය (Pan for Fan)',
+    name_si: 'Substituting P for F (Pan for Fan)',
     target_ipa: '/fæn/',
     error_ipa: '/pæn/',
     examples: ['fan', 'film', 'food', 'elephant', 'fish', 'feather', 'four', 'fast'],
     pedagogical_tip: "Gently place upper teeth on lower lip and blow air for 'F', rather than pressing both lips together like 'P'.",
-    pedagogical_tip_si: "'F' ශබ්දයට උඩු දත් යටි තොල මත තබා හුළං පිඹින්න (තොල් දෙකම එකතු කර 'P' ශබ්දය නොගන්න)."
+    pedagogical_tip_si: "Place upper teeth on lower lip and blow air for 'F'; do not press both lips together."
   },
   {
     id: 5,
     key: 'PARAGOGE',
     name: 'Paragoge (Ending Vowel Addition)',
-    name_si: 'වචන අගට අනවශ්‍ය ස්වර එකතු කිරීම (Busa / Milka)',
+    name_si: 'Adding extra vowel at word end (Busa / Milka)',
     target_ipa: '/bʌs/',
     error_ipa: '/bʌsə/ or /busa/',
     examples: ['bus', 'milk', 'book', 'good', 'cake', 'stamp', 'park', 'pen'],
     pedagogical_tip: "Stop your voice cleanly at the final consonant without adding an extra '-a' sound at the end.",
-    pedagogical_tip_si: "වචනය අවසානයේ අනවශ්‍ය 'අ' හෝ 'උ' ශබ්දයක් (උදා: බස්-අ) එකතු නොකර වචනය පිරිසිදුව අවසන් කරන්න."
+    pedagogical_tip_si: "Stop your voice cleanly at the ending consonant without adding an extra '-a' sound."
   },
   {
     id: 6,
     key: 'FINAL_CONSONANT_WEAKENING',
     name: 'Final Consonant Weakening',
-    name_si: 'අවසාන ව්‍යංජන ශබ්දය අතහැරීම (Bu for But)',
+    name_si: 'Dropping final consonant sound (Bu for But)',
     target_ipa: '/bʌt/',
     error_ipa: '/bʌ/',
     examples: ['but', 'good', 'that', 'friend', 'cat', 'hand', 'red', 'bird'],
     pedagogical_tip: "Make sure to clearly pronounce the ending consonant sound (like 't', 'd', 'k') at the end of the word.",
-    pedagogical_tip_si: "වචනයේ අග ඇති 't', 'd', 'k' වැනි අවසන් අකුරු ශබ්දය පැහැදිලිව ප්‍රකාශ කරන්න."
+    pedagogical_tip_si: "Clearly pronounce the final consonant sound (such as 't', 'd', 'k') at the end."
   },
   {
     id: 7,
     key: 'CLUSTER_SIMPLIFICATION',
     name: 'Consonant Cluster Simplification',
-    name_si: 'බැඳි අකුරු සරල කර පැවසීම (Neks for Next)',
+    name_si: 'Dropping consonant cluster sounds (Neks for Next)',
     target_ipa: '/nekst/',
     error_ipa: '/neks/',
     examples: ['next', 'friend', 'stamp', 'product', 'desk', 'fast', 'best', 'plant'],
     pedagogical_tip: "Clearly pronounce all consonant sounds in the cluster (e.g. pronounce both the 's' and 't' in 'next').",
-    pedagogical_tip_si: "වචන අග ඇති සියලුම බැඳි අකුරු ශබ්ද (උදා: 'next' හි s සහ t) සම්පූර්ණයෙන් පවසන්න."
+    pedagogical_tip_si: "Pronounce all consonant sounds in the cluster (e.g. both 's' and 't' in 'next')."
   },
   {
     id: 8,
     key: 'VOWEL_LENGTH_CONFUSION',
     name: 'Short/Long Vowel Confusion',
-    name_si: 'දිගු සහ කෙටි ස්වර පටලවා ගැනීම (Kek for Cake)',
+    name_si: 'Confusing short and long vowels (Kek for Cake)',
     target_ipa: '/keɪk/',
     error_ipa: '/kek/',
     examples: ['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit'],
     pedagogical_tip: "Elongate the diphthong vowel cleanly (say 'kay-eek' for cake, rather than a short 'kek').",
-    pedagogical_tip_si: "දිගු ස්වර ශබ්ද (Diphthongs) ප්‍රමාණවත් ලෙස ඇද උච්චාරණය කරන්න."
+    pedagogical_tip_si: "Elongate long vowels and diphthongs cleanly."
   },
   {
     id: 9,
     key: 'INITIAL_H_DELETION',
     name: 'Initial H Dropping',
-    name_si: "'H' ශබ්දය අතහැරීම (Ouse for House)",
+    name_si: "Dropping initial 'H' sound (Ouse for House)",
     target_ipa: '/haʊs/',
     error_ipa: '/aʊs/',
     examples: ['house', 'happy', 'hello', 'hand', 'hot', 'hat', 'hear', 'help'],
     pedagogical_tip: "Breathe out gently like a sigh ('hhh') before starting the vowel in words starting with 'H'.",
-    pedagogical_tip_si: "'H' අකුරෙන් පටන් ගන්නා වචන වලදී ආරම්භයේදීම 'හ්' (hhh) හුස්ම පිටකරමින් ශබ්ද කරන්න."
+    pedagogical_tip_si: "Breathe out gently with an 'hhh' sound before the vowel in words starting with 'H'."
   },
   {
     id: 10,
     key: 'Z_S_CONFUSION',
     name: 'Z/S Voicing Confusion',
-    name_si: 'Z සහ S ශබ්ද පටලවා ගැනීම (Busi for Busy)',
+    name_si: 'Confusing Z and S sounds (Busi for Busy)',
     target_ipa: '/zuː/',
     error_ipa: '/suː/',
     examples: ['zoo', 'busy', 'please', 'zero', 'zebra', 'music', 'noise', 'rose'],
     pedagogical_tip: "Vibrate your vocal cords (buzz like a bee: 'zzz') when pronouncing 'Z' sounds.",
-    pedagogical_tip_si: "'Z' ශබ්දය පැවසීමේදී උගුරේ කම්පනයක් (මී මැස්සෙකුගේ නාදය: zzz) ඇති කරමින් ශබ්ද කරන්න."
+    pedagogical_tip_si: "Vibrate your vocal cords with a buzzing 'zzz' sound for 'Z'."
   },
   {
     id: 11,
     key: 'BACK_VOWEL_CONFUSION',
     name: 'Back Vowel Confusion',
-    name_si: 'පසුපස ස්වර පටලවා ගැනීම (Hol for Hall / Kap for Cup)',
+    name_si: 'Confusing back vowels (Hol for Hall / Kap for Cup)',
     target_ipa: '/hɔːl/',
     error_ipa: '/hɒl/ or /hol/',
     examples: ['hall', 'hot', 'cup', 'bus', 'ball', 'call', 'walk', 'tall'],
     pedagogical_tip: "Open your mouth taller and drop your jaw to produce the deep back vowel '/ɔː/' sound.",
-    pedagogical_tip_si: "කට හොඳින් විවෘත කර නිවැරදි ගැඹුරු ස්වර ශබ්දය ලබාගන්න."
+    pedagogical_tip_si: "Open mouth wider and drop jaw for the deep back vowel sound."
   },
   {
     id: 12,
     key: 'STRESS_RHYTHM_DEVIATION',
     name: 'Equal Stress / Syllable-Timed Rhythm',
-    name_si: 'ඒකාකාරී රොබෝ රිද්මය (Equal Stress / Flat Rhythm)',
+    name_si: 'Monotone flat rhythm without natural English stress',
     target_ipa: '/kəmˈpjuːtər/',
     error_ipa: '/kompjuˈter/ (equal stress)',
     examples: ['computer', 'banana', 'tomorrow', 'beautiful', 'together', 'umbrella'],
     pedagogical_tip: "English is stress-timed! Put strong emphasis on the stressed syllable and say unstressed syllables quickly and lightly.",
-    pedagogical_tip_si: "ඉංග්‍රීසි භාෂාවේ ප්‍රධාන අක්ෂරයට වැඩි බරක් දී (Stress), අනෙක් අක්ෂර සැහැල්ලුවෙන් උච්චාරණය කරන්න."
+    pedagogical_tip_si: "Emphasize stressed syllables and pronounce unstressed syllables lightly."
   }
 ];
 
 const PAPERS_CONFIG = [
   {
     id: 1,
-    title: 'ප්‍රශ්න පත්‍රය 01 (Paper 01)',
-    badge: 'ප්‍රශ්න 10 • Paper 01',
+    title: 'Paper 01 (Baseline Assessment)',
+    badge: '10 Questions • Paper 01',
+    levelTitle: 'Paper 01: Baseline Speaking & Pronunciation',
     icon: '📝',
     color: 'from-emerald-500 to-teal-600',
     borderColor: 'border-emerald-300'
   },
   {
     id: 2,
-    title: 'ප්‍රශ්න පත්‍රය 02 (Paper 02)',
-    badge: 'ප්‍රශ්න 10 • Paper 02',
+    title: 'Paper 02 (Adaptive Speaking)',
+    badge: '10 Questions • Paper 02',
+    levelTitle: 'Paper 02: Adaptive Fluency & MTI Evaluation',
     icon: '📖',
     color: 'from-blue-500 to-indigo-600',
     borderColor: 'border-blue-300'
   },
   {
     id: 3,
-    title: 'ප්‍රශ්න පත්‍රය 03 (Paper 03)',
-    badge: 'ප්‍රශ්න 10 • Paper 03',
+    title: 'Paper 03 (Mastery Assessment)',
+    badge: '10 Questions • Paper 03',
+    levelTitle: 'Paper 03: Mastery & Expressive Speech',
     icon: '🎙️',
     color: 'from-purple-500 to-pink-600',
     borderColor: 'border-purple-300'
@@ -526,10 +529,21 @@ export function detectTextMTIErrors(targetWord, spokenWord) {
   const sw = spokenWord.toLowerCase().replace(/[^a-z0-9]/g, '');
   if (!tw || !sw || tw === sw) return null;
 
-  // ── 1. S-Cluster Prosthesis (school -> ischool / eschool) ──
-  if ((/^s[cptkmnr]/.test(tw) || /^s[lw]/.test(tw)) &&
-      (sw === 'i' + tw || sw === 'e' + tw || sw === 'is' + tw.slice(1) || sw === 'es' + tw.slice(1))) {
-    return mkPattern(1, tw, sw, `Spoken text shows '${sw}' with an initial prosthesis vowel added before '${tw}'.`);
+  // ── 1. S-Cluster Prosthesis (e.g. school -> ischool / eschool / is-school / is school) ──
+  const isSCluster = /^s[cptkmnrwl]/i.test(tw) || tw === 'school';
+  if (isSCluster) {
+    if (sw === 'i' + tw || sw === 'e' + tw || sw === 'is' + tw || sw === 'es' + tw ||
+        sw === 'is' + tw.slice(1) || sw === 'es' + tw.slice(1) ||
+        sw === 'i' + tw.slice(1) || sw === 'e' + tw.slice(1) ||
+        (tw === 'school' && ['ischool', 'eschool', 'iskool', 'iskul', 'isschool', 'iscool', 'hischool', 'aschool'].includes(sw)) ||
+        (tw === 'spoon' && ['ispoon', 'espoon', 'is-spoon', 'ispoon'].includes(sw)) ||
+        (tw === 'station' && ['istation', 'estation', 'is-station'].includes(sw)) ||
+        (tw === 'study' && ['istudy', 'estudy', 'is-study'].includes(sw)) ||
+        (tw === 'star' && ['istar', 'estar', 'is-star'].includes(sw)) ||
+        (tw === 'stop' && ['istop', 'estop', 'is-stop'].includes(sw)) ||
+        (tw === 'speak' && ['ispeak', 'espeak', 'is-speak'].includes(sw))) {
+      return mkPattern(1, tw, sw, `Spoken text shows '${sw}' with an initial prosthesis vowel sound added before '${tw}'.`);
+    }
   }
 
   // ── 2. V/W Merger (very -> wery / win -> vin) ──
@@ -914,12 +928,12 @@ function autoCorrelate(buffer, sampleRate) {
 
 function classifyVolume(avg, max) {
   if (avg < 15) {
-    return { status: 'Too Soft (ශබ්දය මදි)', score: 60 };
+    return { status: 'Too Soft', score: 60 };
   }
   if (avg > 82 || max > 98) {
-    return { status: 'Too Loud (ශබ්දය වැඩියි)', score: 70 };
+    return { status: 'Too Loud', score: 70 };
   }
-  return { status: 'Clear & Optimal (පැහැදිලියි)', score: 95 };
+  return { status: 'Clear & Optimal', score: 95 };
 }
 
 function detectRepetitions(words) {
@@ -996,7 +1010,7 @@ function analysePitch(pitchSamples) {
       meanPitch: 0,
       pitchStdDev: 0,
       score: 80,
-      style: 'Short Utterance (කෙටි ශබ්දය)'
+      style: 'Short Utterance'
     };
   }
   const min = Math.min(...valid);
@@ -1007,13 +1021,13 @@ function analysePitch(pitchSamples) {
   const stdDev = Math.sqrt(variance);
 
   const isMonotone = (range < 20 || stdDev < 8);
-  let style = 'Natural Variation (ස්වභාවික විචලනය)';
+  let style = 'Natural Variation';
   let score = 90;
   if (isMonotone) {
-    style = 'Flat / Monotone (ඒකාකාරී ස්වරය)';
+    style = 'Flat / Monotone';
     score = 65;
   } else if (range > 65 || stdDev > 22) {
-    style = 'Highly Expressive (ඉතා ප්‍රකාශනාත්මක)';
+    style = 'Highly Expressive';
     score = 95;
   }
 
@@ -1030,7 +1044,7 @@ function analysePitch(pitchSamples) {
 
 function analyseQuestionIntonation(pitchSamples, targetText) {
   if (!targetText.trim().endsWith('?')) {
-    return { isQuestion: false, rising: null, status: 'Statement (ප්‍රකාශනයක්)' };
+    return { isQuestion: false, rising: null, status: 'Statement' };
   }
   const valid = (pitchSamples || []).filter(p => p >= 70 && p <= 500);
   if (valid.length < 8) {
@@ -1046,15 +1060,15 @@ function analyseQuestionIntonation(pitchSamples, targetText) {
     isQuestion: true,
     rising: rise > 10,
     finalPitchChange: Math.round(rise),
-    status: rise > 10 ? 'Rising Question Intonation (ප්‍රශ්නාර්ථ ස්වරය)' : 'Flat/Falling Intonation (පැතලි ස්වරය)'
+    status: rise > 10 ? 'Rising Question Intonation' : 'Flat/Falling Intonation'
   };
 }
 
 function classifyStartDelay(ms) {
-  if (ms < 1500) return { delayMs: Math.round(ms), status: 'Quick Start (ක්ෂණික ආරම්භය)' };
-  if (ms < 3500) return { delayMs: Math.round(ms), status: 'Normal Start (සාමාන්‍ය)' };
-  if (ms < 6000) return { delayMs: Math.round(ms), status: 'Slow Start (මන්දගාමී)' };
-  return { delayMs: Math.round(ms), status: 'Hesitant Start (ප්‍රමාදයි)' };
+  if (ms < 1500) return { delayMs: Math.round(ms), status: 'Quick Start' };
+  if (ms < 3500) return { delayMs: Math.round(ms), status: 'Normal Start' };
+  if (ms < 6000) return { delayMs: Math.round(ms), status: 'Slow Start' };
+  return { delayMs: Math.round(ms), status: 'Hesitant Start' };
 }
 
 function calculateSpeakingConfidence({ attempts, startDelayMs, accuracy, hesitationCount }) {
@@ -1102,8 +1116,8 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
       wordsCorrect: false,
       pronunciationCorrect: false,
       accuracy: 0,
-      statusTitle: 'ශබ්දයක් හඳුනා නොගැනිණි (No Speech Detected)',
-      statusMessage: 'මයික්‍රෆෝනයෙන් කිසිදු හඬක් වාර්තා නොවීය. කරුණාකර මයික්‍රෆෝනය ළඟට ගෙන ශබ්ද නගා කතා කරන්න.',
+      statusTitle: 'No Speech Detected',
+      statusMessage: 'No sound was detected from the microphone. Please bring the microphone closer and speak clearly.',
       transcript: '(No sound detected)',
       wordResults: [],
       missedWords: targetWords,
@@ -1123,6 +1137,7 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
   const acousticMtiPatterns = analyzeAcousticPhonology(sessionData, targetWords, spokenWords);
   const textMtiPatterns = [];
 
+  // 1. Check token-by-token text MTI
   targetWords.forEach(twRaw => {
     const twClean = (twRaw || '').toLowerCase().replace(/[^a-z0-9]/g, '');
     if (!twClean) return;
@@ -1134,6 +1149,41 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
       if (detected) {
         textMtiPatterns.push(detected);
         break;
+      }
+    }
+  });
+
+  // 2. Check phrase-level & separated S-Cluster Prosthesis (e.g., "is school", "i school", "es school", "his school", "is cool", "is kool")
+  targetWords.forEach((twRaw, idx) => {
+    const twClean = (twRaw || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (!twClean) return;
+    const isSCluster = (/^s[cptkmnrwl]/i.test(twClean) || twClean === 'school');
+    if (!isSCluster) return;
+
+    if (isSingleWord) {
+      const hasTargetOrConfuser = spokenWords.some(sw => {
+        const swClean = sw.toLowerCase().replace(/[^a-z0-9]/g, '');
+        return swClean === twClean || (twClean === 'school' && ['cool', 'kool', 'pool', 'tool', 'call', 'coo', 'cl'].includes(swClean)) || swClean.startsWith(twClean.slice(0, 3));
+      });
+      const hasProsthesisPrefix = spokenWords.some(sw => {
+        const swClean = sw.toLowerCase().replace(/[^a-z0-9]/g, '');
+        return ['is', 'es', 'i', 'e', 'his', 'est', 'east', 'esta', 'its', "it's"].includes(swClean);
+      });
+      if ((hasTargetOrConfuser && hasProsthesisPrefix) || /\b(is|es|i|his)\s+(school|spoon|station|study|speak|star|stop|spring|student|cool|kool)\b/i.test(spokenClean)) {
+        textMtiPatterns.push(mkPattern(1, twClean, spokenClean, `Spoken text shows '${spokenClean}' with S-Cluster Prosthesis vowel added before '${twClean}'.`));
+      }
+    } else {
+      for (let sIdx = 0; sIdx < spokenWords.length; sIdx++) {
+        const swClean = spokenWords[sIdx].toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (swClean === twClean || (twClean === 'school' && ['cool', 'kool'].includes(swClean))) {
+          if (sIdx > 0) {
+            const prevSpoken = spokenWords[sIdx - 1].toLowerCase().replace(/[^a-z0-9]/g, '');
+            const expectedPrev = idx > 0 ? targetWords[idx - 1].toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+            if (['is', 'es', 'i', 'his'].includes(prevSpoken) && prevSpoken !== expectedPrev) {
+              textMtiPatterns.push(mkPattern(1, twClean, `${prevSpoken} ${twClean}`, `Spoken text shows '${prevSpoken} ${twClean}' with separated S-Cluster Prosthesis before '${twClean}'.`));
+            }
+          }
+        }
       }
     }
   });
@@ -1204,13 +1254,13 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
   const speakingRate = Math.round((spokenWords.length / actualSpeakingSec) * 60);
   const hesitations = detectHesitations(spokenWords, pauses);
 
-  let speedStatus = 'Optimal / Natural (ස්වභාවික වේගය)';
+  let speedStatus = 'Optimal / Natural';
   let fluencyScore = 90;
   if (speakingRate < 60) {
-    speedStatus = 'Too Slow (මන්දගාමී)';
+    speedStatus = 'Too Slow';
     fluencyScore -= 20;
   } else if (speakingRate > 175) {
-    speedStatus = 'Too Fast (ඉතා වේගවත්)';
+    speedStatus = 'Too Fast';
     fluencyScore -= 15;
   }
   if (pauseCount > 2) fluencyScore -= Math.min(25, (pauseCount - 2) * 8);
@@ -1252,7 +1302,7 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
     const firstScore = previousAttempts[0]?.overallScore || previousAttempts[0]?.accuracy || 50;
     improvementPercentage = Math.round(pronunciationScore - firstScore);
     if (improvementPercentage > 0) {
-      improvementMessage = `උත්සාහය #${previousAttempts.length + 1}: පසුගිය වාරයට වඩා +${improvementPercentage}% ක දියුණුවක්!`;
+      improvementMessage = `Attempt #${previousAttempts.length + 1}: +${improvementPercentage}% improvement over previous attempt!`;
     }
   }
 
@@ -1275,13 +1325,13 @@ function evaluateSpeechSession(sessionData, targetText, spokenText, candidateAlt
     wordsCorrect: allWordsCorrect,
     pronunciationCorrect,
     statusTitle: pronunciationCorrect
-      ? 'විශිෂ්ට උච්චාරණයක්! (100% Passed)'
-      : 'උච්චාරණය තවදුරටත් පුහුණු වන්න (Needs Practice)',
+      ? 'Excellent Pronunciation! (100% Passed)'
+      : 'Pronunciation Needs Practice',
     statusMessage: pronunciationCorrect
-      ? 'ඔබේ උච්චාරණය, ස්වර රිද්මය සහ කථන වේගය ඉතා විශිෂ්ටයි (100%).'
+      ? 'Your pronunciation, pitch intonation, and speaking fluency are excellent.'
       : mtiPatterns.length > 0
-      ? `MTI උච්චාරණ රටාවක් හඳුනා ගැනිණි: ${mtiPatterns.map(p => p.name_si).join(', ')}.`
-      : `වචන ${matchedCount}/${totalWords} නිවැරදියි. සම්පූර්ණ ලකුණු සඳහා '${missedWords.join(', ')}' නිවැරදිව පවසන්න.`,
+      ? `MTI pronunciation pattern detected: ${mtiPatterns.map(p => p.name).join(', ')}.`
+      : `${matchedCount}/${totalWords} words correct. Please pronounce '${missedWords.join(', ')}' clearly for full marks.`,
     transcript: spokenText,
     wordResults,
     missedWords,
@@ -1435,7 +1485,7 @@ export default function EnglishModule({ onExit }) {
     return fixedList.map(q => ({
       ...q,
       grade: grade,
-      level_name_si: grade === 2 ? 'තනි වචන (Single Words)' : grade === 3 ? 'කෙටි වාක්‍ය (Short Sentences)' : 'දිගු වාක්‍ය (Long Sentences)'
+      level_name_si: grade === 2 ? 'Single Words' : grade === 3 ? 'Short Sentences' : 'Long Sentences'
     }));
   };
 
@@ -1758,21 +1808,21 @@ export default function EnglishModule({ onExit }) {
 
         if (event.error === 'no-speech') {
           noSpeechAttemptsRef.current++;
-          setLiveTranscript(`🎤 සවන් දෙමින්... (නැවත කතා කරන්න)`);
+          setLiveTranscript(`🎤 Listening... (Please speak again)`);
           restartRecognitionIfNeeded(reco, () => {
-            setLiveTranscript('🎤 හඬක් හඳුනා නොගැනිණි. නැවත උත්සාහ කරන්න.');
+            setLiveTranscript('🎤 No speech detected. Please try again.');
             stopListening();
           });
           return;
         }
 
         if (event.error === 'not-allowed') {
-          setLiveTranscript('🎤 මයික්‍රෆෝනයට අවසර නැත.');
+          setLiveTranscript('🎤 Microphone access denied.');
           stopListening();
         }
 
         if (event.error === 'audio-capture' || event.error === 'network') {
-          setLiveTranscript('🎤 සම්බන්ධතා ගැටළුවක්. නැවත උත්සාහ කරන්න.');
+          setLiveTranscript('🎤 Connection issue. Please try again.');
           setTimeout(() => {
             if (isListeningRef.current && recognitionRef.current) {
               try { recognitionRef.current.start(); } catch (e) {}
@@ -1797,7 +1847,7 @@ export default function EnglishModule({ onExit }) {
 
         if (isListeningRef.current && !hasTranscript) {
           restartRecognitionIfNeeded(reco, () => {
-            setLiveTranscript('🎤 හඬක් හඳුනා නොගැනිණි. නැවත උත්සාහ කරන්න.');
+            setLiveTranscript('🎤 No speech detected. Please try again.');
             stopListening();
           });
         }
@@ -1809,7 +1859,7 @@ export default function EnglishModule({ onExit }) {
       console.error("[Speaking Paper] SpeechRecognition init error:", e);
       setIsListening(false);
       isListeningRef.current = false;
-      setLiveTranscript('🎤 දෝෂයක් ඇතිවිය. නැවත උත්සාහ කරන්න.');
+      setLiveTranscript('🎤 Recognition error. Please try again.');
     }
 
     timerIntervalRef.current = setInterval(() => {
@@ -1824,7 +1874,11 @@ export default function EnglishModule({ onExit }) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
     }
-    const finalHeardText = (latestTranscriptRef.current || liveTranscript || '').replace('සවන් දෙමින්...', '').replace('හඬ ලැබෙමින් පවතී...', '').trim();
+    const finalHeardText = (latestTranscriptRef.current || liveTranscript || '')
+      .replace(/🎤\s*Listening\.\.\./gi, '')
+      .replace(/🎙️\s*Live\s*Listening\.\.\./gi, '')
+      .replace(/Audio\s*Detected\.\.\./gi, '')
+      .trim();
 
     let finalText = finalHeardText;
     if (!finalText && latestAlternativesRef.current && latestAlternativesRef.current.length > 0) {
@@ -1996,7 +2050,7 @@ export default function EnglishModule({ onExit }) {
 
       let autoStopTimer = setTimeout(() => {
         if (isListeningRef.current && !latestTranscriptRef.current && !soundHeardRef.current) {
-          setMtiLabLiveTranscript('⏰ කාලය ඉකුත් විය. 🎤 නැවත ඔබන්න.');
+          setMtiLabLiveTranscript('⏰ Time out. 🎤 Click to try again.');
         }
       }, 6000);
 
@@ -2067,9 +2121,9 @@ export default function EnglishModule({ onExit }) {
 
         if (event.error === 'no-speech') {
           noSpeechAttemptsRef.current++;
-          setMtiLabLiveTranscript(`🎤 සවන් දෙමින්... (නැවත කතා කරන්න)`);
+          setMtiLabLiveTranscript(`🎤 Listening... (Please speak again)`);
           restartRecognitionIfNeeded(reco, () => {
-            setMtiLabLiveTranscript('🎤 හඬක් හඳුනා නොගැනිණි. නැවත උත්සාහ කරන්න.');
+            setMtiLabLiveTranscript('🎤 No speech detected. Please try again.');
             setMtiLabListening(false);
             isListeningRef.current = false;
             try { reco.stop(); } catch (e) {}
@@ -2078,13 +2132,13 @@ export default function EnglishModule({ onExit }) {
         }
 
         if (event.error === 'not-allowed') {
-          setMtiLabLiveTranscript('🎤 මයික්‍රෆෝනයට අවසර නැත.');
+          setMtiLabLiveTranscript('🎤 Microphone access denied.');
           setMtiLabListening(false);
           isListeningRef.current = false;
         }
 
         if (event.error === 'audio-capture' || event.error === 'network') {
-          setMtiLabLiveTranscript('🎤 සම්බන්ධතා ගැටළුවක්. නැවත උත්සාහ කරන්න.');
+          setMtiLabLiveTranscript('🎤 Connection issue. Please try again.');
           setTimeout(() => {
             if (isListeningRef.current && recognitionRef.current) {
               try { recognitionRef.current.start(); } catch (e) {}
@@ -2110,7 +2164,7 @@ export default function EnglishModule({ onExit }) {
           restartRecognitionIfNeeded(reco, () => {
             setMtiLabListening(false);
             isListeningRef.current = false;
-            setMtiLabLiveTranscript('🎤 හඬක් හඳුනා නොගැනිණි. නැවත උත්සාහ කරන්න.');
+            setMtiLabLiveTranscript('🎤 No speech detected. Please try again.');
           });
         }
       };
@@ -2163,7 +2217,7 @@ export default function EnglishModule({ onExit }) {
           <button
             onClick={() => {
               if (viewState === 'quiz' || viewState === 'mti_lab') {
-                if (viewState === 'mti_lab' || window.confirm("ඔබට මෙම ප්‍රශ්න පත්‍රයෙන් ඉවත් වීමට අවශ්‍යද?")) {
+                if (viewState === 'mti_lab' || window.confirm("Do you want to exit this paper?")) {
                   stopListening();
                   setViewState('grades_hub');
                 }
@@ -2180,10 +2234,10 @@ export default function EnglishModule({ onExit }) {
             <span>⬅</span>
             <span>
               {viewState === 'grades_hub'
-                ? 'Dashboard එකට'
+                ? 'Back to Dashboard'
                 : viewState === 'papers_hub' || viewState === 'mti_lab'
-                ? 'ප්‍රධාන මෙනුවට'
-                : 'ප්‍රශ්න පත්‍ර තෝරන්න'}
+                ? 'Main Menu'
+                : 'Select Papers'}
             </span>
           </button>
 
@@ -2193,7 +2247,7 @@ export default function EnglishModule({ onExit }) {
                 {activePaperConfig.badge}
               </span>
               <span className="bg-white/90 backdrop-blur border border-slate-200 text-slate-800 font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm">
-                ප්‍රශ්න {currentQIndex + 1} / 10
+                Question {currentQIndex + 1} / 10
               </span>
             </div>
           )}
@@ -2203,8 +2257,8 @@ export default function EnglishModule({ onExit }) {
               onClick={() => { playSound('click'); setViewState('mti_lab'); }}
               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-xs sm:text-sm rounded-2xl shadow-md transition-all cursor-pointer"
             >
-              <span>🇱🇰</span>
-              <span>MTI පරීක්ෂක රසායනාගාරය (Sandbox)</span>
+              <span>🎙️</span>
+              <span>MTI Speech Lab (Sandbox)</span>
             </button>
           )}
         </div>
@@ -2213,21 +2267,21 @@ export default function EnglishModule({ onExit }) {
           <div className="space-y-6 animate-fade-in">
             <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl text-center relative overflow-hidden">
               <div className="inline-block bg-emerald-100 text-emerald-800 font-black text-xs px-4 py-1.5 rounded-full mb-3 uppercase tracking-wider">
-                English Speech, Fluency & MTI Analysis AI • ඉංග්‍රීසි කථන පුහුණුව
+                English Speech, Fluency & MTI Analysis AI
               </div>
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2 font-sinhala">
-                ඉංග්‍රීසි කථන හා චතුරතා අනුවර්තී පද්ධතිය
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2">
+                English Speaking & Fluency Adaptive Learning System
               </h1>
               <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
-                ශ්‍රී ලාංකික සිසුන්ගේ MTI රටා 12ක්, කථන චතුරතාව (WPM), ස්වර රිද්මය සහ ශබ්ද පැහැදිලි බව ඇගයීම.
+                Comprehensive evaluation of 12 Sri Lankan MTI patterns, speaking fluency (WPM), pitch intonation, and clarity.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { grade: 2, icon: '🌱', title: '2 ශ්‍රේණිය', desc: 'තනි වචන උච්චාරණය (Single Words) — MTI රටා 12ම ආවරණය වන ස්ථාවර ප්‍රශ්න පත්‍ර 3', type: 'තනි වචන (Single Words)', color: 'from-emerald-500 to-teal-600' },
-                { grade: 3, icon: '🎯', title: '3 ශ්‍රේණිය', desc: 'කෙටි වාක්‍ය කියවීම (Short Sentences) — MTI රටා 12ම ආවරණය වන ස්ථාවර ප්‍රශ්න පත්‍ර 3', type: 'කෙටි වාක්‍ය (Short Sentences)', color: 'from-blue-500 to-indigo-600' },
-                { grade: 4, icon: '🚀', title: '4 ශ්‍රේණිය', desc: 'දිගු වාක්‍ය සහ චතුර කථනය (Long Sentences) — MTI රටා 12ම ආවරණය වන ස්ථාවර ප්‍රශ්න පත්‍ර 3', type: 'දිගු වාක්‍ය (Long Sentences)', color: 'from-purple-500 to-pink-600' }
+                { grade: 2, icon: '🌱', title: 'Grade 2', desc: 'Single word pronunciation — 3 fixed papers covering all 12 Sri Lankan MTI patterns', type: 'Single Words', color: 'from-emerald-500 to-teal-600' },
+                { grade: 3, icon: '🎯', title: 'Grade 3', desc: 'Short sentence reading — 3 fixed papers covering all 12 Sri Lankan MTI patterns', type: 'Short Sentences', color: 'from-blue-500 to-indigo-600' },
+                { grade: 4, icon: '🚀', title: 'Grade 4', desc: 'Long sentences & expressive speech — 3 fixed papers covering all 12 Sri Lankan MTI patterns', type: 'Long Sentences', color: 'from-purple-500 to-pink-600' }
               ].map(g => (
                 <div
                   key={g.grade}
@@ -2238,10 +2292,10 @@ export default function EnglishModule({ onExit }) {
                     <div className="flex justify-between items-center">
                       <span className="text-4xl">{g.icon}</span>
                       <span className="bg-slate-100 text-slate-700 text-xs font-black px-3 py-1 rounded-full">
-                        ප්‍රශ්න පත්‍ර 3 (30 Questions)
+                        3 Papers (30 Questions)
                       </span>
                     </div>
-                    <h2 className="text-2xl font-black text-slate-800 font-sinhala">{g.title}</h2>
+                    <h2 className="text-2xl font-black text-slate-800">{g.title}</h2>
                     <p className="text-xs text-slate-600 font-medium leading-relaxed">{g.desc}</p>
                     <div className="pt-2 text-xs font-bold text-slate-500 space-y-1">
                       <div>✓ Paper 01: 10 Questions ({g.type})</div>
@@ -2252,7 +2306,7 @@ export default function EnglishModule({ onExit }) {
 
                   <div className="pt-6">
                     <button className={`w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white shadow-md bg-gradient-to-r ${g.color} cursor-pointer`}>
-                      ප්‍රශ්න පත්‍ර වෙත ➔
+                      Go to Papers ➔
                     </button>
                   </div>
                 </div>
@@ -2267,23 +2321,23 @@ export default function EnglishModule({ onExit }) {
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
                 <div>
                   <div className="inline-block bg-rose-100 text-rose-800 font-black text-[11px] px-3 py-1 rounded-full uppercase tracking-wider mb-1">
-                    🇱🇰 Sri Lankan MTI Diagnostics Hub • සජීවී MTI රසායනාගාරය
+                    🎙️ Sri Lankan MTI Diagnostics Hub • Live MTI Speech Lab
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-black text-slate-800 font-sinhala">
-                    ශ්‍රී ලාංකික MTI උච්චාරණ රටා 12 පරීක්ෂාව
+                  <h2 className="text-2xl sm:text-3xl font-black text-slate-800">
+                    12 Sri Lankan English MTI Pattern Diagnostics
                   </h2>
                 </div>
                 <button
                   onClick={() => setViewState('grades_hub')}
                   className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer"
                 >
-                  ✕ පිටවීම
+                  ✕ Exit Lab
                 </button>
               </div>
 
               <div className="space-y-2">
                 <span className="text-xs font-black uppercase text-slate-500 tracking-wider">
-                  පරීක්ෂා කිරීමට MTI රටාවක් තෝරන්න (Select 1 of 12 Patterns):
+                  Select an MTI Pattern to Test (1 of 12 Patterns):
                 </span>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {SRI_LANKAN_MTI_PATTERNS.map((p, idx) => (
@@ -2312,7 +2366,7 @@ export default function EnglishModule({ onExit }) {
               <div className="p-6 bg-slate-50 border-2 border-slate-200 rounded-3xl space-y-6 text-center">
                 <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-200">
                   <span className="text-xs font-black text-rose-700 bg-rose-100 px-3 py-1 rounded-full">
-                    {activeMtiPattern.name} ({activeMtiPattern.name_si})
+                    {activeMtiPattern.name}
                   </span>
                   <span className="text-xs font-mono font-bold text-slate-600">
                     Target: {WORD_IPA_MAP[mtiLabTargetWord]?.target || activeMtiPattern.target_ipa} vs Common Error: {WORD_IPA_MAP[mtiLabTargetWord]?.error || activeMtiPattern.error_ipa}
@@ -2365,7 +2419,7 @@ export default function EnglishModule({ onExit }) {
                         : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                     }`}
                   >
-                    <span>{mtiLabListening ? '⏹️ අවසන් කරන්න' : '🎤 කතා කරන්න (Speak to Test)'}</span>
+                    <span>{mtiLabListening ? '⏹️ Stop Recording' : '🎤 Speak to Test'}</span>
                   </button>
                 </div>
 
@@ -2374,7 +2428,7 @@ export default function EnglishModule({ onExit }) {
                     <div className="flex items-center justify-between">
                       <span className="flex items-center gap-2 text-xs font-black text-emerald-700 uppercase tracking-wider">
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping inline-block"></span>
-                        🎙️ සජීවීව සවන් දෙමින් පවතී (Live Listening...)
+                        🎙️ Live Listening...
                       </span>
                       <div className="flex items-center gap-1">
                         <span className="w-1 h-5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0ms]"></span>
@@ -2387,12 +2441,12 @@ export default function EnglishModule({ onExit }) {
 
                     <div className="py-3 bg-white/90 rounded-2xl border border-emerald-200 text-center min-h-[56px] flex items-center justify-center">
                       <span className="text-2xl sm:text-3xl font-black text-emerald-900 font-sans tracking-wide">
-                        {mtiLabLiveTranscript ? `"${mtiLabLiveTranscript}"` : '🎙️ දැන් කතා කරන්න... (Speak now)'}
+                        {mtiLabLiveTranscript ? `"${mtiLabLiveTranscript}"` : '🎙️ Speak now...'}
                       </span>
                     </div>
 
                     <div className="text-[11px] text-emerald-700 font-bold flex items-center justify-center gap-1.5">
-                      <span className="animate-spin text-sm">⚙️</span> සජීවී හඬ විශ්ලේෂණය සහ Phoneme සංසන්දනය...
+                      <span className="animate-spin text-sm">⚙️</span> Real-time speech analysis & phoneme comparison...
                     </div>
                   </div>
                 )}
@@ -2401,7 +2455,7 @@ export default function EnglishModule({ onExit }) {
                   <div className="p-5 bg-white border-2 border-slate-200 rounded-3xl space-y-4 text-left animate-fade-in shadow-sm">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-500">
-                        ඔබ පැවසූ දෙය: <strong className="text-slate-900 text-base font-sans">"{mtiLabResult.transcript}"</strong>
+                        You said: <strong className="text-slate-900 text-base font-sans">"{mtiLabResult.transcript}"</strong>
                       </span>
                       <span className={`px-3 py-1 rounded-xl text-xs font-black text-white ${
                         mtiLabResult.mtiPatterns && mtiLabResult.mtiPatterns.length > 0
@@ -2414,21 +2468,21 @@ export default function EnglishModule({ onExit }) {
                           ? '⚠️ MTI Pattern Detected'
                           : mtiLabResult.wordsCorrect
                           ? '✓ Clean Standard'
-                          : '⚠️ Wrong Word / වෙනත් වචනයක්'}
+                          : '⚠️ Incorrect Word'}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">
                       <div>
-                        <span className="text-[10px] text-slate-400 font-bold block">Volume (ශබ්දය)</span>
+                        <span className="text-[10px] text-slate-400 font-bold block">Volume</span>
                         <span className="font-bold text-slate-700">{mtiLabResult.volume?.percent || 0}% ({mtiLabResult.volume?.status?.split(' ')[0] || 'Clear'})</span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-400 font-bold block">Pitch (ස්වර විචලනය)</span>
+                        <span className="text-[10px] text-slate-400 font-bold block">Pitch</span>
                         <span className="font-bold text-slate-700">{mtiLabResult.intonation?.pitchRange || 0} Hz ({mtiLabResult.intonation?.style?.split(' ')[0] || 'Natural'})</span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-slate-400 font-bold block">Start Delay (ආරම්භය)</span>
+                        <span className="text-[10px] text-slate-400 font-bold block">Start Delay</span>
                         <span className="font-bold text-slate-700">{mtiLabResult.engagement?.startDelayStatus?.split(' ')[0] || 'Quick'}</span>
                       </div>
                     </div>
@@ -2436,7 +2490,7 @@ export default function EnglishModule({ onExit }) {
                     {mtiLabResult.mtiPatterns && mtiLabResult.mtiPatterns.length > 0 ? (
                       <div className="p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1.5">
                         <div className="flex items-center justify-between text-xs font-black text-rose-900">
-                          <span>📌 හඳුනාගත් MTI රටාව: {mtiLabResult.mtiPatterns[0].name} ({mtiLabResult.mtiPatterns[0].name_si})</span>
+                          <span>📌 Detected MTI Pattern: {mtiLabResult.mtiPatterns[0].name}</span>
                           <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-rose-200">
                             {mtiLabResult.mtiPatterns[0].target_ipa} ➔ {mtiLabResult.mtiPatterns[0].error_ipa}
                           </span>
@@ -2447,23 +2501,20 @@ export default function EnglishModule({ onExit }) {
                           </p>
                         )}
                         <p className="text-xs text-rose-800 font-bold">
-                          💡 උපදෙස: {mtiLabResult.mtiPatterns[0].pedagogical_tip_si}
-                        </p>
-                        <p className="text-[11px] text-slate-600 italic">
-                          ({mtiLabResult.mtiPatterns[0].pedagogical_tip})
+                          💡 Tip: {mtiLabResult.mtiPatterns[0].pedagogical_tip}
                         </p>
                       </div>
                     ) : !mtiLabResult.wordsCorrect ? (
                       <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-2xl text-amber-900">
-                        <h4 className="font-black text-sm">⚠️ පැවසූ වචනය අපේක්ෂිත වචනයට නොගැලපේ.</h4>
+                        <h4 className="font-black text-sm">⚠️ Spoken word did not match target.</h4>
                         <p className="text-xs font-medium mt-0.5">
-                          ඔබ පැවසූ වචනය '{mtiLabResult.transcript}' වේ. කරුණාකර '{mtiLabTargetWord}' වචනය නැවත පවසන්න.
+                          You said '{mtiLabResult.transcript}'. Please try saying '{mtiLabTargetWord}' again.
                         </p>
                       </div>
                     ) : (
                       <div className="p-4 bg-emerald-50 border-2 border-emerald-200 rounded-2xl text-emerald-900">
-                        <h4 className="font-black text-sm">🎉 විශිෂ්ටයි! සම්මත ඉංග්‍රීසි උච්චාරණය (No MTI Errors).</h4>
-                        <p className="text-xs font-medium mt-0.5">ඔබේ උච්චාරණය සම්මත ඉංග්‍රීසි ශබ්ද රටාවට අනුකූල වේ.</p>
+                        <h4 className="font-black text-sm">🎉 Excellent! Standard English Pronunciation (No MTI Errors).</h4>
+                        <p className="text-xs font-medium mt-0.5">Your pronunciation matches the standard English phonological model.</p>
                       </div>
                     )}
                   </div>
@@ -2478,13 +2529,13 @@ export default function EnglishModule({ onExit }) {
           <div className="space-y-6 animate-fade-in">
             <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl text-center relative overflow-hidden">
               <div className="inline-block bg-emerald-100 text-emerald-800 font-black text-xs px-4 py-1.5 rounded-full mb-3 uppercase tracking-wider">
-                Grade {selectedGrade} • {selectedGrade} ශ්‍රේණිය ඉංග්‍රීසි
+                Grade {selectedGrade} • English Speaking Papers
               </div>
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2 font-sinhala">
-                {selectedGrade === 2 ? 'තනි වචන ප්‍රශ්න පත්‍ර 3 (Single Words)' : selectedGrade === 3 ? 'කෙටි වාක්‍ය ප්‍රශ්න පත්‍ර 3 (Short Sentences)' : 'දිගු වාක්‍ය ප්‍රශ්න පත්‍ර 3 (Long Sentences)'}
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2">
+                {selectedGrade === 2 ? 'Single Word Speaking Papers (3 Papers)' : selectedGrade === 3 ? 'Short Sentence Speaking Papers (3 Papers)' : 'Long Sentence Speaking Papers (3 Papers)'}
               </h1>
               <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
-                ශ්‍රී ලාංකික MTI උච්චාරණ රටා 12ම ආවරණය වන පරිදි සකස් කළ ස්ථාවර ප්‍රශ්න 10 බැගින් අඩංගු ප්‍රශ්න පත්‍ර.
+                3 Fixed papers with 10 questions each, systematically evaluating all 12 Sri Lankan MTI patterns.
               </p>
             </div>
 
@@ -2494,10 +2545,10 @@ export default function EnglishModule({ onExit }) {
                 const isCompleted = !!result;
                 const unlocked = isPaperUnlocked(p.id);
                 const subtitleText = selectedGrade === 2
-                  ? 'තනි වචන නිවැරදිව උච්චාරණය (MTI රටා ආවරණය)'
+                  ? 'Single word pronunciation & MTI error detection'
                   : selectedGrade === 3
-                  ? 'කෙටි වාක්‍ය කියවීම සහ රිද්මය (MTI රටා ආවරණය)'
-                  : 'දිගු වාක්‍ය සහ චතුර කථනය (MTI රටා ආවරණය)';
+                  ? 'Short sentence reading, intonation & fluency'
+                  : 'Long sentences, expressive speech & rhythm';
 
                 return (
                   <div
@@ -2515,20 +2566,20 @@ export default function EnglishModule({ onExit }) {
                         <span className="text-4xl">{p.icon}</span>
                         {!unlocked ? (
                           <span className="bg-slate-200 text-slate-600 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1">
-                            🔒 අගුළු දමා ඇත
+                            🔒 Locked
                           </span>
                         ) : isCompleted ? (
                           <span className="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1 rounded-full flex items-center gap-1">
-                            ✓ සම්පූර්ණයි
+                            ✓ Completed
                           </span>
                         ) : (
                           <span className="bg-slate-100 text-slate-600 text-xs font-black px-3 py-1 rounded-full">
-                            නව ප්‍රශ්න පත්‍රය
+                            New Paper
                           </span>
                         )}
                       </div>
 
-                      <h3 className="text-xl font-black text-slate-800 font-sinhala leading-snug">
+                      <h3 className="text-xl font-black text-slate-800 leading-snug">
                         {p.title}
                       </h3>
                       <p className="text-xs text-slate-500 font-medium leading-relaxed">
@@ -2545,7 +2596,7 @@ export default function EnglishModule({ onExit }) {
 
                       {isCompleted && (
                         <div className="mt-4 p-3 bg-white rounded-2xl border border-emerald-200 flex items-center justify-between">
-                          <span className="text-xs font-bold text-slate-600">පෙර ලකුණු:</span>
+                          <span className="text-xs font-bold text-slate-600">Previous Score:</span>
                           <span className="text-sm font-black text-emerald-700">
                             {result.totalPassed}/{result.totalQuestions} ({result.overallAccuracy}%)
                           </span>
@@ -2554,7 +2605,7 @@ export default function EnglishModule({ onExit }) {
 
                       {!unlocked && (
                         <div className="mt-4 p-3 bg-amber-50 rounded-2xl border border-amber-200 text-[11px] font-bold text-amber-800">
-                          🔒 ප්‍රශ්න පත්‍රය 0${p.id - 1} සඳහා 75% ක් ලබාගෙන මෙය අගුළු හරින්න.
+                          🔒 Score at least 75% on Paper 0{p.id - 1} to unlock this paper.
                         </div>
                       )}
                     </div>
@@ -2566,14 +2617,14 @@ export default function EnglishModule({ onExit }) {
                             onClick={() => handleStartPaper(p.id)}
                             className={`w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white shadow-md transition-all cursor-pointer bg-gradient-to-r ${p.color} hover:opacity-95 active:scale-95`}
                           >
-                            {isCompleted ? '🔄 නැවත කරන්න' : 'ආරම්භ කරන්න ➔'}
+                            {isCompleted ? '🔄 Retake Paper' : 'Start Speaking ➔'}
                           </button>
                           {isCompleted && (
                             <button
                               onClick={() => handleViewSavedPaperReport(p.id)}
                               className="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors cursor-pointer"
                             >
-                              📊 වාර්තාව බලන්න
+                              📊 View Report
                             </button>
                           )}
                         </>
@@ -2582,7 +2633,7 @@ export default function EnglishModule({ onExit }) {
                           disabled
                           className="w-full py-3.5 px-4 rounded-2xl font-black text-sm text-slate-400 bg-slate-200 cursor-not-allowed border border-slate-300"
                         >
-                          🔒 අගුළු දමා ඇත
+                          🔒 Locked
                         </button>
                       )}
                     </div>
@@ -2601,9 +2652,9 @@ export default function EnglishModule({ onExit }) {
                 <span>{activePaperConfig.levelTitle}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                    උත්සාහය #{questionAttempts}
+                    Attempt #{questionAttempts}
                   </span>
-                  <span>ප්‍රශ්න {currentQIndex + 1} / 10</span>
+                  <span>Question {currentQIndex + 1} / 10</span>
                 </div>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
@@ -2618,10 +2669,10 @@ export default function EnglishModule({ onExit }) {
 
               <div className="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-200">
                 <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700">
-                  {selectedGrade === 2 ? '🔤 Single Word (තනි වචන)' : selectedGrade === 3 ? '📖 Short Sentence (කෙටි වාක්‍ය)' : '🎙️ Long Sentence (දිගු වාක්‍ය)'}
+                  {selectedGrade === 2 ? '🔤 Single Word' : selectedGrade === 3 ? '📖 Short Sentence' : '🎙️ Long Sentence'}
                 </span>
                 <span className="text-xs font-bold text-slate-500">
-                  තේරුම: <strong className="text-slate-800">{currentQ.sinhala_meaning}</strong>
+                  Meaning: <strong className="text-slate-800">{currentQ.sinhala_meaning}</strong>
                 </span>
               </div>
 
@@ -2646,7 +2697,7 @@ export default function EnglishModule({ onExit }) {
                   onClick={() => speakEnglish(currentQ.target_text)}
                   className="px-5 py-3 rounded-2xl font-black text-sm bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-200 shadow-sm hover:shadow transition-all flex items-center gap-2 cursor-pointer"
                 >
-                  <span>🔊</span> හඬට සවන් දෙන්න (Listen)
+                  <span>🔊</span> Listen (Standard Audio)
                 </button>
 
                 <button
@@ -2657,7 +2708,7 @@ export default function EnglishModule({ onExit }) {
                       : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                   }`}
                 >
-                  <span>{isListening ? `⏹️ අවසන් කරන්න (${recordingSeconds}s)` : '🎤 කතා කරන්න (Speak)'}</span>
+                  <span>{isListening ? `⏹️ Stop Recording (${recordingSeconds}s)` : '🎤 Speak (Start Recording)'}</span>
                 </button>
               </div>
 
@@ -2666,7 +2717,7 @@ export default function EnglishModule({ onExit }) {
 
                   <div className="flex flex-wrap items-center justify-center gap-3">
                     <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
-                    <span className="font-bold text-sm">🎙️ සවන් දෙමින් පවතී ({recordingSeconds}s)</span>
+                    <span className="font-bold text-sm">🎙️ Listening... ({recordingSeconds}s)</span>
 
                     <div className="flex items-end gap-1 h-5 px-2 py-0.5 bg-white rounded-lg border border-emerald-200">
                       {[0.4, 0.8, 1.2, 0.7, 0.5].map((mult, idx) => (
@@ -2683,7 +2734,7 @@ export default function EnglishModule({ onExit }) {
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                       liveVolume > 5 ? 'bg-emerald-600 text-white animate-pulse' : 'bg-slate-200 text-slate-600'
                     }`}>
-                      {liveVolume > 5 ? `🔊 හඬ ලැබෙමින් පවතී (${liveVolume}%)` : '🔈 සවන් දෙමින්...'}
+                      {liveVolume > 5 ? `🔊 Audio Detected (${liveVolume}%)` : '🔈 Listening...'}
                     </span>
                   </div>
 
@@ -2691,7 +2742,7 @@ export default function EnglishModule({ onExit }) {
                     <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-slate-100">
                       <span className="text-xs font-black text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
                         <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                        ඔබ පවසන දෙය (Live Speech):
+                        You are saying (Live Speech):
                       </span>
                       <span className="text-[11px] font-bold text-slate-400">
                         Real-time Stream
@@ -2704,7 +2755,7 @@ export default function EnglishModule({ onExit }) {
                         </span>
                       ) : (
                         <span className="text-sm font-bold text-slate-400 italic animate-pulse">
-                          🎙️ දැන් කතා කරන්න... ඔබ පවසන වචන මෙතැන සජීවීව දිස්වේ (Speak now...)
+                          🎙️ Speak now... your spoken words will appear here in real-time
                         </span>
                       )}
                     </div>
@@ -2725,7 +2776,7 @@ export default function EnglishModule({ onExit }) {
                         <h4 className="font-black text-base">{assessmentResult.statusTitle}</h4>
                         {assessmentResult.engagement?.improvementPercentage > 0 && (
                           <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-600 text-white shadow-sm animate-bounce">
-                            🌟 +{assessmentResult.engagement.improvementPercentage}% දියුණුවක්!
+                            🌟 +{assessmentResult.engagement.improvementPercentage}% Improvement!
                           </span>
                         )}
                       </div>
@@ -2738,7 +2789,7 @@ export default function EnglishModule({ onExit }) {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="text-right">
-                        <span className="text-[10px] uppercase font-black tracking-wider block opacity-75">ලකුණු</span>
+                        <span className="text-[10px] uppercase font-black tracking-wider block opacity-75">Score</span>
                         <span className={`text-xl font-black px-4 py-1.5 rounded-xl shadow-sm inline-block ${
                           assessmentResult.pronunciationCorrect
                             ? 'bg-emerald-600 text-white'
@@ -2754,7 +2805,7 @@ export default function EnglishModule({ onExit }) {
 
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
                       <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        🎯 1. උච්චාරණය (Pronunciation)
+                        🎯 1. Pronunciation
                       </span>
                       <div className="flex items-baseline justify-between">
                         <span className="text-base font-black text-slate-800">
@@ -2767,13 +2818,13 @@ export default function EnglishModule({ onExit }) {
                         </span>
                       </div>
                       <span className="text-[11px] font-medium text-slate-600 block">
-                        MTI දෝෂ: {assessmentResult.mtiPatterns?.length || 0}
+                        MTI Errors: {assessmentResult.mtiPatterns?.length || 0}
                       </span>
                     </div>
 
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
                       <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        ⚡ 2. කථන වේගය (Fluency)
+                        ⚡ 2. Fluency & Speed
                       </span>
                       <div className="flex items-baseline justify-between">
                         <span className="text-base font-black text-slate-800">
@@ -2784,13 +2835,13 @@ export default function EnglishModule({ onExit }) {
                         </span>
                       </div>
                       <span className="text-[11px] font-medium text-slate-600 block">
-                        විරාම: {assessmentResult.fluency?.pauseCount || 0} ({assessmentResult.fluency?.totalPauseSec || 0}s)
+                        Pauses: {assessmentResult.fluency?.pauseCount || 0} ({assessmentResult.fluency?.totalPauseSec || 0}s)
                       </span>
                     </div>
 
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
                       <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        🎵 3. ස්වර රිද්මය (Intonation)
+                        🎵 3. Pitch Intonation
                       </span>
                       <div className="flex items-baseline justify-between">
                         <span className="text-xs font-black text-slate-800 truncate">
@@ -2809,7 +2860,7 @@ export default function EnglishModule({ onExit }) {
 
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
                       <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        🔊 4. ශබ්ද මට්ටම (Volume)
+                        🔊 4. Volume Level
                       </span>
                       <div className="flex items-baseline justify-between">
                         <span className="text-base font-black text-slate-800">
@@ -2826,7 +2877,7 @@ export default function EnglishModule({ onExit }) {
 
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
                       <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        🔤 5. වචන පිළිවෙළ (Language)
+                        🔤 5. Language & Structure
                       </span>
                       <div className="flex items-baseline justify-between">
                         <span className="text-base font-black text-slate-800">
@@ -2839,20 +2890,20 @@ export default function EnglishModule({ onExit }) {
                         </span>
                       </div>
                       <span className="text-[11px] font-medium text-slate-600 block">
-                        {assessmentResult.language?.repetitions?.length > 0 ? `නැවත කීම්: ${assessmentResult.language.repetitions.length}` : 'නැවත කීම් නැත'}
+                        {assessmentResult.language?.repetitions?.length > 0 ? `Repetitions: ${assessmentResult.language.repetitions.length}` : 'No Repetitions'}
                       </span>
                     </div>
 
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
                       <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
-                        🚀 6. විශ්වාසය & ආරම්භය (Engagement)
+                        🚀 6. Confidence & Engagement
                       </span>
                       <div className="flex items-baseline justify-between">
                         <span className="text-base font-black text-slate-800">
                           {assessmentResult.engagement?.score ?? 90}%
                         </span>
                         <span className="text-[10px] font-bold text-slate-600">
-                          උත්සාහ #{assessmentResult.engagement?.attempts || questionAttempts}
+                          Attempt #{assessmentResult.engagement?.attempts || questionAttempts}
                         </span>
                       </div>
                       <span className="text-[11px] font-medium text-slate-600 block truncate">
@@ -2865,12 +2916,12 @@ export default function EnglishModule({ onExit }) {
                   {assessmentResult.mtiPatterns && assessmentResult.mtiPatterns.length > 0 && (
                     <div className="space-y-2">
                       <span className="text-[11px] font-black text-rose-600 uppercase tracking-wider block">
-                        ⚠️ හඳුනාගත් ශ්‍රී ලාංකික MTI උච්චාරණ රටා (Pronunciation Tips):
+                        ⚠️ Detected Sri Lankan MTI Patterns (Pronunciation Guidance):
                       </span>
                       {assessmentResult.mtiPatterns.map((pat, idx) => (
                         <div key={idx} className="p-3.5 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1.5">
                           <div className="flex items-center justify-between text-xs font-black text-rose-900">
-                            <span>📌 {pat.name} ({pat.name_si})</span>
+                            <span>📌 {pat.name}</span>
                             <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-rose-200">
                               {pat.target_ipa} ➔ {pat.error_ipa}
                             </span>
@@ -2881,10 +2932,7 @@ export default function EnglishModule({ onExit }) {
                             </p>
                           )}
                           <p className="text-xs text-rose-800 font-bold">
-                            💡 උපදෙස: {pat.pedagogical_tip_si}
-                          </p>
-                          <p className="text-[11px] text-slate-600 italic">
-                            ({pat.pedagogical_tip})
+                            💡 Tip: {pat.pedagogical_tip}
                           </p>
                         </div>
                       ))}
@@ -2894,7 +2942,7 @@ export default function EnglishModule({ onExit }) {
                   {assessmentResult.wordResults && assessmentResult.wordResults.length > 1 && (
                     <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
                       <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                        වචන අනුව විශ්ලේෂණය (Word-by-Word Alignment):
+                        Word-by-Word Alignment:
                       </span>
                       <div className="flex flex-wrap gap-2">
                         {assessmentResult.wordResults.map((wr, idx) => (
@@ -2915,8 +2963,8 @@ export default function EnglishModule({ onExit }) {
                   )}
 
                   <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 font-bold flex flex-wrap justify-between items-center gap-2">
-                    <span>ඔබ පැවසූ දෙය: <strong className="font-sans text-slate-900 text-sm">"{assessmentResult.transcript}"</strong></span>
-                    <span>අපේක්ෂිත {selectedGrade === 2 ? 'වචනය' : 'වාක්‍යය'}: <strong className="font-sans text-emerald-700 text-sm">"{currentQ.target_text}"</strong></span>
+                    <span>You said: <strong className="font-sans text-slate-900 text-sm">"{assessmentResult.transcript}"</strong></span>
+                    <span>Target {selectedGrade === 2 ? 'Word' : 'Sentence'}: <strong className="font-sans text-emerald-700 text-sm">"{currentQ.target_text}"</strong></span>
                   </div>
 
                 </div>
@@ -2928,7 +2976,7 @@ export default function EnglishModule({ onExit }) {
                     onClick={handleRetryQuestion}
                     className="px-6 py-3 rounded-2xl font-black text-sm bg-amber-500 hover:bg-amber-600 text-white shadow-md transition-all cursor-pointer flex items-center gap-2"
                   >
-                    <span>🔄</span> නැවත උත්සාහ කරන්න (Try Again)
+                    <span>🔄</span> Try Again
                   </button>
                 ) : (
                   <div></div>
@@ -2943,7 +2991,7 @@ export default function EnglishModule({ onExit }) {
                       : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-75 shadow-none'
                   }`}
                 >
-                  <span>{currentQIndex >= 9 ? 'ප්‍රශ්න පත්‍රය අවසන් කරන්න ➔' : 'ඊළඟ ප්‍රශ්නය ➔'}</span>
+                  <span>{currentQIndex >= 9 ? 'Finish Paper ➔' : 'Next Question ➔'}</span>
                 </button>
               </div>
 
@@ -2955,25 +3003,25 @@ export default function EnglishModule({ onExit }) {
           <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-emerald-200 shadow-2xl space-y-8 animate-scale-up">
 
             <div className="text-center pb-6 border-b border-slate-200">
-              <h2 className="text-3xl font-black text-slate-800 mb-1 font-sinhala">
-                {selectedGrade} ශ්‍රේණිය — {activePaperConfig.title} වාර්තාව
+              <h2 className="text-3xl font-black text-slate-800 mb-1">
+                Grade {selectedGrade} — {activePaperConfig.title} Report
               </h2>
               <p className="text-sm text-slate-500 font-bold">
-                {activePaperConfig.levelTitle} • ප්‍රශ්න 10 ඇගයීම් ප්‍රතිඵලය
+                {activePaperConfig.levelTitle} • 10 Questions Evaluation Summary
               </p>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
-                <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">100% සාර්ථක ප්‍රශ්න</p>
+                <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">100% Passed Questions</p>
                 <p className="text-3xl font-black text-emerald-700">{totalPassedCount} / 10</p>
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-center">
-                <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">සාමාන්‍ය ලකුණු ප්‍රතිශතය</p>
+                <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">Overall Accuracy</p>
                 <p className="text-3xl font-black text-blue-700">{overallReportAccuracy}%</p>
               </div>
               <div className="col-span-2 sm:col-span-1 bg-purple-50 border border-purple-200 rounded-2xl p-5 text-center">
-                <p className="text-xs font-bold text-purple-600 uppercase tracking-widest mb-1">තත්ත්වය</p>
+                <p className="text-xs font-bold text-purple-600 uppercase tracking-widest mb-1">Status</p>
                 <p className={`text-2xl font-black ${hasPassedThreshold ? 'text-emerald-700' : 'text-amber-700'}`}>
                   {hasPassedThreshold ? '✓ Passed (75%+)' : '✗ Needs Practice'}
                 </p>
@@ -2984,11 +3032,11 @@ export default function EnglishModule({ onExit }) {
               <div className="p-5 bg-emerald-50 rounded-2xl border-2 border-emerald-200 flex items-center gap-4">
                 <span className="text-3xl">🎉</span>
                 <div>
-                  <h4 className="font-black text-emerald-900 text-base">විශිෂ්ටයි! ඔබ 75% කට වඩා ලබා ගත්තා!</h4>
+                  <h4 className="font-black text-emerald-900 text-base">Great job! You achieved 75% or higher!</h4>
                   <p className="text-xs text-emerald-700 font-medium mt-0.5">
                     {activePaperId < 3
-                      ? `ඊළඟ ප්‍රශ්න පත්‍රය 0${activePaperId + 1} (${PAPERS_CONFIG[activePaperId].badge}) දැන් අගුළු හැරී ඇත.`
-                      : 'ඔබ සියලුම මට්ටම් (Easy, Medium, Hard) සාර්ථකව සම්පූර්ණ කළා!'}
+                      ? `Paper 0${activePaperId + 1} (${PAPERS_CONFIG[activePaperId].badge}) is now unlocked.`
+                      : 'You have completed all assessment levels (Paper 01, 02, and 03)!'}
                   </p>
                 </div>
               </div>
@@ -2996,9 +3044,9 @@ export default function EnglishModule({ onExit }) {
               <div className="p-5 bg-amber-50 rounded-2xl border-2 border-amber-200 flex items-center gap-4">
                 <span className="text-3xl">🎯</span>
                 <div>
-                  <h4 className="font-black text-amber-900 text-base">ඊළඟ ප්‍රශ්න පත්‍රයට යාමට 75% ක් අවශ්‍ය වේ.</h4>
+                  <h4 className="font-black text-amber-900 text-base">75% required to unlock the next paper.</h4>
                   <p className="text-xs text-amber-700 font-medium mt-0.5">
-                    ඔබ ලබාගෙන ඇත්තේ {overallReportAccuracy}% කි. කරුණාකර නැවත උත්සාහ කරන්න.
+                    You scored {overallReportAccuracy}%. Please review the tips and try again.
                   </p>
                 </div>
               </div>
@@ -3006,7 +3054,7 @@ export default function EnglishModule({ onExit }) {
 
             <div>
               <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
-                <span>📋</span> ප්‍රශ්න 10 සමාලෝචනය
+                <span>📋</span> 10 Questions Breakdown
               </h3>
               <div className="space-y-3">
                 {history.map((h, idx) => (
@@ -3027,12 +3075,12 @@ export default function EnglishModule({ onExit }) {
                       </span>
                     </div>
                     <p className="text-xs text-slate-600 font-bold">
-                      ඔබ පැවසූ දෙය: <span className="font-sans text-slate-800">"{h.userTranscript}"</span>
+                      You said: <span className="font-sans text-slate-800">"{h.userTranscript}"</span>
                     </p>
 
                     {h.mtiPatterns && h.mtiPatterns.length > 0 && (
                       <div className="mt-2 p-2 bg-white rounded-xl border border-rose-200 text-xs text-rose-800 font-bold">
-                        ⚠️ MTI රටා: {h.mtiPatterns.map(p => p.name_si).join(', ')}
+                        ⚠️ MTI Patterns: {h.mtiPatterns.map(p => p.name).join(', ')}
                       </div>
                     )}
 
@@ -3047,7 +3095,7 @@ export default function EnglishModule({ onExit }) {
                       {h.attempts > 1 && (
                         <>
                           <span>•</span>
-                          <span className="text-emerald-700 font-black">උත්සාහ #{h.attempts}</span>
+                          <span className="text-emerald-700 font-black">Attempt #{h.attempts}</span>
                         </>
                       )}
                     </div>
@@ -3061,7 +3109,7 @@ export default function EnglishModule({ onExit }) {
                 onClick={() => handleStartPaper(activePaperId)}
                 className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black py-3.5 px-6 rounded-2xl shadow-md transition-all cursor-pointer text-center"
               >
-                🔄 නැවත කරන්න (ප්‍රශ්න පත්‍රය 0{activePaperId})
+                🔄 Retake Paper 0{activePaperId}
               </button>
 
               {activePaperId < 3 && (
@@ -3069,7 +3117,7 @@ export default function EnglishModule({ onExit }) {
                   onClick={() => handleStartPaper(activePaperId + 1)}
                   className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-3.5 px-6 rounded-2xl shadow-md transition-all cursor-pointer text-center"
                 >
-                  ඊළඟ ප්‍රශ්න පත්‍රය වෙත (0{activePaperId + 1}) ➔
+                  Next Paper (0{activePaperId + 1}) ➔
                 </button>
               )}
 
@@ -3077,7 +3125,7 @@ export default function EnglishModule({ onExit }) {
                 onClick={() => setViewState('papers_hub')}
                 className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-black py-3.5 px-6 rounded-2xl transition-all cursor-pointer text-center"
               >
-                📑 වෙනත් ප්‍රශ්න පත්‍රයක් තෝරන්න
+                📑 Select Another Paper
               </button>
               <button
                 onClick={onExit || (() => navigate('/dashboard'))}
