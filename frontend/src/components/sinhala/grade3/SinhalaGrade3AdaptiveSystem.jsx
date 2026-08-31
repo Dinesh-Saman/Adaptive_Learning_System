@@ -323,7 +323,7 @@ export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
                         </button>
                       ) : (
                         <div className="text-center text-[11px] font-bold text-slate-400 py-2">
-                          🔒 පෙර පත්‍රය අවසන් කරන්න
+                          🔒 Paper {paper.num - 1} න් 75% ක් ලබා විවෘත කරගන්න
                         </div>
                       )}
                     </div>
@@ -623,6 +623,16 @@ export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
               <p className="text-purple-100 text-sm font-medium mt-1">
                 ලකුණු සංඛ්‍යාව: <span className="text-white font-extrabold text-lg">{paperResult.score} / {paperResult.total}</span> ({paperResult.percentage}%)
               </p>
+
+              {paperResult.percentage >= 75 ? (
+                <div className="mt-3 inline-block bg-white/20 px-4 py-1.5 rounded-full text-xs font-bold text-white border border-white/30">
+                  🎉 විශිෂ්ටයි! ඔබ 75% ට වඩා ලකුණු ලබාගත් බැවින් ඊළඟ ප්‍රශ්න පත්‍රය විවෘතයි!
+                </div>
+              ) : (
+                <div className="mt-3 inline-block bg-amber-500/30 px-4 py-1.5 rounded-full text-xs font-bold text-amber-100 border border-amber-400/40">
+                  ⚠️ ඊළඟ Paper {paperResult.paperNumber + 1} විවෘත වීමට 75% ක ලකුණු අවශ්‍යයි. නැවත උත්සාහ කරන්න.
+                </div>
+              )}
               
               <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
                 <button
@@ -632,13 +642,22 @@ export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
                   <BookOpen className="w-4 h-4 text-purple-600" />
                   දුර්‍වල ප්‍රශ්න කාණ්ඩ පුහුණු අභ්‍යාස ➔
                 </button>
-                {paperResult.paperNumber < 5 && (
+                {paperResult.paperNumber < 5 && paperResult.percentage >= 75 && (
                   <button
                     onClick={() => handleStartPaper(paperResult.paperNumber + 1)}
                     className="px-6 py-3 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-2xl font-black text-sm shadow-md transition-all flex items-center gap-2"
                   >
                     <Play className="w-4 h-4 fill-current" />
                     Paper {paperResult.paperNumber + 1} අරඹන්න ➔
+                  </button>
+                )}
+                {paperResult.percentage < 75 && (
+                  <button
+                    onClick={() => handleStartPaper(paperResult.paperNumber)}
+                    className="px-6 py-3 bg-amber-400 hover:bg-amber-500 text-slate-950 rounded-2xl font-black text-sm shadow-md transition-all flex items-center gap-2"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    නැවත කරන්න (Retry Paper {paperResult.paperNumber}) ➔
                   </button>
                 )}
                 <button

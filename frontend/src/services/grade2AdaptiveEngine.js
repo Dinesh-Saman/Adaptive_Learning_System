@@ -16,6 +16,7 @@ import { QUESTION_BANK, SINHALA_CATEGORIES, SINHALA_LETTERS, SINHALA_PILLAM_REGI
 
 const ADAPTIVE_STORAGE_KEY = 'sinhala_grade2_adaptive_session';
 export const TRACING_PASS_THRESHOLD = 85; // Configurable Research Parameter (0-100)
+export const PAPER_UNLOCK_THRESHOLD = 75; // Minimum 75% required to unlock next paper
 
 export function getActiveStudentKey() {
   try {
@@ -471,6 +472,7 @@ export class Grade2AdaptiveEngine {
 
     const totalQuestions = questions.length;
     const overallPercentage = Math.round((totalCorrect / totalQuestions) * 100);
+    const isPassed = overallPercentage >= PAPER_UNLOCK_THRESHOLD;
 
     const paperResult = {
       paperNumber,
@@ -479,6 +481,8 @@ export class Grade2AdaptiveEngine {
       total: totalQuestions,
       percentage: overallPercentage,
       passThreshold,
+      isPassed,
+      unlockThreshold: PAPER_UNLOCK_THRESHOLD,
       categoryScores,
       evaluatedAnswers,
       weakestCategory: weakestCat,
@@ -502,7 +506,8 @@ export class Grade2AdaptiveEngine {
       this.session.completedPapers.push(paperNumber);
     }
 
-    if (paperNumber < 5 && !this.session.unlockedPapers.includes(paperNumber + 1)) {
+    // Unlock next paper ONLY if student achieves >= 75% marks on current paper
+    if (isPassed && paperNumber < 5 && !this.session.unlockedPapers.includes(paperNumber + 1)) {
       this.session.unlockedPapers.push(paperNumber + 1);
     }
 

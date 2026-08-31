@@ -6,6 +6,7 @@
 import { GRADE3_QUESTION_BANK, GRADE3_SINHALA_CATEGORIES, GRADE3_REMEDIAL_EXERCISE_BANK } from '../data/grade3SinhalaQuestionBank';
 
 const STORAGE_KEY = 'g3_sinhala_session';
+export const PAPER_UNLOCK_THRESHOLD = 75; // Minimum 75% required to unlock next paper
 
 export function getActiveStudentKey() {
   try {
@@ -304,6 +305,7 @@ class Grade3AdaptiveEngine {
 
     const totalQuestions = questions.length;
     const overallPercentage = Math.round((totalCorrect / totalQuestions) * 100);
+    const isPassed = overallPercentage >= PAPER_UNLOCK_THRESHOLD;
 
     const paperResult = {
       paperNumber,
@@ -311,6 +313,8 @@ class Grade3AdaptiveEngine {
       score: totalCorrect,
       total: totalQuestions,
       percentage: overallPercentage,
+      isPassed,
+      unlockThreshold: PAPER_UNLOCK_THRESHOLD,
       categoryScores,
       evaluatedAnswers
     };
@@ -323,7 +327,8 @@ class Grade3AdaptiveEngine {
       this.session.completedPapers.push(paperNumber);
     }
 
-    if (paperNumber < 5 && !this.session.unlockedPapers.includes(paperNumber + 1)) {
+    // Unlock next paper ONLY if student achieves >= 75% marks on current paper
+    if (isPassed && paperNumber < 5 && !this.session.unlockedPapers.includes(paperNumber + 1)) {
       this.session.unlockedPapers.push(paperNumber + 1);
     }
 
