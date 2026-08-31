@@ -54,6 +54,9 @@ app.use('/api/ai/handwriting', sinhalaRouter);
 // ── Multi-Subject Longitudinal Analytics & Progress Intelligence ──
 app.use('/api/analytics', require('./routes/analytics'));
 
+// ── Native Sinhala Text-to-Speech Streaming ──
+app.use('/api/tts', require('./routes/tts'));
+
 // ── Start Server ──
 app.listen(PORT, () => {
   console.log(`🚀 AI Adaptive Learning API Server is running on port ${PORT}`);

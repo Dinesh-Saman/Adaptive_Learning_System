@@ -11,7 +11,6 @@ const StoryDrawingModule = ({ onExit }) => {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evaluationResult, setEvaluationResult] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
   const fileInputRef = useRef(null);
 
   const processFile = (file) => {
@@ -62,11 +61,25 @@ const StoryDrawingModule = ({ onExit }) => {
     return () => window.removeEventListener('paste', handlePaste);
   }, []);
 
+  const audioRef = useRef(null);
+  const isSpeakingRef = useRef(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [activeParagraphIndex, setActiveParagraphIndex] = useState(null);
+
   const stopSpeaking = () => {
+    isSpeakingRef.current = false;
+    if (audioRef.current) {
+      try {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      } catch (e) {}
+      audioRef.current = null;
+    }
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
     setIsSpeaking(false);
+    setActiveParagraphIndex(null);
   };
 
   const toggleReadStory = () => {
@@ -75,45 +88,100 @@ const StoryDrawingModule = ({ onExit }) => {
       return;
     }
 
-    if (!('speechSynthesis' in window) || !activeStory) return;
-    window.speechSynthesis.cancel();
+    if (!activeStory) return;
 
-    // Prepare full story text in natural narrative structure
-    const fullStoryText = `${activeStory.title}. ` + activeStory.paragraphs.join('. ') + `. කතාවේ ආදර්ශය: ${activeStory.moral}`;
-    const utterance = new SpeechSynthesisUtterance(fullStoryText);
-    utterance.lang = 'si-LK';
-    utterance.rate = 0.82; // Gentle storytelling pace
-    utterance.pitch = 1.25; // Gentle, clear female voice pitch
+    const sections = [
+      { text: activeStory.title, paragraphIdx: -1 },
+      ...activeStory.paragraphs.map((p, idx) => ({ text: p, paragraphIdx: idx })),
+      { text: `කතාවේ ආදර්ශය. ${activeStory.moral}`, paragraphIdx: 999 }
+    ];
 
-    // Choose preferred female or Sinhala voice
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find(v => 
-      v.lang === 'si-LK' || 
-      v.lang.startsWith('si') ||
-      (v.name.toLowerCase().includes('female') && (v.lang.startsWith('en') || v.lang.startsWith('hi'))) ||
-      v.name.toLowerCase().includes('zira') ||
-      v.name.toLowerCase().includes('samantha') ||
-      v.name.toLowerCase().includes('kavya') ||
-      v.name.toLowerCase().includes('swara') ||
-      v.name.toLowerCase().includes('neerja')
-    );
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
+    setIsSpeaking(true);
+    isSpeakingRef.current = true;
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    const playSection = (index) => {
+      if (!isSpeakingRef.current || index >= sections.length) {
+        stopSpeaking();
+        return;
+      }
 
-    window.speechSynthesis.speak(utterance);
+      const item = sections[index];
+      setActiveParagraphIndex(item.paragraphIdx);
+
+      const rawSentences = item.text
+        .split(/(?<=[.!?\n])\s+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const sentences = rawSentences.length > 0 ? rawSentences : [item.text];
+
+      const playSentence = (sIdx) => {
+        if (!isSpeakingRef.current) return;
+        if (sIdx >= sentences.length) {
+          playSection(index + 1);
+          return;
+        }
+
+        const sentenceText = sentences[sIdx];
+        const encoded = encodeURIComponent(sentenceText);
+        const backendUrl = `http://localhost:5000/api/tts/sinhala?text=${encoded}`;
+        const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=si&client=tw-ob&q=${encoded}`;
+
+        const nextSent = () => {
+          if (isSpeakingRef.current) {
+            playSentence(sIdx + 1);
+          }
+        };
+
+        const audio = new Audio();
+        audioRef.current = audio;
+
+        audio.onended = nextSent;
+        audio.onerror = () => {
+          if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(sentenceText);
+            utterance.lang = 'si-LK';
+            utterance.rate = 0.85;
+            utterance.pitch = 1.25;
+            utterance.onend = nextSent;
+            utterance.onerror = nextSent;
+            window.speechSynthesis.speak(utterance);
+          } else {
+            nextSent();
+          }
+        };
+
+        audio.src = backendUrl;
+        audio.play().catch(() => {
+          audio.src = googleUrl;
+          audio.play().catch(() => {
+            if ('speechSynthesis' in window) {
+              window.speechSynthesis.cancel();
+              const utterance = new SpeechSynthesisUtterance(sentenceText);
+              utterance.lang = 'si-LK';
+              utterance.rate = 0.85;
+              utterance.pitch = 1.25;
+              utterance.onend = nextSent;
+              utterance.onerror = nextSent;
+              window.speechSynthesis.speak(utterance);
+            } else {
+              nextSent();
+            }
+          });
+        });
+      };
+
+      playSentence(0);
+    };
+
+    playSection(0);
   };
 
   // Stop speaking when story changes or component unmounts
   useEffect(() => {
     return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      stopSpeaking();
     };
   }, [activeStory]);
 
@@ -328,12 +396,25 @@ const StoryDrawingModule = ({ onExit }) => {
                   </div>
                 </div>
                 
-                <div className="prose text-slate-700 font-sinhala leading-relaxed flex-grow overflow-y-auto pr-2 max-h-[50vh] custom-scrollbar">
+                <div className="prose text-slate-700 font-sinhala leading-relaxed flex-grow overflow-y-auto pr-2 max-h-[50vh] custom-scrollbar space-y-2">
                   {activeStory.paragraphs.map((p, idx) => (
-                    <p key={idx} className="mb-3 text-[1.1rem]">{p}</p>
+                    <p 
+                      key={idx} 
+                      className={`text-[1.1rem] p-2 rounded-xl transition-all duration-300 ${
+                        activeParagraphIndex === idx 
+                          ? 'bg-amber-100 text-amber-950 font-bold border-l-4 border-amber-500 shadow-2xs' 
+                          : 'hover:bg-slate-50'
+                      }`}
+                    >
+                      {p}
+                    </p>
                   ))}
                   
-                  <div className="mt-4 p-4 bg-orange-50 rounded-xl border border-orange-100">
+                  <div className={`mt-4 p-4 rounded-xl border transition-all duration-300 ${
+                    activeParagraphIndex === 999
+                      ? 'bg-amber-100 border-amber-400 shadow-sm border-l-4 border-l-amber-500'
+                      : 'bg-orange-50 border-orange-100'
+                  }`}>
                     <h4 className="font-bold text-orange-800 mb-1">ආදර්ශය:</h4>
                     <p className="text-orange-700 font-medium italic text-[1.05rem]">
                       {activeStory.moral}
