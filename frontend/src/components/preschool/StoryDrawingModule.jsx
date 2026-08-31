@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { Volume2, VolumeX, Play, Pause, Square, Sparkles, Headphones, RotateCcw } from 'lucide-react';
 import { STORIES } from '../../data/creative/stories';
 import { getItem } from '../../utils/storage';
 import { recordStudentTestMarks, recordStudentQuestionAttempts } from '../../data/studentAnalyticsData';
@@ -62,12 +62,18 @@ const StoryDrawingModule = ({ onExit }) => {
   }, []);
 
   const audioRef = useRef(null);
-  const isSpeakingRef = useRef(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
+  const isCancelledRef = useRef(false);
+  const [playbackState, setPlaybackState] = useState('idle'); // 'idle' | 'playing' | 'paused'
   const [activeParagraphIndex, setActiveParagraphIndex] = useState(null);
+  
+  // Tracking playback position for Resume functionality
+  const queueRef = useRef([]);
+  const secIdxRef = useRef(0);
+  const sentIdxRef = useRef(0);
+  const isSingleModeRef = useRef(false);
 
-  const stopSpeaking = () => {
-    isSpeakingRef.current = false;
+  const stopStory = () => {
+    isCancelledRef.current = true;
     if (audioRef.current) {
       try {
         audioRef.current.pause();
@@ -78,57 +84,84 @@ const StoryDrawingModule = ({ onExit }) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
-    setIsSpeaking(false);
+    setPlaybackState('idle');
     setActiveParagraphIndex(null);
+    secIdxRef.current = 0;
+    sentIdxRef.current = 0;
+    isSingleModeRef.current = false;
   };
 
-  const toggleReadStory = () => {
-    if (isSpeaking) {
-      stopSpeaking();
-      return;
+  const pauseStory = () => {
+    if (audioRef.current) {
+      try {
+        audioRef.current.pause();
+      } catch (e) {}
     }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.pause();
+    }
+    setPlaybackState('paused');
+  };
 
+  const resumeStory = () => {
+    if (playbackState === 'paused' && audioRef.current && audioRef.current.src) {
+      audioRef.current.play().then(() => {
+        setPlaybackState('playing');
+      }).catch(() => {
+        playFromCurrentIndex();
+      });
+    } else {
+      playFromCurrentIndex();
+    }
+  };
+
+  const playFromCurrentIndex = () => {
     if (!activeStory) return;
+    isCancelledRef.current = false;
+    setPlaybackState('playing');
 
-    const sections = [
+    const sections = queueRef.current.length > 0 ? queueRef.current : [
       { text: activeStory.title, paragraphIdx: -1 },
       ...activeStory.paragraphs.map((p, idx) => ({ text: p, paragraphIdx: idx })),
       { text: `කතාවේ ආදර්ශය. ${activeStory.moral}`, paragraphIdx: 999 }
     ];
+    queueRef.current = sections;
 
-    setIsSpeaking(true);
-    isSpeakingRef.current = true;
-
-    const playSection = (index) => {
-      if (!isSpeakingRef.current || index >= sections.length) {
-        stopSpeaking();
+    const playSection = (secIdx, startSentIdx = 0) => {
+      if (isCancelledRef.current || secIdx >= sections.length) {
+        stopStory();
         return;
       }
 
-      const item = sections[index];
+      secIdxRef.current = secIdx;
+      const item = sections[secIdx];
       setActiveParagraphIndex(item.paragraphIdx);
 
       const rawSentences = item.text
         .split(/(?<=[.!?\n])\s+/)
         .map(s => s.trim())
         .filter(Boolean);
-
       const sentences = rawSentences.length > 0 ? rawSentences : [item.text];
 
       const playSentence = (sIdx) => {
-        if (!isSpeakingRef.current) return;
+        if (isCancelledRef.current) return;
         if (sIdx >= sentences.length) {
-          playSection(index + 1);
+          if (isSingleModeRef.current) {
+            stopStory();
+          } else {
+            playSection(secIdx + 1, 0);
+          }
           return;
         }
 
+        sentIdxRef.current = sIdx;
         const sentenceText = sentences[sIdx];
         const encoded = encodeURIComponent(sentenceText);
         const backendUrl = `http://localhost:5000/api/tts/sinhala?text=${encoded}`;
         const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=si&client=tw-ob&q=${encoded}`;
 
         const nextSent = () => {
-          if (isSpeakingRef.current) {
+          if (!isCancelledRef.current) {
             playSentence(sIdx + 1);
           }
         };
@@ -172,16 +205,49 @@ const StoryDrawingModule = ({ onExit }) => {
         });
       };
 
-      playSentence(0);
+      playSentence(startSentIdx);
     };
 
-    playSection(0);
+    playSection(secIdxRef.current, sentIdxRef.current);
+  };
+
+  const startFullStory = () => {
+    stopStory();
+    if (!activeStory) return;
+    queueRef.current = [
+      { text: activeStory.title, paragraphIdx: -1 },
+      ...activeStory.paragraphs.map((p, idx) => ({ text: p, paragraphIdx: idx })),
+      { text: `කතාවේ ආදර්ශය. ${activeStory.moral}`, paragraphIdx: 999 }
+    ];
+    secIdxRef.current = 0;
+    sentIdxRef.current = 0;
+    isSingleModeRef.current = false;
+    playFromCurrentIndex();
+  };
+
+  const playSingleParagraph = (pIdx, pText) => {
+    // If already playing this paragraph, toggle pause/resume
+    if (activeParagraphIndex === pIdx && playbackState === 'playing') {
+      pauseStory();
+      return;
+    }
+    if (activeParagraphIndex === pIdx && playbackState === 'paused') {
+      resumeStory();
+      return;
+    }
+
+    stopStory();
+    queueRef.current = [{ text: pText, paragraphIdx: pIdx }];
+    secIdxRef.current = 0;
+    sentIdxRef.current = 0;
+    isSingleModeRef.current = true;
+    playFromCurrentIndex();
   };
 
   // Stop speaking when story changes or component unmounts
   useEffect(() => {
     return () => {
-      stopSpeaking();
+      stopStory();
     };
   }, [activeStory]);
 
@@ -360,31 +426,62 @@ const StoryDrawingModule = ({ onExit }) => {
                     <h2 className="text-2xl font-bold text-slate-800 font-sinhala">{activeStory.title}</h2>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                    <button 
-                      onClick={toggleReadStory}
-                      className={`text-sm font-bold px-3.5 sm:px-4 py-2 rounded-xl transition-all font-sinhala cursor-pointer shadow-sm active:scale-95 flex items-center gap-2 ${
-                        isSpeaking 
-                          ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse' 
-                          : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-orange-200 shadow-md'
-                      }`}
-                      title="කතාව ශ්‍රව්‍ය ආකාරයෙන් අසන්න"
-                    >
-                      {isSpeaking ? (
-                        <>
-                          <VolumeX className="w-4 h-4" />
-                          <span>කතාව නවත්වන්න</span>
-                        </>
-                      ) : (
-                        <>
-                          <Volume2 className="w-4 h-4" />
-                          <span>කතාව කියවන්න</span>
-                        </>
-                      )}
-                    </button>
+                    {playbackState === 'idle' && (
+                      <button 
+                        onClick={startFullStory}
+                        className="text-sm font-bold px-3.5 sm:px-4 py-2 rounded-xl transition-all font-sinhala cursor-pointer shadow-sm active:scale-95 flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-orange-200 shadow-md"
+                        title="මුළු කතාවටම සවන් දෙන්න"
+                      >
+                        <Volume2 className="w-4 h-4" />
+                        <span>කතාව කියවන්න</span>
+                      </button>
+                    )}
+
+                    {playbackState === 'playing' && (
+                      <>
+                        <button 
+                          onClick={pauseStory}
+                          className="text-sm font-bold px-3 py-2 rounded-xl transition-all font-sinhala cursor-pointer shadow-sm active:scale-95 flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white shadow-amber-200 shadow-md"
+                          title="ශ්‍රවණය විරාම ගන්වන්න (Pause)"
+                        >
+                          <Pause className="w-4 h-4" />
+                          <span>විරාමය</span>
+                        </button>
+                        <button 
+                          onClick={stopStory}
+                          className="text-sm font-bold px-3 py-2 rounded-xl transition-all font-sinhala cursor-pointer shadow-sm active:scale-95 flex items-center gap-1.5 bg-rose-500 hover:bg-rose-600 text-white shadow-rose-200 shadow-md"
+                          title="ශ්‍රවණය නවත්වන්න (Stop)"
+                        >
+                          <Square className="w-4 h-4" />
+                          <span>නවත්වන්න</span>
+                        </button>
+                      </>
+                    )}
+
+                    {playbackState === 'paused' && (
+                      <>
+                        <button 
+                          onClick={resumeStory}
+                          className="text-sm font-bold px-3.5 py-2 rounded-xl transition-all font-sinhala cursor-pointer shadow-sm active:scale-95 flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-200 shadow-md animate-pulse"
+                          title="කතාව නැවත දිගටම කියවන්න (Resume / Continue)"
+                        >
+                          <Play className="w-4 h-4" />
+                          <span>දිගටම අසන්න</span>
+                        </button>
+                        <button 
+                          onClick={stopStory}
+                          className="text-sm font-bold px-3 py-2 rounded-xl transition-all font-sinhala cursor-pointer shadow-sm active:scale-95 flex items-center gap-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700"
+                          title="ශ්‍රවණය නවත්වන්න (Stop)"
+                        >
+                          <Square className="w-4 h-4" />
+                          <span>නවත්වන්න</span>
+                        </button>
+                      </>
+                    )}
 
                     <button 
                       onClick={() => { 
-                        stopSpeaking();
+                        stopStory();
                         setActiveStory(null); 
                         setSelectedImage(null); 
                         setEvaluationResult(null); 
@@ -396,26 +493,100 @@ const StoryDrawingModule = ({ onExit }) => {
                   </div>
                 </div>
                 
-                <div className="prose text-slate-700 font-sinhala leading-relaxed flex-grow overflow-y-auto pr-2 max-h-[50vh] custom-scrollbar space-y-2">
-                  {activeStory.paragraphs.map((p, idx) => (
-                    <p 
-                      key={idx} 
-                      className={`text-[1.1rem] p-2 rounded-xl transition-all duration-300 ${
-                        activeParagraphIndex === idx 
-                          ? 'bg-amber-100 text-amber-950 font-bold border-l-4 border-amber-500 shadow-2xs' 
-                          : 'hover:bg-slate-50'
-                      }`}
-                    >
-                      {p}
-                    </p>
-                  ))}
+                <div className="prose text-slate-700 font-sinhala leading-relaxed flex-grow overflow-y-auto pr-2 max-h-[50vh] custom-scrollbar space-y-3">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200/60">
+                    <span className="flex items-center gap-1.5 text-amber-800">
+                      <Headphones className="w-3.5 h-3.5 text-amber-600" />
+                      <span>ඕනෑම ඡේදයක් මත ක්ලික් කර එයට පමණක් සවන් දෙන්න:</span>
+                    </span>
+                    {playbackState === 'playing' && (
+                      <span className="text-[11px] text-amber-700 animate-pulse font-black flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping inline-block"></span>
+                        හඬ වාදනය වේ...
+                      </span>
+                    )}
+                  </div>
+
+                  {activeStory.paragraphs.map((p, idx) => {
+                    const isThisActive = activeParagraphIndex === idx;
+                    const isThisPlaying = isThisActive && playbackState === 'playing';
+                    const isThisPaused = isThisActive && playbackState === 'paused';
+
+                    return (
+                      <div 
+                        key={idx} 
+                        onClick={() => playSingleParagraph(idx, p)}
+                        className={`group relative text-[1.08rem] p-3 rounded-2xl transition-all duration-300 cursor-pointer border ${
+                          isThisPlaying
+                            ? 'bg-amber-50 text-amber-950 font-bold border-amber-400 shadow-md ring-2 ring-amber-300/60' 
+                            : isThisPaused
+                            ? 'bg-amber-50/70 text-amber-900 border-amber-300/80 border-dashed'
+                            : 'bg-white hover:bg-orange-50/60 border-slate-100 hover:border-orange-200 shadow-2xs'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="flex-grow select-text leading-relaxed">{p}</p>
+                          <div className="shrink-0 pt-0.5">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                playSingleParagraph(idx, p);
+                              }}
+                              className={`p-1.5 rounded-xl transition-all cursor-pointer ${
+                                isThisPlaying 
+                                  ? 'bg-amber-500 text-white shadow-sm animate-pulse' 
+                                  : isThisPaused
+                                  ? 'bg-emerald-500 text-white'
+                                  : 'bg-slate-100 group-hover:bg-orange-200 text-slate-500 group-hover:text-orange-800'
+                              }`}
+                              title={isThisPlaying ? "විරාමය" : "මෙම ඡේදයට සවන් දෙන්න"}
+                            >
+                              {isThisPlaying ? (
+                                <Pause className="w-3.5 h-3.5" />
+                              ) : isThisPaused ? (
+                                <Play className="w-3.5 h-3.5" />
+                              ) : (
+                                <Volume2 className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                   
-                  <div className={`mt-4 p-4 rounded-xl border transition-all duration-300 ${
-                    activeParagraphIndex === 999
-                      ? 'bg-amber-100 border-amber-400 shadow-sm border-l-4 border-l-amber-500'
-                      : 'bg-orange-50 border-orange-100'
-                  }`}>
-                    <h4 className="font-bold text-orange-800 mb-1">ආදර්ශය:</h4>
+                  {/* Moral Section (Also Click-to-Listen) */}
+                  <div 
+                    onClick={() => playSingleParagraph(999, `කතාවේ ආදර්ශය. ${activeStory.moral}`)}
+                    className={`mt-4 p-4 rounded-2xl border transition-all duration-300 cursor-pointer ${
+                      activeParagraphIndex === 999 && playbackState === 'playing'
+                        ? 'bg-amber-100 border-amber-400 shadow-md ring-2 ring-amber-300/70'
+                        : activeParagraphIndex === 999 && playbackState === 'paused'
+                        ? 'bg-amber-50 border-amber-300'
+                        : 'bg-orange-50 hover:bg-orange-100/70 border-orange-100 hover:border-orange-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-bold text-orange-800 flex items-center gap-1.5">
+                        <span>ආදර්ශය:</span>
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          playSingleParagraph(999, `කතාවේ ආදර්ශය. ${activeStory.moral}`);
+                        }}
+                        className="p-1.5 rounded-xl bg-orange-200 hover:bg-orange-300 text-orange-900 transition-all cursor-pointer"
+                        title="ආදර්ශයට සවන් දෙන්න"
+                      >
+                        {activeParagraphIndex === 999 && playbackState === 'playing' ? (
+                          <Pause className="w-3.5 h-3.5" />
+                        ) : (
+                          <Volume2 className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
                     <p className="text-orange-700 font-medium italic text-[1.05rem]">
                       {activeStory.moral}
                     </p>
