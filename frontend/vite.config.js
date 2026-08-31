@@ -10,6 +10,10 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true
       },
+      '/api/tts': {
+        target: 'http://localhost:5000',
+        changeOrigin: true
+      },
       '/api/ai': {
         target: 'http://localhost:8000',
         changeOrigin: true

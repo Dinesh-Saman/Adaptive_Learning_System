@@ -1,7 +1,7 @@
 ﻿/**
  * sinhalaTts.js
- * High-quality Sinhala Voice & Speech Synthesis Utility
- * Supports streaming female Sinhala audio with HTML5 Audio, Google TTS, and Web Speech Synthesis fallbacks.
+ * Robust Sinhala Voice & Speech Synthesis Utility
+ * Uses Async/Await sequential audio streaming with HTML5 Audio & multi-layer fallback.
  */
 
 let activeSinhalaAudio = null;
@@ -22,157 +22,176 @@ export function stopSinhalaAudio() {
 }
 
 /**
- * Cleans and formats Sinhala text for clear, natural TTS pronunciation
+ * Cleans Sinhala text so Google TTS pronounces every word accurately without glitching on symbols
  */
 export function cleanSinhalaTextForTts(text) {
   if (!text) return '';
   return text
     .replace(/[“”"']/g, ' ')
     .replace(/[()[\]{}]/g, ' ')
-    .replace(/[:;]/g, ', ')
+    .replace(/[/]/g, ' , ') // Convert / (slash) to comma pause so (කයි / බත් / පුතා) reads "කයි, බත්, පුතා"
+    .replace(/[:;]/g, ' , ')
     .replace(/[-–—_]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
 /**
- * Speaks a single phrase or sentence
+ * Internal async function that plays one audio sentence and resolves ONLY when playback is completely finished
  */
-export function speakSinhalaAudio(rawText, onEnded = null) {
+function playAudioPromise(rawText) {
   const text = cleanSinhalaTextForTts(rawText);
-  if (!text) {
-    if (onEnded) onEnded();
-    return;
-  }
-
-  isNarrationCancelled = false;
-
-  if (activeSinhalaAudio) {
-    try {
-      activeSinhalaAudio.pause();
-      activeSinhalaAudio.src = '';
-    } catch (e) {}
-    activeSinhalaAudio = null;
-  }
-  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-  }
-
-  const encoded = encodeURIComponent(text);
-  const backendUrl = `http://localhost:5000/api/tts/sinhala?text=${encoded}`;
-  const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=si&client=tw-ob&q=${encoded}`;
-
-  const audio = new Audio();
-  activeSinhalaAudio = audio;
-
-  const handleEnd = () => {
-    if (!isNarrationCancelled && onEnded) {
-      onEnded();
+  return new Promise((resolve) => {
+    if (!text || isNarrationCancelled) {
+      resolve();
+      return;
     }
-  };
 
-  audio.onended = handleEnd;
-  audio.onerror = () => {
-    // Fallback to SpeechSynthesis
+    if (activeSinhalaAudio) {
+      try {
+        activeSinhalaAudio.pause();
+        activeSinhalaAudio.src = '';
+      } catch (e) {}
+      activeSinhalaAudio = null;
+    }
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'si-LK';
-      utterance.rate = 0.82;
-      utterance.pitch = 1.15;
-      utterance.onend = handleEnd;
-      utterance.onerror = handleEnd;
-      window.speechSynthesis.speak(utterance);
-    } else {
-      handleEnd();
     }
-  };
 
-  audio.src = backendUrl;
-  audio.play().catch(() => {
-    audio.src = googleUrl;
-    audio.play().catch(() => {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'si-LK';
-        utterance.rate = 0.82;
-        utterance.pitch = 1.15;
-        utterance.onend = handleEnd;
-        utterance.onerror = handleEnd;
-        window.speechSynthesis.speak(utterance);
-      } else {
-        handleEnd();
+    const encoded = encodeURIComponent(text);
+    const urls = [
+      `/api/tts/sinhala?text=${encoded}`,
+      `http://localhost:5000/api/tts/sinhala?text=${encoded}`
+    ];
+
+    let urlIdx = 0;
+    let finished = false;
+
+    const done = () => {
+      if (!finished) {
+        finished = true;
+        resolve();
       }
-    });
+    };
+
+    const tryNextUrl = () => {
+      if (isNarrationCancelled) {
+        done();
+        return;
+      }
+
+      if (urlIdx >= urls.length) {
+        // Fallback to SpeechSynthesis
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'si-LK';
+          utterance.rate = 0.85;
+          utterance.pitch = 1.15;
+
+          const fallbackTimer = setTimeout(() => {
+            done();
+          }, Math.max(1800, text.length * 140));
+
+          utterance.onend = () => {
+            clearTimeout(fallbackTimer);
+            done();
+          };
+          utterance.onerror = () => {
+            clearTimeout(fallbackTimer);
+            done();
+          };
+
+          window.speechSynthesis.speak(utterance);
+        } else {
+          setTimeout(done, Math.max(1500, text.length * 100));
+        }
+        return;
+      }
+
+      const currentUrl = urls[urlIdx];
+      urlIdx++;
+
+      const audio = new Audio();
+      activeSinhalaAudio = audio;
+
+      audio.onended = () => {
+        done();
+      };
+
+      audio.onerror = () => {
+        tryNextUrl();
+      };
+
+      audio.src = currentUrl;
+      audio.play().catch(() => {
+        tryNextUrl();
+      });
+    };
+
+    tryNextUrl();
   });
 }
 
 /**
- * Reads the question prompt and then sequentially each of the 4 options in exact order (1, 2, 3, 4)
- * Triggers onStepChange(stepIndex) where:
- *   -1 : Reading question prompt / passage
- *    0 : Reading Option 1
- *    1 : Reading Option 2
- *    2 : Reading Option 3
- *    3 : Reading Option 4
- *  null : Finished / Idle
+ * Public function to speak a single text string
  */
-export function speakQuestionWithAnswers(question, onStepChange = null, onComplete = null) {
+export function speakSinhalaAudio(rawText, onEnded = null) {
+  stopSinhalaAudio();
+  isNarrationCancelled = false;
+  playAudioPromise(rawText).then(() => {
+    if (!isNarrationCancelled && onEnded) {
+      onEnded();
+    }
+  });
+}
+
+/**
+ * Reads the question prompt and then sequentially options 1, 2, 3, 4 with guaranteed sequential completion
+ */
+export async function speakQuestionWithAnswers(question, onStepChange = null, onComplete = null) {
   if (!question) return;
   stopSinhalaAudio();
   isNarrationCancelled = false;
 
-  const numberLabels = ['අංක එක', 'අංක දෙක', 'අංක තුන', 'අංක හතර'];
-
-  const speechItems = [];
+  const items = [];
 
   if (question.passage) {
-    speechItems.push({
+    items.push({
       step: -1,
-      text: `ඡේදය: ${cleanSinhalaTextForTts(question.passage)}`
+      text: question.passage
     });
   }
 
   const promptText = question.audioPrompt || question.prompt || '';
-  speechItems.push({
-    step: -1,
-    text: `ප්‍රශ්නය: ${cleanSinhalaTextForTts(promptText)}`
-  });
+  if (promptText) {
+    items.push({
+      step: -1,
+      text: promptText
+    });
+  }
 
   if (question.options && Array.isArray(question.options)) {
     question.options.forEach((opt, idx) => {
-      const label = numberLabels[idx] || `පිළිතුර ${idx + 1}`;
-      speechItems.push({
+      items.push({
         step: idx,
-        text: `${label}. ${cleanSinhalaTextForTts(opt)}`
+        text: `${idx + 1}. ${opt}`
       });
     });
   }
 
-  let curIdx = 0;
-
-  const playNext = () => {
-    if (isNarrationCancelled || curIdx >= speechItems.length) {
-      if (onStepChange) onStepChange(null);
-      if (onComplete) onComplete();
-      return;
-    }
-
-    const item = speechItems[curIdx];
-    curIdx++;
+  for (let i = 0; i < items.length; i++) {
+    if (isNarrationCancelled) break;
+    const item = items[i];
 
     if (onStepChange) onStepChange(item.step);
+    await playAudioPromise(item.text);
 
-    // Small natural pause between items
-    speakSinhalaAudio(item.text, () => {
-      if (isNarrationCancelled) {
-        if (onStepChange) onStepChange(null);
-        return;
-      }
-      setTimeout(playNext, 250);
-    });
-  };
+    if (isNarrationCancelled) break;
+    // Short natural pause between question and choices
+    await new Promise((r) => setTimeout(r, 350));
+  }
 
-  playNext();
+  if (onStepChange) onStepChange(null);
+  if (!isNarrationCancelled && onComplete) onComplete();
 }
