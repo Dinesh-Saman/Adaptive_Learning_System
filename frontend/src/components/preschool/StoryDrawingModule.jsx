@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Volume2, VolumeX, Sparkles } from 'lucide-react';
 import { STORIES } from '../../data/creative/stories';
 import { getItem } from '../../utils/storage';
 import { recordStudentTestMarks, recordStudentQuestionAttempts } from '../../data/studentAnalyticsData';
@@ -10,6 +11,7 @@ const StoryDrawingModule = ({ onExit }) => {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evaluationResult, setEvaluationResult] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const fileInputRef = useRef(null);
 
   const processFile = (file) => {
@@ -45,9 +47,9 @@ const StoryDrawingModule = ({ onExit }) => {
     setIsDragging(false);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handlePaste = (e) => {
-      const items = e.clipboardData.items;
+      const items = e.clipboardData?.items || [];
       for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') !== -1) {
           const blob = items[i].getAsFile();
@@ -59,6 +61,61 @@ const StoryDrawingModule = ({ onExit }) => {
     window.addEventListener('paste', handlePaste);
     return () => window.removeEventListener('paste', handlePaste);
   }, []);
+
+  const stopSpeaking = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeaking(false);
+  };
+
+  const toggleReadStory = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+      return;
+    }
+
+    if (!('speechSynthesis' in window) || !activeStory) return;
+    window.speechSynthesis.cancel();
+
+    // Prepare full story text in natural narrative structure
+    const fullStoryText = `${activeStory.title}. ` + activeStory.paragraphs.join('. ') + `. කතාවේ ආදර්ශය: ${activeStory.moral}`;
+    const utterance = new SpeechSynthesisUtterance(fullStoryText);
+    utterance.lang = 'si-LK';
+    utterance.rate = 0.82; // Gentle storytelling pace
+    utterance.pitch = 1.25; // Gentle, clear female voice pitch
+
+    // Choose preferred female or Sinhala voice
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(v => 
+      v.lang === 'si-LK' || 
+      v.lang.startsWith('si') ||
+      (v.name.toLowerCase().includes('female') && (v.lang.startsWith('en') || v.lang.startsWith('hi'))) ||
+      v.name.toLowerCase().includes('zira') ||
+      v.name.toLowerCase().includes('samantha') ||
+      v.name.toLowerCase().includes('kavya') ||
+      v.name.toLowerCase().includes('swara') ||
+      v.name.toLowerCase().includes('neerja')
+    );
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Stop speaking when story changes or component unmounts
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [activeStory]);
 
   const handleEvaluate = async () => {
     if (!selectedImage) return;
@@ -234,12 +291,41 @@ const StoryDrawingModule = ({ onExit }) => {
                     )}
                     <h2 className="text-2xl font-bold text-slate-800 font-sinhala">{activeStory.title}</h2>
                   </div>
-                  <button 
-                    onClick={() => { setActiveStory(null); setSelectedImage(null); setEvaluationResult(null); }}
-                    className="text-sm font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl transition-all font-sinhala cursor-pointer shadow-sm active:scale-95"
-                  >
-                    කතාව වෙනස් කරන්න
-                  </button>
+                  <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                    <button 
+                      onClick={toggleReadStory}
+                      className={`text-sm font-bold px-3.5 sm:px-4 py-2 rounded-xl transition-all font-sinhala cursor-pointer shadow-sm active:scale-95 flex items-center gap-2 ${
+                        isSpeaking 
+                          ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse' 
+                          : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-orange-200 shadow-md'
+                      }`}
+                      title="කතාව ශ්‍රව්‍ය ආකාරයෙන් අසන්න"
+                    >
+                      {isSpeaking ? (
+                        <>
+                          <VolumeX className="w-4 h-4" />
+                          <span>කතාව නවත්වන්න</span>
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 className="w-4 h-4" />
+                          <span>කතාව කියවන්න</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button 
+                      onClick={() => { 
+                        stopSpeaking();
+                        setActiveStory(null); 
+                        setSelectedImage(null); 
+                        setEvaluationResult(null); 
+                      }}
+                      className="text-sm font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3.5 sm:px-4 py-2 rounded-xl transition-all font-sinhala cursor-pointer shadow-sm active:scale-95"
+                    >
+                      කතාව වෙනස් කරන්න
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="prose text-slate-700 font-sinhala leading-relaxed flex-grow overflow-y-auto pr-2 max-h-[50vh] custom-scrollbar">
