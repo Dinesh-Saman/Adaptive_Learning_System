@@ -45,13 +45,10 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Model checkpoints & large weights (if any generated dynamically)
+# Model checkpoints
 *.h5
 *.tflite
 *.onnx
-*.pt
-*.pth
-*.pkl
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
