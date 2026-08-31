@@ -58,7 +58,16 @@ export default function SinhalaTracingCanvas({
   const displayText = guideText || targetText || targetCharacter || 'ක';
   const isInputLocked = isReadOnly || isConfirmed || !isOptionSelected;
 
-  // ── Render 4 Ruled Lines and Dashed Hollow Sinhala Tracing Glyph ──
+  // Helper to split Sinhala grapheme clusters correctly (e.g. 'ම' = 1, 'කා' = 1, 'මි' = 1, 'ගු' = 1, 'කෙ' = 1)
+  const getSinhalaGraphemes = (str) => {
+    if (!str) return [];
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+      return Array.from(new Intl.Segmenter('si', { granularity: 'grapheme' }).segment(str), s => s.segment);
+    }
+    return str.match(/[\u0D80-\u0DFF][\u0DCA-\u0DDF]*/g) || str.split('');
+  };
+
+  // ── Render 3 Ruled Lines and Dashed Hollow Sinhala Tracing Glyph ──
   const drawGuide = useCallback(() => {
     const canvas = guideCanvasRef.current;
     if (!canvas) return;
@@ -68,11 +77,12 @@ export default function SinhalaTracingCanvas({
 
     ctx.clearRect(0, 0, width, height);
 
-    // 1. Determine font size
-    const isSingleChar = displayText.length === 1;
-    const fontSize = isSingleChar 
+    // 1. Determine font size based on Sinhala grapheme cluster length
+    const graphemes = getSinhalaGraphemes(displayText);
+    const isSingleGrapheme = graphemes.length <= 1;
+    const fontSize = isSingleGrapheme 
       ? Math.round(height * 0.58) 
-      : (displayText.length <= 2 ? Math.round(height * 0.48) : Math.round(height * 0.38));
+      : (graphemes.length <= 2 ? Math.round(height * 0.48) : Math.round(height * 0.38));
 
     ctx.font = `600 ${fontSize}px "Noto Sans Sinhala", "Iskoola Pota", "Nirmala UI", sans-serif`;
     ctx.textAlign = 'center';
@@ -80,8 +90,8 @@ export default function SinhalaTracingCanvas({
 
     const centerX = width / 2;
 
-    // 2. Extract Base Consonant to define the consonant body bounds
-    const baseChar = displayText.replace(/[ුූ්]/g, '').charAt(0) || 'ක';
+    // 2. Extract Base Consonant (strip all vowel modifiers and virama)
+    const baseChar = displayText.replace(/[\u0DCA-\u0DDF]/g, '').charAt(0) || 'ක';
 
     // Place baseline at 76% of canvas height so ascenders and descenders fit perfectly
     const yBase = Math.round(height * 0.76);
@@ -90,71 +100,84 @@ export default function SinhalaTracingCanvas({
     const refMetrics = ctx.measureText(baseChar);
     const consonantAscent = refMetrics.actualBoundingBoxAscent || Math.round(fontSize * 0.56);
 
-    // 4 Ruled Lines Calculation (හතර රූල් - 4-Line Primary Writing Book Standard)
-    // Equal vertical spacing between the 4 ruled lines
+    // 3 Primary Ruled Lines Calculation (තුන් රූල් - Exact 3-Line Ruled Standard)
     const lineSpacing = Math.round(consonantAscent * 0.5);
-    const yLine4 = yBase; // Line 4: Baseline
-    const yLine3 = Math.round(yBase - lineSpacing); // Line 3: Lower Midline
-    const yLine2 = Math.round(yBase - lineSpacing * 2); // Line 2: Upper Headline
-    const yLine1 = Math.round(yBase - lineSpacing * 3); // Line 1: Top Ascender Line
+    const yBaseline = yBase;                             // Line 3: Baseline
+    const yMidline = Math.round(yBase - lineSpacing);    // Line 2: Lower Midline
+    const yTopline = Math.round(yBase - lineSpacing * 2);// Line 1: Upper Headline
 
-    // 3. Draw 4 Horizontal Primary Ruled Lines (හතර රූල්)
-    // Line 1: Top Ascender Line (Sky Blue 1.5px)
+    // 3. Draw 3 Horizontal Primary Ruled Lines (තුන් රූල්)
+    // Top Guide Line (Sky Blue)
     ctx.strokeStyle = '#38BDF8';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(0, yLine1);
-    ctx.lineTo(width, yLine1);
+    ctx.moveTo(0, yTopline);
+    ctx.lineTo(width, yTopline);
     ctx.stroke();
 
-    // Line 2: Upper Guideline / Top of Consonant Body (Sky Blue 1.5px)
+    // Mid Guide Line (Sky Blue)
     ctx.strokeStyle = '#38BDF8';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(0, yLine2);
-    ctx.lineTo(width, yLine2);
+    ctx.moveTo(0, yMidline);
+    ctx.lineTo(width, yMidline);
     ctx.stroke();
 
-    // Line 3: Middle Guideline / Waistline of Consonant Body (Sky Blue 1.5px)
-    ctx.strokeStyle = '#38BDF8';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(0, yLine3);
-    ctx.lineTo(width, yLine3);
-    ctx.stroke();
-
-    // Line 4: Baseline (Darker Solid Blue 2.4px)
+    // Bottom Baseline (Deep Solid Blue)
     ctx.strokeStyle = '#0284C7';
-    ctx.lineWidth = 2.4;
+    ctx.lineWidth = 2.2;
     ctx.beginPath();
-    ctx.moveTo(0, yLine4);
-    ctx.lineTo(width, yLine4);
+    ctx.moveTo(0, yBaseline);
+    ctx.lineTo(width, yBaseline);
     ctx.stroke();
 
-    // 4. Render Letter Glyph with Hollow Dashed Tunnel + Centerline Guideline
-    // Layer A: Soft light blue-gray ghost body fill
-    ctx.fillStyle = 'rgba(224, 231, 255, 0.75)';
+    // 4. Render Letter Glyph with Translucent Fill + Crisp Dashed Hollow Outline (Consistent Format)
+    ctx.fillStyle = 'rgba(238, 242, 255, 0.85)';
     ctx.fillText(displayText, centerX, yBase);
 
-    // Layer B: Outer Dashed Border Outline
-    ctx.strokeStyle = '#334155';
-    ctx.lineWidth = 2.4;
-    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([6, 5]);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.strokeText(displayText, centerX, yBase);
-
-    // Layer C: Fine Inner Center Dashed Spine Guideline
-    ctx.strokeStyle = '#475569';
-    ctx.lineWidth = 1.0;
-    ctx.setLineDash([3, 4]);
     ctx.strokeText(displayText, centerX, yBase);
     ctx.setLineDash([]);
   }, [displayText]);
 
   useEffect(() => {
     drawGuide();
+    if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        drawGuide();
+      });
+    }
+    const timer = setTimeout(() => {
+      drawGuide();
+    }, 100);
+    return () => clearTimeout(timer);
   }, [drawGuide]);
+
+  // Reset internal state whenever target text or initialScore resets
+  useEffect(() => {
+    setIsConfirmed(initialScore > 0);
+    if (!initialScore) {
+      setStrokes([]);
+      setCurrentStroke([]);
+      setEvaluation({
+        overall_score: 0,
+        passed: false,
+        hasDrawn: false,
+        isWholeWordAttempted: false,
+        path_adherence: 0,
+        shape_similarity: 0,
+        completeness: 0,
+        line_alignment: 0,
+        boundary_accuracy: 0,
+        weak_component: null,
+        components: []
+      });
+    }
+  }, [initialScore, displayText]);
 
   // ── Redraw Student Freehand Strokes ──
   const redrawStrokes = useCallback(() => {
@@ -164,7 +187,7 @@ export default function SinhalaTracingCanvas({
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.strokeStyle = '#2563EB'; // Rich Royal Blue Ink
-    ctx.lineWidth = 10;
+    ctx.lineWidth = 9;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -485,68 +508,68 @@ export default function SinhalaTracingCanvas({
   const hasStrokes = strokes.length > 0 || currentStroke.length > 0;
 
   return (
-    <div className="bg-white/95 backdrop-blur-md rounded-3xl p-5 border-2 border-indigo-200 shadow-md flex flex-col items-center">
+    <div className="bg-slate-50/70 backdrop-blur-xs rounded-2xl p-3.5 sm:p-4 border border-indigo-100 flex flex-col items-center w-full max-w-[440px] mx-auto shadow-xs">
       {/* Header: Title, Target & Live/Final Status */}
-      <div className="w-full flex items-center justify-between mb-3">
+      <div className="w-full flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="p-1.5 bg-indigo-100 text-indigo-700 rounded-xl">
             <Pencil className="w-4 h-4" />
           </span>
           <div>
-            <h4 className="text-xs md:text-sm font-black text-slate-800 whitespace-nowrap">
-              හතර රූල් අතර නිවැරදිව ලියන්න
+            <h4 className="text-xs sm:text-sm font-black text-slate-800 whitespace-nowrap">
+              තුන් රූල් අකුර ලියන්න
             </h4>
             <p className="text-[11px] text-slate-500">
-              ඉලක්කය: <span className="font-black text-indigo-700 text-base">“{displayText}”</span>
+              ඉලක්කය: <span className="font-black text-indigo-700 text-sm">“{displayText}”</span>
             </p>
           </div>
         </div>
 
         {/* Right Status Badge: Evaluated after confirm */}
         {isConfirmed ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => setShowMetrics(prev => !prev)}
-              className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 bg-indigo-50 px-2 py-1 rounded-lg cursor-pointer"
+              className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-0.5 bg-indigo-50 px-2 py-0.5 rounded-lg cursor-pointer"
             >
               <Info className="w-3 h-3" />
-              විශ්ලේෂණය
+              විස්තර
             </button>
-            <span className={`px-3 py-1 rounded-full text-xs font-black flex items-center gap-1 shadow-xs ${
+            <span className={`px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1 shadow-2xs ${
               evaluation.passed
                 ? 'bg-green-100 text-green-800 border border-green-300'
                 : 'bg-rose-100 text-rose-800 border border-rose-300'
             }`}>
               {evaluation.passed ? <Check className="w-3.5 h-3.5 text-green-600" /> : <AlertCircle className="w-3.5 h-3.5 text-rose-600" />}
-              {evaluation.overall_score}% ({evaluation.passed ? 'සමත් ⭐' : 'අසමත් ⚠️'})
+              {evaluation.overall_score}% ({evaluation.passed ? 'සමත්' : 'අසමත්'})
             </span>
           </div>
         ) : !isOptionSelected ? (
-          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
             <MousePointerClick className="w-3.5 h-3.5 text-amber-600 animate-bounce" />
-            පළමුව පිළිතුර තෝරන්න
+            පිළිතුර තෝරන්න
           </span>
         ) : (
-          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
-            <Edit3 className="w-3 h-3 text-emerald-600" />
-            ලිවීම සිදුකරන්න...
+          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+            <Edit3 className="w-3.5 h-3.5 text-emerald-600" />
+            ලියන්න...
           </span>
         )}
       </div>
 
       {/* 4-Line Ruled Canvas Container (හතර රූල්) */}
-      <div className={`relative w-full max-w-[420px] h-[220px] bg-white rounded-2xl border-2 overflow-hidden shadow-inner touch-none ${
+      <div className={`relative w-full h-[170px] bg-white rounded-2xl border-2 overflow-hidden shadow-inner touch-none ${
         isConfirmed 
           ? 'border-indigo-300 bg-slate-50/50 cursor-not-allowed' 
           : !isOptionSelected 
           ? 'border-amber-300 bg-slate-100/70 cursor-not-allowed' 
           : 'border-slate-300 cursor-crosshair'
       }`}>
-        {/* Background 3-Line Ruled Guide Canvas */}
+        {/* Background 4-Line Ruled Guide Canvas */}
         <canvas
           ref={guideCanvasRef}
           width={420}
-          height={220}
+          height={170}
           className="absolute inset-0 w-full h-full pointer-events-none"
         />
 
@@ -554,7 +577,7 @@ export default function SinhalaTracingCanvas({
         <canvas
           ref={canvasRef}
           width={420}
-          height={220}
+          height={170}
           onMouseDown={handlePointerDown}
           onMouseMove={handlePointerMove}
           onMouseUp={handlePointerUp}
@@ -567,7 +590,7 @@ export default function SinhalaTracingCanvas({
 
         {/* Lock Overlay when Confirmed */}
         {isConfirmed && (
-          <div className="absolute top-2 right-2 bg-indigo-900/80 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 backdrop-blur-xs pointer-events-none shadow-xs">
+          <div className="absolute top-2 right-2 bg-indigo-900/85 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 backdrop-blur-xs pointer-events-none shadow-xs">
             <Lock className="w-3 h-3 text-amber-300" />
             ස්ථිරයි
           </div>
@@ -576,30 +599,22 @@ export default function SinhalaTracingCanvas({
 
       {/* Detailed Diagnostics Panel (when confirmed & requested) */}
       {showMetrics && isConfirmed && (
-        <div className="w-full max-w-[420px] mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] space-y-1.5 animate-fade-in">
+        <div className="w-full mt-2 p-2.5 bg-white rounded-xl border border-slate-200 text-xs space-y-1 animate-fade-in shadow-2xs">
           <div className="flex justify-between font-bold text-slate-700">
-            <span>• Path Adherence (P, 35%):</span>
+            <span>• Path Adherence (35%):</span>
             <span className="font-mono text-indigo-700">{evaluation.path_adherence}%</span>
           </div>
           <div className="flex justify-between font-bold text-slate-700">
-            <span>• Shape Similarity (S, 25%):</span>
+            <span>• Shape Similarity (25%):</span>
             <span className="font-mono text-indigo-700">{evaluation.shape_similarity}%</span>
           </div>
           <div className="flex justify-between font-bold text-slate-700">
-            <span>• Completeness (C, 20%):</span>
+            <span>• Completeness (20%):</span>
             <span className="font-mono text-indigo-700">{evaluation.completeness}%</span>
           </div>
-          <div className="flex justify-between font-bold text-slate-700">
-            <span>• Line Alignment (L, 10%):</span>
-            <span className="font-mono text-indigo-700">{evaluation.line_alignment}%</span>
-          </div>
-          <div className="flex justify-between font-bold text-slate-700">
-            <span>• Boundary Accuracy (B, 10%):</span>
-            <span className="font-mono text-indigo-700">{evaluation.boundary_accuracy}%</span>
-          </div>
           {evaluation.weak_component && (
-            <div className="text-[10px] text-amber-700 font-black pt-1 border-t border-slate-200">
-              ⚠️ ප්‍රධාන දුර්වලතාව: {evaluation.weak_component}
+            <div className="text-[11px] text-amber-700 font-black pt-1 border-t border-slate-200">
+              ⚠️ දුර්වලතාව: {evaluation.weak_component}
             </div>
           )}
         </div>
@@ -607,14 +622,14 @@ export default function SinhalaTracingCanvas({
 
       {/* Score Progress Bar (Only after confirmation) */}
       {isConfirmed && (
-        <div className="w-full max-w-[420px] mt-3">
-          <div className="flex justify-between text-[11px] font-bold mb-1">
+        <div className="w-full mt-2">
+          <div className="flex justify-between text-xs font-bold mb-1">
             <span className="text-slate-600">Tracing Accuracy (T):</span>
             <span className={evaluation.passed ? 'text-green-600 font-black' : 'text-rose-600 font-black'}>
               {evaluation.overall_score}% ({evaluation.passed ? 'සමත් (≥85%) ⭐' : 'අසමත් (<85%) ⚠️'})
             </span>
           </div>
-          <div className="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 evaluation.passed ? 'bg-green-500' : 'bg-rose-500'
@@ -626,17 +641,17 @@ export default function SinhalaTracingCanvas({
       )}
 
       {/* Toolbar & Actions Bar */}
-      <div className="w-full max-w-[420px] mt-3 pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+      <div className="w-full mt-2.5 pt-2 border-t border-slate-200/70 flex items-center justify-between gap-2">
         {/* Drawing Tools (Pen / Eraser / Clear) */}
         <div className="flex items-center gap-1.5">
           <button
             type="button"
             disabled={isInputLocked}
             onClick={() => setToolMode('pen')}
-            className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
               toolMode === 'pen' && !isInputLocked
                 ? 'bg-indigo-600 text-white shadow-xs'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 disabled:opacity-40 disabled:cursor-not-allowed'
             }`}
           >
             <Pencil className="w-3.5 h-3.5" />
@@ -647,10 +662,10 @@ export default function SinhalaTracingCanvas({
             type="button"
             disabled={isInputLocked}
             onClick={() => setToolMode('eraser')}
-            className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
               toolMode === 'eraser' && !isInputLocked
                 ? 'bg-indigo-600 text-white shadow-xs'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed'
+                : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 disabled:opacity-40 disabled:cursor-not-allowed'
             }`}
           >
             <Eraser className="w-3.5 h-3.5" />
@@ -661,7 +676,7 @@ export default function SinhalaTracingCanvas({
             type="button"
             disabled={isInputLocked}
             onClick={handleClear}
-            className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-all cursor-pointer"
+            className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-all cursor-pointer"
             title="මුල සිට මකන්න (Clear All)"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -681,9 +696,9 @@ export default function SinhalaTracingCanvas({
               ස්ථිර කරන්න
             </button>
           ) : (
-            <div className="px-3.5 py-1.5 bg-slate-100 text-slate-600 border border-slate-200 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-2xs">
+            <div className="px-3 py-1 bg-white text-slate-600 border border-slate-200 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-2xs">
               <Lock className="w-3.5 h-3.5 text-indigo-600" />
-              <span>ස්ථිර කර ඇත</span>
+              <span>ස්ථිරයි</span>
             </div>
           )}
         </div>

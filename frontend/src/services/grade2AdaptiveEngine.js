@@ -17,21 +17,56 @@ import { QUESTION_BANK, SINHALA_CATEGORIES, SINHALA_LETTERS, SINHALA_PILLAM_REGI
 const ADAPTIVE_STORAGE_KEY = 'sinhala_grade2_adaptive_session';
 export const TRACING_PASS_THRESHOLD = 85; // Configurable Research Parameter (0-100)
 
+export function getActiveStudentKey() {
+  try {
+    const sName = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('studentName')) || 
+                  (typeof localStorage !== 'undefined' && localStorage.getItem('studentName')) || '';
+    const sId = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('studentId')) || 
+                (typeof localStorage !== 'undefined' && localStorage.getItem('studentId')) || '';
+    const cleaned = (sName || sId || 'default').toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+    return cleaned || 'default';
+  } catch (e) {
+    return 'default';
+  }
+}
+
 export class Grade2AdaptiveEngine {
   constructor() {
     this.session = this.loadSession();
   }
 
+  getStorageKey() {
+    const student = getActiveStudentKey();
+    return `sinhala_grade2_adaptive_session_${student}`;
+  }
+
   loadSession() {
     try {
-      const saved = localStorage.getItem(ADAPTIVE_STORAGE_KEY);
+      const student = getActiveStudentKey();
+      const scopedKey = this.getStorageKey();
+      const saved = localStorage.getItem(scopedKey);
       if (saved) {
-        return JSON.parse(saved);
+        this.session = JSON.parse(saved);
+        return this.session;
+      }
+
+      // Legacy migration fallback for default Gr.2 student ('hasara')
+      if (student === 'hasara' || student === 'std_001') {
+        const legacy = localStorage.getItem(ADAPTIVE_STORAGE_KEY) || localStorage.getItem('sinhala_g2_adaptive_session');
+        if (legacy) {
+          try {
+            const parsed = JSON.parse(legacy);
+            this.session = parsed;
+            this.saveSession(parsed);
+            return parsed;
+          } catch (e) {}
+        }
       }
     } catch (e) {
       console.error("Error loading adaptive session:", e);
     }
-    return this.getDefaultSession();
+    this.session = this.getDefaultSession();
+    return this.session;
   }
 
   getDefaultSession() {
@@ -46,7 +81,7 @@ export class Grade2AdaptiveEngine {
     });
 
     return {
-      studentId: 'student_g2_default',
+      studentId: getActiveStudentKey(),
       unlockedPapers: [1],
       completedPapers: [],
       paperHistory: {},
@@ -88,6 +123,8 @@ export class Grade2AdaptiveEngine {
     this.session = sessionData || this.session;
     try {
       this.session.lastUpdated = new Date().toISOString();
+      const scopedKey = this.getStorageKey();
+      localStorage.setItem(scopedKey, JSON.stringify(this.session));
       localStorage.setItem(ADAPTIVE_STORAGE_KEY, JSON.stringify(this.session));
     } catch (e) {
       console.error("Error saving adaptive session:", e);
@@ -266,7 +303,7 @@ export class Grade2AdaptiveEngine {
 
       const tracingCorrect = hasTracing ? (tracingPct >= passThreshold && traceData.isPassed !== false) : true;
 
-      // Dual Scoring Rule: QuestionCorrect = AnswerCorrect && TracingCorrect (>= 90%)
+      // Strict Dual Scoring: If tracing is wrong or missing in Grade 2, the whole question is considered wrong
       const isQuestionCorrect = hasTracing
         ? (answerCorrect && tracingCorrect)
         : answerCorrect;

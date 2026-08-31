@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { getItem } from '../../utils/storage';
 
 const CRAFTS = [
   {
@@ -168,7 +169,7 @@ export default function PaperCraftModule({ onExit }) {
         body: JSON.stringify({
           craftId: selectedCraft.id,
           frames,
-          studentId: localStorage.getItem('studentName') || 'student'
+          studentId: getItem('studentId') || getItem('studentName') || 'student'
         })
       });
 

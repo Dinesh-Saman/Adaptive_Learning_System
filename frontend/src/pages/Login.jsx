@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, BookOpen, GraduationCap, ShieldAlert } from 'lucide-react';
+import { setItem, clearSession } from '../utils/storage';
 
 const Login = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('studentName');
-    localStorage.removeItem('role');
-    localStorage.removeItem('masteryLevels');
+    // Clear only current tab session when visiting login page
+    sessionStorage.clear();
   }, []);
   const [role, setRole] = useState('student'); // 'student' | 'teacher'
   const [mode, setMode] = useState('login'); // 'login' | 'register' | 'forgot-password'
@@ -18,6 +17,7 @@ const Login = () => {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [grade, setGrade] = useState('Pre School');
+  const [medium, setMedium] = useState('Sinhala'); // 'Sinhala' | 'English'
   
   // Forgot Password fields
   const [newPassword, setNewPassword] = useState('');
@@ -63,7 +63,7 @@ const Login = () => {
 
     const endpoint = mode === 'register' ? 'http://localhost:5000/api/auth/register' : 'http://localhost:5000/api/auth/login';
     const body = mode === 'register' 
-      ? { name, password, grade, role } 
+      ? { name, password, grade, role, medium } 
       : { name, password, role };
 
     try {
@@ -86,24 +86,25 @@ const Login = () => {
         return;
       }
 
-      // Save token and info
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('studentName', data.name);
-      localStorage.setItem('role', data.role || role);
+      // Save token and session info to tab-scoped storage
+      setItem('token', data.token);
+      setItem('studentName', data.name);
+      setItem('role', data.role || role);
+      setItem('studentMedium', data.medium || medium);
       if (data.userId || data.studentId) {
-        localStorage.setItem('studentId', data.userId || data.studentId);
+        setItem('studentId', data.userId || data.studentId);
       }
       if (data.grade) {
-        localStorage.setItem('studentGrade', data.grade);
+        setItem('studentGrade', data.grade);
       }
       
       if (data.role === 'teacher') {
         navigate('/teacher/dashboard');
       } else {
         if (data.masteryLevels) {
-          localStorage.setItem('masteryLevels', JSON.stringify(data.masteryLevels));
+          setItem('masteryLevels', JSON.stringify(data.masteryLevels));
         } else {
-          localStorage.setItem('masteryLevels', JSON.stringify({
+          setItem('masteryLevels', JSON.stringify({
             math: 0.5, english: 0.5, sinhala: 0.5, motorSkills: 0.5
           }));
         }
@@ -144,10 +145,9 @@ const Login = () => {
           />
           {/* Tint overlay matching the kids app theme */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#4A6B1A]/85 via-[#4A6B1A]/30 to-transparent flex flex-col justify-end p-8">
-            <img src="/logo.png" alt="නැණ පියස" className="h-20 w-auto object-contain bg-white/95 rounded-2xl p-1.5 shadow-lg mb-3" />
-            <h3 className="text-3xl font-black text-white drop-shadow-md font-sinhala">නැණ පියස ගවේෂකයෝ!</h3>
+            <h3 className="text-3xl font-black text-white drop-shadow-md">Nana Piyasa Explorers!</h3>
             <p className="text-white font-bold text-sm mt-1 drop-shadow-md max-w-sm">
-              පාඩම් කරන්න • සෙල්ලම් කරන්න • දැනුමෙන් වැඩි වන්න (Play, Learn & Grow)
+              Study • Play • Learn & Grow!
             </p>
           </div>
         </div>
@@ -181,9 +181,8 @@ const Login = () => {
             </button>
           </div>
 
-          {/* Heading with Logo */}
+          {/* Heading */}
           <div className="text-center mb-8">
-            <img src="/logo.png" alt="නැණ පියස (Nana Piyasa)" className="h-20 w-auto mx-auto mb-3 object-contain drop-shadow-sm" />
             <h2 className="text-3xl md:text-4xl font-extrabold text-[#442312] tracking-tight font-sinhala">නැණ පියස</h2>
             <h2 className="text-xl font-bold text-[#65554D] tracking-tight -mt-1">
               {mode === 'forgot-password' ? 'Reset Password' : mode === 'register' ? 'Create Account!' : 'Welcome Explorer!'}
@@ -226,24 +225,40 @@ const Login = () => {
               />
             </div>
 
-            {/* Student Grade Level (Registration only) */}
+            {/* Student Grade Level & Medium (Registration only) */}
             {mode === 'register' && role === 'student' && (
-              <div>
-                <label className="block text-xs font-bold text-[#442312] mb-1.5 uppercase tracking-wider">
-                  Grade Level
-                </label>
-                <select
-                  className="w-full px-4 py-3.5 bg-white border border-[#D5E6AF] rounded-2xl text-slate-900 focus:outline-none focus:ring-3 focus:ring-[#FF8138]/50 focus:border-[#FF8138] transition-all text-sm shadow-sm appearance-none"
-                  value={grade}
-                  onChange={(e) => setGrade(e.target.value)}
-                >
-                  <option value="Pre School">Pre School</option>
-                  <option value="Grade 1">Grade 1</option>
-                  <option value="Grade 2">Grade 2</option>
-                  <option value="Grade 3">Grade 3</option>
-                  <option value="Grade 4">Grade 4</option>
-                </select>
-              </div>
+              <>
+                <div>
+                  <label className="block text-xs font-bold text-[#442312] mb-1.5 uppercase tracking-wider">
+                    Grade Level
+                  </label>
+                  <select
+                    className="w-full px-4 py-3.5 bg-white border border-[#D5E6AF] rounded-2xl text-slate-900 focus:outline-none focus:ring-3 focus:ring-[#FF8138]/50 focus:border-[#FF8138] transition-all text-sm shadow-sm appearance-none"
+                    value={grade}
+                    onChange={(e) => setGrade(e.target.value)}
+                  >
+                    <option value="Pre School">Pre School</option>
+                    <option value="Grade 1">Grade 1</option>
+                    <option value="Grade 2">Grade 2</option>
+                    <option value="Grade 3">Grade 3</option>
+                    <option value="Grade 4">Grade 4</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#442312] mb-1.5 uppercase tracking-wider">
+                    Learning Medium
+                  </label>
+                  <select
+                    className="w-full px-4 py-3.5 bg-white border border-[#D5E6AF] rounded-2xl text-slate-900 focus:outline-none focus:ring-3 focus:ring-[#FF8138]/50 focus:border-[#FF8138] transition-all text-sm shadow-sm appearance-none font-bold"
+                    value={medium}
+                    onChange={(e) => setMedium(e.target.value)}
+                  >
+                    <option value="Sinhala">Sinhala Medium (සිංහල මාධ්‍යය)</option>
+                    <option value="English">English Medium</option>
+                  </select>
+                </div>
+              </>
             )}
 
             {/* Password input */}

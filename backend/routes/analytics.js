@@ -42,8 +42,7 @@ const createDefaultStudentAnalyticsStructure = (studentId, name, grade) => {
       preschool: [
         { code: 'P1', name: 'Line Tracing & Fine Motor', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
         { code: 'P2', name: 'Digital Coloring & Boundaries', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
-        { code: 'P3', name: 'Paper Craft & Origami Steps', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' },
-        { code: 'P4', name: 'Story Drawing & Comprehension', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' }
+        { code: 'P3', name: 'Story Drawing & Comprehension', marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' }
       ]
     },
     recommendation: {
@@ -95,9 +94,19 @@ const syncRegisteredStudents = async () => {
 
       if (!analytics) {
         const initData = createDefaultStudentAnalyticsStructure(st._id.toString(), st.name, st.grade);
-        analytics = await StudentAnalytics.create(initData);
+        try {
+          analytics = await StudentAnalytics.create(initData);
+        } catch (createErr) {
+          if (createErr.code === 11000) {
+            analytics = await StudentAnalytics.findOne({
+              $or: [{ studentId: st._id.toString() }, { name: st.name }]
+            });
+          }
+        }
       }
-      results.push(analytics);
+      if (analytics) {
+        results.push(analytics);
+      }
     }
     return results;
   } catch (err) {
@@ -197,10 +206,14 @@ router.post('/record', async (req, res) => {
     if (data[sIdx].categoryMarks && data[sIdx].categoryMarks[subject]) {
       const cIdx = data[sIdx].categoryMarks[subject].findIndex(c => c.code === categoryCode);
       if (cIdx !== -1) {
-        data[sIdx].categoryMarks[subject][cIdx].marks = marks;
-        data[sIdx].categoryMarks[subject][cIdx].maxMarks = maxMarks;
-        data[sIdx].categoryMarks[subject][cIdx].pct = pct;
-        data[sIdx].categoryMarks[subject][cIdx].status = status;
+        const cat = data[sIdx].categoryMarks[subject][cIdx];
+        cat.history = Array.isArray(cat.history) ? cat.history : (cat.pct > 0 ? [cat.pct] : []);
+        cat.history.push(pct);
+        const avgPct = Math.round(cat.history.reduce((a, b) => a + b, 0) / cat.history.length);
+        cat.marks = Math.round((avgPct / 100) * maxMarks);
+        cat.maxMarks = maxMarks;
+        cat.pct = avgPct;
+        cat.status = avgPct >= 85 ? 'Mastered' : avgPct >= 70 ? 'Proficient' : avgPct >= 60 ? 'Developing' : 'Attention Needed';
       }
     }
     saveMockAnalytics(data);
@@ -210,24 +223,44 @@ router.post('/record', async (req, res) => {
   try {
     let student = await StudentAnalytics.findOne({ 
       $or: [
-        ...(studentId ? [{ studentId }] : []),
-        ...(name ? [{ name }] : [])
+        ...(studentId ? [{ studentId: studentId.toString() }] : []),
+        ...(name ? [{ name: name.toString() }] : [])
       ] 
     });
 
     if (!student) {
       const initData = createDefaultStudentAnalyticsStructure(studentId || Date.now().toString(), name || 'Student', 'Grade 4');
-      student = new StudentAnalytics(initData);
+      try {
+        student = await StudentAnalytics.create(initData);
+      } catch (createErr) {
+        if (createErr.code === 11000) {
+          student = await StudentAnalytics.findOne({
+            $or: [
+              ...(studentId ? [{ studentId: studentId.toString() }] : []),
+              ...(name ? [{ name: name.toString() }] : [])
+            ]
+          });
+        } else {
+          throw createErr;
+        }
+      }
+    }
+
+    if (!student) {
+      return res.status(500).json({ success: false, error: 'Could not load or create student analytics record' });
     }
 
     student.totalExercises = (student.totalExercises || 0) + 1;
     if (student.categoryMarks && student.categoryMarks[subject]) {
       const cat = student.categoryMarks[subject].find(c => c.code === categoryCode);
       if (cat) {
-        cat.marks = marks;
+        cat.history = Array.isArray(cat.history) ? cat.history : (cat.pct > 0 ? [cat.pct] : []);
+        cat.history.push(pct);
+        const avgPct = Math.round(cat.history.reduce((a, b) => a + b, 0) / cat.history.length);
+        cat.marks = Math.round((avgPct / 100) * maxMarks);
         cat.maxMarks = maxMarks;
-        cat.pct = pct;
-        cat.status = status;
+        cat.pct = avgPct;
+        cat.status = avgPct >= 85 ? 'Mastered' : avgPct >= 70 ? 'Proficient' : avgPct >= 60 ? 'Developing' : 'Attention Needed';
       }
     }
 
@@ -246,7 +279,26 @@ router.post('/record', async (req, res) => {
     });
     student.overallAverage = countCat > 0 ? Math.round(totalPct / countCat) : 0;
     student.lastUpdated = new Date();
-    await student.save();
+    
+    try {
+      await student.save();
+    } catch (saveErr) {
+      if (saveErr.code === 11000) {
+        await StudentAnalytics.updateOne(
+          { _id: student._id },
+          {
+            $set: {
+              totalExercises: student.totalExercises,
+              categoryMarks: student.categoryMarks,
+              overallAverage: student.overallAverage,
+              lastUpdated: new Date()
+            }
+          }
+        );
+      } else {
+        throw saveErr;
+      }
+    }
 
     return res.json({ success: true, source: 'mongodb', message: 'Score recorded in MongoDB', student });
   } catch (err) {
@@ -256,6 +308,122 @@ router.post('/record', async (req, res) => {
 });
 
 
+// @route   POST /api/analytics/record-attempts
+// @desc    Record question attempts for any module (English, Sinhala, Math, Motor, Preschool)
+router.post('/record-attempts', async (req, res) => {
+  const { studentId, name, module = 'english', grade = 2, paperNumber = 1, attempts = [] } = req.body;
+
+  if (!attempts || attempts.length === 0) {
+    return res.json({ success: true, count: 0 });
+  }
+
+  // Normalize module name
+  let normModule = (module || 'english').toLowerCase().trim();
+  if (normModule.includes('preschool') || normModule.includes('color') || normModule.includes('trace') || normModule.includes('draw')) {
+    normModule = 'preschool';
+  } else if (normModule.includes('math')) {
+    normModule = 'math';
+  } else if (normModule.includes('sin')) {
+    normModule = 'sinhala';
+  } else if (normModule.includes('eng')) {
+    normModule = 'english';
+  } else if (normModule.includes('motor')) {
+    normModule = 'motor';
+  }
+
+  // Normalize grade to valid format (number or string)
+  let normGrade = 2;
+  if (typeof grade === 'number') {
+    normGrade = grade;
+  } else if (typeof grade === 'string') {
+    const digitMatch = grade.match(/\d+/);
+    if (digitMatch) {
+      normGrade = parseInt(digitMatch[0], 10);
+    } else if (grade.toLowerCase().includes('pre')) {
+      normGrade = 1;
+    } else {
+      normGrade = grade;
+    }
+  }
+
+  // Also save to mock analytics attempts if mock mode
+  if (!global.dbConnected) {
+    const mockAttemptsPath = path.join(__dirname, '../data/mock_attempts.json');
+    try {
+      let existing = [];
+      if (fs.existsSync(mockAttemptsPath)) {
+        existing = JSON.parse(fs.readFileSync(mockAttemptsPath, 'utf8'));
+      }
+      const newItems = attempts.map(att => ({
+        _id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        studentId: studentId || name || 'std_001',
+        studentName: name || 'Student',
+        paperNumber,
+        module: normModule,
+        grade: normGrade,
+        questionId: att.questionId || att.targetText || 'Q',
+        skillId: att.skillId || 'Activity Assessment',
+        studentAnswer: att.studentAnswer || att.userTranscript || '',
+        correctAnswer: att.correctAnswer || att.targetText || '',
+        isCorrect: att.isCorrect !== undefined ? att.isCorrect : (att.isPassed !== undefined ? att.isPassed : true),
+        responseTimeMs: att.responseTimeMs || 1200,
+        misconception: att.misconception || 'Standard attempt',
+        timestamp: new Date()
+      }));
+      existing.unshift(...newItems);
+      fs.writeFileSync(mockAttemptsPath, JSON.stringify(existing.slice(0, 500), null, 2));
+      return res.json({ success: true, count: newItems.length, source: 'mock_db' });
+    } catch (e) {
+      console.warn("Mock attempts save error:", e);
+      return res.json({ success: true, count: 0 });
+    }
+  }
+
+  try {
+    let resolvedStudentId = studentId;
+    if (!studentId || !studentId.toString().match(/^[0-9a-fA-F]{24}$/)) {
+      const st = await Student.findOne({ name: name || studentId });
+      if (st) {
+        resolvedStudentId = st._id;
+      } else {
+        try {
+          const newSt = await Student.create({
+            name: name || studentId || 'Student',
+            grade: `Grade ${normGrade}`,
+            age: normGrade === 2 ? 7 : normGrade === 3 ? 8 : 9,
+            guardianName: 'Parent'
+          });
+          resolvedStudentId = newSt._id;
+        } catch (createStErr) {
+          resolvedStudentId = studentId || 'std_001';
+        }
+      }
+    }
+
+    const recordsToInsert = attempts.map(att => ({
+      studentId: resolvedStudentId,
+      paperNumber: paperNumber || 1,
+      questionId: att.questionId || att.targetText || 'Q',
+      skillId: att.skillId || 'Activity Assessment',
+      module: normModule,
+      grade: normGrade,
+      difficultyTier: att.difficultyTier || 1,
+      studentAnswer: att.studentAnswer || att.userTranscript || '',
+      correctAnswer: att.correctAnswer || att.targetText || '',
+      isCorrect: att.isCorrect !== undefined ? att.isCorrect : (att.isPassed !== undefined ? att.isPassed : true),
+      responseTimeMs: att.responseTimeMs || 1200,
+      misconception: att.misconception || '',
+      timestamp: new Date()
+    }));
+
+    await QuestionAttempt.insertMany(recordsToInsert);
+    return res.json({ success: true, count: recordsToInsert.length, source: 'mongodb' });
+  } catch (err) {
+    console.error("Error recording attempts in MongoDB:", err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // @route   GET /api/analytics/student/:studentId/attempts
 // @desc    Get real question attempts history for a student
 router.get('/student/:studentId/attempts', async (req, res) => {
@@ -263,13 +431,30 @@ router.get('/student/:studentId/attempts', async (req, res) => {
   const { module } = req.query;
 
   if (!global.dbConnected) {
+    const mockAttemptsPath = path.join(__dirname, '../data/mock_attempts.json');
+    try {
+      if (fs.existsSync(mockAttemptsPath)) {
+        const allAttempts = JSON.parse(fs.readFileSync(mockAttemptsPath, 'utf8'));
+        const filtered = allAttempts.filter(a => {
+          const matchStudent = (a.studentId === studentId || a.studentName === studentId || studentId === 'all' || !studentId);
+          const matchModule = module ? a.module === module : true;
+          return matchStudent && matchModule;
+        });
+        return res.json({ success: true, source: 'mock_db', attempts: filtered });
+      }
+    } catch (e) {}
     return res.json({ success: true, source: 'mock_db', attempts: [] });
   }
 
   try {
-    const query = {};
-    if (studentId.match(/^[0-9a-fA-F]{24}$/)) {
+    let query = {};
+    if (studentId && studentId.match(/^[0-9a-fA-F]{24}$/)) {
       query.studentId = studentId;
+    } else if (studentId) {
+      const studentDoc = await Student.findOne({ name: studentId });
+      if (studentDoc) {
+        query.studentId = studentDoc._id;
+      }
     }
     if (module) {
       query.module = module;

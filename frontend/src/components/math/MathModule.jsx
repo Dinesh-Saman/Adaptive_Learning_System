@@ -199,30 +199,30 @@ const MathModule = ({ onExit }) => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 w-full text-center min-h-[90vh]">
-      <div className="flex justify-between items-center mb-8">
+    <div className="max-w-5xl mx-auto p-3 sm:p-5 w-full text-center min-h-[calc(100vh-5rem)] flex flex-col justify-between">
+      <div className="flex justify-between items-center mb-3">
         <button 
           onClick={onExit}
-          className="px-5 py-2.5 bg-white border-2 border-slate-200 hover:border-blue-400 text-slate-700 rounded-2xl font-bold transition-all shadow-sm cursor-pointer"
+          className="px-4 py-2 bg-white border-2 border-slate-200 hover:border-blue-400 text-slate-700 rounded-xl font-bold transition-all shadow-sm cursor-pointer text-sm"
         >
           &larr; Dashboard එකට
         </button>
-        <div className={`flex items-center gap-4 bg-slate-100 p-2 rounded-xl ${sessionState === 'active' ? '' : 'hidden'}`}>
+        <div className={`flex items-center gap-3 bg-slate-100 p-1.5 rounded-xl ${sessionState === 'active' ? '' : 'hidden'}`}>
            <video 
              ref={videoRef} 
              autoPlay 
              muted 
              playsInline 
-             className="w-24 h-24 object-cover rounded-lg border-2 border-slate-300 shadow-sm" 
+             className="w-16 h-16 object-cover rounded-lg border border-slate-300 shadow-sm" 
            />
-           <div className="text-left pr-4">
-              <p className="text-xs font-bold text-slate-500 uppercase">Live Affect Tracking</p>
-              <p className="text-lg font-bold text-blue-600">{currentEmotion}</p>
+           <div className="text-left pr-3">
+              <p className="text-[10px] font-bold text-slate-500 uppercase">Live Affect Tracking</p>
+              <p className="text-sm font-bold text-blue-600">{currentEmotion}</p>
            </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-8 border-t-8 border-blue-500 relative">
+      <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 border-t-4 border-blue-500 relative flex-grow flex flex-col justify-between">
         {sessionState === 'menu' && (
           <div className="py-8">
             <div className="inline-block bg-blue-100 text-blue-800 font-extrabold text-xs px-4 py-1 rounded-full mb-3 uppercase tracking-wider">
@@ -428,37 +428,37 @@ const MathModule = ({ onExit }) => {
 
         {sessionState === 'active' && currentQuestion && (
           <>
-            <div className="flex justify-between items-center mb-6 border-b pb-4">
+            <div className="flex justify-between items-center mb-3 border-b pb-2">
                <div className="text-left">
-                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Diagnostic Progress</p>
-                  <p className="text-xl font-bold text-slate-800">Question {questionsAsked} of 10</p>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Diagnostic Progress</p>
+                  <p className="text-lg font-bold text-slate-800">Question {questionsAsked} of 10</p>
                </div>
                <div className="text-right">
-                  <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Target Skill</p>
-                  <p className="text-xl font-bold text-indigo-600">{currentQuestion.type_id}</p>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Target Skill</p>
+                  <p className="text-lg font-bold text-indigo-600">{currentQuestion.type_id}</p>
                </div>
             </div>
 
             {difficultyAlert && (
-              <div className="mb-6 p-4 rounded-xl font-bold text-lg animate-pulse shadow-sm border-2 border-indigo-200 bg-indigo-50 text-indigo-800">
+              <div className="mb-4 p-3 rounded-xl font-bold text-sm animate-pulse shadow-sm border-2 border-indigo-200 bg-indigo-50 text-indigo-800">
                 {difficultyAlert}
               </div>
             )}
 
-            <div className="py-12 px-6 border-2 border-dashed border-slate-300 rounded-xl mb-8 bg-slate-50">
+            <div className="py-6 px-4 border-2 border-dashed border-slate-300 rounded-xl mb-4 bg-slate-50 flex-grow flex flex-col justify-center">
               
               {currentQuestion.chart_data && currentQuestion.chart_data.type === 'bar' && (
-                <div className="flex flex-col items-center mb-12 mt-4">
+                <div className="flex flex-col items-center mb-6 mt-2">
                   {currentQuestion.chart_data.title && (
-                    <h4 className="text-2xl font-black text-slate-700 mb-6 uppercase tracking-wider">{currentQuestion.chart_data.title}</h4>
+                    <h4 className="text-lg font-black text-slate-700 mb-3 uppercase tracking-wider">{currentQuestion.chart_data.title}</h4>
                   )}
-                  <div className="relative flex items-end h-72 border-l-2 border-b-2 border-slate-800 px-8 gap-10 mt-2">
+                  <div className="relative flex items-end h-52 border-l-2 border-b-2 border-slate-800 px-6 gap-6 mt-2">
                     {/* Horizontal Grid Lines & Y-axis labels */}
                     <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-between z-0">
                       {[1, 0.8, 0.6, 0.4, 0.2, 0].map(multiplier => (
                         <div key={multiplier} className="flex items-center w-full relative h-0">
                            {/* Label */}
-                           <span className="absolute -left-14 text-sm font-bold text-slate-600 w-10 text-right -mt-3">
+                           <span className="absolute -left-12 text-xs font-bold text-slate-600 w-10 text-right -mt-2.5">
                              {Math.round(currentQuestion.chart_data.y_max * multiplier)}
                            </span>
                            {/* Dotted Line */}
@@ -487,10 +487,10 @@ const MathModule = ({ onExit }) => {
                              {val}
                            </div>
                            <div 
-                             className={`w-16 ${colors[idx % colors.length]} rounded-t-sm shadow-sm`}
+                             className={`w-12 sm:w-16 ${colors[idx % colors.length]} rounded-t-sm shadow-sm`}
                              style={{ height: `${heightPct}%` }}
                            ></div>
-                           <span className="absolute -bottom-8 text-sm font-bold text-slate-700">{currentQuestion.chart_data.labels[idx]}</span>
+                           <span className="absolute -bottom-6 text-xs font-bold text-slate-700">{currentQuestion.chart_data.labels[idx]}</span>
                         </div>
                       )
                     })}
@@ -498,18 +498,18 @@ const MathModule = ({ onExit }) => {
                 </div>
               )}
 
-              <h3 className="text-4xl font-bold text-slate-800 max-w-2xl mx-auto mb-8 whitespace-pre-wrap">
+              <h3 className="text-2xl sm:text-3xl font-bold text-slate-800 max-w-2xl mx-auto mb-6 whitespace-pre-wrap">
                 {currentQuestion.text}
               </h3>
               
-              <div className="max-w-md mx-auto relative">
+              <div className="max-w-md mx-auto relative w-full">
                 {(currentQuestion.q_format === 'mcq' || currentQuestion.q_format === 'boolean') ? (
-                  <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="grid grid-cols-2 gap-3 mb-4">
                     {currentQuestion.options?.map(opt => (
                       <button
                         key={opt}
                         onClick={() => setCurrentAnswer(opt)}
-                        className={`p-4 rounded-xl border-2 font-bold text-xl transition-all ${
+                        className={`p-3 rounded-xl border-2 font-bold text-lg transition-all cursor-pointer ${
                           currentAnswer === opt 
                             ? 'bg-blue-600 border-blue-600 text-white shadow-md' 
                             : 'bg-white border-slate-300 text-slate-700 hover:border-blue-400'
@@ -525,7 +525,7 @@ const MathModule = ({ onExit }) => {
                     value={currentAnswer}
                     onChange={(e) => setCurrentAnswer(e.target.value)}
                     placeholder="Type your answer here..."
-                    className="w-full p-4 text-center text-2xl font-bold rounded-xl border-2 border-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500 mb-6 transition-all"
+                    className="w-full p-3 text-center text-xl font-bold rounded-xl border-2 border-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500 mb-4 transition-all"
                     onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                   />
                 )}
@@ -533,7 +533,7 @@ const MathModule = ({ onExit }) => {
                 <button 
                   onClick={handleSubmit}
                   disabled={!currentAnswer}
-                  className="w-full p-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all shadow-md active:scale-[0.98] text-lg"
+                  className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold rounded-xl transition-all shadow-md active:scale-[0.98] text-base cursor-pointer"
                 >
                   Submit Answer
                 </button>
@@ -542,7 +542,7 @@ const MathModule = ({ onExit }) => {
             
             {/* Sinhala Audio/Visual Scaffolding */}
             {currentQuestion.hint_sinhala && (
-               <p className="text-slate-500 font-medium">💡 උපදෙස්: {currentQuestion.hint_sinhala}</p>
+               <p className="text-xs text-slate-500 font-medium">💡 උපදෙස්: {currentQuestion.hint_sinhala}</p>
             )}
           </>
         )}

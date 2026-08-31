@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { recordStudentTestMarks, recordStudentQuestionAttempts } from '../../data/studentAnalyticsData';
+import { getItem } from '../../utils/storage';
 
 const TRACING_TASKS = [
   // ── FRUITS ──
@@ -303,21 +305,29 @@ export default function MotorModule({ onExit }) {
     let drawnOnTarget = 0;
     let drawnOffTarget = 0;
     
-    // Extremely strict tolerance for high accuracy detection
-    const tolerance = selectedTask.isSplit === false ? 3 : 2;
+    // Calibrated tolerance matching brush width (6px)
+    const tolerance = 6;
     const tolSq = tolerance * tolerance;
     
     const isTarget = new Uint8Array(w * h);
     const targetHit = new Uint8Array(w * h);
     
-    for (let i = 0; i < w * h; i++) {
-       const r = truthData[i*4];
-       const g = truthData[i*4+1];
-       const b = truthData[i*4+2];
-       if (r < 150 && g < 150 && b < 150) { 
-         isTarget[i] = 1;
-         totalExpectedPixels++;
-       }
+    // Ignore top text header for fruit tracing tasks (e.g. word "MANGO" printed at top)
+    const topIgnoreHeight = selectedTask.category === 'fruits' ? Math.floor(h * 0.18) : 0;
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x;
+        if (y >= topIgnoreHeight) {
+          const r = truthData[i*4];
+          const g = truthData[i*4+1];
+          const b = truthData[i*4+2];
+          if (r < 160 && g < 160 && b < 160) { 
+            isTarget[i] = 1;
+            totalExpectedPixels++;
+          }
+        }
+      }
     }
     
     for (let y = 0; y < h; y++) {
@@ -358,14 +368,12 @@ export default function MotorModule({ onExit }) {
       if (targetHit[i] === 1) hitPixels++;
     }
     
-    let targetMultiplier = selectedTask.isSplit === false ? 0.30 : 0.90;
-    let completion = (hitPixels / (totalExpectedPixels * targetMultiplier)) * 100;
+    let targetMultiplier = selectedTask.isSplit === false ? 0.40 : 0.60;
+    let completion = totalExpectedPixels > 0 ? (hitPixels / (totalExpectedPixels * targetMultiplier)) * 100 : 0;
     completion = Math.min(100, Math.round(completion));
     
-    // Because tolerance is extremely strict (3px), tracing over the white gaps between dots 
-    // will naturally produce some red pixels even on a perfect trace.
-    // We boost the raw accuracy by 15% so a highly accurate trace still yields 100%.
-    let rawAccuracy = (drawnOnTarget / (drawnOnTarget + drawnOffTarget)) * 100;
+    // Calibrated accuracy with gentle boundary tolerance
+    let rawAccuracy = (drawnOnTarget + drawnOffTarget) > 0 ? (drawnOnTarget / (drawnOnTarget + drawnOffTarget)) * 100 : 0;
     let accuracy = Math.min(100, Math.round(rawAccuracy * 1.15));
     
     let overall = Math.round((accuracy * 0.4) + (completion * 0.6));
@@ -408,6 +416,61 @@ export default function MotorModule({ onExit }) {
     
     setStats({ accuracy, completion, overall });
     
+    // Save to student profile & dashboard analytics
+    const currentStudentId = getItem('studentId') || 'std_001';
+    const currentStudentName = getItem('studentName') || 'Hasara';
+
+    try {
+      const studentKey = (currentStudentName || 'hasara').toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+      const taskId = selectedTask?.id || 'tracing_task';
+      const existing = JSON.parse(localStorage.getItem(`tracing_scores_${studentKey}`) || '{}');
+      if (!existing[taskId]) {
+        existing[taskId] = {
+          taskId,
+          title: selectedTask?.title || 'Line Tracing',
+          accuracy,
+          completion,
+          overall,
+          grade: 'Pre-School',
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem(`tracing_scores_${studentKey}`, JSON.stringify(existing));
+        if (studentKey === 'hasara' || studentKey === 'std_001') {
+          localStorage.setItem('tracing_scores', JSON.stringify(existing));
+        }
+      }
+    } catch (e) {}
+
+    const p1Marks = Math.round((overall / 100) * 30);
+    recordStudentTestMarks({
+      studentId: currentStudentId,
+      name: currentStudentName,
+      subject: 'preschool',
+      categoryCode: 'P1',
+      marks: p1Marks,
+      maxMarks: 30
+    });
+
+    recordStudentQuestionAttempts({
+      studentId: currentStudentId,
+      module: 'preschool',
+      grade: 'Pre-School',
+      paperNumber: 1,
+      attempts: [
+        {
+          questionId: `Line Tracing • ${selectedTask?.title || 'Fruit/Pattern'}`,
+          domain: 'P1',
+          category: 'P1',
+          difficulty: 'Pre-School',
+          isCorrect: overall >= 50,
+          score: overall,
+          accuracy,
+          completion,
+          timestamp: new Date().toISOString()
+        }
+      ]
+    });
+
     if (accuracy > 85 && completion > 80) {
        setShowConfetti(true);
        setTimeout(() => setShowConfetti(false), 3000);
@@ -585,7 +648,7 @@ export default function MotorModule({ onExit }) {
             </div>
 
             <button onClick={evaluateTracing} className="mt-4 w-full px-8 py-4 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold rounded-2xl shadow-lg transform hover:-translate-y-1 transition-all text-xl font-sinhala">
-              ✨ AI පරීක්ෂාව (Check)
+              ✨ නිවැරදි දැයි බලමු (Check)
             </button>
          </div>
       </div>

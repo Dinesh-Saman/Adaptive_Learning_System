@@ -4,6 +4,8 @@ import g2Data from '../../data/english/grade2_speaking_pool.json';
 import g3Data from '../../data/english/grade3_speaking_pool.json';
 import g4Data from '../../data/english/grade4_speaking_pool.json';
 import fixedSpeakingPapersData from '../../data/english/fixed_speaking_papers.json';
+import { recordStudentTestMarks, recordStudentQuestionAttempts } from '../../data/studentAnalyticsData';
+import { getItem } from '../../utils/storage';
 
 const POOLS = {
   2: g2Data,
@@ -12,6 +14,36 @@ const POOLS = {
 };
 
 const FIXED_PAPERS = fixedSpeakingPapersData;
+
+const WORD_IMAGES = {
+  // Grade 2 Paper 1 (User's list)
+  'school': '/images/words/school.jpg',
+  'house': '/images/words/house.jpg',
+  'fish': '/images/words/fish.jpg',
+  'cat': '/images/words/cat.jpg',
+  'fan': '/images/words/fan.jpg',
+  'star': '/images/words/star.jpg',
+  'elephant': '/images/words/elephant.png',
+  'ship': '/images/words/ship.jpg',
+  'water': '/images/words/water.jpg',
+  'milk': '/images/words/milk.jpg',
+
+  // Other Grade 2 words
+  'banana': '/images/sinhala/g4_l1_act2_banana.png',
+  'book': '/images/sinhala/g4_l1_act2_book.png',
+  'bus': '/images/sinhala/g4_l1_act2_bus.png',
+  'sun': '/images/sinhala/g4_l1_act2_sun.png',
+  'dog': '/images/sinhala/cute_dog.png',
+  'bird': '/images/sinhala/blue_bird.png',
+  'tree': '/images/sinhala/coconut_tree.jpg'
+};
+
+const getQuestionImage = (q) => {
+  if (!q) return null;
+  if (q.image) return q.image;
+  const key = (q.target_text || '').toLowerCase().trim();
+  return WORD_IMAGES[key] || null;
+};
 
 const STOP_WORDS = new Set(['the', 'a', 'an', 'is', 'am', 'are', 'in', 'on', 'at', 'to', 'of', 'and', 'it', 'my', 'we', 'he', 'she', 'for', 'with']);
 
@@ -1543,7 +1575,12 @@ export default function EnglishModule({ onExit }) {
   const navigate = useNavigate();
 
   const [viewState, setViewState] = useState('grades_hub');
-  const [selectedGrade, setSelectedGrade] = useState(2);
+  const [selectedGrade, setSelectedGrade] = useState(() => {
+    const g = getItem('studentGrade');
+    if (g && g.includes('3')) return 3;
+    if (g && g.includes('4')) return 4;
+    return 2;
+  });
   const [activePaperId, setActivePaperId] = useState(1);
 
   const [paperQuestions, setPaperQuestions] = useState([]);
@@ -1594,20 +1631,41 @@ export default function EnglishModule({ onExit }) {
 
   const questionAttemptHistoryRef = useRef({});
 
-  const [paperHistory, setPaperHistory] = useState(() => {
+  const getActiveStudentKey = () => {
+    const rawName = getItem('studentName') || getItem('studentId') || '';
+    return String(rawName).toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+  };
+
+  const loadStudentPaperHistory = () => {
     try {
-      const g2 = JSON.parse(localStorage.getItem('g2_english_paper_history') || '{}');
-      const g3 = JSON.parse(localStorage.getItem('g3_english_paper_history') || '{}');
-      const g4 = JSON.parse(localStorage.getItem('g4_english_paper_history') || '{}');
+      const studentKey = getActiveStudentKey();
+      if (!studentKey) return { 2: {}, 3: {}, 4: {} };
+      const g2 = JSON.parse(localStorage.getItem(`g2_english_paper_history_${studentKey}`) || '{}');
+      const g3 = JSON.parse(localStorage.getItem(`g3_english_paper_history_${studentKey}`) || '{}');
+      const g4 = JSON.parse(localStorage.getItem(`g4_english_paper_history_${studentKey}`) || '{}');
       return { 2: g2, 3: g3, 4: g4 };
     } catch (e) {
       return { 2: {}, 3: {}, 4: {} };
     }
-  });
+  };
+
+  const [paperHistory, setPaperHistory] = useState(loadStudentPaperHistory);
+
+  // Synchronize history whenever viewState or grade switches
+  useEffect(() => {
+    setPaperHistory(loadStudentPaperHistory());
+  }, [viewState, selectedGrade]);
 
   const savePaperResult = (grade, paperId, resultData) => {
+    const studentKey = getActiveStudentKey() || 'std_001';
+    const studentId = getItem('studentId') || getItem('studentName') || 'std_001';
+    const name = getItem('studentName') || 'Student';
+
+    const currentGradeHistory = paperHistory[grade] || {};
+    const isFirstAttempt = !currentGradeHistory[paperId];
+
     const updatedGrade = {
-      ...(paperHistory[grade] || {}),
+      ...currentGradeHistory,
       [paperId]: resultData
     };
     const updatedAll = {
@@ -1615,14 +1673,69 @@ export default function EnglishModule({ onExit }) {
       [grade]: updatedGrade
     };
     setPaperHistory(updatedAll);
+
     try {
-      localStorage.setItem(`g${grade}_english_paper_history`, JSON.stringify(updatedGrade));
+      localStorage.setItem(`g${grade}_english_paper_history_${studentKey}`, JSON.stringify(updatedGrade));
     } catch (e) {}
+
+    // Only record official diagnostic marks on first attempt
+    if (isFirstAttempt) {
+      try {
+        const rawAccuracy = resultData.overallAccuracy !== undefined
+          ? resultData.overallAccuracy
+          : resultData.totalQuestions > 0
+            ? Math.round((resultData.totalPassed / resultData.totalQuestions) * 100)
+            : 0;
+
+        const marks = Math.round((rawAccuracy / 100) * 30);
+        ['E1', 'E2', 'E3', 'E4'].forEach(categoryCode => {
+          recordStudentTestMarks({
+            studentId,
+            name,
+            subject: 'english',
+            categoryCode,
+            marks,
+            maxMarks: 30
+          });
+        });
+
+        if (resultData.history && Array.isArray(resultData.history)) {
+          const attemptItems = resultData.history.map((h, idx) => ({
+            questionId: h.targetText || `G${grade}_P${paperId}_Q${idx + 1}`,
+            skillId: h.mti_pattern || (h.mtiPatterns?.[0]?.name) || 'Speech & Pronunciation',
+            studentAnswer: h.userTranscript || '—',
+            correctAnswer: h.targetText || '—',
+            isCorrect: h.isPassed !== undefined ? h.isPassed : (h.accuracy >= 75),
+            responseTimeMs: 1500,
+            misconception: h.mtiPatterns?.map(p => p.name).join(', ') || (h.isPassed ? 'Clear Pronunciation' : 'MTI Pattern Alert')
+          }));
+
+          recordStudentQuestionAttempts({
+            studentId,
+            name,
+            module: 'english',
+            grade,
+            paperNumber: paperId,
+            attempts: attemptItems
+          });
+        }
+      } catch (e) {
+        console.warn("Failed to record English paper marks:", e);
+      }
+    }
   };
 
   const isPaperUnlocked = (pId) => {
-    // Temporarily unlocked all English speaking question papers
-    return true;
+    if (pId === 1) return true;
+    const prevPaperId = pId - 1;
+    const prevResult = paperHistory[selectedGrade]?.[prevPaperId];
+    if (!prevResult) return false;
+    const accuracy = prevResult.overallAccuracy ?? (
+      prevResult.totalQuestions > 0
+        ? Math.round((prevResult.totalPassed / prevResult.totalQuestions) * 100)
+        : 0
+    );
+    return accuracy >= 75;
   };
 
   const generatePaperQuestions = (grade, paperId) => {
@@ -2127,18 +2240,19 @@ export default function EnglishModule({ onExit }) {
       }
     } else {
       const validHistory = [];
-      for (let i = 0; i < 10; i++) {
+      const totalQ = paperQuestions.length || 10;
+      for (let i = 0; i < totalQ; i++) {
         if (updatedHistory[i]) {
           validHistory.push(updatedHistory[i]);
         }
       }
       const passedCount = validHistory.filter(h => h.isPassed).length;
-      const finalAccuracy = Math.round((passedCount / 10) * 100);
+      const finalAccuracy = Math.round((passedCount / totalQ) * 100);
 
       savePaperResult(selectedGrade, activePaperId, {
         paperId: activePaperId,
         grade: selectedGrade,
-        totalQuestions: 10,
+        totalQuestions: totalQ,
         totalPassed: passedCount,
         overallAccuracy: finalAccuracy,
         history: validHistory,
@@ -2611,6 +2725,7 @@ export default function EnglishModule({ onExit }) {
   };
 
   const currentQ = paperQuestions[currentQIndex];
+  const currentQImage = getQuestionImage(currentQ);
   const activePaperConfig = PAPERS_CONFIG.find(p => p.id === activePaperId) || PAPERS_CONFIG[0];
 
   const totalPassedCount = history.filter(h => h.isPassed).length;
@@ -2624,106 +2739,170 @@ export default function EnglishModule({ onExit }) {
       className="min-h-screen bg-cover bg-center bg-fixed font-sans select-none relative overflow-x-hidden pb-16"
       style={{ backgroundImage: "url('/images/grade4_meadow_bg.jpg')" }}
     >
-      <div className={`mx-auto relative z-10 p-4 sm:p-6 ${viewState === 'quiz' || viewState === 'report' || viewState === 'mti_lab' ? 'max-w-6xl' : 'max-w-4xl'}`}>
+      <div className={`mx-auto relative z-10 p-4 sm:p-6 ${viewState === 'quiz' || viewState === 'report' || viewState === 'mti_lab' || viewState === 'grades_hub' ? 'max-w-[1320px]' : 'max-w-4xl'}`}>
 
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => {
-              if (viewState === 'quiz' || viewState === 'mti_lab') {
-                if (viewState === 'mti_lab' || window.confirm("Do you want to exit this paper?")) {
-                  stopListening();
-                  setViewState('grades_hub');
-                }
-              } else if (viewState === 'report') {
-                setViewState('papers_hub');
-              } else if (viewState === 'papers_hub') {
-                setViewState('grades_hub');
-              } else {
-                onExit ? onExit() : navigate('/dashboard');
-              }
-            }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-slate-200 hover:border-emerald-400 text-slate-700 font-bold rounded-2xl shadow-sm hover:shadow transition-all cursor-pointer"
-          >
-            <span>⬅</span>
-            <span>
-              {viewState === 'grades_hub'
-                ? 'Back to Dashboard'
-                : viewState === 'papers_hub' || viewState === 'mti_lab'
-                ? 'Main Menu'
-                : 'Select Papers'}
-            </span>
-          </button>
-
-          {viewState === 'quiz' && (
-            <div className="flex items-center gap-2">
-              <span className={`text-white font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm bg-gradient-to-r ${activePaperConfig.color}`}>
-                {activePaperConfig.badge}
-              </span>
-              <span className="bg-white/90 backdrop-blur border border-slate-200 text-slate-800 font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm">
-                Question {currentQIndex + 1} / 10
-              </span>
-            </div>
-          )}
-
-          {viewState === 'grades_hub' && (
+        {viewState !== 'grades_hub' && (
+          <div className="flex items-center justify-between mb-6">
             <button
-              onClick={() => { playSound('click'); setViewState('mti_lab'); }}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-xs sm:text-sm rounded-2xl shadow-md transition-all cursor-pointer"
+              onClick={() => {
+                if (viewState === 'quiz' || viewState === 'mti_lab') {
+                  if (viewState === 'mti_lab' || window.confirm("Do you want to exit this paper?")) {
+                    stopListening();
+                    setViewState('grades_hub');
+                  }
+                } else if (viewState === 'report') {
+                  setViewState('papers_hub');
+                } else if (viewState === 'papers_hub') {
+                  setViewState('grades_hub');
+                } else {
+                  onExit ? onExit() : navigate('/dashboard');
+                }
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-slate-200 hover:border-emerald-400 text-slate-700 font-bold rounded-2xl shadow-sm hover:shadow transition-all cursor-pointer"
             >
-              <span>🎙️</span>
-              <span>MTI Speech Lab (Sandbox)</span>
+              <span>⬅</span>
+              <span>
+                {viewState === 'papers_hub' || viewState === 'mti_lab'
+                  ? 'Main Menu'
+                  : 'Select Papers'}
+              </span>
             </button>
-          )}
-        </div>
+
+            {viewState === 'quiz' && (
+              <div className="flex items-center gap-2">
+                <span className={`text-white font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm bg-gradient-to-r ${activePaperConfig.color}`}>
+                  {activePaperConfig.badge}
+                </span>
+                <span className="bg-white/90 backdrop-blur border border-slate-200 text-slate-800 font-black text-xs px-3.5 py-1.5 rounded-full shadow-sm">
+                  Question {currentQIndex + 1} / 10
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {viewState === 'grades_hub' && (
-          <div className="space-y-6 animate-fade-in">
-            <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl text-center relative overflow-hidden">
-              <div className="inline-block bg-emerald-100 text-emerald-800 font-black text-xs px-4 py-1.5 rounded-full mb-3 uppercase tracking-wider">
-                English Speech, Fluency & MTI Analysis AI
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2">
-                English Speaking & Fluency Adaptive Learning System
-              </h1>
-              <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
-                Comprehensive evaluation of 12 Sri Lankan MTI patterns, speaking fluency (WPM), pitch intonation, and clarity.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { grade: 2, icon: '🌱', title: 'Grade 2', desc: 'Single word pronunciation — 3 fixed papers covering all 12 Sri Lankan MTI patterns', type: 'Single Words', color: 'from-emerald-500 to-teal-600' },
-                { grade: 3, icon: '🎯', title: 'Grade 3', desc: 'Short sentence reading — 3 fixed papers covering all 12 Sri Lankan MTI patterns', type: 'Short Sentences', color: 'from-blue-500 to-indigo-600' },
-                { grade: 4, icon: '🚀', title: 'Grade 4', desc: 'Long sentences & expressive speech — 3 fixed papers covering all 12 Sri Lankan MTI patterns', type: 'Long Sentences', color: 'from-purple-500 to-pink-600' }
-              ].map(g => (
-                <div
-                  key={g.grade}
-                  onClick={() => { setSelectedGrade(g.grade); setViewState('papers_hub'); }}
-                  className="bg-white rounded-3xl p-7 border-2 border-slate-200 hover:border-emerald-400 shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col justify-between"
+          <div className="space-y-8 animate-fade-in">
+            {/* Sinhala-style Top Header */}
+            <header className="mb-6 animate-fade-in-up">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <button
+                  onClick={() => onExit ? onExit() : navigate('/dashboard')}
+                  className="text-xs sm:text-sm font-bold text-teal-700 hover:text-white hover:bg-teal-600 bg-teal-50 border border-teal-200 px-4 py-2 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 self-start sm:self-auto"
                 >
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-4xl">{g.icon}</span>
-                      <span className="bg-slate-100 text-slate-700 text-xs font-black px-3 py-1 rounded-full">
-                        3 Papers (30 Questions)
-                      </span>
-                    </div>
-                    <h2 className="text-2xl font-black text-slate-800">{g.title}</h2>
-                    <p className="text-xs text-slate-600 font-medium leading-relaxed">{g.desc}</p>
-                    <div className="pt-2 text-xs font-bold text-slate-500 space-y-1">
-                      <div>✓ Paper 01: 10 Questions ({g.type})</div>
-                      <div>✓ Paper 02: 10 Questions ({g.type})</div>
-                      <div>✓ Paper 03: 10 Questions ({g.type})</div>
-                    </div>
-                  </div>
-
-                  <div className="pt-6">
-                    <button className={`w-full py-3.5 px-4 rounded-2xl font-black text-sm text-white shadow-md bg-gradient-to-r ${g.color} cursor-pointer`}>
-                      Go to Papers ➔
-                    </button>
-                  </div>
+                  <span>⬅</span> Back to Dashboard
+                </button>
+                <div className="text-center flex-1">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-teal-950 mb-1 whitespace-nowrap">
+                    ඉංග්‍රීසි ශ්‍රේණි කාණ්ඩ (English Grade Hubs)
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-600">
+                    Adaptive Speech, Fluency & 12 MTI Analysis System — Choose your grade level
+                  </p>
                 </div>
-              ))}
+                <div className="shrink-0">
+                  <button
+                    onClick={() => { playSound('click'); setViewState('mti_lab'); }}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-xs sm:text-sm rounded-2xl shadow-md transition-all cursor-pointer"
+                  >
+                    <span>🎙️</span>
+                    <span>MTI Speech Lab</span>
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            {/* 3 Grade Hub Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Grade 2 English */}
+              <div
+                onClick={() => { setSelectedGrade(2); setViewState('papers_hub'); }}
+                className="bg-gradient-to-br from-amber-50 via-orange-50 to-pink-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-6 sm:p-7 cursor-pointer border-3 border-amber-300 hover:border-amber-500 group transform hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between"
+              >
+                <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-amber-500 to-pink-500 text-white font-extrabold text-[11px] px-3.5 py-1 rounded-full shadow-md">
+                  Grade 2 Hub ⭐
+                </div>
+                <div>
+                  <div className="w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 border border-amber-200/80 shadow-inner relative bg-amber-100">
+                    <img
+                      src="/images/english/grade2_banner.jpg"
+                      alt="2 ශ්‍රේණිය — English Speech"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-amber-950 group-hover:text-amber-800 transition-colors mb-2">
+                    2 ශ්‍රේණිය — English Speech
+                  </h2>
+                  <p className="text-slate-600 mb-5 text-xs sm:text-sm leading-relaxed">
+                    Single word pronunciation & speech clarity — 3 fixed papers covering all 12 Sri Lankan MTI patterns.
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-amber-200/80">
+                  <span className="bg-amber-200/90 text-amber-900 px-3.5 py-1 rounded-full font-black text-xs inline-block group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                    3-Paper System ➔
+                  </span>
+                </div>
+              </div>
+
+              {/* Grade 3 English */}
+              <div
+                onClick={() => { setSelectedGrade(3); setViewState('papers_hub'); }}
+                className="bg-gradient-to-br from-purple-50 via-indigo-50 to-sky-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-6 sm:p-7 cursor-pointer border-3 border-purple-300 hover:border-purple-500 group transform hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between"
+              >
+                <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-extrabold text-[11px] px-3.5 py-1 rounded-full shadow-md">
+                  Grade 3 Adaptive ⭐
+                </div>
+                <div>
+                  <div className="w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 border border-purple-200/80 shadow-inner relative bg-purple-100">
+                    <img
+                      src="/images/english/grade3_banner.jpg"
+                      alt="3 ශ්‍රේණිය — English Speech"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-purple-950 group-hover:text-purple-800 transition-colors mb-2">
+                    3 ශ්‍රේණිය — English Speech
+                  </h2>
+                  <p className="text-slate-600 mb-5 text-xs sm:text-sm leading-relaxed">
+                    Short sentence reading, speech fluency & rhythm — 3 fixed papers covering all 12 Sri Lankan MTI patterns.
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-purple-200/80">
+                  <span className="bg-purple-200/90 text-purple-950 px-3.5 py-1 rounded-full font-black text-xs inline-block group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                    3-Paper System ➔
+                  </span>
+                </div>
+              </div>
+
+              {/* Grade 4 English */}
+              <div
+                onClick={() => { setSelectedGrade(4); setViewState('papers_hub'); }}
+                className="bg-gradient-to-br from-emerald-50 via-teal-50 to-sky-50 rounded-3xl shadow-md hover:shadow-2xl transition-all p-6 sm:p-7 cursor-pointer border-3 border-emerald-300 hover:border-emerald-500 group transform hover:-translate-y-1 relative overflow-hidden flex flex-col justify-between"
+              >
+                <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-[11px] px-3.5 py-1 rounded-full shadow-md">
+                  Grade 4 Adaptive ⭐
+                </div>
+                <div>
+                  <div className="w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-4 border border-emerald-200/80 shadow-inner relative bg-emerald-100">
+                    <img
+                      src="/images/english/grade4_banner.jpg"
+                      alt="4 ශ්‍රේණිය — English Speech"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-emerald-950 group-hover:text-emerald-800 transition-colors mb-2">
+                    4 ශ්‍රේණිය — English Speech
+                  </h2>
+                  <p className="text-slate-600 mb-5 text-xs sm:text-sm leading-relaxed">
+                    Long sentences, expressive speech & pitch intonation — 3 fixed papers covering all 12 Sri Lankan MTI patterns.
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-emerald-200/80">
+                  <span className="bg-emerald-200/90 text-emerald-950 px-3.5 py-1 rounded-full font-black text-xs inline-block group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    3-Paper System ➔
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -3012,7 +3191,7 @@ export default function EnglishModule({ onExit }) {
                 {selectedGrade === 2 ? 'Single Word Speaking Papers (3 Papers)' : selectedGrade === 3 ? 'Short Sentence Speaking Papers (3 Papers)' : 'Long Sentence Speaking Papers (3 Papers)'}
               </h1>
               <p className="text-slate-600 font-bold text-sm sm:text-base max-w-2xl mx-auto">
-                3 Fixed papers with 10 questions each, systematically evaluating all 12 Sri Lankan MTI patterns.
+                3 Fixed papers covering all 12 Sri Lankan MTI patterns.
               </p>
             </div>
 
@@ -3026,6 +3205,7 @@ export default function EnglishModule({ onExit }) {
                   : selectedGrade === 3
                   ? 'Short sentence reading, intonation & fluency'
                   : 'Long sentences, expressive speech & rhythm';
+                const paperQCount = FIXED_PAPERS[selectedGrade]?.[p.id]?.length || 10;
 
                 return (
                   <div
@@ -3067,7 +3247,7 @@ export default function EnglishModule({ onExit }) {
                         <span className={`inline-block text-xs font-black px-3 py-1 rounded-lg ${
                           p.id === 1 ? 'bg-emerald-100 text-emerald-800' : p.id === 2 ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
                         }`}>
-                          {p.badge}
+                          {paperQCount} Questions • Paper 0{p.id}
                         </span>
                       </div>
 
@@ -3156,21 +3336,38 @@ export default function EnglishModule({ onExit }) {
                   <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
                     Attempt #{questionAttempts}
                   </span>
-                  <span className="font-black text-slate-700">Question {currentQIndex + 1} / 10</span>
+                  <span className="font-black text-slate-700">Question {currentQIndex + 1} / {paperQuestions.length || 10}</span>
                 </div>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
                 <div
                   className={`h-3 rounded-full transition-all duration-300 bg-gradient-to-r ${activePaperConfig.color}`}
-                  style={{ width: `${((currentQIndex + 1) / 10) * 100}%` }}
+                  style={{ width: `${((currentQIndex + 1) / (paperQuestions.length || 10)) * 100}%` }}
                 ></div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-              {/* LEFT COLUMN: Question, Audio Controls & Navigation */}
-              <div className="lg:col-span-6 bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 sm:p-7 space-y-5 text-center shadow-sm flex flex-col justify-between h-full">
+              {/* FAR-LEFT COLUMN: Question Picture in the Left Shaded Area */}
+              {currentQImage && (
+                <div className="lg:col-span-4 bg-white/95 border-2 border-emerald-200 rounded-3xl p-3 sm:p-4 shadow-sm flex flex-col items-center justify-center relative overflow-hidden group animate-fade-in self-start">
+                  <div className="w-full aspect-[3/4] max-h-[460px] rounded-2xl overflow-hidden border border-slate-100 shadow-inner bg-slate-900/5 flex items-center justify-center relative">
+                    <img
+                      src={currentQImage}
+                      alt={currentQ.display_text || currentQ.target_text}
+                      className="w-full h-full object-cover rounded-2xl transition-all duration-300 group-hover:scale-105"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* MIDDLE / QUESTION COLUMN: Question, Audio Controls & Navigation */}
+              <div className={`${currentQImage ? 'lg:col-span-4' : 'lg:col-span-6'} bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 sm:p-7 space-y-5 text-center shadow-sm flex flex-col justify-between self-stretch`}>
 
                 <div className="space-y-5">
                   {history[currentQIndex] && (
@@ -3343,7 +3540,7 @@ export default function EnglishModule({ onExit }) {
                           : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-75 shadow-none'
                       }`}
                     >
-                      <span>{currentQIndex >= 9 ? 'Finish Paper ➔' : 'Next Question ➔'}</span>
+                      <span>{currentQIndex >= (paperQuestions.length - 1) ? 'Finish Paper ➔' : 'Next Question ➔'}</span>
                     </button>
                   </div>
                 </div>
@@ -3351,7 +3548,7 @@ export default function EnglishModule({ onExit }) {
               </div>
 
               {/* RIGHT COLUMN: 6-Dimensional Stats & Assessment Diagnostics */}
-              <div className="lg:col-span-6 h-full flex flex-col">
+              <div className={`${currentQImage ? 'lg:col-span-4' : 'lg:col-span-6'} self-start flex flex-col`}>
                 {assessmentResult && !isListening ? (
                   <div className="p-6 rounded-3xl bg-white border-2 border-slate-200 space-y-4 text-left animate-fade-in shadow-md h-full flex flex-col justify-between">
 
@@ -3392,8 +3589,35 @@ export default function EnglishModule({ onExit }) {
                         </div>
                       </div>
 
-                      {/* 6 Multi-Dimensional Stat Cards */}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+                      {/* MTI Pattern Guidance Alert (Placed ABOVE the 6 cards as requested) */}
+                      {assessmentResult.mtiPatterns && assessmentResult.mtiPatterns.length > 0 && (
+                        <div className="space-y-2">
+                          <span className="text-[11px] font-black text-rose-600 uppercase tracking-wider block">
+                            ⚠️ Detected Sri Lankan MTI Patterns (Pronunciation Guidance):
+                          </span>
+                          {assessmentResult.mtiPatterns.map((pat, idx) => (
+                            <div key={idx} className="p-3.5 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-1.5 text-left">
+                              <div className="flex items-center justify-between text-xs font-black text-rose-900">
+                                <span>📌 {pat.name}</span>
+                                <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-rose-200 text-rose-800 font-bold">
+                                  {pat.target_ipa} ➔ {pat.error_ipa}
+                                </span>
+                              </div>
+                              {pat.explanation && (
+                                <p className="text-xs text-rose-900 font-semibold">
+                                  🔍 {pat.explanation}
+                                </p>
+                              )}
+                              <p className="text-xs text-rose-800 font-bold">
+                                💡 Tip: {pat.pedagogical_tip}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* 6 Multi-Dimensional Stat Cards (2 by 2 in 3 rows) */}
+                      <div className="grid grid-cols-2 gap-2.5 text-xs">
 
                         <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
                           <span className="text-[10px] font-black uppercase text-slate-500 block flex items-center gap-1">
@@ -3505,7 +3729,7 @@ export default function EnglishModule({ onExit }) {
 
                       </div>
 
-                      {/* Contextual Similar MTI Practice Words Bar (Always shown on result below 6 stats) */}
+                      {/* Contextual Similar MTI Practice Words Bar (Shown below 6 stats) */}
                       {(() => {
                         const detectedKey = assessmentResult.mtiPatterns?.[0]?.key || currentQ.mti_pattern;
                         const matchedPattern = detectedKey
@@ -3546,33 +3770,6 @@ export default function EnglishModule({ onExit }) {
                           </div>
                         );
                       })()}
-
-                      {/* MTI Pattern Guidance Alert */}
-                      {assessmentResult.mtiPatterns && assessmentResult.mtiPatterns.length > 0 && (
-                        <div className="space-y-3">
-                          <span className="text-[11px] font-black text-rose-600 uppercase tracking-wider block">
-                            ⚠️ Detected Sri Lankan MTI Patterns (Pronunciation Guidance):
-                          </span>
-                          {assessmentResult.mtiPatterns.map((pat, idx) => (
-                            <div key={idx} className="p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-2">
-                              <div className="flex items-center justify-between text-xs font-black text-rose-900">
-                                <span>📌 {pat.name}</span>
-                                <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-rose-200 text-rose-800 font-bold">
-                                  {pat.target_ipa} ➔ {pat.error_ipa}
-                                </span>
-                              </div>
-                              {pat.explanation && (
-                                <p className="text-xs text-rose-900 font-semibold">
-                                  🔍 {pat.explanation}
-                                </p>
-                              )}
-                              <p className="text-xs text-rose-800 font-bold">
-                                💡 Tip: {pat.pedagogical_tip}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
 
                       {/* Word-by-Word Alignment Chips */}
                       {assessmentResult.wordResults && assessmentResult.wordResults.length > 1 && (
@@ -3651,7 +3848,7 @@ export default function EnglishModule({ onExit }) {
                         Click <strong>🎤 Speak</strong> or <strong>📁 Upload Voice</strong> on the left to evaluate this question. The live 6-dimensional stats will appear here instantly:
                       </p>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs opacity-60">
+                      <div className="grid grid-cols-2 gap-2.5 text-xs opacity-60">
                         <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
                           <span className="text-[10px] font-bold text-slate-500 block">🎯 1. Pronunciation</span>
                           <span className="text-base font-black text-slate-700">-- %</span>
@@ -3700,14 +3897,14 @@ export default function EnglishModule({ onExit }) {
                 Grade {selectedGrade} — {activePaperConfig.title} Report
               </h2>
               <p className="text-sm text-slate-500 font-bold">
-                {activePaperConfig.levelTitle} • 10 Questions Evaluation Summary
+                {activePaperConfig.levelTitle} • {(history.length || FIXED_PAPERS[selectedGrade]?.[activePaperId]?.length || 10)} Questions Evaluation Summary
               </p>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center">
                 <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">100% Passed Questions</p>
-                <p className="text-3xl font-black text-emerald-700">{totalPassedCount} / 10</p>
+                <p className="text-3xl font-black text-emerald-700">{totalPassedCount} / {(history.length || FIXED_PAPERS[selectedGrade]?.[activePaperId]?.length || 10)}</p>
               </div>
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-center">
                 <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1">Overall Accuracy</p>
@@ -3728,7 +3925,7 @@ export default function EnglishModule({ onExit }) {
                   <h4 className="font-black text-emerald-900 text-base">Great job! You achieved 75% or higher!</h4>
                   <p className="text-xs text-emerald-700 font-medium mt-0.5">
                     {activePaperId < 3
-                      ? `Paper 0${activePaperId + 1} (${PAPERS_CONFIG[activePaperId].badge}) is now unlocked.`
+                      ? `Paper 0${activePaperId + 1} (${FIXED_PAPERS[selectedGrade]?.[activePaperId + 1]?.length || 10} Questions • Paper 0${activePaperId + 1}) is now unlocked.`
                       : 'You have completed all assessment levels (Paper 01, 02, and 03)!'}
                   </p>
                 </div>
@@ -3747,7 +3944,7 @@ export default function EnglishModule({ onExit }) {
 
             <div>
               <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
-                <span>📋</span> 10 Questions Breakdown
+                <span>📋</span> {(history.length || FIXED_PAPERS[selectedGrade]?.[activePaperId]?.length || 10)} Questions Breakdown
               </h3>
               <div className="space-y-3">
                 {history.map((h, idx) => (
@@ -3805,7 +4002,7 @@ export default function EnglishModule({ onExit }) {
                 🔄 Retake Paper 0{activePaperId}
               </button>
 
-              {activePaperId < 3 && (
+              {activePaperId < 3 && isPaperUnlocked(activePaperId + 1) && (
                 <button
                   onClick={() => handleStartPaper(activePaperId + 1)}
                   className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-3.5 px-6 rounded-2xl shadow-md transition-all cursor-pointer text-center"

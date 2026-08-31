@@ -9,6 +9,8 @@ import {
 import { grade2AdaptiveEngine } from '../../../services/grade2AdaptiveEngine';
 import { SINHALA_CATEGORIES, SINHALA_LETTERS, SINHALA_PILLAM_REGISTRY } from '../../../data/grade2SinhalaQuestionBank';
 import SinhalaTracingCanvas from '../tracing/SinhalaTracingCanvas';
+import { recordStudentTestMarks } from '../../../data/studentAnalyticsData';
+import { getItem } from '../../../utils/storage';
 
 // ── Web Audio Synthesizer ──
 function playSound(type) {
@@ -127,10 +129,20 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
   // Answer selection in test
   const handleSelectAnswer = (questionId, option) => {
     playSound('click');
-    setUserAnswers(prev => ({
-      ...prev,
-      [questionId]: option
-    }));
+    setUserAnswers(prev => {
+      const isDifferent = prev[questionId] !== option;
+      if (isDifferent) {
+        setTracingResults(tPrev => {
+          const updated = { ...tPrev };
+          delete updated[questionId];
+          return updated;
+        });
+      }
+      return {
+        ...prev,
+        [questionId]: option
+      };
+    });
   };
 
   // Tracing callback for test questions
@@ -154,6 +166,39 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
     );
     setPaperResult(result);
     refreshSession();
+
+    try {
+      const studentId = getItem('studentId') || getItem('studentName') || 'std_001';
+      const name = getItem('studentName') || 'Hasara';
+      const studentKey = (name || 'hasara').toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+      const existingHistory = JSON.parse(localStorage.getItem(`g2_sinhala_paper_history_${studentKey}`) || '{}');
+      
+      // Preserve first attempt for official dashboard records
+      if (!existingHistory[activePaperNumber]) {
+        ['C1', 'C2', 'C3', 'C4', 'C5'].forEach(categoryCode => {
+          const catScore = result.categoryScores?.[categoryCode];
+          const catPct = catScore && catScore.total > 0 
+            ? Math.round((catScore.correct / catScore.total) * 100) 
+            : (result.percentage || 0);
+          const catMarks = Math.round((catPct / 100) * 30);
+          recordStudentTestMarks({
+            studentId,
+            name,
+            subject: 'sinhala',
+            categoryCode,
+            marks: catMarks,
+            maxMarks: 30
+          });
+        });
+
+        existingHistory[activePaperNumber] = result;
+        localStorage.setItem(`g2_sinhala_paper_history_${studentKey}`, JSON.stringify(existingHistory));
+        localStorage.setItem('g2_sinhala_paper_history', JSON.stringify(existingHistory));
+      }
+    } catch (e) {
+      console.warn("Failed to save Sinhala paper result:", e);
+    }
+
     playSound(result.percentage >= 70 ? 'correct' : 'click');
     setViewMode('results');
   };
@@ -171,14 +216,18 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
 
   return (
     <div 
-      className="min-h-screen bg-cover bg-center bg-fixed font-sans select-none relative overflow-x-hidden pb-16"
+      className={`min-h-[calc(100vh-5rem)] bg-cover bg-center bg-fixed font-sans select-none relative overflow-x-hidden ${
+        viewMode === 'test' 
+          ? 'flex flex-col justify-between pb-8' 
+          : 'pb-16'
+      }`}
       style={{ backgroundImage: "url('/images/grade4_bg.png')" }}
     >
-      <div className="relative z-10">
+      <div className={viewMode === 'test' ? 'flex-1 flex flex-col justify-between min-h-0' : 'relative z-10'}>
       
       {/* ── Top Navigation Bar ── */}
-      <header className="bg-white/90 backdrop-blur-md sticky top-0 z-30 border-b border-emerald-100 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      <header className={`bg-white/90 backdrop-blur-md sticky top-0 z-30 border-b border-emerald-100 shadow-sm shrink-0 ${viewMode === 'test' ? 'py-1.5' : 'py-3.5'}`}>
+        <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
           <button
             onClick={() => {
               if (viewMode === 'overview') {
@@ -188,17 +237,17 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                 setViewMode('overview');
               }
             }}
-            className="flex items-center gap-2 text-emerald-800 hover:text-emerald-950 font-bold text-sm bg-emerald-50 hover:bg-emerald-100 px-3.5 py-2 rounded-2xl transition-all cursor-pointer"
+            className="flex items-center gap-1.5 text-emerald-800 hover:text-emerald-950 font-bold text-xs bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl transition-all cursor-pointer shadow-xs"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             {viewMode === 'overview' ? 'ආපසු Dashboard වෙත' : 'ප්‍රශ්න පත්‍ර මෙනුව වෙත'}
           </button>
 
-          <div className="flex items-center gap-3">
-            <span className="bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="bg-emerald-600 text-white text-[11px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
               Grade 2 Sinhala AI
             </span>
-            <h1 className="text-base md:text-lg font-black text-slate-800 hidden sm:block">
+            <h1 className="text-sm md:text-base font-black text-slate-800 hidden sm:block">
               අනුවර්‍තී ඇගයීම් සහ අත්අකුරු (Tracing) ඉගෙනුම් පද්ධතිය
             </h1>
           </div>
@@ -206,23 +255,23 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setViewMode('final_report')}
-              className="flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs px-3.5 py-2 rounded-2xl border border-indigo-200 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs px-3 py-1.5 rounded-xl border border-indigo-200 transition-all cursor-pointer shadow-xs"
             >
-              <BarChart2 className="w-4 h-4" />
+              <BarChart2 className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">සමස්ත වාර්‍තාව</span>
             </button>
             <button
               onClick={handleResetSession}
               title="නැවත මුල සිට අරඹන්න"
-              className="p-2 text-slate-400 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
       </header>
 
-      <main className={`mx-auto px-4 ${viewMode === 'test' ? 'max-w-5xl pt-2 pb-4' : 'max-w-5xl pt-8 pb-16'}`}>
+      <main className={`mx-auto px-4 w-full ${viewMode === 'test' ? 'max-w-4xl flex-1 flex flex-col justify-center items-center py-2 my-auto' : 'max-w-5xl pt-8 pb-16'}`}>
 
         {/* ══════════════════════════════════════════════════════════════
             VIEW 1: ROADMAP / PAPERS OVERVIEW
@@ -428,38 +477,49 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                   );
                 })}
               </div>
+            </div>
 
-              {/* Multi-Tier Micro Skills Tracing */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-                <div className="bg-amber-50/70 rounded-2xl p-4 border border-amber-200 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl">🔤</span>
-                    <div>
-                      <h4 className="text-xs font-black text-amber-950">හඳුනාගත් දුර්‍වලතම අක්ෂරය (Weakest Letter)</h4>
-                      <p className="text-[11px] text-amber-800 mt-0.5">
-                        අක්ෂරය: <span className="font-black text-base text-amber-950">“{session.weakestLetter || 'ග'}”</span> (ප්‍රවීණතාව: {Math.round((session.letterMasteryVector?.[session.weakestLetter || 'ග'] || 0.45) * 100)}%)
-                      </p>
-                    </div>
-                  </div>
-                  <span className="bg-amber-200 text-amber-900 text-[10px] font-black px-2.5 py-1 rounded-full">
-                    Tracing Focus
-                  </span>
-                </div>
+            {/* Diagnostic Categories Grid */}
+            <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-4">
+              <div>
+                <h3 className="text-lg font-black text-slate-800">
+                  නිපුණතා කාණ්ඩ 5 (Core Diagnostic Categories)
+                </h3>
+                <p className="text-xs md:text-sm text-slate-500 font-medium">
+                  Grade 2 විෂය නිර්දේශයට අනුව ශිෂ්‍යයාගේ ප්‍රවීණතාවය වර්ගීකරණය කෙරෙන අංශ 5.
+                </p>
+              </div>
 
-                <div className="bg-purple-50/70 rounded-2xl p-4 border border-purple-200 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl">✍️</span>
-                    <div>
-                      <h4 className="text-xs font-black text-purple-950">හඳුනාගත් දුර්‍වලතම පිල්ලම (Weakest Pillama)</h4>
-                      <p className="text-[11px] text-purple-800 mt-0.5">
-                        පිල්ලම: <span className="font-black text-base text-purple-950">{SINHALA_PILLAM_REGISTRY[session.weakestPillama || 'P_PAPILI']?.name || 'පාපිල්ල'}</span>
-                      </p>
-                    </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                {Object.entries(SINHALA_CATEGORIES).map(([key, cat]) => (
+                  <div key={key} className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+                    <div className="text-2xl mb-1.5">{cat.icon}</div>
+                    <div className="text-xs font-black text-slate-800 mb-1">{cat.name}</div>
+                    <div className="text-[11px] text-slate-500 leading-tight">{cat.desc}</div>
                   </div>
-                  <span className="bg-purple-200 text-purple-900 text-[10px] font-black px-2.5 py-1 rounded-full">
-                    Pillam Transfer
-                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Dual Evaluation Explanation Note */}
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-3xl p-6 border border-emerald-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shrink-0 shadow-xs">
+                  ✍️
                 </div>
+                <div>
+                  <h4 className="text-sm font-black text-emerald-950">
+                    Dual-Evaluation Engine (ද්විත්ව ඇගයීම් තාක්ෂණය)
+                  </h4>
+                  <p className="text-xs text-emerald-800 font-medium mt-0.5 leading-relaxed">
+                    බහුවරණ (MCQ) පිළිතුරුවලට අමතරව, සිසුවා අඳින අත්අකුරු (Letter & Word Tracing) නිවැරදි තුන් රූල් රේඛා මත පිහිටීම, හැඩය සහ ප්‍රමාණය අනුව ස්වයංක්‍රීයව ලකුණු ලබා දේ.
+                  </p>
+                </div>
+              </div>
+              <div className="shrink-0 flex items-center gap-2">
+                <span className="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-xs">
+                  Pass Mark: 85% Tracing
+                </span>
               </div>
             </div>
 
@@ -467,22 +527,22 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
         )}
 
         {/* ══════════════════════════════════════════════════════════════
-            VIEW 2: ACTIVE QUESTION TEST VIEW (COMPACT NO-SCROLL LAYOUT)
+            VIEW 2: ACTIVE QUESTION TEST VIEW (BALANCED & COMFORTABLE)
            ══════════════════════════════════════════════════════════════ */}
         {viewMode === 'test' && currentQ && (
-          <div className="space-y-3 max-w-4xl mx-auto animate-fade-in">
+          <div className="w-full max-w-5xl mx-auto space-y-3 animate-fade-in my-auto py-2">
             {/* Top Status Header */}
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl py-2 px-4 shadow-sm border border-slate-100 flex items-center justify-between">
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl py-2 px-5 shadow-sm border border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-xl">
+                <span className="bg-emerald-600 text-white text-xs sm:text-sm font-black px-3.5 py-1 rounded-xl shadow-xs">
                   Paper {activePaperNumber}
                 </span>
-                <span className="text-xs md:text-sm font-bold text-slate-600">
+                <span className="text-xs sm:text-sm font-bold text-slate-700">
                   ප්‍රශ්නය {currentQIndex + 1} / {currentQuestions.length}
                 </span>
               </div>
 
-              <div className="w-32 md:w-56 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+              <div className="w-36 sm:w-64 h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-300"
                   style={{ width: `${((currentQIndex + 1) / currentQuestions.length) * 100}%` }}
@@ -491,178 +551,181 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
 
               <button
                 onClick={() => setViewMode('overview')}
-                className="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
               >
                 පසුව කරන්න
               </button>
             </div>
 
-            {/* Question Card */}
-            <div className="bg-white/95 backdrop-blur-md rounded-3xl p-4 md:p-5 shadow-md border border-white/60 relative overflow-hidden">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 text-xs font-black px-3 py-1 rounded-full border border-emerald-200">
-                    <span>{SINHALA_CATEGORIES[currentQ.category]?.icon}</span>
-                    <span>{SINHALA_CATEGORIES[currentQ.category]?.name}</span>
-                  </span>
-                  {currentQ.tracing_required && (
-                    <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-indigo-200">
-                      <Pencil className="w-3 h-3" />
-                      Tracing Required
+            {/* Well-Balanced & Generously Sized Question Card */}
+            <div className="bg-white/95 backdrop-blur-md rounded-[2rem] p-5 sm:p-6 shadow-xl border border-white/80 relative overflow-hidden flex flex-col justify-between">
+              <div>
+                {/* Header: Category & Sound */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 text-xs sm:text-sm font-black px-3 py-0.5 rounded-full border border-emerald-200 shadow-xs">
+                      <span>{SINHALA_CATEGORIES[currentQ.category]?.icon}</span>
+                      <span>{SINHALA_CATEGORIES[currentQ.category]?.name}</span>
                     </span>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => speakSinhala(currentQ.audioPrompt || currentQ.prompt)}
-                  className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer"
-                >
-                  <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
-                  හඬින් අසන්න
-                </button>
-              </div>
-
-              {/* Question Layout: 2 Columns if Tracing Required */}
-              {currentQ.tracing_required ? (
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                  {/* Left Column: Prompt & Options */}
-                  <div className="md:col-span-6 flex flex-col justify-between space-y-2.5">
-                    <div>
-                      <h3 className="text-base md:text-lg font-black text-slate-800 leading-snug mb-2.5">
-                        {currentQ.prompt}
-                      </h3>
-                      <div className="grid grid-cols-1 gap-2">
-                        {currentQ.options.map((opt, idx) => {
-                          const isSelected = userAnswers[currentQ.id] === opt;
-
-                          return (
-                            <button
-                              key={idx}
-                              onClick={() => handleSelectAnswer(currentQ.id, opt)}
-                              className={`p-2.5 md:p-3 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer ${
-                                isSelected
-                                  ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-xs transform scale-[1.01]'
-                                  : 'bg-slate-50 border-slate-200 hover:border-emerald-300 text-slate-700'
-                              }`}
-                            >
-                              <span className="text-sm md:text-base">{opt}</span>
-                              <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${
-                                isSelected
-                                  ? 'border-emerald-500 bg-emerald-500 text-white'
-                                  : 'border-slate-300'
-                              }`}>
-                                {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column: Tracing Canvas */}
-                  <div className="md:col-span-6 border-t md:border-t-0 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-4">
-                    {userAnswers[currentQ.id] ? (
-                      <div className="animate-fade-in">
-                        <SinhalaTracingCanvas
-                          key={`${currentQ.id}-${userAnswers[currentQ.id]}`}
-                          targetCharacter={userAnswers[currentQ.id] || currentQ.target_character || 'ක'}
-                          targetPillama={currentQ.target_pillama || ''}
-                          guideText={userAnswers[currentQ.id] || currentQ.target_guide_text || currentQ.target_character || 'ක'}
-                          onTraceComplete={(traceData) => handleTraceComplete(currentQ.id, traceData)}
-                          initialScore={tracingResults[currentQ.id]?.score || 0}
-                          isOptionSelected={true}
-                        />
-                      </div>
-                    ) : (
-                      <div className="bg-slate-50 border-2 border-dashed border-indigo-200 rounded-2xl p-4 text-center flex flex-col items-center justify-center gap-1.5 h-full min-h-[160px]">
-                        <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-black text-base shadow-xs">
-                          ✍️
-                        </div>
-                        <p className="text-xs font-black text-slate-800">
-                          අත්අකුරු ලිවීම (Sinhala Handwriting Tracing)
-                        </p>
-                        <p className="text-[11px] text-slate-500 font-bold">
-                          කරුණාකර පළමුව වම්පසින් නිවැරදි පිළිතුර තෝරන්න.
-                        </p>
-                      </div>
+                    {currentQ.tracing_required && (
+                      <span className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 text-xs font-black px-2.5 py-0.5 rounded-full border border-indigo-200">
+                        <Pencil className="w-3.5 h-3.5" />
+                        Tracing Required
+                      </span>
                     )}
                   </div>
+
+                  <button
+                    onClick={() => speakSinhala(currentQ.audioPrompt || currentQ.prompt)}
+                    className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
+                  >
+                    <Volume2 className="w-4 h-4 text-emerald-600" />
+                    හඬින් අසන්න
+                  </button>
                 </div>
-              ) : (
-                <div>
-                  <div className="mb-3.5">
-                    <h3 className="text-lg md:text-xl font-black text-slate-800 leading-snug">
-                      {currentQ.prompt}
-                    </h3>
-                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {currentQ.options.map((opt, idx) => {
-                      const isSelected = userAnswers[currentQ.id] === opt;
+                {/* Question Layout: 2 Columns if Tracing Required */}
+                {currentQ.tracing_required ? (
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-5 my-1 items-center">
+                    {/* Left Column: Prompt & Options */}
+                    <div className="md:col-span-6 flex flex-col justify-between space-y-2.5">
+                      <div>
+                        <h3 className="text-sm sm:text-base font-black text-slate-800 leading-snug mb-2.5">
+                          {currentQ.prompt}
+                        </h3>
+                        <div className="grid grid-cols-1 gap-2">
+                          {currentQ.options.map((opt, idx) => {
+                            const isSelected = userAnswers[currentQ.id] === opt;
 
-                      return (
-                        <button
-                          key={idx}
-                          onClick={() => handleSelectAnswer(currentQ.id, opt)}
-                          className={`p-3 md:p-3.5 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer ${
-                            isSelected
-                              ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-xs transform scale-[1.01]'
-                              : 'bg-slate-50 border-slate-200 hover:border-emerald-300 text-slate-700'
-                          }`}
-                        >
-                          <span className="text-base">{opt}</span>
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${
-                            isSelected
-                              ? 'border-emerald-500 bg-emerald-500 text-white'
-                              : 'border-slate-300'
-                          }`}>
-                            {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                            return (
+                              <button
+                                key={idx}
+                                onClick={() => handleSelectAnswer(currentQ.id, opt)}
+                                className={`py-2 px-3.5 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer ${
+                                  isSelected
+                                    ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-xs'
+                                    : 'bg-slate-50/80 border-slate-200 hover:border-emerald-300 text-slate-700'
+                                }`}
+                              >
+                                <span className="text-xs sm:text-sm">{opt}</span>
+                                <div className={`w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 ${
+                                  isSelected
+                                    ? 'border-emerald-500 bg-emerald-500 text-white'
+                                    : 'border-slate-300'
+                                }`}>
+                                  {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Column: Tracing Canvas */}
+                    <div className="md:col-span-6 border-t md:border-t-0 md:border-l border-slate-100 pt-2 md:pt-0 md:pl-4 flex flex-col justify-center items-center">
+                      {userAnswers[currentQ.id] ? (
+                        <div className="animate-fade-in w-full">
+                          <SinhalaTracingCanvas
+                            key={`${currentQ.id}-${userAnswers[currentQ.id]}`}
+                            targetCharacter={userAnswers[currentQ.id] || currentQ.target_character || 'ක'}
+                            targetPillama={currentQ.target_pillama || ''}
+                            guideText={userAnswers[currentQ.id] || currentQ.target_guide_text || currentQ.target_character || 'ක'}
+                            onTraceComplete={(traceData) => handleTraceComplete(currentQ.id, traceData)}
+                            initialScore={tracingResults[currentQ.id]?.score || 0}
+                            isOptionSelected={true}
+                          />
+                        </div>
+                      ) : (
+                        <div className="bg-slate-50 border-2 border-dashed border-indigo-200 rounded-2xl p-4 text-center flex flex-col items-center justify-center gap-1.5 h-full min-h-[160px] w-full">
+                          <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-black text-sm shadow-xs">
+                            ✍️
                           </div>
-                        </button>
-                      );
-                    })}
+                          <p className="text-xs font-black text-slate-800">
+                            අත්අකුරු ලිවීම (Sinhala Handwriting Tracing)
+                          </p>
+                          <p className="text-[11px] text-slate-500 font-bold">
+                            කරුණාකර පළමුව වම්පසින් නිවැරදි පිළිතුර තෝරන්න.
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                ) : (
+                  <div className="my-2 space-y-3">
+                    <div className="mb-2">
+                      <h3 className="text-base sm:text-xl font-black text-slate-800 leading-snug">
+                        {currentQ.prompt}
+                      </h3>
+                    </div>
 
-            {/* Bottom Actions */}
-            <div className="flex items-center justify-between pt-1">
-              <button
-                disabled={currentQIndex === 0}
-                onClick={() => {
-                  playSound('click');
-                  setCurrentQIndex(prev => prev - 1);
-                }}
-                className="px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm bg-white/90 border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                පෙර ප්‍රශ්නය
-              </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {currentQ.options.map((opt, idx) => {
+                        const isSelected = userAnswers[currentQ.id] === opt;
 
-              {currentQIndex < currentQuestions.length - 1 ? (
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => handleSelectAnswer(currentQ.id, opt)}
+                            className={`py-3 px-4 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer shadow-xs hover:shadow-sm ${
+                              isSelected
+                                ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-xs'
+                                : 'bg-slate-50/80 border-slate-200 hover:border-emerald-300 text-slate-700'
+                            }`}
+                          >
+                            <span className="text-sm sm:text-base">{opt}</span>
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${
+                              isSelected
+                                ? 'border-emerald-500 bg-emerald-500 text-white'
+                                : 'border-slate-300'
+                            }`}>
+                              {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Integrated Card Bottom Actions */}
+              <div className="flex items-center justify-between pt-3 mt-2 border-t border-slate-100">
                 <button
+                  disabled={currentQIndex === 0}
                   onClick={() => {
                     playSound('click');
-                    setCurrentQIndex(prev => prev + 1);
-                    const nextQ = currentQuestions[currentQIndex + 1];
-                    if (nextQ) speakSinhala(nextQ.audioPrompt || nextQ.prompt);
+                    setCurrentQIndex(prev => prev - 1);
                   }}
-                  className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-black text-xs md:text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
-                  ඊළඟ ප්‍රශ්නය
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  පෙර ප්‍රශ්නය
                 </button>
-              ) : (
-                <button
-                  onClick={handleSubmitTest}
-                  className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-black text-sm shadow-md transform hover:scale-102 transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Trophy className="w-4 h-4" />
-                  ප්‍රශ්න පත්‍රය අවසන් කරන්න ➔
-                </button>
-              )}
+
+                {currentQIndex < currentQuestions.length - 1 ? (
+                  <button
+                    onClick={() => {
+                      playSound('click');
+                      setCurrentQIndex(prev => prev + 1);
+                      const nextQ = currentQuestions[currentQIndex + 1];
+                      if (nextQ) speakSinhala(nextQ.audioPrompt || nextQ.prompt);
+                    }}
+                    className="px-5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-black text-xs sm:text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    ඊළඟ ප්‍රශ්නය
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSubmitTest}
+                    className="px-5 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-black text-xs sm:text-sm shadow-md transform hover:scale-102 transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Trophy className="w-3.5 h-3.5" />
+                    ප්‍රශ්න පත්‍රය අවසන් කරන්න ➔
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         )}

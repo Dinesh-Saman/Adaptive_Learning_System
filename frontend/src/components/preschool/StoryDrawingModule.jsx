@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { STORIES } from '../../data/creative/stories';
+import { getItem } from '../../utils/storage';
+import { recordStudentTestMarks, recordStudentQuestionAttempts } from '../../data/studentAnalyticsData';
 
 
 const StoryDrawingModule = ({ onExit }) => {
@@ -78,7 +80,7 @@ const StoryDrawingModule = ({ onExit }) => {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          studentId: localStorage.getItem('studentName') || "student",
+          studentId: getItem('studentId') || getItem('studentName') || "student",
           imageBase64: selectedImage,
           expectedElements: expectedElements
         }),
@@ -90,6 +92,57 @@ const StoryDrawingModule = ({ onExit }) => {
       if (response.ok) {
         const data = await response.json();
         setEvaluationResult(data);
+
+        const drawingScore = data.score !== undefined ? data.score : 85;
+        const currentStudentId = getItem('studentId') || 'std_001';
+        const currentStudentName = getItem('studentName') || 'Hasara';
+
+        try {
+          const studentKey = (currentStudentName || 'hasara').toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+          const storyId = activeStory?.id || 'story_task';
+          const existing = JSON.parse(localStorage.getItem(`storydrawing_scores_${studentKey}`) || '{}');
+          if (!existing[storyId]) {
+            existing[storyId] = {
+              storyId,
+              title: activeStory?.title || activeStory?.englishTitle,
+              score: drawingScore,
+              grade: 'Grade 1',
+              timestamp: new Date().toISOString()
+            };
+            localStorage.setItem(`storydrawing_scores_${studentKey}`, JSON.stringify(existing));
+            if (studentKey === 'hasara' || studentKey === 'std_001') {
+              localStorage.setItem('storydrawing_scores', JSON.stringify(existing));
+            }
+          }
+        } catch (e) {}
+
+        const p3Marks = Math.round((drawingScore / 100) * 30);
+        recordStudentTestMarks({
+          studentId: currentStudentId,
+          name: currentStudentName,
+          subject: 'preschool',
+          categoryCode: 'P3',
+          marks: p3Marks,
+          maxMarks: 30
+        });
+
+        recordStudentQuestionAttempts({
+          studentId: currentStudentId,
+          module: 'preschool',
+          grade: 'Grade 1',
+          paperNumber: 1,
+          attempts: [
+            {
+              questionId: `Story Drawing • ${activeStory?.title || 'Story Task'}`,
+              domain: 'P3',
+              category: 'P3',
+              difficulty: 'Grade 1',
+              isCorrect: drawingScore >= 50,
+              score: drawingScore,
+              timestamp: new Date().toISOString()
+            }
+          ]
+        });
       } else {
         const errData = await response.json().catch(() => ({}));
         setEvaluationResult({

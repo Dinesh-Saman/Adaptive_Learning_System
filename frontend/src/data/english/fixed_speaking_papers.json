@@ -5,6 +5,7 @@
         "id": "G2_P1_Q01",
         "target_text": "school",
         "display_text": "school",
+        "image": "/images/words/school.jpg",
         "phonetic_hint": "/skuːl/",
         "sinhala_meaning": "පාසල",
         "tip": "S-Cluster: Speak 'school' directly without 'is-'",
@@ -12,98 +13,98 @@
       },
       {
         "id": "G2_P1_Q02",
-        "target_text": "water",
-        "display_text": "water",
-        "phonetic_hint": "/ˈwɔː.tər/",
-        "sinhala_meaning": "වතුර",
-        "tip": "V/W: Round your lips for 'water'",
-        "mti_pattern": "V_W_MERGER"
-      },
-      {
-        "id": "G2_P1_Q03",
-        "target_text": "three",
-        "display_text": "three",
-        "phonetic_hint": "/θriː/",
-        "sinhala_meaning": "තුන",
-        "tip": "TH: Soft 'th' sound, not 'tree'",
-        "mti_pattern": "TH_SUBSTITUTION"
-      },
-      {
-        "id": "G2_P1_Q04",
-        "target_text": "fish",
-        "display_text": "fish",
-        "phonetic_hint": "/fɪʃ/",
-        "sinhala_meaning": "මාළුවා",
-        "tip": "F/P: Bite your lower lip for 'fish', not 'pish'",
-        "mti_pattern": "F_P_SUBSTITUTION"
-      },
-      {
-        "id": "G2_P1_Q05",
-        "target_text": "milk",
-        "display_text": "milk",
-        "phonetic_hint": "/mɪlk/",
-        "sinhala_meaning": "කිරි",
-        "tip": "Paragoge: Stop cleanly at 'k', do not add 'a'",
-        "mti_pattern": "PARAGOGE"
-      },
-      {
-        "id": "G2_P1_Q06",
-        "target_text": "cat",
-        "display_text": "cat",
-        "phonetic_hint": "/kæt/",
-        "sinhala_meaning": "පූසා",
-        "tip": "Final Consonant: Pronounce the ending 't' clearly",
-        "mti_pattern": "FINAL_CONSONANT_WEAKENING"
-      },
-      {
-        "id": "G2_P1_Q07",
-        "target_text": "fast",
-        "display_text": "fast",
-        "phonetic_hint": "/fɑːst/",
-        "sinhala_meaning": "වේගවත්",
-        "tip": "Cluster: Pronounce both 's' and 't' in 'fast'",
-        "mti_pattern": "CLUSTER_SIMPLIFICATION"
-      },
-      {
-        "id": "G2_P1_Q08",
-        "target_text": "boat",
-        "display_text": "boat",
-        "phonetic_hint": "/bəʊt/",
-        "sinhala_meaning": "බෝට්ටුව",
-        "tip": "Vowel Length: Elongate the vowel cleanly",
-        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
-      },
-      {
-        "id": "G2_P1_Q09",
         "target_text": "house",
         "display_text": "house",
+        "image": "/images/words/house.jpg",
         "phonetic_hint": "/haʊs/",
         "sinhala_meaning": "නිවස",
         "tip": "Initial H: Breathe out the 'h' sound clearly",
         "mti_pattern": "INITIAL_H_DELETION"
       },
       {
-        "id": "G2_P1_Q10",
-        "target_text": "zoo",
-        "display_text": "zoo",
-        "phonetic_hint": "/zuː/",
-        "sinhala_meaning": "සත්වෝද්‍යානය",
-        "tip": "Z/S: Buzz the 'z' sound cleanly",
-        "mti_pattern": "Z_S_CONFUSION"
-      }
-    ],
-    "2": [
+        "id": "G2_P1_Q03",
+        "target_text": "fish",
+        "display_text": "fish",
+        "image": "/images/words/fish.jpg",
+        "phonetic_hint": "/fɪʃ/",
+        "sinhala_meaning": "මාළුවා",
+        "tip": "F/P: Bite your lower lip for 'fish', not 'pish'",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
       {
-        "id": "G2_P2_Q01",
+        "id": "G2_P1_Q04",
+        "target_text": "cat",
+        "display_text": "cat",
+        "image": "/images/words/cat.jpg",
+        "phonetic_hint": "/kæt/",
+        "sinhala_meaning": "පූසා",
+        "tip": "Final Consonant: Pronounce the ending 't' clearly",
+        "mti_pattern": "FINAL_CONSONANT_WEAKENING"
+      },
+      {
+        "id": "G2_P1_Q05",
+        "target_text": "fan",
+        "display_text": "fan",
+        "image": "/images/words/fan.jpg",
+        "phonetic_hint": "/fæn/",
+        "sinhala_meaning": "පංකාව",
+        "tip": "F/P: 'f' sound, not 'pan'",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
+      {
+        "id": "G2_P1_Q06",
         "target_text": "star",
         "display_text": "star",
+        "image": "/images/words/star.jpg",
         "phonetic_hint": "/stɑːr/",
         "sinhala_meaning": "තරුව",
         "tip": "S-Cluster: Start with 's', not 'is-tar'",
         "mti_pattern": "S_CLUSTER_PROSTHESIS"
       },
       {
-        "id": "G2_P2_Q02",
+        "id": "G2_P1_Q07",
+        "target_text": "elephant",
+        "display_text": "elephant",
+        "image": "/images/words/elephant.png",
+        "phonetic_hint": "/ˈelɪfənt/",
+        "sinhala_meaning": "අලියා",
+        "tip": "F/P: 'ph' makes the 'f' sound, not 'p'",
+        "mti_pattern": "F_P_SUBSTITUTION"
+      },
+      {
+        "id": "G2_P1_Q08",
+        "target_text": "ship",
+        "display_text": "ship",
+        "image": "/images/words/ship.jpg",
+        "phonetic_hint": "/ʃɪp/",
+        "sinhala_meaning": "නැව",
+        "tip": "Vowel Length: Short 'i' sound in 'ship', not 'sheep'",
+        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
+      },
+      {
+        "id": "G2_P1_Q09",
+        "target_text": "water",
+        "display_text": "water",
+        "image": "/images/words/water.jpg",
+        "phonetic_hint": "/ˈwɔː.tər/",
+        "sinhala_meaning": "වතුර",
+        "tip": "V/W: Round your lips for 'water'",
+        "mti_pattern": "V_W_MERGER"
+      },
+      {
+        "id": "G2_P1_Q10",
+        "target_text": "milk",
+        "display_text": "milk",
+        "image": "/images/words/milk.jpg",
+        "phonetic_hint": "/mɪlk/",
+        "sinhala_meaning": "කිරි",
+        "tip": "Paragoge: Stop cleanly at 'k', do not add 'a'",
+        "mti_pattern": "PARAGOGE"
+      }
+    ],
+    "2": [
+      {
+        "id": "G2_P2_Q01",
         "target_text": "van",
         "display_text": "van",
         "phonetic_hint": "/væn/",
@@ -112,7 +113,7 @@
         "mti_pattern": "V_W_MERGER"
       },
       {
-        "id": "G2_P2_Q03",
+        "id": "G2_P2_Q02",
         "target_text": "mother",
         "display_text": "mother",
         "phonetic_hint": "/ˈmʌð.ər/",
@@ -121,7 +122,7 @@
         "mti_pattern": "TH_SUBSTITUTION"
       },
       {
-        "id": "G2_P2_Q04",
+        "id": "G2_P2_Q03",
         "target_text": "four",
         "display_text": "four",
         "phonetic_hint": "/fɔːr/",
@@ -130,7 +131,7 @@
         "mti_pattern": "F_P_SUBSTITUTION"
       },
       {
-        "id": "G2_P2_Q05",
+        "id": "G2_P2_Q04",
         "target_text": "book",
         "display_text": "book",
         "phonetic_hint": "/bʊk/",
@@ -139,7 +140,7 @@
         "mti_pattern": "PARAGOGE"
       },
       {
-        "id": "G2_P2_Q06",
+        "id": "G2_P2_Q05",
         "target_text": "hand",
         "display_text": "hand",
         "phonetic_hint": "/hænd/",
@@ -148,7 +149,7 @@
         "mti_pattern": "FINAL_CONSONANT_WEAKENING"
       },
       {
-        "id": "G2_P2_Q07",
+        "id": "G2_P2_Q06",
         "target_text": "desk",
         "display_text": "desk",
         "phonetic_hint": "/dɛsk/",
@@ -157,7 +158,7 @@
         "mti_pattern": "CLUSTER_SIMPLIFICATION"
       },
       {
-        "id": "G2_P2_Q08",
+        "id": "G2_P2_Q07",
         "target_text": "cake",
         "display_text": "cake",
         "phonetic_hint": "/keɪk/",
@@ -166,7 +167,7 @@
         "mti_pattern": "VOWEL_LENGTH_CONFUSION"
       },
       {
-        "id": "G2_P2_Q09",
+        "id": "G2_P2_Q08",
         "target_text": "happy",
         "display_text": "happy",
         "phonetic_hint": "/ˈhæp.i/",
@@ -175,13 +176,31 @@
         "mti_pattern": "INITIAL_H_DELETION"
       },
       {
-        "id": "G2_P2_Q10",
+        "id": "G2_P2_Q09",
         "target_text": "cup",
         "display_text": "cup",
         "phonetic_hint": "/kʌp/",
         "sinhala_meaning": "කෝප්පය",
         "tip": "Back Vowel: Central open vowel for 'cup'",
         "mti_pattern": "BACK_VOWEL_CONFUSION"
+      },
+      {
+        "id": "G2_P2_Q10",
+        "target_text": "three",
+        "display_text": "three",
+        "phonetic_hint": "/θriː/",
+        "sinhala_meaning": "තුන",
+        "tip": "TH: Soft 'th' sound, not 'tree'",
+        "mti_pattern": "TH_SUBSTITUTION"
+      },
+      {
+        "id": "G2_P2_Q11",
+        "target_text": "fast",
+        "display_text": "fast",
+        "phonetic_hint": "/fɑːst/",
+        "sinhala_meaning": "වේගවත්",
+        "tip": "Cluster: Pronounce both 's' and 't' in 'fast'",
+        "mti_pattern": "CLUSTER_SIMPLIFICATION"
       }
     ],
     "3": [
@@ -214,15 +233,6 @@
       },
       {
         "id": "G2_P3_Q04",
-        "target_text": "fan",
-        "display_text": "fan",
-        "phonetic_hint": "/fæn/",
-        "sinhala_meaning": "පංකාව",
-        "tip": "F/P: 'f' sound, not 'pan'",
-        "mti_pattern": "F_P_SUBSTITUTION"
-      },
-      {
-        "id": "G2_P3_Q05",
         "target_text": "bus",
         "display_text": "bus",
         "phonetic_hint": "/bʌs/",
@@ -231,7 +241,7 @@
         "mti_pattern": "PARAGOGE"
       },
       {
-        "id": "G2_P3_Q06",
+        "id": "G2_P3_Q05",
         "target_text": "red",
         "display_text": "red",
         "phonetic_hint": "/rɛd/",
@@ -240,7 +250,7 @@
         "mti_pattern": "FINAL_CONSONANT_WEAKENING"
       },
       {
-        "id": "G2_P3_Q07",
+        "id": "G2_P3_Q06",
         "target_text": "plant",
         "display_text": "plant",
         "phonetic_hint": "/plɑːnt/",
@@ -249,7 +259,7 @@
         "mti_pattern": "CLUSTER_SIMPLIFICATION"
       },
       {
-        "id": "G2_P3_Q08",
+        "id": "G2_P3_Q07",
         "target_text": "feet",
         "display_text": "feet",
         "phonetic_hint": "/fiːt/",
@@ -258,7 +268,7 @@
         "mti_pattern": "VOWEL_LENGTH_CONFUSION"
       },
       {
-        "id": "G2_P3_Q09",
+        "id": "G2_P3_Q08",
         "target_text": "hot",
         "display_text": "hot",
         "phonetic_hint": "/hɒt/",
@@ -267,13 +277,31 @@
         "mti_pattern": "INITIAL_H_DELETION"
       },
       {
-        "id": "G2_P3_Q10",
+        "id": "G2_P3_Q09",
         "target_text": "banana",
         "display_text": "banana",
         "phonetic_hint": "/bəˈnɑː.nə/",
         "sinhala_meaning": "කෙසෙල්",
         "tip": "Rhythm: Stress the middle syllable 'NA'",
         "mti_pattern": "STRESS_RHYTHM_DEVIATION"
+      },
+      {
+        "id": "G2_P3_Q10",
+        "target_text": "boat",
+        "display_text": "boat",
+        "phonetic_hint": "/bəʊt/",
+        "sinhala_meaning": "බෝට්ටුව",
+        "tip": "Vowel Length: Elongate the vowel cleanly",
+        "mti_pattern": "VOWEL_LENGTH_CONFUSION"
+      },
+      {
+        "id": "G2_P3_Q11",
+        "target_text": "zoo",
+        "display_text": "zoo",
+        "phonetic_hint": "/zuː/",
+        "sinhala_meaning": "සත්වෝද්‍යානය",
+        "tip": "Z/S: Buzz the 'z' sound cleanly",
+        "mti_pattern": "Z_S_CONFUSION"
       }
     ]
   },

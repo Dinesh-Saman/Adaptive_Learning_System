@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getItem } from '../../utils/storage';
 
 // All Sinhala alphabetical letters
 const SINHALA_VOWELS = ['අ','ආ','ඇ','ඈ','ඉ','ඊ','උ','ඌ','ඍ','එ','ඒ','ඓ','ඔ','ඕ','ඖ'];
@@ -146,7 +147,7 @@ const SinhalaModule = ({ onExit }) => {
     const imageBase64 = canvas.toDataURL('image/png').split(',')[1];
     // Capture the browser-rendered reference letter (correctly shaped Sinhala)
     const referenceBase64 = refCanvas ? refCanvas.toDataURL('image/png').split(',')[1] : '';
-    const studentId = localStorage.getItem('studentId') || 'unknown';
+    const studentId = getItem('studentId') || getItem('studentName') || 'unknown';
 
     setIsLoading(true);
     try {

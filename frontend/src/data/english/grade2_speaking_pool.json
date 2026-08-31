@@ -441,11 +441,11 @@
       "grade": 2,
       "level": "easy",
       "level_name_si": "පහසු මට්ටම (තනි වචන)",
-      "target_text": "box",
-      "display_text": "box",
-      "phonetic_hint": "/bɒks/",
-      "sinhala_meaning": "පෙට්ටිය",
-      "tip": "Pronounce 'box' clearly into the microphone."
+      "target_text": "elephant",
+      "display_text": "elephant",
+      "phonetic_hint": "/ˈelɪfənt/",
+      "sinhala_meaning": "අලියා",
+      "tip": "Pronounce 'elephant' clearly into the microphone."
     },
     {
       "id": "G2_SPK_041",

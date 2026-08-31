@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { recordStudentTestMarks, recordStudentQuestionAttempts } from '../../data/studentAnalyticsData';
+import { getItem } from '../../utils/storage';
 
 const CRAFTS = [
   {
@@ -472,10 +474,69 @@ export default function ColoringModule({ onExit }) {
     const rawColorPercent = colorEvaluablePixels > 0 ? (colorCorrect / colorEvaluablePixels) * 100 : 0;
     const colorPercent = rawColorPercent < 2 ? 0 : Math.round(rawColorPercent);
     
+    const overallColoring = Math.round((boundaryPercent * 0.6) + (coveragePercent * 0.4));
+
     setStats({
       coverage: Math.min(100, coveragePercent),
       boundary: Math.min(100, boundaryPercent),
-      colorMatch: Math.min(100, colorPercent)
+      colorMatch: Math.min(100, colorPercent),
+      overall: Math.min(100, overallColoring)
+    });
+
+    // Save to student profile & dashboard analytics
+    const currentStudentId = getItem('studentId') || 'std_001';
+    const currentStudentName = getItem('studentName') || 'Hasara';
+
+    try {
+      const studentKey = (currentStudentName || 'hasara').toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+      const craftId = selectedCraft?.id || 'coloring_task';
+      const existing = JSON.parse(localStorage.getItem(`coloring_scores_${studentKey}`) || '{}');
+      if (!existing[craftId]) {
+        existing[craftId] = {
+          craftId,
+          title: selectedCraft?.title || 'Digital Coloring',
+          coverage: coveragePercent,
+          boundary: boundaryPercent,
+          colorMatch: colorPercent,
+          overall: overallColoring,
+          grade: 'Pre-School',
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem(`coloring_scores_${studentKey}`, JSON.stringify(existing));
+        if (studentKey === 'hasara' || studentKey === 'std_001') {
+          localStorage.setItem('coloring_scores', JSON.stringify(existing));
+        }
+      }
+    } catch (e) {}
+
+    const p2Marks = Math.round((overallColoring / 100) * 30);
+    recordStudentTestMarks({
+      studentId: currentStudentId,
+      name: currentStudentName,
+      subject: 'preschool',
+      categoryCode: 'P2',
+      marks: p2Marks,
+      maxMarks: 30
+    });
+
+    recordStudentQuestionAttempts({
+      studentId: currentStudentId,
+      module: 'preschool',
+      grade: 'Pre-School',
+      paperNumber: 1,
+      attempts: [
+        {
+          questionId: `Digital Coloring • ${selectedCraft?.title || 'Coloring Activity'}`,
+          domain: 'P2',
+          category: 'P2',
+          difficulty: 'Pre-School',
+          isCorrect: overallColoring >= 50,
+          score: overallColoring,
+          boundary: boundaryPercent,
+          coverage: coveragePercent,
+          timestamp: new Date().toISOString()
+        }
+      ]
     });
     
     if (boundaryPercent > 90 && coveragePercent > 80) {
@@ -608,7 +669,7 @@ export default function ColoringModule({ onExit }) {
             </div>
 
             <button onClick={calculateAccuracy} className="mt-4 w-full px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold rounded-2xl shadow-lg transform hover:-translate-y-1 transition-all text-xl font-sinhala">
-              ✨ AI පරීක්ෂාව (Check)
+              ✨ නිවැරදි දැයි බලමු (Check)
             </button>
          </div>
       </div>
@@ -667,6 +728,11 @@ export default function ColoringModule({ onExit }) {
              <div className="bg-slate-50 p-4 rounded-2xl border flex items-center justify-between">
                 <span className="font-bold text-slate-600 text-sm">සම්පූර්ණ කිරීම (Coverage):</span>
                 <span className={`text-2xl font-black ${stats.coverage >= 95 ? 'text-green-500' : 'text-orange-500'}`}>{stats.coverage}%</span>
+             </div>
+
+             <div className="bg-pink-50 p-5 rounded-3xl border-2 border-pink-200 flex flex-col items-center justify-center mt-1 shadow-xs">
+                <span className="font-bold text-pink-800 text-sm mb-1 font-sinhala">සමස්ත ලකුණු (Overall Score)</span>
+                <div className="text-4xl font-black text-pink-600 drop-shadow-sm">{stats.overall} <span className="text-2xl text-pink-400">/ 100 ({stats.overall}%)</span></div>
              </div>
           </div>
 

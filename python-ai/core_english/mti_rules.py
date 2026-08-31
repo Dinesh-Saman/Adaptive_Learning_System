@@ -251,7 +251,7 @@ class SriLankanMTIRuleEngine:
                     detected.append(self._build_pattern_entry("CLUSTER_SIMPLIFICATION", tw, 'neks'))
 
             # 8. Short/Long Vowel Confusion (e.g. target: 'cake', spoken: 'kek')
-            if tw in ['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit']:
+            if tw in ['cake', 'boat', 'great', 'note', 'feet', 'fit', 'seat', 'sit', 'ship', 'sheep']:
                 if (
                     (tw == 'cake' and any(sw in ['kek', 'kake'] for sw in spoken_words)) or
                     (tw == 'boat' and any(sw in ['bot', 'bought', 'board', 'bode', 'bod', 'bowt', 'bout', 'baut', 'butt', 'bat'] for sw in spoken_words)) or
@@ -260,7 +260,9 @@ class SriLankanMTIRuleEngine:
                     (tw == 'feet' and any(sw in ['fit', 'foot'] for sw in spoken_words)) or
                     (tw == 'fit' and any(sw in ['feet'] for sw in spoken_words)) or
                     (tw == 'seat' and any(sw in ['sit', 'set'] for sw in spoken_words)) or
-                    (tw == 'sit' and any(sw in ['seat'] for sw in spoken_words))
+                    (tw == 'sit' and any(sw in ['seat'] for sw in spoken_words)) or
+                    (tw == 'ship' and any(sw in ['sheep', 'sheap'] for sw in spoken_words)) or
+                    (tw == 'sheep' and any(sw in ['ship'] for sw in spoken_words))
                 ):
                     detected.append(self._build_pattern_entry("VOWEL_LENGTH_CONFUSION", tw, 'kek/bot'))
 

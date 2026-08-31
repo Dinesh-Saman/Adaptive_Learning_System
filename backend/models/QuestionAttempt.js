@@ -1,18 +1,23 @@
 const mongoose = require('mongoose');
 
 const questionAttemptSchema = new mongoose.Schema({
-  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true, index: true },
+  studentId: { type: mongoose.Schema.Types.Mixed, required: true, index: true },
   paperNumber: { type: Number, default: 1 },
   questionId: { type: String, required: true, index: true },
   skillId: { type: String, required: true },
-  module: { type: String, enum: ['math', 'sinhala', 'english', 'motor'], default: 'math', required: true },
-  grade: { type: Number, default: 2 },
+  module: { 
+    type: String, 
+    enum: ['math', 'sinhala', 'english', 'motor', 'preschool', 'creative', 'preschool_activity', 'drawing', 'tracing', 'coloring'], 
+    default: 'math', 
+    required: true 
+  },
+  grade: { type: mongoose.Schema.Types.Mixed, default: 2 },
   difficultyTier: { type: Number, default: 1 },
-  studentAnswer: { type: String },
-  correctAnswer: { type: String },
+  studentAnswer: { type: String, default: '' },
+  correctAnswer: { type: String, default: '' },
   isCorrect: { type: Boolean, required: true },
   responseTimeMs: { type: Number, default: 0 },
-  misconception: { type: String },
+  misconception: { type: String, default: '' },
   timestamp: { type: Date, default: Date.now }
 });
 

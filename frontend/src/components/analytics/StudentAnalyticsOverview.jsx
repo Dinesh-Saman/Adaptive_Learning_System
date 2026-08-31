@@ -14,11 +14,12 @@ import { useNavigate } from 'react-router-dom';
 import { 
   CORE_SUBJECTS, 
   fetchStudentsAnalyticsFromApi, 
-  createBlankStudentProfile 
+  createBlankStudentProfile
 } from '../../data/studentAnalyticsData';
 import { isPreSchoolOrGrade1 } from './CategoryStudentTable';
+import { getItem } from '../../utils/storage';
 
-const StudentAnalyticsOverview = ({ initialStudentId = '', isTeacherView = false }) => {
+const StudentAnalyticsOverview = ({ initialStudentId = 'std_001', isTeacherView = false }) => {
   const navigate = useNavigate();
 
   const [studentsList, setStudentsList] = useState([]);
@@ -27,9 +28,9 @@ const StudentAnalyticsOverview = ({ initialStudentId = '', isTeacherView = false
   const [activeSubjectTab, setActiveSubjectTab] = useState('all');
   const [loading, setLoading] = useState(true);
 
-  const loggedInStudentName = localStorage.getItem('studentName') || '';
-  const loggedInStudentId = localStorage.getItem('studentId') || '';
-  const loggedInStudentGrade = localStorage.getItem('studentGrade') || 'Grade 4';
+  const loggedInStudentName = getItem('studentName') || '';
+  const loggedInStudentId = getItem('studentId') || '';
+  const loggedInStudentGrade = getItem('studentGrade') || 'Grade 4';
 
   // Load real students from MongoDB API
   useEffect(() => {
@@ -175,13 +176,12 @@ const StudentAnalyticsOverview = ({ initialStudentId = '', isTeacherView = false
   };
 
   // Radar chart calculation:
-  // If Pre-School: Show 4 Pre-School Foundation Domains
+  // If Pre-School: Show 3 Pre-School Foundation Domains (Tracing, Coloring, Drawing)
   // If Grade 2-4: Show 3 Primary Subject Domains
   const radarPoints = isPreSchool ? [
-    { label: 'Fine Motor', val: getSubCategoryScore('preschool', 'PRE_MOTOR'), angle: -Math.PI / 2 },
-    { label: 'Coloring', val: getSubCategoryScore('preschool', 'PRE_COLOR'), angle: 0 },
-    { label: 'Paper Craft', val: getSubCategoryScore('preschool', 'PRE_CRAFT'), angle: Math.PI / 2 },
-    { label: 'Story Drawing', val: getSubCategoryScore('preschool', 'PRE_STORY'), angle: Math.PI }
+    { label: 'Line Tracing', val: getSubCategoryScore('preschool', 'P1') || getSubCategoryScore('preschool', 'PRE_MOTOR'), angle: -Math.PI / 2 },
+    { label: 'Digital Coloring', val: getSubCategoryScore('preschool', 'P2') || getSubCategoryScore('preschool', 'PRE_COLOR'), angle: Math.PI / 6 },
+    { label: 'Story Drawing', val: getSubCategoryScore('preschool', 'P3') || getSubCategoryScore('preschool', 'PRE_STORY'), angle: (5 * Math.PI) / 6 }
   ] : [
     { label: 'ගණිතය', val: getSubjectAverage('math'), angle: -Math.PI / 2 },
     { label: 'සිංහල', val: getSubjectAverage('sinhala'), angle: Math.PI / 6 },
@@ -308,8 +308,8 @@ const StudentAnalyticsOverview = ({ initialStudentId = '', isTeacherView = false
         })}
       </div>
 
-      {/* ── AI RECOMMENDATION BANNER ── */}
-      {student.recommendation && (
+      {/* ── AI RECOMMENDATION BANNER (Primary Subjects Only) ── */}
+      {!isPreSchool && student.recommendation && (
         <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-2 border-amber-300 rounded-3xl p-6 sm:p-7 shadow-sm space-y-4">
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-md shrink-0">

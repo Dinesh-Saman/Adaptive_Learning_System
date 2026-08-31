@@ -8,26 +8,59 @@ import { GRADE4_QUESTION_BANK, GRADE4_SINHALA_CATEGORIES, GRADE4_REMEDIAL_BANK }
 const G4_ADAPTIVE_STORAGE_KEY = 'sinhala_grade4_adaptive_session';
 export const TRACING_PASS_THRESHOLD = 85;
 
+export function getActiveStudentKey() {
+  try {
+    const sName = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('studentName')) || 
+                  (typeof localStorage !== 'undefined' && localStorage.getItem('studentName')) || '';
+    const sId = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('studentId')) || 
+                (typeof localStorage !== 'undefined' && localStorage.getItem('studentId')) || '';
+    const cleaned = (sName || sId || 'default').toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+    return cleaned || 'default';
+  } catch (e) {
+    return 'default';
+  }
+}
+
 export class Grade4AdaptiveEngine {
   constructor() {
     this.session = this.loadSession();
   }
 
+  getStorageKey() {
+    const student = getActiveStudentKey();
+    return `sinhala_grade4_adaptive_session_${student}`;
+  }
+
   loadSession() {
     try {
-      const saved = localStorage.getItem(G4_ADAPTIVE_STORAGE_KEY);
+      const student = getActiveStudentKey();
+      const scopedKey = this.getStorageKey();
+      const saved = localStorage.getItem(scopedKey);
       if (saved) {
-        return JSON.parse(saved);
+        this.session = JSON.parse(saved);
+        return this.session;
+      }
+      if (student === 'hiruni' || student === 'std_003') {
+        const legacy = localStorage.getItem(G4_ADAPTIVE_STORAGE_KEY) || localStorage.getItem('sinhala_g4_adaptive_session');
+        if (legacy) {
+          try {
+            const parsed = JSON.parse(legacy);
+            this.session = parsed;
+            this.saveSession(parsed);
+            return parsed;
+          } catch (e) {}
+        }
       }
     } catch (e) {
       console.error("Error loading grade 4 adaptive session:", e);
     }
-    return this.getDefaultSession();
+    this.session = this.getDefaultSession();
+    return this.session;
   }
 
   getDefaultSession() {
     return {
-      studentId: 'student_g4_default',
+      studentId: getActiveStudentKey(),
       unlockedPapers: [1],
       completedPapers: [],
       paperHistory: {},
@@ -69,6 +102,8 @@ export class Grade4AdaptiveEngine {
     this.session = sessionData || this.session;
     try {
       this.session.lastUpdated = new Date().toISOString();
+      const scopedKey = this.getStorageKey();
+      localStorage.setItem(scopedKey, JSON.stringify(this.session));
       localStorage.setItem(G4_ADAPTIVE_STORAGE_KEY, JSON.stringify(this.session));
     } catch (e) {
       console.error("Error saving grade 4 adaptive session:", e);
@@ -240,9 +275,8 @@ export class Grade4AdaptiveEngine {
 
       const tracingCorrect = hasTracing ? (tracingPct >= passThreshold && traceData.isPassed !== false) : true;
 
-      const isQuestionCorrect = hasTracing
-        ? (answerCorrect && tracingCorrect)
-        : answerCorrect;
+      // Question correctness based on multiple-choice answer
+      const isQuestionCorrect = answerCorrect;
 
       if (isQuestionCorrect) totalCorrect++;
 

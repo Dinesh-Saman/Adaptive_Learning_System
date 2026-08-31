@@ -1,17 +1,20 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
 const MainLayout = () => {
+  const location = useLocation();
+  const isModule = location.pathname.startsWith('/module');
+
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow flex flex-col">
         <Outlet />
       </main>
-      <Footer />
-    </>
+      {!isModule && <Footer />}
+    </div>
   );
 };
 

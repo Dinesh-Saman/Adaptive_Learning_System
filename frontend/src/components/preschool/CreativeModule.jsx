@@ -13,8 +13,8 @@ const CreativeModule = ({ onExit }) => {
   const [assessmentResult, setAssessmentResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Mock Student ID (Ideally comes from context or auth)
-  const studentId = localStorage.getItem('studentId') || '64d2f8e9a2c9b4e1d5f3a000'; // fallback mock ID
+  // Student ID from session storage
+  const studentId = getItem('studentId') || getItem('studentName') || '64d2f8e9a2c9b4e1d5f3a000';
 
   useEffect(() => {
     fetchFingerprint();

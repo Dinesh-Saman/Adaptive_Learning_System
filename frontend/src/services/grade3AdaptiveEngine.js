@@ -7,26 +7,59 @@ import { GRADE3_QUESTION_BANK, GRADE3_SINHALA_CATEGORIES, GRADE3_REMEDIAL_EXERCI
 
 const STORAGE_KEY = 'g3_sinhala_session';
 
+export function getActiveStudentKey() {
+  try {
+    const sName = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('studentName')) || 
+                  (typeof localStorage !== 'undefined' && localStorage.getItem('studentName')) || '';
+    const sId = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('studentId')) || 
+                (typeof localStorage !== 'undefined' && localStorage.getItem('studentId')) || '';
+    const cleaned = (sName || sId || 'default').toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+    return cleaned || 'default';
+  } catch (e) {
+    return 'default';
+  }
+}
+
 class Grade3AdaptiveEngine {
   constructor() {
     this.session = this.loadSession();
   }
 
+  getStorageKey() {
+    const student = getActiveStudentKey();
+    return `g3_sinhala_session_${student}`;
+  }
+
   loadSession() {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const student = getActiveStudentKey();
+      const scopedKey = this.getStorageKey();
+      const stored = localStorage.getItem(scopedKey);
       if (stored) {
-        return JSON.parse(stored);
+        this.session = JSON.parse(stored);
+        return this.session;
+      }
+      if (student === 'chamalka' || student === 'std_002') {
+        const legacy = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('sinhala_g3_adaptive_session');
+        if (legacy) {
+          try {
+            const parsed = JSON.parse(legacy);
+            this.session = parsed;
+            this.saveSession(parsed);
+            return parsed;
+          } catch (e) {}
+        }
       }
     } catch (e) {
       console.warn('Error reading Grade 3 Sinhala session from storage:', e);
     }
-    return this.createFreshSession();
+    this.session = this.createFreshSession();
+    return this.session;
   }
 
   createFreshSession() {
     return {
-      studentId: 'student_g3_default',
+      studentId: getActiveStudentKey(),
       currentMasteryVector: {
         C1: 0.5,
         C2: 0.5,
@@ -56,9 +89,12 @@ class Grade3AdaptiveEngine {
     };
   }
 
-  saveSession() {
+  saveSession(sessionData) {
+    this.session = sessionData || this.session;
     try {
       this.session.lastUpdated = new Date().toISOString();
+      const scopedKey = this.getStorageKey();
+      localStorage.setItem(scopedKey, JSON.stringify(this.session));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.session));
     } catch (e) {
       console.error('Error saving Grade 3 session:', e);
@@ -67,7 +103,7 @@ class Grade3AdaptiveEngine {
 
   resetSession() {
     this.session = this.createFreshSession();
-    this.saveSession();
+    this.saveSession(this.session);
     return this.session;
   }
 
