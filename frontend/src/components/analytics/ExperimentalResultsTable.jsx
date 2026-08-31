@@ -521,65 +521,163 @@ export default function ExperimentalResultsTable() {
                             </p>
                           </div>
 
-                          {/* 2. Models Used & Specific Usage Section */}
+                          {/* 2. Models Used & Specific Usage Section (2-Column Table) */}
                           <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/70 space-y-2.5">
                             <div className="flex items-center gap-2 text-xs font-black text-slate-800">
                               <BrainCircuit className="w-4 h-4 text-purple-600" />
                               <span>2. AI Models Used & Specific Model Usages (යොදාගත් AI මාදිලි සහ කාර්යභාරය)</span>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pl-2 sm:pl-6">
-                              {item.models.map((m, mIdx) => (
-                                <div key={mIdx} className="bg-white p-3 rounded-lg border border-slate-200/80 shadow-2xs space-y-1">
-                                  <span className="inline-block text-[11px] font-black text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
-                                    {m.name}
-                                  </span>
-                                  <p className="text-[11.5px] text-slate-600 leading-snug">
-                                    {m.usage}
-                                  </p>
-                                </div>
-                              ))}
+                            
+                            <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-2xs">
+                              <table className="w-full text-left text-xs border-collapse">
+                                <thead>
+                                  <tr className="bg-slate-100/90 text-slate-700 font-bold border-b border-slate-200 text-[11px] uppercase tracking-wider">
+                                    <th className="py-2.5 px-4 w-2/5 border-r border-slate-200">AI Model (යොදාගත් AI මොඩලය)</th>
+                                    <th className="py-2.5 px-4 w-3/5">Usage & Role in Learning Pipeline (කාර්යභාරය සහ යොදාගැනීම)</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 font-medium text-slate-700 text-[11.5px]">
+                                  {item.models.map((m, mIdx) => (
+                                    <tr key={mIdx} className="hover:bg-slate-50/70 transition-colors">
+                                      <td className="py-2.5 px-4 font-bold text-indigo-700 border-r border-slate-100 align-top">
+                                        <span className="inline-block bg-indigo-50/80 px-2.5 py-1 rounded-md text-indigo-900 border border-indigo-100 text-[11.5px]">
+                                          {m.name}
+                                        </span>
+                                      </td>
+                                      <td className="py-2.5 px-4 text-slate-600 leading-relaxed align-top">
+                                        {m.usage}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
                             </div>
                           </div>
 
                           {/* 3. Confusion Matrix Grid + 4. Step-by-Step Metric Formulas Grid */}
                           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
                             
-                            {/* Left Column: 2x2 Confusion Matrix */}
-                            <div className="lg:col-span-5 p-4 bg-slate-900 text-white rounded-xl border border-slate-800 space-y-3">
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs font-black text-cyan-300 flex items-center gap-1.5">
-                                  <Grid className="w-3.5 h-3.5" />
+                            {/* Left Column: Heatmap Style Confusion Matrix (Matching Scikit-Learn / Seaborn) */}
+                            <div className="lg:col-span-5 p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col items-center justify-between space-y-3">
+                              <div className="w-full flex items-center justify-between border-b border-slate-200/80 pb-2">
+                                <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                                  <Grid className="w-3.5 h-3.5 text-indigo-600" />
                                   3. Confusion Matrix (සම්පූර්ණ Confusion Matrix)
                                 </span>
-                                <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">
+                                <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-mono font-bold">
                                   Total N = {item.confusionMatrix.total}
                                 </span>
                               </div>
 
-                              <div className="grid grid-cols-2 gap-2 text-center text-xs font-mono">
-                                <div className="p-3 bg-emerald-950/80 border border-emerald-500/60 rounded-xl text-emerald-200">
-                                  <span className="text-[10px] text-emerald-400 font-sans block uppercase font-bold">True Positive (TP)</span>
-                                  <span className="text-lg font-black text-emerald-300">{item.confusionMatrix.tp}</span>
-                                  <span className="text-[10px] text-emerald-400/80 block mt-0.5 font-sans">Correctly Classified Positive</span>
-                                </div>
+                              {/* Heatmap Visual Container */}
+                              <div className="py-1 flex flex-col items-center w-full">
+                                <h5 className="text-xs font-bold text-slate-700 mb-1 text-center">
+                                  Confusion Matrix
+                                </h5>
 
-                                <div className="p-3 bg-rose-950/80 border border-rose-500/60 rounded-xl text-rose-200">
-                                  <span className="text-[10px] text-rose-400 font-sans block uppercase font-bold">False Positive (FP)</span>
-                                  <span className="text-lg font-black text-rose-300">{item.confusionMatrix.fp}</span>
-                                  <span className="text-[10px] text-rose-400/80 block mt-0.5 font-sans">Type I Error (False Alarm)</span>
-                                </div>
+                                <div className="flex items-center justify-center gap-2">
+                                  {/* Left Vertical Label: Actual */}
+                                  <div className="flex items-center justify-center">
+                                    <span className="-rotate-90 text-[11px] font-bold text-slate-600 tracking-wide select-none">
+                                      Actual
+                                    </span>
+                                  </div>
 
-                                <div className="p-3 bg-amber-950/80 border border-amber-500/60 rounded-xl text-amber-200">
-                                  <span className="text-[10px] text-amber-400 font-sans block uppercase font-bold">False Negative (FN)</span>
-                                  <span className="text-lg font-black text-amber-300">{item.confusionMatrix.fn}</span>
-                                  <span className="text-[10px] text-amber-400/80 block mt-0.5 font-sans">Type II Error (Missed Detection)</span>
-                                </div>
+                                  {/* Matrix Grid */}
+                                  <div className="flex flex-col items-center">
+                                    {/* Top Label: Prediction */}
+                                    <span className="text-[11px] font-bold text-slate-600 mb-1 select-none">
+                                      Prediction
+                                    </span>
 
-                                <div className="p-3 bg-blue-950/80 border border-blue-500/60 rounded-xl text-blue-200">
-                                  <span className="text-[10px] text-blue-400 font-sans block uppercase font-bold">True Negative (TN)</span>
-                                  <span className="text-lg font-black text-blue-300">{item.confusionMatrix.tn}</span>
-                                  <span className="text-[10px] text-blue-400/80 block mt-0.5 font-sans">Correctly Classified Negative</span>
+                                    {/* Column Headers */}
+                                    <div className="grid grid-cols-2 gap-1.5 w-44 sm:w-52 text-center text-[10.5px] font-semibold text-slate-600 mb-1 pl-12">
+                                      <span>Positive (1)</span>
+                                      <span>Negative (0)</span>
+                                    </div>
+
+                                    {/* Rows with Row Headers */}
+                                    <div className="space-y-1.5">
+                                      {/* Row 1: Actual Positive */}
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="w-12 text-right text-[10.5px] font-semibold text-slate-600 pr-1 truncate">
+                                          Positive
+                                        </span>
+                                        <div className="grid grid-cols-2 gap-1.5 w-44 sm:w-52">
+                                          {/* TP Cell */}
+                                          <div 
+                                            className="h-12 sm:h-14 flex flex-col items-center justify-center rounded-md border border-slate-300 font-mono text-sm font-black transition-all shadow-xs"
+                                            style={{
+                                              backgroundColor: `rgba(26, 82, 148, ${Math.max(0.15, (item.confusionMatrix.tp / Math.max(item.confusionMatrix.tp, item.confusionMatrix.tn))).toFixed(2)})`,
+                                              color: (item.confusionMatrix.tp / Math.max(item.confusionMatrix.tp, item.confusionMatrix.tn)) > 0.4 ? '#ffffff' : '#0d3c61'
+                                            }}
+                                          >
+                                            <span>{item.confusionMatrix.tp}</span>
+                                            <span className="text-[8.5px] font-sans font-normal opacity-85">TP (True Pos)</span>
+                                          </div>
+
+                                          {/* FN Cell */}
+                                          <div 
+                                            className="h-12 sm:h-14 flex flex-col items-center justify-center rounded-md border border-slate-300 font-mono text-sm font-black transition-all shadow-xs"
+                                            style={{
+                                              backgroundColor: `rgba(26, 82, 148, ${Math.max(0.06, (item.confusionMatrix.fn / Math.max(item.confusionMatrix.tp, item.confusionMatrix.tn))).toFixed(2)})`,
+                                              color: (item.confusionMatrix.fn / Math.max(item.confusionMatrix.tp, item.confusionMatrix.tn)) > 0.4 ? '#ffffff' : '#0d3c61'
+                                            }}
+                                          >
+                                            <span>{item.confusionMatrix.fn}</span>
+                                            <span className="text-[8.5px] font-sans font-normal opacity-85">FN (False Neg)</span>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {/* Row 2: Actual Negative */}
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="w-12 text-right text-[10.5px] font-semibold text-slate-600 pr-1 truncate">
+                                          Negative
+                                        </span>
+                                        <div className="grid grid-cols-2 gap-1.5 w-44 sm:w-52">
+                                          {/* FP Cell */}
+                                          <div 
+                                            className="h-12 sm:h-14 flex flex-col items-center justify-center rounded-md border border-slate-300 font-mono text-sm font-black transition-all shadow-xs"
+                                            style={{
+                                              backgroundColor: `rgba(26, 82, 148, ${Math.max(0.06, (item.confusionMatrix.fp / Math.max(item.confusionMatrix.tp, item.confusionMatrix.tn))).toFixed(2)})`,
+                                              color: (item.confusionMatrix.fp / Math.max(item.confusionMatrix.tp, item.confusionMatrix.tn)) > 0.4 ? '#ffffff' : '#0d3c61'
+                                            }}
+                                          >
+                                            <span>{item.confusionMatrix.fp}</span>
+                                            <span className="text-[8.5px] font-sans font-normal opacity-85">FP (False Pos)</span>
+                                          </div>
+
+                                          {/* TN Cell */}
+                                          <div 
+                                            className="h-12 sm:h-14 flex flex-col items-center justify-center rounded-md border border-slate-300 font-mono text-sm font-black transition-all shadow-xs"
+                                            style={{
+                                              backgroundColor: `rgba(26, 82, 148, ${Math.max(0.15, (item.confusionMatrix.tn / Math.max(item.confusionMatrix.tp, item.confusionMatrix.tn))).toFixed(2)})`,
+                                              color: (item.confusionMatrix.tn / Math.max(item.confusionMatrix.tp, item.confusionMatrix.tn)) > 0.4 ? '#ffffff' : '#0d3c61'
+                                            }}
+                                          >
+                                            <span>{item.confusionMatrix.tn}</span>
+                                            <span className="text-[8.5px] font-sans font-normal opacity-85">TN (True Neg)</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Colorbar Indicator (Like in Screenshot 2) */}
+                                  <div className="flex items-center gap-1 pl-1">
+                                    <div className="w-3 h-24 sm:h-28 rounded-xs border border-slate-400 bg-gradient-to-b from-[#1a5294] via-[#74a5d8] to-[#edf4fc]" />
+                                    <div className="flex flex-col justify-between h-24 sm:h-28 text-[9px] font-mono text-slate-600 font-semibold py-0.5">
+                                      <span>{Math.max(item.confusionMatrix.tp, item.confusionMatrix.tn)}</span>
+                                      <span>{Math.round(Math.max(item.confusionMatrix.tp, item.confusionMatrix.tn) / 2)}</span>
+                                      <span>0</span>
+                                    </div>
+                                  </div>
                                 </div>
+                              </div>
+
+                              <div className="w-full text-center text-[10.5px] text-slate-500 font-mono bg-white p-2 rounded-lg border border-slate-200/80">
+                                TP = {item.confusionMatrix.tp} • TN = {item.confusionMatrix.tn} • FP = {item.confusionMatrix.fp} • FN = {item.confusionMatrix.fn}
                               </div>
                             </div>
 
