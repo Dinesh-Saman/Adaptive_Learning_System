@@ -24,6 +24,7 @@ import {
   ExternalLink 
 } from 'lucide-react';
 import CategoryStudentTable, { isPreSchoolOrGrade1 } from '../components/analytics/CategoryStudentTable';
+import ExperimentalResultsTable from '../components/analytics/ExperimentalResultsTable';
 import { fetchStudentsAnalyticsFromApi, CORE_SUBJECTS } from '../data/studentAnalyticsData';
 import { getItem, clearSession } from '../utils/storage';
 
@@ -33,12 +34,12 @@ const TeacherDashboard = () => {
 
   const getInitialTab = () => {
     const fromUrl = searchParams.get('tab');
-    if (fromUrl && ['overview', 'math', 'sinhala', 'english', 'preschool'].includes(fromUrl)) {
+    if (fromUrl && ['overview', 'math', 'sinhala', 'english', 'preschool', 'evaluation'].includes(fromUrl)) {
       return fromUrl;
     }
     try {
       const fromStorage = localStorage.getItem('teacher_dashboard_tab');
-      if (fromStorage && ['overview', 'math', 'sinhala', 'english', 'preschool'].includes(fromStorage)) {
+      if (fromStorage && ['overview', 'math', 'sinhala', 'english', 'preschool', 'evaluation'].includes(fromStorage)) {
         return fromStorage;
       }
     } catch (e) {}
@@ -152,6 +153,13 @@ const TeacherDashboard = () => {
       subtitle: 'Fine Motor, Tracing & Coloring',
       icon: Palette,
       color: 'amber'
+    },
+    {
+      id: 'evaluation',
+      name: '5. AI ඇගයීම් වාර්තාව',
+      subtitle: 'Experimental Results & Metrics',
+      icon: Sparkles,
+      color: 'teal'
     }
   ];
 
@@ -589,6 +597,9 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
+            {/* ── AI EXPERIMENTAL RESULTS & MODEL EVALUATION BENCHMARK SECTION ── */}
+            <ExperimentalResultsTable />
+
           </div>
         )}
 
@@ -787,6 +798,13 @@ const TeacherDashboard = () => {
 
             {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL WITH SVG CHARTS */}
             <CategoryStudentTable subjectKey="preschool" students={students} loading={loading} />
+          </div>
+        )}
+
+        {/* ── TAB 6: EXPERIMENTAL RESULTS & AI MODEL EVALUATION REPORT ── */}
+        {activeTab === 'evaluation' && (
+          <div className="space-y-4 animate-fade-in">
+            <ExperimentalResultsTable />
           </div>
         )}
 
