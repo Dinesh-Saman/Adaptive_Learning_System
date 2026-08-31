@@ -243,17 +243,28 @@ export const getStudentPapersHistory = (student, subjectKey = 'math') => {
       });
     } else if (subjectKey === 'english') {
       const sName = (student.name || '').toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
-      const isDefaultStudent = (sGrade === 2 && (sName === 'hasara' || sName === 'std_001')) ||
-                               (sGrade === 3 && (sName === 'chamalka' || sName === 'std_002')) ||
-                               (sGrade === 4 && (sName === 'hiruni' || sName === 'std_003'));
+      const sId = (student.studentId || student.id || '').toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+      const isDefaultStudent = (sGrade === 2 && (sName === 'hasara' || sName === 'std_001' || sId === 'std_001')) ||
+                               (sGrade === 3 && (sName === 'chamalka' || sName === 'std_002' || sId === 'std_002')) ||
+                               (sGrade === 4 && (sName === 'hiruni' || sName === 'std_003' || sId === 'std_003'));
 
       const englishSources = [
-        { key: `g${sGrade}_english_paper_history_${sName}`, grade: sGrade, label: `Grade ${sGrade}` }
+        { key: `g${sGrade}_english_paper_history_${sName}`, grade: sGrade, label: `Grade ${sGrade}` },
+        { key: `g${sGrade}_english_paper_history_${sId}`, grade: sGrade, label: `Grade ${sGrade}` },
+        { key: `g2_english_paper_history_${sName}`, grade: 2, label: `Grade 2` },
+        { key: `g3_english_paper_history_${sName}`, grade: 3, label: `Grade 3` },
+        { key: `g4_english_paper_history_${sName}`, grade: 4, label: `Grade 4` },
+        { key: `g2_english_paper_history_${sId}`, grade: 2, label: `Grade 2` },
+        { key: `g3_english_paper_history_${sId}`, grade: 3, label: `Grade 3` },
+        { key: `g4_english_paper_history_${sId}`, grade: 4, label: `Grade 4` }
       ];
 
       if (isDefaultStudent) {
         englishSources.push(
-          { key: `g${sGrade}_english_paper_history`, grade: sGrade, label: `Grade ${sGrade}` }
+          { key: `g${sGrade}_english_paper_history`, grade: sGrade, label: `Grade ${sGrade}` },
+          { key: `g2_english_paper_history`, grade: 2, label: `Grade 2` },
+          { key: `g3_english_paper_history`, grade: 3, label: `Grade 3` },
+          { key: `g4_english_paper_history`, grade: 4, label: `Grade 4` }
         );
       }
 
@@ -856,6 +867,7 @@ export const getStudentLiveSubjectData = (st) => {
   let engTotalAccuracy = 0;
   let engPaperCount = 0;
   let engAttemptsCount = 0;
+  const sIdClean = (st.studentId || st.id || '').toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
   const engDomainStats = {
     E1: { correct: 0, total: 0, name: 'Phoneme Clarity & Articulation' },
     E2: { correct: 0, total: 0, name: 'Pronunciation Accuracy' },
@@ -864,17 +876,29 @@ export const getStudentLiveSubjectData = (st) => {
   };
 
   const engSources = [
-    { key: `g${sGrade}_english_paper_history_${sNameClean}`, grade: sGrade }
+    { key: `g${sGrade}_english_paper_history_${sNameClean}`, grade: sGrade },
+    { key: `g${sGrade}_english_paper_history_${sIdClean}`, grade: sGrade },
+    { key: `g2_english_paper_history_${sNameClean}`, grade: 2 },
+    { key: `g3_english_paper_history_${sNameClean}`, grade: 3 },
+    { key: `g4_english_paper_history_${sNameClean}`, grade: 4 },
+    { key: `g2_english_paper_history_${sIdClean}`, grade: 2 },
+    { key: `g3_english_paper_history_${sIdClean}`, grade: 3 },
+    { key: `g4_english_paper_history_${sIdClean}`, grade: 4 }
   ];
   if (isDefaultStudent) {
     engSources.push(
-      { key: `g${sGrade}_english_paper_history`, grade: sGrade }
+      { key: `g${sGrade}_english_paper_history`, grade: sGrade },
+      { key: `g2_english_paper_history`, grade: 2 },
+      { key: `g3_english_paper_history`, grade: 3 },
+      { key: `g4_english_paper_history`, grade: 4 }
     );
   }
 
+  const engSeenKeys = new Set();
   engSources
-  .filter(src => src.grade === sGrade)
   .forEach(({ key }) => {
+    if (engSeenKeys.has(key)) return;
+    engSeenKeys.add(key);
     const stored = localStorage.getItem(key);
     if (stored) {
       try {
@@ -893,14 +917,26 @@ export const getStudentLiveSubjectData = (st) => {
             const count = paper.history?.length || paper.totalQuestions || 10;
             engAttemptsCount += count;
 
-            if (paper.history && Array.isArray(paper.history)) {
+            if (paper.history && Array.isArray(paper.history) && paper.history.length > 0) {
               paper.history.forEach((h, idx) => {
                 const mod = idx % 4;
                 const domCode = ['E1', 'E2', 'E3', 'E4'][mod];
                 engDomainStats[domCode].total += 1;
-                if (h.isPassed || (typeof h.score === 'number' && h.score >= 0.7)) {
+                const isPassed = h.isPassed === true || h.isCorrect === true || h.passed === true ||
+                                 (h.result && (h.result.pronunciationCorrect || h.result.wordsCorrect || h.result.overallScore >= 70)) ||
+                                 (typeof h.score === 'number' && (h.score >= 70 || h.score >= 0.7));
+                if (isPassed) {
                   engDomainStats[domCode].correct += 1;
                 }
+              });
+            } else {
+              // Distribute across all 4 domains based on paper's overall accuracy
+              const qCount = paper.totalQuestions || 10;
+              ['E1', 'E2', 'E3', 'E4'].forEach((domCode, dIdx) => {
+                const domTotal = Math.max(1, Math.floor(qCount / 4) + (dIdx < (qCount % 4) ? 1 : 0));
+                const domCorrect = Math.round((acc / 100) * domTotal);
+                engDomainStats[domCode].total += domTotal;
+                engDomainStats[domCode].correct += domCorrect;
               });
             }
           }
@@ -1311,10 +1347,14 @@ export const fetchStudentAttemptsFromApi = async (studentId, module = '', studen
 
     // 2. English Attempts
     if (!module || module === 'english') {
+      const sId = (studentProfile?.studentId || studentProfile?.id || studentId || '').toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
       const engSources = [
         { key: `g2_english_paper_history_${sName}`, grade: 2, label: 'Gr.2' },
         { key: `g3_english_paper_history_${sName}`, grade: 3, label: 'Gr.3' },
-        { key: `g4_english_paper_history_${sName}`, grade: 4, label: 'Gr.4' }
+        { key: `g4_english_paper_history_${sName}`, grade: 4, label: 'Gr.4' },
+        { key: `g2_english_paper_history_${sId}`, grade: 2, label: 'Gr.2' },
+        { key: `g3_english_paper_history_${sId}`, grade: 3, label: 'Gr.3' },
+        { key: `g4_english_paper_history_${sId}`, grade: 4, label: 'Gr.4' }
       ];
       if (isDefault) {
         engSources.push(
