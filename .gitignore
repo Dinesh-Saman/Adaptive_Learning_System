@@ -33,7 +33,8 @@
 **/*.log
 **/*.wav
 **/training_data/
-**/training_data_massive/
+!python-ai/core_english/dataset/training_data_massive/
+!python-ai/core_english/dataset/training_data_massive/**
 **/test_paper_1_audio/
 **/.DS_Store
 Thumbs.db
