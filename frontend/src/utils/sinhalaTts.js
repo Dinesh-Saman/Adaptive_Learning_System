@@ -21,8 +21,30 @@ export function stopSinhalaAudio() {
   }
 }
 
-export function speakSinhalaAudio(text, onEnded = null) {
-  if (!text) return;
+/**
+ * Cleans and formats Sinhala text for clear, natural TTS pronunciation
+ */
+export function cleanSinhalaTextForTts(text) {
+  if (!text) return '';
+  return text
+    .replace(/[“”"']/g, ' ')
+    .replace(/[()[\]{}]/g, ' ')
+    .replace(/[:;]/g, ', ')
+    .replace(/[-–—_]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Speaks a single phrase or sentence
+ */
+export function speakSinhalaAudio(rawText, onEnded = null) {
+  const text = cleanSinhalaTextForTts(rawText);
+  if (!text) {
+    if (onEnded) onEnded();
+    return;
+  }
+
   isNarrationCancelled = false;
 
   if (activeSinhalaAudio) {
@@ -36,7 +58,7 @@ export function speakSinhalaAudio(text, onEnded = null) {
     window.speechSynthesis.cancel();
   }
 
-  const encoded = encodeURIComponent(text.trim());
+  const encoded = encodeURIComponent(text);
   const backendUrl = `http://localhost:5000/api/tts/sinhala?text=${encoded}`;
   const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=si&client=tw-ob&q=${encoded}`;
 
@@ -44,7 +66,9 @@ export function speakSinhalaAudio(text, onEnded = null) {
   activeSinhalaAudio = audio;
 
   const handleEnd = () => {
-    if (!isNarrationCancelled && onEnded) onEnded();
+    if (!isNarrationCancelled && onEnded) {
+      onEnded();
+    }
   };
 
   audio.onended = handleEnd;
@@ -54,7 +78,7 @@ export function speakSinhalaAudio(text, onEnded = null) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'si-LK';
-      utterance.rate = 0.85;
+      utterance.rate = 0.82;
       utterance.pitch = 1.15;
       utterance.onend = handleEnd;
       utterance.onerror = handleEnd;
@@ -72,7 +96,7 @@ export function speakSinhalaAudio(text, onEnded = null) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'si-LK';
-        utterance.rate = 0.85;
+        utterance.rate = 0.82;
         utterance.pitch = 1.15;
         utterance.onend = handleEnd;
         utterance.onerror = handleEnd;
@@ -85,40 +109,70 @@ export function speakSinhalaAudio(text, onEnded = null) {
 }
 
 /**
- * Reads the full question and all 4 options sequentially in natural Sinhala
+ * Reads the question prompt and then sequentially each of the 4 options in exact order (1, 2, 3, 4)
+ * Triggers onStepChange(stepIndex) where:
+ *   -1 : Reading question prompt / passage
+ *    0 : Reading Option 1
+ *    1 : Reading Option 2
+ *    2 : Reading Option 3
+ *    3 : Reading Option 4
+ *  null : Finished / Idle
  */
-export function speakQuestionWithAnswers(question, onComplete = null) {
+export function speakQuestionWithAnswers(question, onStepChange = null, onComplete = null) {
   if (!question) return;
   stopSinhalaAudio();
   isNarrationCancelled = false;
 
-  const ordinalLabels = ['පළමු පිළිතුර', 'දෙවන පිළිතුර', 'තුන්වන පිළිතුර', 'හතරවන පිළිතුර'];
-  
-  const speechQueue = [
-    `ප්‍රශ්නය: ${question.audioPrompt || question.prompt || ''}`
-  ];
+  const numberLabels = ['අංක එක', 'අංක දෙක', 'අංක තුන', 'අංක හතර'];
+
+  const speechItems = [];
 
   if (question.passage) {
-    speechQueue.unshift(`ඡේදය: ${question.passage}`);
-  }
-
-  if (question.options && Array.isArray(question.options)) {
-    question.options.forEach((opt, idx) => {
-      const label = ordinalLabels[idx] || `පිළිතුර ${idx + 1}`;
-      speechQueue.push(`${label}. ${opt}`);
+    speechItems.push({
+      step: -1,
+      text: `ඡේදය: ${cleanSinhalaTextForTts(question.passage)}`
     });
   }
 
-  let queueIdx = 0;
-  const playNextItem = () => {
-    if (isNarrationCancelled || queueIdx >= speechQueue.length) {
+  const promptText = question.audioPrompt || question.prompt || '';
+  speechItems.push({
+    step: -1,
+    text: `ප්‍රශ්නය: ${cleanSinhalaTextForTts(promptText)}`
+  });
+
+  if (question.options && Array.isArray(question.options)) {
+    question.options.forEach((opt, idx) => {
+      const label = numberLabels[idx] || `පිළිතුර ${idx + 1}`;
+      speechItems.push({
+        step: idx,
+        text: `${label}. ${cleanSinhalaTextForTts(opt)}`
+      });
+    });
+  }
+
+  let curIdx = 0;
+
+  const playNext = () => {
+    if (isNarrationCancelled || curIdx >= speechItems.length) {
+      if (onStepChange) onStepChange(null);
       if (onComplete) onComplete();
       return;
     }
-    const currentText = speechQueue[queueIdx];
-    queueIdx++;
-    speakSinhalaAudio(currentText, playNextItem);
+
+    const item = speechItems[curIdx];
+    curIdx++;
+
+    if (onStepChange) onStepChange(item.step);
+
+    // Small natural pause between items
+    speakSinhalaAudio(item.text, () => {
+      if (isNarrationCancelled) {
+        if (onStepChange) onStepChange(null);
+        return;
+      }
+      setTimeout(playNext, 250);
+    });
   };
 
-  playNextItem();
+  playNext();
 }

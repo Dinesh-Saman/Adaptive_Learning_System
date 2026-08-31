@@ -31,6 +31,7 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
   const [userAnswers, setUserAnswers] = useState({});
   const [tracingResults, setTracingResults] = useState({});
   const [paperResult, setPaperResult] = useState(null);
+  const [speakingStep, setSpeakingStep] = useState(null); // null | -1 (prompt) | 0..3 (options)
 
   // Remedial State
   const [activeRemedialCategory, setActiveRemedialCategory] = useState('C1');
@@ -47,6 +48,8 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
 
   const handleStartPaper = (pNum) => {
     playSound('click');
+    stopSinhalaAudio();
+    setSpeakingStep(null);
     const generatedQuestions = grade4AdaptiveEngine.generatePaper(pNum);
     setActivePaperNumber(pNum);
     setCurrentQuestions(generatedQuestions);
@@ -54,10 +57,6 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
     setUserAnswers({});
     setTracingResults({});
     setViewMode('test');
-
-    if (generatedQuestions.length > 0) {
-      speakSinhala(generatedQuestions[0].audioPrompt || generatedQuestions[0].prompt);
-    }
   };
 
   const handleViewPaperResult = (pNum) => {
@@ -491,12 +490,23 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
 
                   <button
                     type="button"
-                    onClick={() => speakQuestionWithAnswers(currentQ)}
-                    className="flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 px-3 py-1 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                    onClick={() => {
+                      if (speakingStep !== null) {
+                        stopSinhalaAudio();
+                        setSpeakingStep(null);
+                      } else {
+                        speakQuestionWithAnswers(currentQ, (step) => setSpeakingStep(step), () => setSpeakingStep(null));
+                      }
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-95 border ${
+                      speakingStep !== null
+                        ? 'bg-amber-100 text-amber-900 border-amber-300 ring-2 ring-amber-400 animate-pulse'
+                        : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border-indigo-200'
+                    }`}
                     title="ප්‍රශ්නය සහ පිළිතුරු 4 ම ශ්‍රවණය කරන්න"
                   >
-                    <Volume2 className="w-4 h-4 text-indigo-600 animate-pulse" />
-                    <span>හඬින් අසන්න (ප්‍රශ්නය + පිළිතුරු 4)</span>
+                    <Volume2 className={`w-4 h-4 ${speakingStep !== null ? 'text-amber-700 animate-spin' : 'text-indigo-600 animate-pulse'}`} />
+                    <span>{speakingStep !== null ? 'හඬ වාදනය වේ... (නැවැත්වීමට ඔබන්න)' : 'හඬින් අසන්න (ප්‍රශ්නය + පිළිතුරු 4)'}</span>
                   </button>
                 </div>
 
@@ -506,34 +516,43 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                     {/* Left Column: Prompt & Options */}
                     <div className="md:col-span-6 flex flex-col justify-between space-y-2.5">
                       <div>
-                        <h3 className="text-sm sm:text-base font-black text-slate-800 leading-snug mb-2.5">
+                        <h3 className={`text-sm sm:text-base font-black leading-snug mb-2.5 p-2 rounded-xl transition-all ${
+                          speakingStep === -1 ? 'bg-amber-50 text-amber-950 ring-2 ring-amber-300' : 'text-slate-800'
+                        }`}>
                           {currentQ.prompt}
                         </h3>
                         <div className="grid grid-cols-1 gap-2">
                           {currentQ.options.map((opt, idx) => {
                             const isSelected = userAnswers[currentQ.id] === opt;
+                            const isCurrentlySpeaking = speakingStep === idx;
 
                             return (
                               <div
                                 key={idx}
                                 onClick={() => handleSelectAnswer(currentQ.id, opt)}
                                 className={`py-2 px-3 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer ${
-                                  isSelected
+                                  isCurrentlySpeaking
+                                    ? 'bg-amber-50 border-amber-400 text-amber-950 ring-3 ring-amber-300 shadow-md'
+                                    : isSelected
                                     ? 'bg-indigo-50 border-indigo-500 text-indigo-950 shadow-xs'
                                     : 'bg-slate-50/80 border-slate-200 hover:border-indigo-300 text-slate-700'
                                 }`}
                               >
                                 <div className="flex items-center gap-2">
+                                  <span className="w-5 h-5 rounded-full bg-indigo-100/90 text-indigo-900 border border-indigo-300 font-black text-[11px] flex items-center justify-center shrink-0">
+                                    {idx + 1}
+                                  </span>
                                   <button
                                     type="button"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      speakSinhalaAudio(opt);
+                                      setSpeakingStep(idx);
+                                      speakSinhalaAudio(opt, () => setSpeakingStep(null));
                                     }}
                                     className="p-1 rounded-lg bg-white hover:bg-indigo-100 text-slate-400 hover:text-indigo-700 transition-all border border-slate-200/60 shrink-0 cursor-pointer shadow-2xs"
                                     title="මෙම පිළිතුරට සවන් දෙන්න"
                                   >
-                                    <Volume2 className="w-3.5 h-3.5" />
+                                    <Volume2 className={`w-3.5 h-3.5 ${isCurrentlySpeaking ? 'text-amber-600 animate-bounce' : ''}`} />
                                   </button>
                                   <span className="text-xs sm:text-sm">{opt}</span>
                                 </div>
@@ -583,7 +602,9 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                 ) : (
                   <div className="my-2 space-y-3">
                     <div className="mb-2">
-                      <h3 className="text-base sm:text-xl font-black text-slate-800 leading-snug">
+                      <h3 className={`text-base sm:text-xl font-black leading-snug p-2 rounded-xl transition-all ${
+                        speakingStep === -1 ? 'bg-amber-50 text-amber-950 ring-2 ring-amber-300' : 'text-slate-800'
+                      }`}>
                         {currentQ.prompt}
                       </h3>
                     </div>
@@ -591,28 +612,35 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {currentQ.options.map((opt, idx) => {
                         const isSelected = userAnswers[currentQ.id] === opt;
+                        const isCurrentlySpeaking = speakingStep === idx;
 
                         return (
                           <div
                             key={idx}
                             onClick={() => handleSelectAnswer(currentQ.id, opt)}
                             className={`py-3 px-4 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer shadow-xs hover:shadow-sm ${
-                              isSelected
+                              isCurrentlySpeaking
+                                ? 'bg-amber-50 border-amber-400 text-amber-950 ring-3 ring-amber-300 shadow-md'
+                                : isSelected
                                 ? 'bg-indigo-50 border-indigo-500 text-indigo-950 shadow-xs'
                                 : 'bg-slate-50/80 border-slate-200 hover:border-indigo-300 text-slate-700'
                             }`}
                           >
                             <div className="flex items-center gap-2.5">
+                              <span className="w-6 h-6 rounded-full bg-indigo-100/90 text-indigo-900 border border-indigo-300 font-black text-xs flex items-center justify-center shrink-0">
+                                {idx + 1}
+                              </span>
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  speakSinhalaAudio(opt);
+                                  setSpeakingStep(idx);
+                                  speakSinhalaAudio(opt, () => setSpeakingStep(null));
                                 }}
                                 className="p-1.5 rounded-lg bg-white hover:bg-indigo-100 text-slate-400 hover:text-indigo-700 transition-all border border-slate-200/70 shrink-0 cursor-pointer shadow-2xs"
                                 title="මෙම පිළිතුරට සවන් දෙන්න"
                               >
-                                <Volume2 className="w-4 h-4" />
+                                <Volume2 className={`w-4 h-4 ${isCurrentlySpeaking ? 'text-amber-600 animate-bounce' : ''}`} />
                               </button>
                               <span className="text-sm sm:text-base">{opt}</span>
                             </div>
@@ -637,6 +665,8 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                   disabled={currentQIndex === 0}
                   onClick={() => {
                     playSound('click');
+                    stopSinhalaAudio();
+                    setSpeakingStep(null);
                     setCurrentQIndex(prev => prev - 1);
                   }}
                   className="px-4 py-2 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
@@ -649,9 +679,9 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                   <button
                     onClick={() => {
                       playSound('click');
+                      stopSinhalaAudio();
+                      setSpeakingStep(null);
                       setCurrentQIndex(prev => prev + 1);
-                      const nextQ = currentQuestions[currentQIndex + 1];
-                      if (nextQ) speakSinhala(nextQ.audioPrompt || nextQ.prompt);
                     }}
                     className="px-6 py-2 bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl font-black text-xs sm:text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
                   >
@@ -660,7 +690,11 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                   </button>
                 ) : (
                   <button
-                    onClick={handleSubmitTest}
+                    onClick={() => {
+                      stopSinhalaAudio();
+                      setSpeakingStep(null);
+                      handleSubmitTest();
+                    }}
                     className="px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-black text-xs sm:text-sm shadow-md transform hover:scale-102 transition-all flex items-center gap-1.5 cursor-pointer"
                   >
                     <Trophy className="w-3.5 h-3.5" />
