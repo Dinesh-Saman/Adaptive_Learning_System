@@ -10,62 +10,11 @@ import { grade4AdaptiveEngine, TRACING_PASS_THRESHOLD } from '../../../services/
 import { GRADE4_SINHALA_CATEGORIES, GRADE4_REMEDIAL_BANK } from '../../../data/grade4SinhalaQuestionBank';
 import { recordStudentTestMarks } from '../../../data/studentAnalyticsData';
 import SinhalaTracingCanvas from '../tracing/SinhalaTracingCanvas';
-
-// ── Web Audio Synthesizer ──
-function playSound(type) {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const now = ctx.currentTime;
-
-    if (type === 'correct') {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(523.25, now);
-      osc.frequency.setValueAtTime(659.25, now + 0.1);
-      osc.frequency.setValueAtTime(783.99, now + 0.2);
-      gain.gain.setValueAtTime(0.2, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.4);
-    } else if (type === 'wrong') {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(240, now);
-      osc.frequency.setValueAtTime(180, now + 0.15);
-      gain.gain.setValueAtTime(0.2, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.35);
-    } else if (type === 'click') {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(600, now);
-      gain.gain.setValueAtTime(0.1, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.08);
-    }
-  } catch (e) {}
-}
+import { speakSinhalaAudio, speakQuestionWithAnswers, stopSinhalaAudio } from '../../../utils/sinhalaTts';
 
 // ── Sinhala TTS ──
 function speakSinhala(text) {
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'si-LK';
-  utterance.rate = 0.85;
-  utterance.pitch = 1.05;
-  window.speechSynthesis.speak(utterance);
+  speakSinhalaAudio(text);
 }
 
 export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
@@ -541,11 +490,13 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                   </div>
 
                   <button
-                    onClick={() => speakSinhala(currentQ.audioPrompt || currentQ.prompt)}
-                    className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
+                    type="button"
+                    onClick={() => speakQuestionWithAnswers(currentQ)}
+                    className="flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 px-3 py-1 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                    title="ප්‍රශ්නය සහ පිළිතුරු 4 ම ශ්‍රවණය කරන්න"
                   >
-                    <Volume2 className="w-4 h-4 text-indigo-600" />
-                    හඬින් අසන්න
+                    <Volume2 className="w-4 h-4 text-indigo-600 animate-pulse" />
+                    <span>හඬින් අසන්න (ප්‍රශ්නය + පිළිතුරු 4)</span>
                   </button>
                 </div>
 
@@ -563,24 +514,37 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                             const isSelected = userAnswers[currentQ.id] === opt;
 
                             return (
-                              <button
+                              <div
                                 key={idx}
                                 onClick={() => handleSelectAnswer(currentQ.id, opt)}
-                                className={`py-2 px-3.5 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer ${
+                                className={`py-2 px-3 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer ${
                                   isSelected
                                     ? 'bg-indigo-50 border-indigo-500 text-indigo-950 shadow-xs'
                                     : 'bg-slate-50/80 border-slate-200 hover:border-indigo-300 text-slate-700'
                                 }`}
                               >
-                                <span className="text-xs sm:text-sm">{opt}</span>
-                                <div className={`w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 ${
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      speakSinhalaAudio(opt);
+                                    }}
+                                    className="p-1 rounded-lg bg-white hover:bg-indigo-100 text-slate-400 hover:text-indigo-700 transition-all border border-slate-200/60 shrink-0 cursor-pointer shadow-2xs"
+                                    title="මෙම පිළිතුරට සවන් දෙන්න"
+                                  >
+                                    <Volume2 className="w-3.5 h-3.5" />
+                                  </button>
+                                  <span className="text-xs sm:text-sm">{opt}</span>
+                                </div>
+                                <div className={`w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 shrink-0 ${
                                   isSelected
                                     ? 'border-indigo-500 bg-indigo-500 text-white'
                                     : 'border-slate-300'
                                 }`}>
                                   {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                                 </div>
-                              </button>
+                              </div>
                             );
                           })}
                         </div>
@@ -629,7 +593,7 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                         const isSelected = userAnswers[currentQ.id] === opt;
 
                         return (
-                          <button
+                          <div
                             key={idx}
                             onClick={() => handleSelectAnswer(currentQ.id, opt)}
                             className={`py-3 px-4 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer shadow-xs hover:shadow-sm ${
@@ -638,15 +602,28 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                                 : 'bg-slate-50/80 border-slate-200 hover:border-indigo-300 text-slate-700'
                             }`}
                           >
-                            <span className="text-sm sm:text-base">{opt}</span>
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${
+                            <div className="flex items-center gap-2.5">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  speakSinhalaAudio(opt);
+                                }}
+                                className="p-1.5 rounded-lg bg-white hover:bg-indigo-100 text-slate-400 hover:text-indigo-700 transition-all border border-slate-200/70 shrink-0 cursor-pointer shadow-2xs"
+                                title="මෙම පිළිතුරට සවන් දෙන්න"
+                              >
+                                <Volume2 className="w-4 h-4" />
+                              </button>
+                              <span className="text-sm sm:text-base">{opt}</span>
+                            </div>
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 shrink-0 ${
                               isSelected
                                 ? 'border-indigo-500 bg-indigo-500 text-white'
                                 : 'border-slate-300'
                             }`}>
                               {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                             </div>
-                          </button>
+                          </div>
                         );
                       })}
                     </div>

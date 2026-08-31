@@ -11,6 +11,7 @@ import { SINHALA_CATEGORIES, SINHALA_LETTERS, SINHALA_PILLAM_REGISTRY } from '..
 import SinhalaTracingCanvas from '../tracing/SinhalaTracingCanvas';
 import { recordStudentTestMarks } from '../../../data/studentAnalyticsData';
 import { getItem } from '../../../utils/storage';
+import { speakSinhalaAudio, speakQuestionWithAnswers, stopSinhalaAudio } from '../../../utils/sinhalaTts';
 
 // ── Web Audio Synthesizer ──
 function playSound(type) {
@@ -60,13 +61,7 @@ function playSound(type) {
 
 // ── Sinhala TTS ──
 function speakSinhala(text) {
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'si-LK';
-  utterance.rate = 0.85;
-  utterance.pitch = 1.1;
-  window.speechSynthesis.speak(utterance);
+  speakSinhalaAudio(text);
 }
 
 export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
@@ -576,11 +571,13 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                   </div>
 
                   <button
-                    onClick={() => speakSinhala(currentQ.audioPrompt || currentQ.prompt)}
-                    className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
+                    type="button"
+                    onClick={() => speakQuestionWithAnswers(currentQ)}
+                    className="flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                    title="ප්‍රශ්නය සහ පිළිතුරු 4 ම ශ්‍රවණය කරන්න"
                   >
-                    <Volume2 className="w-4 h-4 text-emerald-600" />
-                    හඬින් අසන්න
+                    <Volume2 className="w-4 h-4 text-emerald-600 animate-pulse" />
+                    <span>හඬින් අසන්න (ප්‍රශ්නය + පිළිතුරු 4)</span>
                   </button>
                 </div>
 
@@ -598,24 +595,37 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                             const isSelected = userAnswers[currentQ.id] === opt;
 
                             return (
-                              <button
+                              <div
                                 key={idx}
                                 onClick={() => handleSelectAnswer(currentQ.id, opt)}
-                                className={`py-2 px-3.5 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer ${
+                                className={`py-2 px-3 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer ${
                                   isSelected
                                     ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-xs'
                                     : 'bg-slate-50/80 border-slate-200 hover:border-emerald-300 text-slate-700'
                                 }`}
                               >
-                                <span className="text-xs sm:text-sm">{opt}</span>
-                                <div className={`w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 ${
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      speakSinhalaAudio(opt);
+                                    }}
+                                    className="p-1 rounded-lg bg-white hover:bg-emerald-100 text-slate-400 hover:text-emerald-700 transition-all border border-slate-200/60 shrink-0 cursor-pointer shadow-2xs"
+                                    title="මෙම පිළිතුරට සවන් දෙන්න"
+                                  >
+                                    <Volume2 className="w-3.5 h-3.5" />
+                                  </button>
+                                  <span className="text-xs sm:text-sm">{opt}</span>
+                                </div>
+                                <div className={`w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 shrink-0 ${
                                   isSelected
                                     ? 'border-emerald-500 bg-emerald-500 text-white'
                                     : 'border-slate-300'
                                 }`}>
                                   {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                                 </div>
-                              </button>
+                              </div>
                             );
                           })}
                         </div>
@@ -664,7 +674,7 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                         const isSelected = userAnswers[currentQ.id] === opt;
 
                         return (
-                          <button
+                          <div
                             key={idx}
                             onClick={() => handleSelectAnswer(currentQ.id, opt)}
                             className={`py-3 px-4 rounded-xl font-bold text-left transition-all flex items-center justify-between border-2 cursor-pointer shadow-xs hover:shadow-sm ${
@@ -673,15 +683,28 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                                 : 'bg-slate-50/80 border-slate-200 hover:border-emerald-300 text-slate-700'
                             }`}
                           >
-                            <span className="text-sm sm:text-base">{opt}</span>
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 ${
+                            <div className="flex items-center gap-2.5">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  speakSinhalaAudio(opt);
+                                }}
+                                className="p-1.5 rounded-lg bg-white hover:bg-emerald-100 text-slate-400 hover:text-emerald-700 transition-all border border-slate-200/70 shrink-0 cursor-pointer shadow-2xs"
+                                title="මෙම පිළිතුරට සවන් දෙන්න"
+                              >
+                                <Volume2 className="w-4 h-4" />
+                              </button>
+                              <span className="text-sm sm:text-base">{opt}</span>
+                            </div>
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 shrink-0 ${
                               isSelected
                                 ? 'border-emerald-500 bg-emerald-500 text-white'
                                 : 'border-slate-300'
                             }`}>
                               {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                             </div>
-                          </button>
+                          </div>
                         );
                       })}
                     </div>
