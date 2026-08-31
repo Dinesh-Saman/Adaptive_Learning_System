@@ -608,7 +608,7 @@ const TeacherDashboard = () => {
             </div>
 
             {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL WITH SVG CHARTS */}
-            <CategoryStudentTable subjectKey="math" students={students} />
+            <CategoryStudentTable subjectKey="math" students={students} loading={loading} />
 
             {/* Math Quick Launch Hubs (Below Table) */}
             <div className="space-y-2.5 pt-2 border-t border-slate-100">
@@ -687,7 +687,7 @@ const TeacherDashboard = () => {
             </div>
 
             {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL WITH SVG CHARTS */}
-            <CategoryStudentTable subjectKey="sinhala" students={students} />
+            <CategoryStudentTable subjectKey="sinhala" students={students} loading={loading} />
 
             {/* Sinhala Grade Cards (Below Table) */}
             <div className="space-y-2.5 pt-2 border-t border-slate-100">
@@ -766,7 +766,7 @@ const TeacherDashboard = () => {
             </div>
 
             {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL WITH SVG CHARTS */}
-            <CategoryStudentTable subjectKey="english" students={students} />
+            <CategoryStudentTable subjectKey="english" students={students} loading={loading} />
           </div>
         )}
 
@@ -786,7 +786,7 @@ const TeacherDashboard = () => {
             </div>
 
             {/* TABULAR STUDENT LIST & DETAILED DRILL-DOWN MODAL WITH SVG CHARTS */}
-            <CategoryStudentTable subjectKey="preschool" students={students} />
+            <CategoryStudentTable subjectKey="preschool" students={students} loading={loading} />
           </div>
         )}
 

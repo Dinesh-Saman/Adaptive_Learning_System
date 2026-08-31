@@ -38,7 +38,7 @@ export const getNumericGrade = (gradeStr) => {
   return 2;
 };
 
-const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
+const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = false }) => {
   const navigate = useNavigate();
   const subject = CORE_SUBJECTS[subjectKey] || CORE_SUBJECTS.math;
 
@@ -408,7 +408,12 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [] }) => {
 
       {/* Registered Students Tabular List */}
       <div className="bg-white rounded-xl border border-slate-100 shadow-xs overflow-hidden w-full">
-        {filteredStudents.length === 0 ? (
+        {loading ? (
+          <div className="p-12 text-center space-y-3">
+            <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-xs font-bold text-slate-500 font-sinhala">සිසුන්ගේ දත්ත ලබාගනිමින් පවතී... (Loading students analytics...)</p>
+          </div>
+        ) : filteredStudents.length === 0 ? (
           <div className="p-10 text-center space-y-3">
             <Users className="w-10 h-10 text-slate-300 mx-auto" />
             <h4 className="text-sm font-bold text-slate-700">

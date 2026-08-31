@@ -1,3 +1,11 @@
+import { getItem } from '../utils/storage';
+
+export const isPreSchoolOrGrade1 = (gradeStr) => {
+  if (!gradeStr) return false;
+  const g = String(gradeStr).toLowerCase().trim();
+  return g.includes('pre') || g.includes('preschool') || g.includes('pre-school') || g.includes('grade 1') || g === '1';
+};
+
 /**
  * studentAnalyticsData.js
  * Longitudinal Analytics & Progress Intelligence Dataset for the 4 Core Learning Hubs:
@@ -111,8 +119,6 @@ export const createBlankStudentProfile = (studentId, name, grade) => ({
   },
   recommendation: null
 });
-
-import { getItem } from '../utils/storage';
 
 const API_BASE_URL = 'http://localhost:5000/api/analytics';
 
@@ -419,6 +425,7 @@ export const getStudentPapersHistory = (student, subjectKey = 'math') => {
 
 export const syncLocalHistoryToBackend = async () => {
   try {
+    if (getItem('role') === 'teacher') return;
     const studentId = getItem('studentId') || '';
     const name = getItem('studentName') || '';
     if (!name && !studentId) return;
