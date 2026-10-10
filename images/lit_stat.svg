@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="100%" height="100%">
+  <defs>
+    <linearGradient id="barGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#94a3b8" />
+      <stop offset="100%" stop-color="#64748b" />
+    </linearGradient>
+    <linearGradient id="barGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <filter id="statShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <rect width="800" height="480" rx="14" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+
+  <!-- Header -->
+  <text x="400" y="38" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="16" font-weight="700" fill="#1e293b">
+    NURSERY VIRTUAL CLASSROOM ENGAGEMENT &amp; MASTERY
+  </text>
+  <text x="400" y="58" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="12" fill="#64748b">
+    Evaluation across Early Childhood Learning Pillars (Conventional Online Tools vs. AI-Adaptive System)
+  </text>
+
+  <!-- Legend -->
+  <rect x="235" y="80" width="16" height="12" rx="3" fill="url(#barGrad1)" />
+  <text x="259" y="91" font-family="'Roboto', sans-serif" font-size="12" fill="#475569">Conventional Online Tools</text>
+
+  <rect x="465" y="80" width="16" height="12" rx="3" fill="url(#barGrad2)" />
+  <text x="489" y="91" font-family="'Roboto', sans-serif" font-size="12" font-weight="700" fill="#2563eb">Nana Piyasa Adaptive AI Engine</text>
+
+  <!-- Grid lines -->
+  <g stroke="#f1f5f9" stroke-width="1.5">
+    <line x1="80" y1="130" x2="740" y2="130" />
+    <line x1="80" y1="190" x2="740" y2="190" />
+    <line x1="80" y1="250" x2="740" y2="250" />
+    <line x1="80" y1="310" x2="740" y2="310" />
+    <line x1="80" y1="370" x2="740" y2="370" />
+  </g>
+
+  <!-- Y-Axis labels -->
+  <g font-family="'Roboto', sans-serif" font-size="11" fill="#94a3b8" text-anchor="end">
+    <text x="70" y="134">100%</text>
+    <text x="70" y="194">75%</text>
+    <text x="70" y="254">50%</text>
+    <text x="70" y="314">25%</text>
+    <text x="70" y="374">0%</text>
+  </g>
+
+  <!-- Category 1: Behavior-Adaptive Learning (Herath H.M.O.P) -->
+  <g transform="translate(110, 0)">
+    <!-- Static bar (48%) -->
+    <rect x="0" y="255" width="46" height="115" rx="5" fill="url(#barGrad1)" filter="url(#statShadow)" />
+    <text x="23" y="247" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="11" font-weight="700" fill="#64748b">48%</text>
+    
+    <!-- Adaptive bar (91%) -->
+    <rect x="54" y="152" width="46" height="218" rx="5" fill="url(#barGrad2)" filter="url(#statShadow)" />
+    <text x="77" y="144" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="11" font-weight="700" fill="#2563eb">91%</text>
+
+    <text x="50" y="400" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="12" font-weight="600" fill="#334155">Behavioral Analytics</text>
+    <text x="50" y="416" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="10" fill="#64748b">(Engagement &amp; Pauses)</text>
+  </g>
+
+  <!-- Category 2: Creativity & Solo-Student Hub (Fernando M.S.V) -->
+  <g transform="translate(265, 0)">
+    <!-- Static bar (42%) -->
+    <rect x="0" y="269" width="46" height="101" rx="5" fill="url(#barGrad1)" filter="url(#statShadow)" />
+    <text x="23" y="261" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="11" font-weight="700" fill="#64748b">42%</text>
+    
+    <!-- Adaptive bar (88%) -->
+    <rect x="54" y="159" width="46" height="211" rx="5" fill="url(#barGrad2)" filter="url(#statShadow)" />
+    <text x="77" y="151" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="11" font-weight="700" fill="#2563eb">88%</text>
+
+    <text x="50" y="400" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="12" font-weight="600" fill="#334155">Creativity &amp; Solo Hub</text>
+    <text x="50" y="416" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="10" fill="#64748b">(Drawing AI Analysis)</text>
+  </g>
+
+  <!-- Category 3: AI Teacher Insight & Intervention (Rathnasiri W.G.S.M) -->
+  <g transform="translate(420, 0)">
+    <!-- Static bar (54%) -->
+    <rect x="0" y="240" width="46" height="130" rx="5" fill="url(#barGrad1)" filter="url(#statShadow)" />
+    <text x="23" y="232" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="11" font-weight="700" fill="#64748b">54%</text>
+    
+    <!-- Adaptive bar (93%) -->
+    <rect x="54" y="147" width="46" height="223" rx="5" fill="url(#barGrad2)" filter="url(#statShadow)" />
+    <text x="77" y="139" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="11" font-weight="700" fill="#2563eb">93%</text>
+
+    <text x="50" y="400" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="12" font-weight="600" fill="#334155">Teacher Insights</text>
+    <text x="50" y="416" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="10" fill="#64748b">(Classroom Orchestration)</text>
+  </g>
+
+  <!-- Category 4: Parent-Integrated Analytics (Sandareka B.M.V) -->
+  <g transform="translate(575, 0)">
+    <!-- Static bar (49%) -->
+    <rect x="0" y="252" width="46" height="118" rx="5" fill="url(#barGrad1)" filter="url(#statShadow)" />
+    <text x="23" y="244" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="11" font-weight="700" fill="#64748b">49%</text>
+    
+    <!-- Adaptive bar (94%) -->
+    <rect x="54" y="144" width="46" height="226" rx="5" fill="url(#barGrad2)" filter="url(#statShadow)" />
+    <text x="77" y="136" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="11" font-weight="700" fill="#2563eb">94%</text>
+
+    <text x="50" y="400" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="12" font-weight="600" fill="#334155">Parent AI Portal</text>
+    <text x="50" y="416" text-anchor="middle" font-family="'Roboto', sans-serif" font-size="10" fill="#64748b">(Home Guidance Insights)</text>
+  </g>
+
+  <!-- Baseline border line -->
+  <line x1="80" y1="370" x2="740" y2="370" stroke="#cbd5e0" stroke-width="2" />
+</svg>
