@@ -3,6 +3,7 @@ const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Student = require('../models/Student');
 const CreativeActivityRecord = require('../models/CreativeActivityRecord');
+const StoryReadingProgress = require('../models/StoryReadingProgress');
 
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || 'http://127.0.0.1:8000';
 
@@ -277,6 +278,128 @@ Respond ONLY with valid JSON in this exact format:
   } catch (err) {
     console.error('Gemini API error:', err.message);
     return res.status(500).json({ error: 'AI analysis failed: ' + err.message });
+  }
+});
+
+// ── Story Reading Progress Endpoints (Persistence across login/logout) ──
+
+// 1. Save or update story reading progress
+router.post('/story-progress', async (req, res) => {
+  try {
+    const {
+      studentId,
+      studentName,
+      storyId,
+      storyTitle,
+      paragraphIdx,
+      sentenceIdx,
+      wordIdx,
+      wordText,
+      snippet,
+      progressPercent,
+      completed
+    } = req.body;
+
+    if (!studentId || !storyId) {
+      return res.status(400).json({ error: 'studentId and storyId are required' });
+    }
+
+    const cleanStudentId = String(studentId).toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+
+    // In-memory fallback cache
+    global.storyProgressCache = global.storyProgressCache || {};
+    if (!global.storyProgressCache[cleanStudentId]) {
+      global.storyProgressCache[cleanStudentId] = {};
+    }
+
+    const progressData = {
+      studentId: cleanStudentId,
+      studentName: studentName || cleanStudentId,
+      storyId,
+      storyTitle: storyTitle || '',
+      paragraphIdx: Number(paragraphIdx) || 0,
+      sentenceIdx: Number(sentenceIdx) || 0,
+      wordIdx: Number(wordIdx) || 0,
+      wordText: wordText || '',
+      snippet: snippet || '',
+      progressPercent: Number(progressPercent) || 0,
+      completed: Boolean(completed),
+      lastReadAt: new Date()
+    };
+
+    global.storyProgressCache[cleanStudentId][storyId] = progressData;
+
+    if (global.dbConnected) {
+      try {
+        await StoryReadingProgress.findOneAndUpdate(
+          { studentId: cleanStudentId, storyId },
+          progressData,
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
+      } catch (dbErr) {
+        console.warn('MongoDB save error (using cache):', dbErr.message);
+      }
+    }
+
+    res.json({ success: true, progress: progressData });
+  } catch (err) {
+    console.error('Error saving story progress:', err);
+    res.status(500).json({ error: 'Failed to save story progress' });
+  }
+});
+
+// 2. Fetch reading progress for a student
+router.get('/story-progress/:studentId', async (req, res) => {
+  try {
+    const cleanStudentId = String(req.params.studentId).toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+
+    global.storyProgressCache = global.storyProgressCache || {};
+    let studentProgress = global.storyProgressCache[cleanStudentId] || {};
+
+    if (global.dbConnected) {
+      try {
+        const records = await StoryReadingProgress.find({ studentId: cleanStudentId }).lean();
+        if (records && records.length > 0) {
+          studentProgress = {};
+          records.forEach(r => {
+            studentProgress[r.storyId] = r;
+          });
+          global.storyProgressCache[cleanStudentId] = studentProgress;
+        }
+      } catch (dbErr) {
+        console.warn('MongoDB fetch error (using cache):', dbErr.message);
+      }
+    }
+
+    res.json({ success: true, progress: studentProgress });
+  } catch (err) {
+    console.error('Error fetching story progress:', err);
+    res.status(500).json({ error: 'Failed to fetch story progress' });
+  }
+});
+
+// 3. Reset/Delete story progress for a student
+router.delete('/story-progress/:studentId/:storyId', async (req, res) => {
+  try {
+    const cleanStudentId = String(req.params.studentId).toLowerCase().trim().replace(/[^a-z0-9_]/g, '_');
+    const { storyId } = req.params;
+
+    if (global.storyProgressCache?.[cleanStudentId]?.[storyId]) {
+      delete global.storyProgressCache[cleanStudentId][storyId];
+    }
+
+    if (global.dbConnected) {
+      try {
+        await StoryReadingProgress.deleteOne({ studentId: cleanStudentId, storyId });
+      } catch (dbErr) {
+        console.warn('MongoDB delete error:', dbErr.message);
+      }
+    }
+
+    res.json({ success: true, message: 'Story progress reset successfully' });
+  } catch (err) {
+    console.error('Error resetting story progress:', err);
+    res.status(500).json({ error: 'Failed to reset story progress' });
   }
 });
 

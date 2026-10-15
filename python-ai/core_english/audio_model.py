@@ -25,7 +25,7 @@ class PronunciationNet(nn.Module):
         
     def forward(self, x):
         if x.dim() == 2:
-            x = x.unsqueeze(1).repeat(1, 1, 80)
+            x = x.unsqueeze(-1).repeat(1, 1, 80)
         if x.dim() == 3:
             x = x.unsqueeze(1)
             

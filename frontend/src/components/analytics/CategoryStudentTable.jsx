@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
@@ -51,6 +51,15 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
   const [selectedAttemptPaper, setSelectedAttemptPaper] = useState('all');
   const [attemptPage, setAttemptPage] = useState(1);
   const attemptsPerPage = 10;
+
+  // Student table pagination (max 10 records per page across all subject modules)
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  // Reset to first page when search, domain filter, or subject changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedDomainFilter, subjectKey]);
 
   // Helper to calculate student overall average score across all papers in this subject or selected domain
   const getSubjectScore = (student) => {
@@ -131,6 +140,9 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
 
   const getSubScoreForModal = (student, subKey) => {
     if (!student) return 0;
+    const isPre = isPreSchoolOrGrade1(student.grade);
+    if (isPre && subKey !== 'preschool') return 0;
+    if (!isPre && subKey === 'preschool') return 0;
     const papers = getStudentPapersHistory(student, subKey);
     if (papers && papers.length > 0) {
       const totalAccuracy = papers.reduce((acc, p) => acc + (p.accuracy || 0), 0);
@@ -291,10 +303,32 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
     return matchesSearch;
   });
 
+  // Pagination calculation for main student table
+  const totalPages = Math.max(1, Math.ceil(filteredStudents.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, filteredStudents.length);
+  const paginatedStudents = filteredStudents.slice(startIndex, endIndex);
+
+  // Helper for smart page numbers list
+  const getPageNumbers = (current, total) => {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, '...', total];
+    }
+    if (current >= total - 3) {
+      return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+    }
+    return [1, '...', current - 1, current, current + 1, '...', total];
+  };
+
   // Load question attempts when a student modal is opened
   const handleOpenStudentModal = async (student) => {
     setActiveStudentModal(student);
-    setActiveChartSubject('all');
+    const isPreSchool = isPreSchoolOrGrade1(student?.grade);
+    setActiveChartSubject(isPreSchool ? 'preschool' : 'all');
     setSelectedAttemptPaper('all');
     setAttemptPage(1);
     setLoadingAttempts(true);
@@ -316,15 +350,20 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
   const graphWidth = chartWidth - padding.left - padding.right;
   const graphHeight = chartHeight - padding.top - padding.bottom;
 
+  const isModalPreSchool = activeStudentModal && isPreSchoolOrGrade1(activeStudentModal.grade);
+
   const weeklyData = activeStudentModal && activeStudentModal.weeklyProgress && activeStudentModal.weeklyProgress.length > 0 
     ? activeStudentModal.weeklyProgress 
     : [
         { 
           week: 'Week 1', 
-          math: getSubScoreForModal(activeStudentModal, 'math'), 
-          sinhala: getSubScoreForModal(activeStudentModal, 'sinhala'), 
-          english: getSubScoreForModal(activeStudentModal, 'english'), 
+          math: isModalPreSchool ? 0 : getSubScoreForModal(activeStudentModal, 'math'), 
+          sinhala: isModalPreSchool ? 0 : getSubScoreForModal(activeStudentModal, 'sinhala'), 
+          english: isModalPreSchool ? 0 : getSubScoreForModal(activeStudentModal, 'english'), 
           preschool: getSubScoreForModal(activeStudentModal, 'preschool'), 
+          p1: activeStudentModal?.categoryMarks?.preschool?.find(c => c.code === 'P1')?.pct || getSubScoreForModal(activeStudentModal, 'preschool'),
+          p2: activeStudentModal?.categoryMarks?.preschool?.find(c => c.code === 'P2')?.pct || 0,
+          p3: activeStudentModal?.categoryMarks?.preschool?.find(c => c.code === 'P3')?.pct || 0,
           average: activeStudentModal?.overallAverage || 0 
         }
       ];
@@ -348,7 +387,6 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
   };
 
   // Radar chart calculations for Individual Student
-  const isModalPreSchool = activeStudentModal && isPreSchoolOrGrade1(activeStudentModal.grade);
 
   const radarPoints = activeStudentModal ? (
     isModalPreSchool ? [
@@ -413,13 +451,15 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
       </div>
 
       {/* Domain Quick Filters - Single Line Layout */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 whitespace-nowrap">
-        <span className="text-[11px] font-black text-slate-500 mr-1 uppercase tracking-wider shrink-0">Domains:</span>
+      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {subjectKey !== 'sinhala' && (
+          <span className="text-[10px] font-black text-slate-500 mr-0.5 uppercase tracking-wider shrink-0">Domains:</span>
+        )}
         <button
           onClick={() => setSelectedDomainFilter('all')}
-          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
+          className={`px-2 py-0.5 rounded-lg text-[10.5px] font-bold transition-all shrink-0 cursor-pointer ${
             selectedDomainFilter === 'all'
-              ? 'bg-slate-900 text-white shadow-sm'
+              ? 'bg-slate-900 text-white shadow-xs'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -431,13 +471,13 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
             <button
               key={cat.id}
               onClick={() => setSelectedDomainFilter(cat.id)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 whitespace-nowrap cursor-pointer ${
+              className={`px-2 py-0.5 rounded-lg text-[10.5px] font-bold transition-all flex items-center gap-1 shrink-0 whitespace-nowrap cursor-pointer ${
                 selectedDomainFilter === cat.id
-                  ? 'bg-indigo-600 text-white shadow-sm'
+                  ? 'bg-indigo-600 text-white shadow-xs'
                   : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
-              <span className={`px-1 py-0.2 rounded text-[10px] font-black ${
+              <span className={`px-1 py-0.2 rounded text-[9px] font-black ${
                 selectedDomainFilter === cat.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-700'
               }`}>
                 {cat.id}
@@ -485,7 +525,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
-                {filteredStudents.map((st) => {
+                {paginatedStudents.map((st) => {
                   const score = getSubjectScore(st);
                   const status = getStudentStatus(score);
                   const attempts = getStudentAttempts(st);
@@ -565,6 +605,60 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
                 })}
               </tbody>
             </table>
+
+            {/* Pagination Controls (Max 10 records per page) */}
+            {filteredStudents.length > 0 && (
+              <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="font-semibold text-slate-500 text-[11px]">
+                  Showing <span className="font-bold text-slate-800">{startIndex + 1}</span> – <span className="font-bold text-slate-800">{endIndex}</span> of <span className="font-bold text-slate-800">{filteredStudents.length}</span> students
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={safeCurrentPage === 1}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 bg-white font-bold text-[11px] text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-xs"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" /> Previous
+                    </button>
+
+                    <div className="flex items-center gap-1 mx-1">
+                      {getPageNumbers(safeCurrentPage, totalPages).map((pg, idx) => {
+                        if (pg === '...') {
+                          return (
+                            <span key={`ellipsis-${idx}`} className="w-7 h-7 flex items-center justify-center text-slate-400 font-bold text-xs">
+                              ...
+                            </span>
+                          );
+                        }
+                        return (
+                          <button
+                            key={pg}
+                            onClick={() => setCurrentPage(pg)}
+                            className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                              safeCurrentPage === pg
+                                ? 'bg-indigo-600 text-white shadow-xs'
+                                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                            }`}
+                          >
+                            {pg}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={safeCurrentPage === totalPages}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 bg-white font-bold text-[11px] text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-xs"
+                    >
+                      Next <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -643,7 +737,10 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
                   
                   {/* Subject Filters */}
                   <div className="flex flex-wrap gap-1 bg-white p-1 rounded-xl border border-slate-200/60">
-                    {['all', 'math', 'sinhala', 'english', 'preschool'].map((filter) => (
+                    {(isModalPreSchool 
+                      ? ['preschool'] 
+                      : ['all', 'math', 'sinhala', 'english']
+                    ).map((filter) => (
                       <button
                         key={filter}
                         onClick={() => setActiveChartSubject(filter)}
@@ -722,7 +819,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
                     ))}
 
                     {/* Shaded Areas & Lines based on Active Filter */}
-                    {(activeChartSubject === 'all' || activeChartSubject === 'math') && (
+                    {!isModalPreSchool && (activeChartSubject === 'all' || activeChartSubject === 'math') && (
                       <>
                         <path d={getAreaPath('math')} fill="url(#mathGradModal)" />
                         <path d={getLinePath('math')} fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -732,7 +829,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
                       </>
                     )}
 
-                    {(activeChartSubject === 'all' || activeChartSubject === 'sinhala') && (
+                    {!isModalPreSchool && (activeChartSubject === 'all' || activeChartSubject === 'sinhala') && (
                       <>
                         <path d={getAreaPath('sinhala')} fill="url(#sinhalaGradModal)" />
                         <path d={getLinePath('sinhala')} fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -742,7 +839,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
                       </>
                     )}
 
-                    {(activeChartSubject === 'all' || activeChartSubject === 'english') && (
+                    {!isModalPreSchool && (activeChartSubject === 'all' || activeChartSubject === 'english') && (
                       <>
                         <path d={getAreaPath('english')} fill="url(#englishGradModal)" />
                         <path d={getLinePath('english')} fill="none" stroke="#9333ea" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -752,7 +849,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
                       </>
                     )}
 
-                    {(activeChartSubject === 'all' || activeChartSubject === 'preschool') && (
+                    {isModalPreSchool && (activeChartSubject === 'preschool' || activeChartSubject === 'all') && (
                       <>
                         <path d={getAreaPath('preschool')} fill="url(#preschoolGradModal)" />
                         <path d={getLinePath('preschool')} fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -766,18 +863,23 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
 
                 {/* Legend Pills */}
                 <div className="flex flex-wrap items-center justify-center gap-4 mt-3 text-[11px] font-bold">
-                  <span className="flex items-center gap-1.5 text-blue-700">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span> ගණිතය (Math)
-                  </span>
-                  <span className="flex items-center gap-1.5 text-emerald-700">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> සිංහල (Sinhala)
-                  </span>
-                  <span className="flex items-center gap-1.5 text-purple-700">
-                    <span className="w-2.5 h-2.5 rounded-full bg-purple-600"></span> English Speech
-                  </span>
-                  <span className="flex items-center gap-1.5 text-amber-700">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span> Pre-School Foundations
-                  </span>
+                  {!isModalPreSchool ? (
+                    <>
+                      <span className="flex items-center gap-1.5 text-blue-700">
+                        <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span> ගණිතය (Math)
+                      </span>
+                      <span className="flex items-center gap-1.5 text-emerald-700">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> සිංහල (Sinhala)
+                      </span>
+                      <span className="flex items-center gap-1.5 text-purple-700">
+                        <span className="w-2.5 h-2.5 rounded-full bg-purple-600"></span> English Speech
+                      </span>
+                    </>
+                  ) : (
+                    <span className="flex items-center gap-1.5 text-amber-700">
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span> Pre-School Foundations
+                    </span>
+                  )}
                 </div>
               </div>
 

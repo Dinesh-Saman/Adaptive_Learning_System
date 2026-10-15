@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { grade2AdaptiveEngine } from '../../../services/grade2AdaptiveEngine';
 import { SINHALA_CATEGORIES, SINHALA_LETTERS, SINHALA_PILLAM_REGISTRY } from '../../../data/grade2SinhalaQuestionBank';
-import SinhalaTracingCanvas from '../tracing/SinhalaTracingCanvas';
+import SinhalaTracingCanvas, { formatAccuracyDisplay, normalizeAccuracy } from '../tracing/SinhalaTracingCanvas';
 import { recordStudentTestMarks } from '../../../data/studentAnalyticsData';
 import { getItem } from '../../../utils/storage';
 
@@ -58,11 +58,6 @@ function playSound(type) {
   } catch (e) {}
 }
 
-// ── Sinhala TTS ──
-function speakSinhala(text) {
-  speakSinhalaAudio(text);
-}
-
 export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
   const navigate = useNavigate();
 
@@ -94,7 +89,19 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
   // Start a paper test
   const handleStartPaper = (pNum) => {
     playSound('click');
-    const generatedQuestions = grade2AdaptiveEngine.generatePaper(pNum);
+    const shuffleArray = (arr) => {
+      if (!Array.isArray(arr) || arr.length <= 1) return arr;
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+    const generatedQuestions = (grade2AdaptiveEngine.generatePaper(pNum) || []).map(q => ({
+      ...q,
+      options: shuffleArray(q.options)
+    }));
     setActivePaperNumber(pNum);
     setCurrentQuestions(generatedQuestions);
     setCurrentQIndex(0);
@@ -508,7 +515,7 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
               </div>
               <div className="shrink-0 flex items-center gap-2">
                 <span className="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-xs">
-                  Pass Mark: 85% Tracing
+                  Pass Mark: 80% Tracing
                 </span>
               </div>
             </div>
@@ -619,7 +626,7 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                             targetPillama={currentQ.target_pillama || ''}
                             guideText={userAnswers[currentQ.id] || currentQ.target_guide_text || currentQ.target_character || 'ක'}
                             onTraceComplete={(traceData) => handleTraceComplete(currentQ.id, traceData)}
-                            initialScore={tracingResults[currentQ.id]?.score || 0}
+                            initialScore={tracingResults[currentQ.id]?.overall_score ?? (tracingResults[currentQ.id]?.percentage ?? ((tracingResults[currentQ.id]?.score || 0) * (tracingResults[currentQ.id]?.score <= 1.0 && tracingResults[currentQ.id]?.score > 0 ? 100 : 1)))}
                             isOptionSelected={true}
                           />
                         </div>
@@ -687,8 +694,6 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                   disabled={currentQIndex === 0}
                   onClick={() => {
                     playSound('click');
-                    stopSinhalaAudio();
-                    setSpeakingStep(null);
                     setCurrentQIndex(prev => prev - 1);
                   }}
                   className="px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
@@ -701,8 +706,6 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                   <button
                     onClick={() => {
                       playSound('click');
-                      stopSinhalaAudio();
-                      setSpeakingStep(null);
                       setCurrentQIndex(prev => prev + 1);
                     }}
                     className="px-5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-black text-xs sm:text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
@@ -713,8 +716,6 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                 ) : (
                   <button
                     onClick={() => {
-                      stopSinhalaAudio();
-                      setSpeakingStep(null);
                       handleSubmitTest();
                     }}
                     className="px-5 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-black text-xs sm:text-sm shadow-md transform hover:scale-102 transition-all flex items-center gap-1.5 cursor-pointer"
@@ -880,7 +881,7 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                             <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
                               item.tracing_correct ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-900'
                             }`}>
-                              Tracing Score: {Math.round(item.tracing_score * 100)}% ({item.tracing_correct ? 'සමත්' : 'අසමත් (<70%)'})
+                              Tracing Score: {formatAccuracyDisplay(item.tracing_score)} ({item.tracing_correct ? 'සමත්' : 'අසමත් (<85%)'})
                             </span>
                           )}
 
@@ -929,7 +930,7 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                 <div>
                   <h2 className="text-2xl font-black text-slate-900">දුර්‍වලතා ඉලක්ක කරගත් පුහුණු අභ්‍යාස</h2>
                   <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    ශිෂ්‍යයා ප්‍රවීණතාවය ලබා නොමැති (&lt;85%) ප්‍රශ්න කාණ්ඩ, දුර්‍වල අකුරු සහ පිල්ලම් සඳහා 5-Level Scaffolding අභ්‍යාස.
+                    ශිෂ්‍යයා ප්‍රවීණතාවය ලබා නොමැති (&lt;80%) ප්‍රශ්න කාණ්ඩ, දුර්‍වල අකුරු සහ පිල්ලම් සඳහා 5-Level Scaffolding අභ්‍යාස.
                   </p>
                 </div>
                 <button
@@ -944,7 +945,7 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
               <div className="flex flex-wrap gap-2 mt-6">
                 {Object.entries(SINHALA_CATEGORIES).map(([catKey, cat]) => {
                   const mastery = session.currentMasteryVector[catKey] || 0.5;
-                  const isMastered = mastery >= 0.85;
+                  const isMastered = mastery >= 0.80;
                   const isSelected = activeRemedialCategory === catKey;
 
                   return (
@@ -992,7 +993,7 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                   </div>
                 </div>
 
-                {session.currentMasteryVector[activeRemedialCategory] >= 0.85 && (
+                {session.currentMasteryVector[activeRemedialCategory] >= 0.80 && (
                   <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-2 rounded-2xl text-xs font-black flex items-center gap-1.5">
                     <Award className="w-4 h-4 text-green-600" />
                     <span>මෙම ප්‍රශ්න කාණ්ඩය ඉහළින් ප්‍රගුණ කර ඇත! අමතර පුහුණුවක් අනවශ්‍යයි.</span>
@@ -1054,32 +1055,34 @@ export default function SinhalaGrade2AdaptiveSystem({ onExit }) {
                                       playSound('correct');
                                     }
                                   }}
-                                  initialScore={remedialTracingScores[itemKey]?.score || 0}
+                                  initialScore={remedialTracingScores[itemKey]?.overall_score ?? (remedialTracingScores[itemKey]?.percentage ?? ((remedialTracingScores[itemKey]?.score || 0) * (remedialTracingScores[itemKey]?.score <= 1.0 && remedialTracingScores[itemKey]?.score > 0 ? 100 : 1)))}
                                 />
                               </div>
                             )}
 
-                            {/* Option Buttons */}
-                            <div className="flex flex-wrap gap-2">
-                              {item.options.map((opt, optIdx) => (
-                                <button
-                                  key={optIdx}
-                                  onClick={() => {
-                                    setRemedialAnswers(prev => ({ ...prev, [itemKey]: opt }));
-                                    playSound(opt === item.ans ? 'correct' : 'wrong');
-                                  }}
-                                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                                    selectedAnswer === opt
-                                      ? opt === item.ans
-                                        ? 'bg-green-600 text-white shadow-sm'
-                                        : 'bg-rose-500 text-white shadow-sm'
-                                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                                  }`}
-                                >
-                                  {opt}
-                                </button>
-                              ))}
-                            </div>
+                            {/* Option Buttons (Only for non-tracing MCQ items) */}
+                            {item.type !== 'trace' && Array.isArray(item.options) && item.options.length > 0 && (
+                              <div className="flex flex-wrap gap-2">
+                                {item.options.map((opt, optIdx) => (
+                                  <button
+                                    key={optIdx}
+                                    onClick={() => {
+                                      setRemedialAnswers(prev => ({ ...prev, [itemKey]: opt }));
+                                      playSound(opt === item.ans ? 'correct' : 'wrong');
+                                    }}
+                                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                                      selectedAnswer === opt
+                                        ? opt === item.ans
+                                          ? 'bg-green-600 text-white shadow-sm'
+                                          : 'bg-rose-500 text-white shadow-sm'
+                                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                                    }`}
+                                  >
+                                    {opt}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         );
                       })}

@@ -4,13 +4,13 @@ Multi-criteria Weighted Scoring Engine for Sinhala Tracing Assessment:
 T = 0.35 * P + 0.25 * S + 0.20 * C + 0.10 * L + 0.10 * B
 
 Passing Rule:
-Tracing Correct iff T >= TRACING_PASS_THRESHOLD (default 85%) AND all required components >= MIN_COMPONENT_THRESHOLD (70%)
+Tracing Correct iff T >= TRACING_PASS_THRESHOLD (default 80%) AND all required components >= MIN_COMPONENT_THRESHOLD (70%)
 """
 
 from typing import Dict, Any, List
 
 # ── Configurable Research Parameters ──
-TRACING_PASS_THRESHOLD = 85.0
+TRACING_PASS_THRESHOLD = 80.0
 MIN_COMPONENT_THRESHOLD = 70.0
 
 DEFAULT_WEIGHTS = {

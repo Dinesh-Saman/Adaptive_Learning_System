@@ -101,27 +101,25 @@ const Navbar = () => {
               {token ? (
                 <div className="flex items-center gap-2">
                   <Link 
-                    to={role === 'teacher' ? '/teacher/dashboard' : '/dashboard'}
-                    className="flex items-center gap-3 bg-white hover:bg-indigo-50/40 border border-slate-200/90 hover:border-indigo-300 pl-2.5 pr-4 py-1.5 rounded-2xl transition-all shadow-xs group cursor-pointer"
+                    to={role === 'teacher' ? '/teacher/dashboard' : '/dashboard?view=modules#learning-hubs'}
+                    className="flex items-center gap-2.5 bg-white hover:bg-indigo-50/40 border border-slate-200/90 hover:border-indigo-300 pl-2 pr-3.5 py-1.5 rounded-2xl transition-all shadow-xs group cursor-pointer"
                     title="Open Dashboard"
                   >
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white font-black text-sm flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white font-black text-sm flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
                       {studentName.charAt(0).toUpperCase()}
                     </div>
-                    <div className="flex flex-col text-left">
-                      <span className="font-bold text-slate-800 text-sm leading-tight group-hover:text-indigo-600 transition-colors">
+                    <div className="flex items-center gap-2 text-left whitespace-nowrap">
+                      <span className="font-bold text-slate-800 text-sm leading-none group-hover:text-indigo-600 transition-colors">
                         {studentName}
                       </span>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/70 px-2 py-0.5 rounded-full leading-none">
-                          {formatGradeLabel(studentGrade, role)}
+                      <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/70 px-2 py-0.5 rounded-full leading-none">
+                        {formatGradeLabel(studentGrade, role)}
+                      </span>
+                      {studentMedium && (
+                        <span className="text-[11px] font-medium text-slate-400 leading-none">
+                          • {studentMedium}
                         </span>
-                        {studentMedium && (
-                          <span className="text-[11px] font-medium text-slate-400">
-                            • {studentMedium}
-                          </span>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </Link>
 
@@ -185,22 +183,27 @@ const Navbar = () => {
               {token ? (
                 <div className="space-y-2.5">
                   <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-black text-base flex items-center justify-center shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-black text-sm flex items-center justify-center shadow-sm shrink-0">
                       {studentName.charAt(0).toUpperCase()}
                     </div>
-                    <div className="flex flex-col flex-1">
-                      <span className="font-black text-slate-800 text-base">
+                    <div className="flex items-center gap-2 flex-1 flex-wrap">
+                      <span className="font-bold text-slate-800 text-sm leading-none">
                         {studentName}
                       </span>
-                      <span className="text-xs font-bold text-indigo-600">
-                        {role === 'teacher' ? 'Teacher Portal' : (studentGrade ? `Grade ${studentGrade} Student` : 'Student')} {studentMedium ? `• ${studentMedium}` : ''}
+                      <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/70 px-2 py-0.5 rounded-full leading-none">
+                        {formatGradeLabel(studentGrade, role)}
                       </span>
+                      {studentMedium && (
+                        <span className="text-[11px] font-medium text-slate-400 leading-none">
+                          • {studentMedium}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
                     <Link 
-                      to={role === 'teacher' ? '/teacher/dashboard' : '/dashboard'}
+                      to={role === 'teacher' ? '/teacher/dashboard' : '/dashboard?view=modules#learning-hubs'}
                       onClick={() => setIsOpen(false)}
                       className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-sm"
                     >

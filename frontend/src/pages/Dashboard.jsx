@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   BarChart3, 
   Sparkles, 
@@ -25,15 +25,12 @@ const isPreSchoolStudent = (gradeStr) => {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const getInitialView = () => {
     const fromUrl = searchParams.get('view');
     if (fromUrl && ['modules', 'analytics'].includes(fromUrl)) return fromUrl;
-    try {
-      const fromStorage = localStorage.getItem('student_dashboard_view');
-      if (fromStorage && ['modules', 'analytics'].includes(fromStorage)) return fromStorage;
-    } catch (e) {}
     return 'modules';
   };
 
@@ -59,7 +56,10 @@ const Dashboard = () => {
       try {
         localStorage.setItem('student_dashboard_view', fromUrl);
       } catch (e) {}
+    } else if (!fromUrl && activeView !== 'modules') {
+      setActiveViewState('modules');
     }
+
     const hub = searchParams.get('hub');
     if (hub === 'sinhala') {
       setShowSinhalaHubs(true);
@@ -73,8 +73,24 @@ const Dashboard = () => {
       setShowPreSchoolHub(true);
       setShowSinhalaHubs(false);
       setShowMathHubs(false);
+    } else {
+      setShowSinhalaHubs(false);
+      setShowMathHubs(false);
+      setShowPreSchoolHub(false);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (student && location.hash === '#learning-hubs' && activeView === 'modules' && !showMathHubs && !showSinhalaHubs && !showPreSchoolHub) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById('learning-hubs');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [student, location.hash, activeView, showMathHubs, showSinhalaHubs, showPreSchoolHub]);
 
   useEffect(() => {
     const token = getItem('token');
@@ -209,13 +225,13 @@ const Dashboard = () => {
         ) : showMathHubs ? (
           /* MATH HUBS */
           <>
-            <header className="mb-10 animate-fade-in-up">
+            <header className="pt-6 sm:pt-8 mb-8 sm:mb-10 animate-fade-in-up">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button 
                   onClick={() => setShowMathHubs(false)}
                   className="text-xs sm:text-sm font-bold text-blue-700 hover:text-white hover:bg-blue-600 bg-blue-50 border border-blue-200 px-4 py-2 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 self-start sm:self-auto"
                 >
-                  <span>⬅</span> Back to Dashboard
+                  <span>⬅</span> Back
                 </button>
                 <div className="text-center flex-1">
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-blue-900 mb-1 whitespace-nowrap">
@@ -225,7 +241,7 @@ const Dashboard = () => {
                     {getItem('studentMedium') === 'English' ? 'Choose your Grade level (Grade 2, 3 or 4)' : 'ඔබේ ශ්‍රේණිය තෝරන්න — Choose your Grade level (Grade 2, 3 or 4)'}
                   </p>
                 </div>
-                <div className="hidden sm:block w-36 shrink-0"></div>
+                <div className="hidden sm:block w-24 shrink-0"></div>
               </div>
             </header>
 
@@ -327,13 +343,13 @@ const Dashboard = () => {
         ) : showSinhalaHubs ? (
           /* SINHALA HUBS */
           <>
-            <header className="mb-10 animate-fade-in-up">
+            <header className="pt-6 sm:pt-8 mb-8 sm:mb-10 animate-fade-in-up">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button 
                   onClick={() => setShowSinhalaHubs(false)}
                   className="text-xs sm:text-sm font-bold text-teal-700 hover:text-white hover:bg-teal-600 bg-teal-50 border border-teal-200 px-4 py-2 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 self-start sm:self-auto"
                 >
-                  <span>⬅</span> Back to Dashboard
+                  <span>⬅</span> Back
                 </button>
                 <div className="text-center flex-1">
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-teal-950 mb-1 font-sinhala whitespace-nowrap">
@@ -341,7 +357,7 @@ const Dashboard = () => {
                   </h1>
                   <p className="text-xs sm:text-sm text-slate-600">5-Paper අනුවර්තී ඇගයීම් පද්ධතිය — Choose your grade level</p>
                 </div>
-                <div className="hidden sm:block w-36 shrink-0"></div>
+                <div className="hidden sm:block w-24 shrink-0"></div>
               </div>
             </header>
 
@@ -434,13 +450,13 @@ const Dashboard = () => {
         ) : showPreSchoolHub ? (
           /* PRE-SCHOOL HUBS */
           <>
-            <header className="mb-10 animate-fade-in-up">
+            <header className="pt-6 sm:pt-8 mb-8 sm:mb-10 animate-fade-in-up">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <button 
                   onClick={() => setShowPreSchoolHub(false)}
                   className="text-xs sm:text-sm font-bold text-purple-700 hover:text-white hover:bg-purple-600 bg-purple-50 border border-purple-200 px-4 py-2 rounded-2xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer shrink-0 self-start sm:self-auto"
                 >
-                  <span>⬅</span> Back to Dashboard
+                  <span>⬅</span> Back
                 </button>
                 <div className="text-center flex-1">
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-purple-950 mb-1 font-sinhala whitespace-nowrap">
@@ -448,7 +464,7 @@ const Dashboard = () => {
                   </h1>
                   <p className="text-xs sm:text-sm text-slate-600">සිත් ඇදගන්නා ක්‍රියාකාරකම් — Line Tracing, Coloring & Story Drawing</p>
                 </div>
-                <div className="hidden sm:block w-36 shrink-0"></div>
+                <div className="hidden sm:block w-24 shrink-0"></div>
               </div>
             </header>
 
@@ -563,7 +579,7 @@ const Dashboard = () => {
               </p>
             </header>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div id="learning-hubs" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 scroll-mt-24">
               
               {/* 1. Mathematics Grade Hubs Card (Locked for Pre-School) */}
               <div 

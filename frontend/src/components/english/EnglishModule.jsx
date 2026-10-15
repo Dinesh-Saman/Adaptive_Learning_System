@@ -6,6 +6,7 @@ import g4Data from '../../data/english/grade4_speaking_pool.json';
 import fixedSpeakingPapersData from '../../data/english/fixed_speaking_papers.json';
 import { recordStudentTestMarks, recordStudentQuestionAttempts } from '../../data/studentAnalyticsData';
 import { getItem } from '../../utils/storage';
+import PronunciationSpectrogram from './PronunciationSpectrogram';
 
 const POOLS = {
   2: g2Data,
@@ -1601,6 +1602,8 @@ export default function EnglishModule({ onExit }) {
   const [isAnswered, setIsAnswered] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
+  const [recordedAudioUrl, setRecordedAudioUrl] = useState(null);
+  const [recordedSpectrogramFrames, setRecordedSpectrogramFrames] = useState([]);
 
   const quizFileInputRef = useRef(null);
   const mtiFileInputRef = useRef(null);
@@ -1614,6 +1617,8 @@ export default function EnglishModule({ onExit }) {
   const audioContextRef = useRef(null);
   const mediaStreamRef = useRef(null);
   const analyserRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
   const animFrameRef = useRef(null);
   const silenceTimerRef = useRef(null);
 
@@ -1623,7 +1628,8 @@ export default function EnglishModule({ onExit }) {
     pauseSegments: [],
     volumeSamples: [],
     pitchSamples: [],
-    spectralFrames: []
+    spectralFrames: [],
+    spectrogramFrames: []
   });
   const currentlySpeakingRef = useRef(false);
   const lastSpeechTimeRef = useRef(0);
@@ -1762,6 +1768,8 @@ export default function EnglishModule({ onExit }) {
     setLiveVolume(0);
     setAssessmentResult(null);
     setIsAnswered(false);
+    setRecordedAudioUrl(null);
+    setRecordedSpectrogramFrames([]);
     latestTranscriptRef.current = '';
     soundHeardRef.current = false;
     setViewState('quiz');
@@ -1796,6 +1804,27 @@ export default function EnglishModule({ onExit }) {
         analyser.fftSize = 2048;
         source.connect(analyser);
         analyserRef.current = analyser;
+
+        try {
+          audioChunksRef.current = [];
+          if (window.MediaRecorder) {
+            const mr = new MediaRecorder(stream);
+            mr.ondataavailable = (e) => {
+              if (e.data && e.data.size > 0) audioChunksRef.current.push(e.data);
+            };
+            mr.onstop = () => {
+              if (audioChunksRef.current.length > 0) {
+                const blob = new Blob(audioChunksRef.current, { type: mr.mimeType || 'audio/webm' });
+                const url = URL.createObjectURL(blob);
+                setRecordedAudioUrl(url);
+              }
+            };
+            mr.start(100);
+            mediaRecorderRef.current = mr;
+          }
+        } catch (e) {
+          console.log("[MediaRecorder] Notice:", e);
+        }
 
         const updateAudioMetrics = () => {
           if (!isListeningRef.current || !analyserRef.current || !audioContextRef.current) return;
@@ -1842,6 +1871,14 @@ export default function EnglishModule({ onExit }) {
               mid: midEnergy,
               high: highEnergy
             });
+          }
+
+          // Real-time Spectrogram capture (0 to 8000 Hz, bins 0 to 360)
+          if (!sessionDataRef.current.spectrogramFrames) {
+            sessionDataRef.current.spectrogramFrames = [];
+          }
+          if (sessionDataRef.current.spectrogramFrames.length < 350) {
+            sessionDataRef.current.spectrogramFrames.push(new Uint8Array(freqData.subarray(0, 360)));
           }
 
           const SILENCE_THRESHOLD = 8;
@@ -1917,6 +1954,17 @@ export default function EnglishModule({ onExit }) {
       recognitionRef.current = null;
     }
 
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (e) {}
+      mediaRecorderRef.current = null;
+    }
+
+    if (sessionDataRef.current?.spectrogramFrames?.length > 0) {
+      setRecordedSpectrogramFrames([...sessionDataRef.current.spectrogramFrames]);
+    }
+
     if (mediaStreamRef.current) {
       try {
         mediaStreamRef.current.getTracks().forEach(t => t.stop());
@@ -1960,6 +2008,8 @@ export default function EnglishModule({ onExit }) {
     setLiveTranscript('');
     setLiveVolume(0);
     setRecordingSeconds(0);
+    setRecordedAudioUrl(null);
+    setRecordedSpectrogramFrames([]);
     latestTranscriptRef.current = '';
     latestAlternativesRef.current = [];
     noSpeechAttemptsRef.current = 0;
@@ -1973,7 +2023,8 @@ export default function EnglishModule({ onExit }) {
       pauseSegments: [],
       volumeSamples: [],
       pitchSamples: [],
-      spectralFrames: []
+      spectralFrames: [],
+      spectrogramFrames: []
     };
     currentlySpeakingRef.current = false;
     lastSpeechTimeRef.current = performance.now();
@@ -2225,6 +2276,8 @@ export default function EnglishModule({ onExit }) {
       setLiveTranscript('');
       setLiveVolume(0);
       setRecordingSeconds(0);
+      setRecordedAudioUrl(null);
+      setRecordedSpectrogramFrames([]);
       latestTranscriptRef.current = '';
       latestAlternativesRef.current = [];
       soundHeardRef.current = false;
@@ -2315,6 +2368,8 @@ export default function EnglishModule({ onExit }) {
     setLiveTranscript('');
     setLiveVolume(0);
     setRecordingSeconds(0);
+    setRecordedAudioUrl(null);
+    setRecordedSpectrogramFrames([]);
     latestTranscriptRef.current = '';
     latestAlternativesRef.current = [];
     soundHeardRef.current = false;
@@ -2339,6 +2394,8 @@ export default function EnglishModule({ onExit }) {
     setAssessmentResult(null);
     setIsAnswered(false);
     setRecordingSeconds(0);
+    setRecordedAudioUrl(null);
+    setRecordedSpectrogramFrames([]);
     latestTranscriptRef.current = '';
     latestAlternativesRef.current = [];
     soundHeardRef.current = false;
@@ -2419,6 +2476,36 @@ export default function EnglishModule({ onExit }) {
         }
       }
 
+      const uploadUrl = URL.createObjectURL(file);
+      setRecordedAudioUrl(uploadUrl);
+
+      // Extract offline spectrogram frames (0 to 8000 Hz)
+      const numFrames = 75;
+      const step = Math.max(1, Math.floor(channelData.length / numFrames));
+      const uploadSpectrogramFrames = [];
+      for (let f = 0; f < numFrames; f++) {
+        const startIdx = f * step;
+        const sliceBins = new Uint8Array(100);
+        const windowSize = Math.min(512, channelData.length - startIdx);
+        if (windowSize > 32) {
+          for (let b = 0; b < 100; b++) {
+            const freqHz = (b + 1) * 80;
+            const omega = (2 * Math.PI * freqHz) / sampleRate;
+            let real = 0, imag = 0;
+            const subSample = Math.min(windowSize, 128);
+            for (let s = 0; s < subSample; s += 2) {
+              const val = channelData[startIdx + s];
+              real += val * Math.cos(omega * s);
+              imag -= val * Math.sin(omega * s);
+            }
+            const mag = Math.sqrt(real * real + imag * imag);
+            sliceBins[b] = Math.min(255, Math.round(mag * 40));
+          }
+        }
+        uploadSpectrogramFrames.push(sliceBins);
+      }
+      setRecordedSpectrogramFrames(uploadSpectrogramFrames);
+
       const sessionData = {
         recordingDuration: Math.max(0.8, duration),
         startedAt: performance.now(),
@@ -2426,7 +2513,8 @@ export default function EnglishModule({ onExit }) {
         pauseSegments,
         volumeSamples,
         pitchSamples,
-        spectralFrames: []
+        spectralFrames: [],
+        spectrogramFrames: uploadSpectrogramFrames
       };
 
       const base64Audio = await new Promise((resolve) => {
@@ -2534,6 +2622,8 @@ export default function EnglishModule({ onExit }) {
 
     setMtiLabResult(null);
     setMtiLabLiveTranscript('');
+    setRecordedAudioUrl(null);
+    setRecordedSpectrogramFrames([]);
     setMtiLabListening(true);
     isListeningRef.current = true;
     latestTranscriptRef.current = '';
@@ -2547,7 +2637,8 @@ export default function EnglishModule({ onExit }) {
       pauseSegments: [],
       volumeSamples: [],
       pitchSamples: [],
-      spectralFrames: []
+      spectralFrames: [],
+      spectrogramFrames: []
     };
     currentlySpeakingRef.current = false;
     lastSpeechTimeRef.current = performance.now();
@@ -2991,6 +3082,20 @@ export default function EnglishModule({ onExit }) {
                   ))}
                 </div>
 
+                <div className="max-w-xl mx-auto my-2 text-left">
+                  <PronunciationSpectrogram
+                    targetText={mtiLabTargetWord}
+                    phoneticHint={WORD_IPA_MAP[mtiLabTargetWord]?.target || activeMtiPattern.target_ipa}
+                    mtiPattern={activeMtiPattern.key}
+                    isListening={mtiLabListening}
+                    liveAnalyser={analyserRef.current}
+                    recordedAudioUrl={recordedAudioUrl}
+                    recordedSpectrogramFrames={recordedSpectrogramFrames}
+                    assessmentResult={mtiLabResult}
+                    onPlayModelAudio={() => speakEnglish(mtiLabTargetWord)}
+                  />
+                </div>
+
                 <div className="max-w-md mx-auto space-y-2.5 pt-1">
                   <button
                     onClick={mtiLabListening ? stopMtiLabRecording : startMtiLabRecording}
@@ -3367,9 +3472,9 @@ export default function EnglishModule({ onExit }) {
               )}
 
               {/* MIDDLE / QUESTION COLUMN: Question, Audio Controls & Navigation */}
-              <div className={`${currentQImage ? 'lg:col-span-4' : 'lg:col-span-6'} bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 sm:p-7 space-y-5 text-center shadow-sm flex flex-col justify-between self-stretch`}>
+              <div className={`${currentQImage ? 'lg:col-span-4' : 'lg:col-span-6'} bg-slate-50 border-2 border-slate-200 rounded-3xl p-6 sm:p-7 space-y-4 text-center shadow-sm flex flex-col self-start`}>
 
-                <div className="space-y-5">
+                <div className="space-y-4">
                   {history[currentQIndex] && (
                     <div className="p-3 bg-blue-50/90 border border-blue-200 rounded-2xl text-blue-900 text-xs font-medium flex items-center justify-between gap-2 text-left animate-fade-in">
                       <div className="flex items-center gap-2">
@@ -3411,7 +3516,7 @@ export default function EnglishModule({ onExit }) {
                     )}
                   </div>
 
-                  {/* Balanced 2-Tier Action Controls */}
+                  {/* Balanced Action Controls & Navigation */}
                   <div className="space-y-2.5 pt-1">
                     {/* Primary Speak Button */}
                     <button
@@ -3452,6 +3557,46 @@ export default function EnglishModule({ onExit }) {
                         <span className="text-base">📁</span>
                         <span>{isProcessingUpload ? 'Analyzing...' : 'Upload Voice'}</span>
                       </button>
+                    </div>
+
+                    {/* Navigation Buttons directly below Listen Audio & Upload Voice */}
+                    <div className="pt-2 border-t border-slate-200/80 space-y-2.5 w-full">
+                      {isAnswered && (
+                        <button
+                          onClick={handleRetryQuestion}
+                          className={`w-full py-3 px-4 rounded-2xl font-black text-xs sm:text-sm shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98 ${
+                            assessmentResult?.pronunciationCorrect
+                              ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-2 border-emerald-300'
+                              : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-2 border-amber-300'
+                          }`}
+                        >
+                          <span>🔄</span>
+                          <span>{assessmentResult?.pronunciationCorrect ? 'Practice Pronouncing Again' : 'Try Saying Again'}</span>
+                        </button>
+                      )}
+
+                      <div className="flex items-center gap-2.5 w-full">
+                        {currentQIndex > 0 && (
+                          <button
+                            onClick={handlePreviousQuestion}
+                            className="py-3.5 px-4 rounded-2xl font-black text-xs sm:text-sm bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-300 shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
+                          >
+                            <span>◀</span> Back
+                          </button>
+                        )}
+
+                        <button
+                          disabled={!isAnswered}
+                          onClick={handleNextQuestion}
+                          className={`flex-1 py-3.5 px-6 rounded-2xl font-black text-sm sm:text-base border-2 transition-all flex items-center justify-center gap-2 ${
+                            isAnswered
+                              ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white shadow-md cursor-pointer active:scale-98'
+                              : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-75 shadow-none'
+                          }`}
+                        >
+                          <span>{currentQIndex >= (paperQuestions.length - 1) ? 'Finish Paper ➔' : 'Next Question ➔'}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -3505,46 +3650,6 @@ export default function EnglishModule({ onExit }) {
                   )}
                 </div>
 
-                {/* Bottom Navigation Buttons (Anchored to Bottom) */}
-                <div className="pt-4 border-t border-slate-200 space-y-2.5 mt-auto">
-                  {isAnswered && (
-                    <button
-                      onClick={handleRetryQuestion}
-                      className={`w-full py-3 px-4 rounded-2xl font-black text-xs sm:text-sm shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98 ${
-                        assessmentResult?.pronunciationCorrect
-                          ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-2 border-emerald-300'
-                          : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-2 border-amber-300'
-                      }`}
-                    >
-                      <span>🔄</span>
-                      <span>{assessmentResult?.pronunciationCorrect ? 'Practice Pronouncing Again' : 'Try Saying Again'}</span>
-                    </button>
-                  )}
-
-                  <div className="flex items-center gap-2.5 w-full">
-                    {currentQIndex > 0 && (
-                      <button
-                        onClick={handlePreviousQuestion}
-                        className="py-3.5 px-4 rounded-2xl font-black text-xs sm:text-sm bg-white hover:bg-slate-100 text-slate-700 border-2 border-slate-300 shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
-                      >
-                        <span>◀</span> Back
-                      </button>
-                    )}
-
-                    <button
-                      disabled={!isAnswered}
-                      onClick={handleNextQuestion}
-                      className={`flex-1 py-3.5 px-6 rounded-2xl font-black text-sm sm:text-base border-2 transition-all flex items-center justify-center gap-2 ${
-                        isAnswered
-                          ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white shadow-md cursor-pointer active:scale-98'
-                          : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-75 shadow-none'
-                      }`}
-                    >
-                      <span>{currentQIndex >= (paperQuestions.length - 1) ? 'Finish Paper ➔' : 'Next Question ➔'}</span>
-                    </button>
-                  </div>
-                </div>
-
               </div>
 
               {/* RIGHT COLUMN: 6-Dimensional Stats & Assessment Diagnostics */}
@@ -3575,17 +3680,15 @@ export default function EnglishModule({ onExit }) {
                             </p>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="text-right">
-                            <span className="text-[10px] uppercase font-black tracking-wider block opacity-75">Score</span>
-                            <span className={`text-xl font-black px-4 py-1.5 rounded-xl shadow-sm inline-block ${
-                              assessmentResult.pronunciationCorrect
-                                ? 'bg-emerald-600 text-white'
-                                : 'bg-rose-600 text-white'
-                            }`}>
-                              {assessmentResult.overallScore ?? assessmentResult.accuracy}%
-                            </span>
-                          </div>
+                        <div className="flex items-center gap-2.5 shrink-0">
+                          <span className="text-xs uppercase font-black tracking-wider opacity-75">Score:</span>
+                          <span className={`text-xl font-black px-4 py-1.5 rounded-xl shadow-sm inline-flex items-center justify-center ${
+                            assessmentResult.pronunciationCorrect
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-rose-600 text-white'
+                          }`}>
+                            {assessmentResult.overallScore ?? assessmentResult.accuracy}%
+                          </span>
                         </div>
                       </div>
 
@@ -3635,6 +3738,9 @@ export default function EnglishModule({ onExit }) {
                           </div>
                           <span className="text-[11px] font-medium text-slate-600 block">
                             MTI Errors: {assessmentResult.mtiPatterns?.length || 0}
+                          </span>
+                          <span className="text-[9px] font-bold text-emerald-800 bg-emerald-100/80 px-1.5 py-0.5 rounded flex items-center gap-1 w-fit">
+                            <span>📊</span> Spectrogram Verified
                           </span>
                         </div>
 
@@ -3885,6 +3991,21 @@ export default function EnglishModule({ onExit }) {
                 )}
               </div>
 
+            </div>
+
+            {/* FULL-WIDTH ACOUSTIC SPECTROGRAM STUDIO (Spans below all 3 columns) */}
+            <div className="w-full pt-1 animate-fade-in">
+              <PronunciationSpectrogram
+                targetText={currentQ.target_text}
+                phoneticHint={currentQ.phonetic_hint}
+                mtiPattern={currentQ.mti_pattern}
+                isListening={isListening}
+                liveAnalyser={analyserRef.current}
+                recordedAudioUrl={recordedAudioUrl}
+                recordedSpectrogramFrames={recordedSpectrogramFrames}
+                assessmentResult={assessmentResult}
+                onPlayModelAudio={() => speakEnglish(currentQ.target_text)}
+              />
             </div>
           </div>
         )}

@@ -9,6 +9,52 @@ import { grade3AdaptiveEngine } from '../../../services/grade3AdaptiveEngine';
 import { GRADE3_SINHALA_CATEGORIES, GRADE3_REMEDIAL_EXERCISE_BANK } from '../../../data/grade3SinhalaQuestionBank';
 import { recordStudentTestMarks } from '../../../data/studentAnalyticsData';
 
+// ── Web Audio Synthesizer ──
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+
+    if (type === 'correct') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.1);
+      osc.frequency.setValueAtTime(783.99, now + 0.2);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    } else if (type === 'wrong') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(240, now);
+      osc.frequency.setValueAtTime(180, now + 0.15);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'click') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, now);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    }
+  } catch (e) {}
+}
+
 export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
   const navigate = useNavigate();
 
@@ -36,7 +82,19 @@ export default function SinhalaGrade3AdaptiveSystem({ onExit }) {
 
   const handleStartPaper = (pNum) => {
     playSound('click');
-    const generatedQuestions = grade3AdaptiveEngine.generatePaper(pNum);
+    const shuffleArray = (arr) => {
+      if (!Array.isArray(arr) || arr.length <= 1) return arr;
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+    const generatedQuestions = (grade3AdaptiveEngine.generatePaper(pNum) || []).map(q => ({
+      ...q,
+      options: shuffleArray(q.options)
+    }));
     setActivePaperNumber(pNum);
     setCurrentQuestions(generatedQuestions);
     setCurrentQIndex(0);

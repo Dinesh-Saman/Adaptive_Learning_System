@@ -25,8 +25,8 @@ const heroSlides = [
     image: '/images/about_hero.jpg',
     badge: 'ADAPTIVE LEARNING SYSTEM',
     icon: <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />,
-    titlePrefix: 'Empowering Primary Education ',
-    titleHighlight: 'in Sri Lanka!',
+    titlePrefix: 'Empowering Primary ',
+    titleHighlight: 'Education in Sri Lanka!',
     subtitle: 'Discover our child-centered adaptive learning approach and dedicated platform committed to nurturing young learners with joy and confidence!',
     position: 'object-[75%_30%]',
     badgeBg: 'bg-amber-500/20 text-amber-200 border-amber-300/30'
@@ -88,7 +88,10 @@ const Home = () => {
   const getLink = (targetIfLoggedIn) => {
     if (!isLoggedIn) return '/login';
     if (userRole === 'teacher') return '/teacher/dashboard';
-    return targetIfLoggedIn || '/dashboard';
+    if (!targetIfLoggedIn || targetIfLoggedIn === '/dashboard') {
+      return '/dashboard?view=modules#learning-hubs';
+    }
+    return targetIfLoggedIn;
   };
 
   useEffect(() => {
@@ -164,17 +167,17 @@ const Home = () => {
           <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-3 md:pb-5 pointer-events-auto">
             
             {/* Main Information & Action Bar with Smooth Text Transition */}
-            <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+            <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6">
               
               {/* Left Text & Badge */}
-              <div className="text-white drop-shadow-2xl max-w-3xl transition-all duration-500">
+              <div className="text-white drop-shadow-2xl max-w-4xl lg:max-w-5xl transition-all duration-500">
                 <div className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full backdrop-blur-md text-xs font-black uppercase tracking-wider mb-3 border shadow-lg ${activeSlide.badgeBg}`}>
                   {activeSlide.icon}
                   <span>{activeSlide.badge}</span>
                 </div>
                 
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] mb-3 tracking-tight">
-                  <span className="block">{activeSlide.titlePrefix.trim()}</span>
+                <h1 className="text-3xl sm:text-4xl md:text-[42px] lg:text-[48px] xl:text-6xl font-black text-white leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] mb-3 tracking-tight">
+                  <span className="block md:whitespace-nowrap">{activeSlide.titlePrefix.trim()}</span>
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-300 to-orange-200 drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] block">
                     {activeSlide.titleHighlight}
                   </span>
@@ -204,57 +207,20 @@ const Home = () => {
 
             </div>
 
-            {/* Quick-Jump Grade Access & Slide Dots Bar (Moved Lower) */}
-            <div className="mt-4 pt-3 border-t border-white/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/90">
-              
-              {/* Grade buttons */}
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center gap-1.5 font-bold mr-2 text-white/90">
-                  <Calculator className="w-4 h-4 text-amber-300" />
-                  <span>Choose Your Grade Level:</span>
-                </div>
-                <Link
-                  to={getLink('/dashboard?hub=preschool')}
-                  className="px-3.5 py-1.5 rounded-xl bg-pink-500/80 hover:bg-pink-500 text-white font-bold backdrop-blur-sm transition-all border border-pink-300/40 shadow-sm"
-                >
-                  🎨 Pre-School & Grade 1 ➔
-                </Link>
-                <Link
-                  to={getLink('/module/sinhala/grade2')}
-                  className="px-3.5 py-1.5 rounded-xl bg-teal-500/80 hover:bg-teal-500 text-white font-bold backdrop-blur-sm transition-all border border-teal-300/40 shadow-sm"
-                >
-                  🌱 Grade 2 (2 ශ්‍රේණිය) ➔
-                </Link>
-                <Link
-                  to={getLink('/module/sinhala/grade3')}
-                  className="px-3.5 py-1.5 rounded-xl bg-purple-500/80 hover:bg-purple-500 text-white font-bold backdrop-blur-sm transition-all border border-purple-300/40 shadow-sm"
-                >
-                  🎯 Grade 3 (3 ශ්‍රේණිය) ➔
-                </Link>
-                <Link
-                  to={getLink('/module/sinhala/grade4')}
-                  className="px-3.5 py-1.5 rounded-xl bg-blue-500/80 hover:bg-blue-500 text-white font-bold backdrop-blur-sm transition-all border border-blue-300/40 shadow-sm"
-                >
-                  ⭐ Grade 4 (4 ශ්‍රේණිය) ➔
-                </Link>
-              </div>
-
-              {/* Slideshow Pagination Indicator Dots */}
-              <div className="flex items-center gap-2">
-                {heroSlides.map((_, dotIndex) => (
-                  <button
-                    key={dotIndex}
-                    onClick={() => setCurrentSlide(dotIndex)}
-                    aria-label={`Go to slide ${dotIndex + 1}`}
-                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                      dotIndex === currentSlide 
-                        ? 'w-8 bg-amber-400 shadow-md shadow-amber-400/50' 
-                        : 'w-2.5 bg-white/40 hover:bg-white/70'
-                    }`}
-                  />
-                ))}
-              </div>
-
+            {/* Slideshow Pagination Indicator Dots */}
+            <div className="mt-4 pt-3 border-t border-white/20 flex items-center justify-center gap-2">
+              {heroSlides.map((_, dotIndex) => (
+                <button
+                  key={dotIndex}
+                  onClick={() => setCurrentSlide(dotIndex)}
+                  aria-label={`Go to slide ${dotIndex + 1}`}
+                  className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                    dotIndex === currentSlide 
+                      ? 'w-8 bg-amber-400 shadow-md shadow-amber-400/50' 
+                      : 'w-2.5 bg-white/40 hover:bg-white/70'
+                  }`}
+                />
+              ))}
             </div>
 
           </div>

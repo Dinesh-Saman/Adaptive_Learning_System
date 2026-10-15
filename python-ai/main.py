@@ -15,23 +15,34 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
-import torch
 import numpy as np
 
 # Add core_math to path so we can import modules
 sys.path.append(os.path.join(os.path.dirname(__file__), 'core_math'))
-from core_math.model import MultimodalFusionNet
 from core_math.exercise_engine import generate_math_question
 from core_math.grade2_adaptive_engine import Grade2AdaptiveEngine
 from core_math.grade2_curriculum import GRADE2_DOMAINS
 from core_math.grade3_adaptive_engine import Grade3AdaptiveEngine
 from core_math.grade3_curriculum import GRADE3_DOMAINS
 from core_math.adaptive_paper_generator import AdaptivePaperGenerator, QuestionPoolExhaustedError
-from core_english.audio_model import PronunciationNet
-from core_sinhala.vision_model import HandwritingCNN
 from core_sinhala.stroke_analyzer import analyze_stroke_quality
 from core_sinhala.template_matcher import evaluate_handwriting as template_evaluate
 from core_motor.pose_engine import evaluate_motor_skills
+
+# Optional PyTorch-based neural models with graceful fallback
+torch = None
+MultimodalFusionNet = None
+PronunciationNet = None
+HandwritingCNN = None
+try:
+    import torch
+    from core_math.model import MultimodalFusionNet
+    from core_english.audio_model import PronunciationNet
+    from core_sinhala.vision_model import HandwritingCNN
+except (ImportError, OSError) as e:
+    torch = None
+    print(f"NOTICE: PyTorch native library could not be loaded ({e}).")
+    print("        All microservices (Math, Speech, Handwriting, Motor) will run with algorithmic/DSP fallback engines.")
 
 app = FastAPI(
     title="LearnAI - Python Microservices",
@@ -49,26 +60,36 @@ app.add_middleware(
 )
 
 # --- Global AI Model Loading ---
-math_model = MultimodalFusionNet()
-math_model_path = os.path.join(os.path.dirname(__file__), 'core_math', 'weights', 'math_model.pt')
-if os.path.exists(math_model_path):
-    math_model.load_state_dict(torch.load(math_model_path, weights_only=True))
-    math_model.eval()
-    print("SUCCESS: Successfully loaded PyTorch Math AI Model.")
-else:
-    print(f"WARNING: {math_model_path} not found. Neural Net will use random initialized weights.")
-
-english_model = PronunciationNet()
-english_model_path = os.path.join(os.path.dirname(__file__), 'core_english', 'weights', 'english_model.pt')
-if os.path.exists(english_model_path):
+math_model = None
+if torch is not None and MultimodalFusionNet is not None:
     try:
-        english_model.load_state_dict(torch.load(english_model_path, weights_only=True))
-        english_model.eval()
-        print("SUCCESS: Successfully loaded PyTorch English Audio AI Model.")
-    except RuntimeError as e:
-        print(f"WARNING: Incompatible model weights found. The architecture has expanded to 13 classes. Using random initialized weights instead.")
-else:
-    print(f"WARNING: {english_model_path} not found. Audio Neural Net will use random initialized weights.")
+        math_model = MultimodalFusionNet()
+        math_model_path = os.path.join(os.path.dirname(__file__), 'core_math', 'weights', 'math_model.pt')
+        if os.path.exists(math_model_path):
+            math_model.load_state_dict(torch.load(math_model_path, weights_only=True))
+            math_model.eval()
+            print("SUCCESS: Successfully loaded PyTorch Math AI Model.")
+        else:
+            print(f"WARNING: {math_model_path} not found. Neural Net will use random initialized weights.")
+    except Exception as e:
+        print(f"NOTICE: Math model initialization: {e}")
+
+english_model = None
+if torch is not None and PronunciationNet is not None:
+    try:
+        english_model = PronunciationNet()
+        english_model_path = os.path.join(os.path.dirname(__file__), 'core_english', 'weights', 'english_model.pt')
+        if os.path.exists(english_model_path):
+            try:
+                english_model.load_state_dict(torch.load(english_model_path, weights_only=True))
+                english_model.eval()
+                print("SUCCESS: Successfully loaded PyTorch English Audio AI Model.")
+            except RuntimeError as e:
+                print(f"WARNING: Incompatible model weights found. The architecture has expanded to 13 classes. Using random initialized weights instead.")
+        else:
+            print(f"WARNING: {english_model_path} not found. Audio Neural Net will use random initialized weights.")
+    except Exception as e:
+        print(f"NOTICE: English audio model initialization: {e}")
 
 # Global Whisper ASR Model Holder (Loaded Lazily on First Audio Call for Instant Startup)
 whisper_asr_model = None
@@ -84,7 +105,19 @@ def get_whisper_model():
             print(f"WARNING: Offline Whisper ASR could not be loaded: {e}")
     return whisper_asr_model
 
-handwriting_model = HandwritingCNN()
+handwriting_model = None
+if torch is not None and HandwritingCNN is not None:
+    try:
+        handwriting_model = HandwritingCNN()
+        handwriting_model_path = os.path.join(os.path.dirname(__file__), 'core_sinhala', 'weights', 'handwriting_model.pt')
+        if os.path.exists(handwriting_model_path):
+            handwriting_model.load_state_dict(torch.load(handwriting_model_path, weights_only=True))
+            handwriting_model.eval()
+            print("SUCCESS: Successfully loaded PyTorch Handwriting Vision AI Model.")
+        else:
+            print(f"WARNING: {handwriting_model_path} not found. Vision Neural Net will use random initialized weights.")
+    except Exception as e:
+        print(f"NOTICE: Handwriting model initialization: {e}")
 
 # Multi-Stage English Speaking & Pronunciation Analyzers
 try:
@@ -98,17 +131,6 @@ except Exception as e:
     fluency_prosody_analyzer = None
     sri_lankan_mti_engine = None
     print(f"WARNING: Multi-stage analyzers load notice: {e}")
-
-
-
-
-handwriting_model_path = os.path.join(os.path.dirname(__file__), 'core_sinhala', 'weights', 'handwriting_model.pt')
-if os.path.exists(handwriting_model_path):
-    handwriting_model.load_state_dict(torch.load(handwriting_model_path, weights_only=True))
-    handwriting_model.eval()
-    print("SUCCESS: Successfully loaded PyTorch Handwriting Vision AI Model.")
-else:
-    print(f"WARNING: {handwriting_model_path} not found. Vision Neural Net will use random initialized weights.")
 
 from core_math.exercise_engine import generate_math_question, SKILL_TYPES
 

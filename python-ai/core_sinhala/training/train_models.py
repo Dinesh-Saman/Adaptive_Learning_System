@@ -202,23 +202,35 @@ def train_sinhala_cnn():
 
     # ── Plot 2: Sinhala Character Confusion Matrix ──
     cm = confusion_matrix(all_targets, all_preds)
-    fig, ax = plt.subplots(figsize=(12, 10))
-    cax = ax.matshow(cm, cmap='Blues')
-    fig.colorbar(cax)
-    
-    # Labels for top 12 primary characters
+    fig, ax = plt.subplots(figsize=(11, 9.5), dpi=300)
+    im = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    cbar.ax.tick_params(labelsize=10)
+
+    # Scikit-Learn style header and axes
+    ax.set_title('Confusion Matrix', fontsize=20, pad=25)
+    ax.xaxis.tick_top()
+    ax.xaxis.set_label_position('top')
+    ax.set_xlabel('Prediction', fontsize=13, labelpad=12)
+    ax.set_ylabel('Actual', fontsize=13, labelpad=12)
+
     selected_labels = [f"C{i}" for i in range(NUM_CLASSES)]
     ax.set_xticks(range(NUM_CLASSES))
     ax.set_yticks(range(NUM_CLASSES))
-    ax.set_xticklabels(selected_labels, rotation=45, fontsize=8)
+    ax.set_xticklabels(selected_labels, fontsize=8)
     ax.set_yticklabels(selected_labels, fontsize=8)
-    ax.set_title('Sinhala Handwritten Character Confusion Matrix (PyTorch CNN)', fontsize=13, fontweight='bold', pad=20)
-    ax.set_xlabel('Predicted Grapheme Class', fontsize=11, labelpad=10)
-    ax.set_ylabel('True Grapheme Class', fontsize=11, labelpad=10)
-    
+
+    # Display cell values inside grid
+    thresh = cm.max() / 2.0 if cm.max() > 0 else 0.5
+    for i in range(NUM_CLASSES):
+        for j in range(NUM_CLASSES):
+            val = cm[i, j]
+            color = 'white' if val > thresh else '#08306b'
+            ax.text(j, i, f'{val}', ha='center', va='center', color=color, fontsize=6.8)
+
     plt.tight_layout()
     plot_cm = os.path.join(PLOTS_DIR, 'confusion_matrix_sinhala.png')
-    plt.savefig(plot_cm, dpi=200)
+    plt.savefig(plot_cm, bbox_inches='tight')
     plt.close()
     print(f"[+] Generated Confusion Matrix Plot: {plot_cm}")
     

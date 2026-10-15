@@ -125,6 +125,14 @@ const API_BASE_URL = 'http://localhost:5000/api/analytics';
 export const getStudentPapersHistory = (student, subjectKey = 'math') => {
   if (!student) return [];
   
+  const isPre = isPreSchoolOrGrade1(student.grade);
+  if (isPre && subjectKey !== 'preschool') {
+    return [];
+  }
+  if (!isPre && subjectKey === 'preschool') {
+    return [];
+  }
+
   // If the student has paperHistory explicitly attached on their profile:
   if (student.paperHistory && Array.isArray(student.paperHistory[subjectKey])) {
     return student.paperHistory[subjectKey];

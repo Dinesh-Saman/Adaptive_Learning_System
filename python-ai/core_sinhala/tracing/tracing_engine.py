@@ -114,7 +114,7 @@ class SinhalaTracingEngine:
             feedback_lines.append(f"❌ Tracing Score: {score_res['overall_score']}% (< {score_res['pass_threshold']}%)")
             if not weakest_comp_pass:
                 feedback_lines.append("• සමහර අක්ෂර කොටස් අසම්පූර්ණයි (Incomplete component)")
-            if P < 85:
+            if P < 80:
                 feedback_lines.append("• ඉර මත හරියටම ලිවීම අවශ්‍යයි (Improve path adherence)")
             if L < 80:
                 feedback_lines.append("• රූල් අතර නිවැරදිව තැබීම (Guide-line alignment)")

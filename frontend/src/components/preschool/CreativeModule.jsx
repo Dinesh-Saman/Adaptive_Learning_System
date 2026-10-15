@@ -118,7 +118,7 @@ const CreativeModule = ({ onExit }) => {
         onClick={onExit}
         className="mb-8 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition-colors"
       >
-        &larr; Back to Dashboard
+        &larr; Back
       </button>
 
       <div className="flex gap-4 mb-8 border-b border-slate-200 pb-2">

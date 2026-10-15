@@ -33,7 +33,10 @@ const Services = () => {
   const getLink = (targetIfLoggedIn) => {
     if (!isLoggedIn) return '/login';
     if (userRole === 'teacher') return '/teacher/dashboard';
-    return targetIfLoggedIn || '/dashboard';
+    if (!targetIfLoggedIn || targetIfLoggedIn === '/dashboard') {
+      return '/dashboard?view=modules#learning-hubs';
+    }
+    return targetIfLoggedIn;
   };
 
   const services = [
@@ -117,7 +120,7 @@ const Services = () => {
       description: 'Designed specifically for early childhood learners, this suite includes strict pixel-tolerance line tracing, intelligent digital coloring with boundary leakage detection, real-time video origami tracking, and Gemini 2.5 video craft verification.',
       features: [
         'Pixel-level tolerance tracing for fruit, animal, and pattern worksheets',
-        'Smart coloring evaluation with flood-fill masks and forgiving color grading',
+        'Smart coloring evaluation with flood-fill masks and accurate color grading',
         'Computer vision origami folding tracker using Convex Hull & polygon simplification',
         'CLIP Vision Transformer for zero-shot story drawing comprehension'
       ],

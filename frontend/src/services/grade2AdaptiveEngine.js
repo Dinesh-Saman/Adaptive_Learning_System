@@ -9,13 +9,13 @@
  * 4. Combination & Word Level: Graphemes (ගු, කා, පොත, මල, ...)
  * 
  * Dual Evaluation Rule:
- * QuestionCorrect = AnswerCorrect && TracingCorrect (Tracing Accuracy >= TRACING_PASS_THRESHOLD = 85%)
+ * QuestionCorrect = AnswerCorrect && TracingCorrect (Tracing Accuracy >= TRACING_PASS_THRESHOLD = 80%)
  */
 
 import { QUESTION_BANK, SINHALA_CATEGORIES, SINHALA_LETTERS, SINHALA_PILLAM_REGISTRY, REMEDIAL_EXERCISE_BANK } from '../data/grade2SinhalaQuestionBank';
 
 const ADAPTIVE_STORAGE_KEY = 'sinhala_grade2_adaptive_session';
-export const TRACING_PASS_THRESHOLD = 85; // Configurable Research Parameter (0-100)
+export const TRACING_PASS_THRESHOLD = 80; // Configurable Research Parameter (0-100)
 export const PAPER_UNLOCK_THRESHOLD = 75; // Minimum 75% required to unlock next paper
 
 export function getActiveStudentKey() {
@@ -141,6 +141,16 @@ export class Grade2AdaptiveEngine {
   generatePaper(paperNumber = 1) {
     const categories = ['C1', 'C2', 'C3', 'C4', 'C5'];
     const pastAnswered = new Set(this.session.allAnsweredQuestionIds || []);
+    Object.entries(this.session.paperHistory || {}).forEach(([pNum, pResult]) => {
+      if (Number(pNum) !== Number(paperNumber)) {
+        if (Array.isArray(pResult?.evaluatedAnswers)) {
+          pResult.evaluatedAnswers.forEach(ea => {
+            const id = ea.id || ea.questionId;
+            if (id) pastAnswered.add(id);
+          });
+        }
+      }
+    });
     const selectedIds = new Set();
     const adaptivePaperQuestions = [];
 
@@ -162,14 +172,18 @@ export class Grade2AdaptiveEngine {
       });
 
       if (adaptivePaperQuestions.length < 20) {
-        const remaining = QUESTION_BANK.filter(q => !selectedIds.has(q.id));
-        this.shuffle(remaining).slice(0, 20 - adaptivePaperQuestions.length).forEach(q => {
+        const remaining = QUESTION_BANK.filter(q => !pastAnswered.has(q.id) && !selectedIds.has(q.id));
+        const poolToUse = remaining.length >= (20 - adaptivePaperQuestions.length) ? remaining : QUESTION_BANK.filter(q => !selectedIds.has(q.id));
+        this.shuffle(poolToUse).slice(0, 20 - adaptivePaperQuestions.length).forEach(q => {
           selectedIds.add(q.id);
           adaptivePaperQuestions.push(q);
         });
       }
 
-      return this.shuffle(adaptivePaperQuestions.slice(0, 20));
+      return this.shuffle(adaptivePaperQuestions.slice(0, 20)).map(q => ({
+        ...q,
+        options: Array.isArray(q.options) ? this.shuffle(q.options) : q.options
+      }));
     }
 
     const currentMastery = this.session.currentMasteryVector || {
@@ -245,7 +259,8 @@ export class Grade2AdaptiveEngine {
       // If still need more questions for this category, recycle from full category bank
       if (chosenUnseen.length < neededCount) {
         const stillNeeded = neededCount - chosenUnseen.length;
-        const recycled = QUESTION_BANK.filter(q => q.category === cat && !selectedIds.has(q.id));
+        const unaskedCat = QUESTION_BANK.filter(q => q.category === cat && !pastAnswered.has(q.id) && !selectedIds.has(q.id));
+        const recycled = unaskedCat.length >= stillNeeded ? unaskedCat : QUESTION_BANK.filter(q => q.category === cat && !selectedIds.has(q.id));
         const chosenRecycled = this.shuffle(recycled).slice(0, stillNeeded);
         chosenRecycled.forEach(q => {
           if (!selectedIds.has(q.id)) {
@@ -258,7 +273,8 @@ export class Grade2AdaptiveEngine {
 
     // Fill up to exactly 20 if needed
     if (adaptivePaperQuestions.length < 20) {
-      const allAvailable = QUESTION_BANK.filter(q => !selectedIds.has(q.id));
+      const unaskedAll = QUESTION_BANK.filter(q => !pastAnswered.has(q.id) && !selectedIds.has(q.id));
+      const allAvailable = unaskedAll.length >= (20 - adaptivePaperQuestions.length) ? unaskedAll : QUESTION_BANK.filter(q => !selectedIds.has(q.id));
       const needed = 20 - adaptivePaperQuestions.length;
       const fillers = this.shuffle(allAvailable).slice(0, needed);
       fillers.forEach(q => {
@@ -269,7 +285,10 @@ export class Grade2AdaptiveEngine {
       });
     }
 
-    return this.shuffle(adaptivePaperQuestions.slice(0, 20));
+    return this.shuffle(adaptivePaperQuestions.slice(0, 20)).map(q => ({
+      ...q,
+      options: Array.isArray(q.options) ? this.shuffle(q.options) : q.options
+    }));
   }
 
   evaluatePaperSubmission(paperNumber, questions, userAnswers, tracingResults = {}, passThreshold = TRACING_PASS_THRESHOLD) {
@@ -549,13 +568,21 @@ export class Grade2AdaptiveEngine {
         exercises = availableExercises;
       }
 
+      const randomizedExercises = exercises.map(ex => ({
+        ...ex,
+        items: Array.isArray(ex.items) ? ex.items.map(item => ({
+          ...item,
+          options: Array.isArray(item.options) ? this.shuffle(item.options) : item.options
+        })) : ex.items
+      }));
+
       recommendations.push({
         categoryKey: catKey,
         categoryName: categoryInfo?.name || catKey,
         masteryPercentage: Math.round(masteryScore * 100),
         tier,
         status,
-        exercises
+        exercises: randomizedExercises
       });
     });
 

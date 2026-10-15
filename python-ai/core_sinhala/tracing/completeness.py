@@ -99,7 +99,7 @@ class CompletenessAnalyzer:
         return {
             "completeness_score": round(C, 2),
             "covered_points_pct": round(float(total_covered_pct), 2),
-            "is_complete": bool(total_covered_pct >= 85.0),
+            "is_complete": bool(total_covered_pct >= 80.0),
             "component_completeness": component_results,
             "min_component_score": round(float(min_comp_score), 2),
             "weakest_component_pass": bool(weakest_component_pass)

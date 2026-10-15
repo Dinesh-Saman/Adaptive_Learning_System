@@ -35,6 +35,8 @@
 **/training_data/
 !python-ai/core_english/dataset/training_data_massive/
 !python-ai/core_english/dataset/training_data_massive/**
+!python-ai/core_english/dataset/human_recorded_audios/
+!python-ai/core_english/dataset/human_recorded_audios/**
 **/test_paper_1_audio/
 **/.DS_Store
 Thumbs.db

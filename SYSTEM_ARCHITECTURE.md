@@ -237,7 +237,7 @@ The architecture integrates **14 dedicated AI models, neural networks, and compu
    - Computes:
      - **Boundary Adherence**: Percentage of ink kept inside boundary outlines.
      - **Coverage Ratio**: Percentage of target interior filled.
-     - **Color Matching Accuracy**: Cosine similarity in RGB space against target palette, with **human-like forgiving color matching** (e.g., Red accepts Pink, Orange accepts Yellow).
+     - **Color Matching Accuracy**: Euclidean distance in RGB space against target palette, enforcing strict color mapping (e.g., each numbered region requires its designated palette color; wrong colors such as Orange in Yellow regions are strictly penalized).
 
 3. **Computer Vision Origami Folding & Paper Craft Tracking**:
    - Uses real-time camera computer vision to guide step-by-step paper folding.

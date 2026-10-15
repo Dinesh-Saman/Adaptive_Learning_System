@@ -38,11 +38,20 @@ def generate_mfcc_dataset(num_samples=5000, output_dir="dataset"):
         features.append(mfcc)
         labels.append(label)
         
+    # Check and merge real human recorded voice features if available
+    human_feat_path = os.path.join(output_dir, "human_recorded_audios", "human_features.npy")
+    if os.path.exists(human_feat_path):
+        human_feats = np.load(human_feat_path)
+        human_labels = np.zeros(len(human_feats), dtype=np.int64)
+        features.extend(human_feats)
+        labels.extend(human_labels)
+        print(f"Merged {len(human_feats)} real human recorded voice samples from {human_feat_path}!")
+
     # Save as numpy arrays
     np.save(os.path.join(output_dir, "english_features.npy"), np.array(features))
     np.save(os.path.join(output_dir, "english_labels.npy"), np.array(labels))
     
-    print(f"Dataset generated at {output_dir}/english_features.npy")
+    print(f"Dataset generated at {output_dir}/english_features.npy (Total samples: {len(features)})")
 
 if __name__ == "__main__":
     generate_mfcc_dataset()

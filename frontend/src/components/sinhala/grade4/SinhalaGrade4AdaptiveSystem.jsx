@@ -9,7 +9,53 @@ import {
 import { grade4AdaptiveEngine, TRACING_PASS_THRESHOLD } from '../../../services/grade4AdaptiveEngine';
 import { GRADE4_SINHALA_CATEGORIES, GRADE4_REMEDIAL_BANK } from '../../../data/grade4SinhalaQuestionBank';
 import { recordStudentTestMarks } from '../../../data/studentAnalyticsData';
-import SinhalaTracingCanvas from '../tracing/SinhalaTracingCanvas';
+import SinhalaTracingCanvas, { formatAccuracyDisplay } from '../tracing/SinhalaTracingCanvas';
+
+// ── Web Audio Synthesizer ──
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+
+    if (type === 'correct') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.1);
+      osc.frequency.setValueAtTime(783.99, now + 0.2);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    } else if (type === 'wrong') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(240, now);
+      osc.frequency.setValueAtTime(180, now + 0.15);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'click') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, now);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    }
+  } catch (e) {}
+}
 
 export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
   const navigate = useNavigate();
@@ -41,7 +87,19 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
 
   const handleStartPaper = (pNum) => {
     playSound('click');
-    const generatedQuestions = grade4AdaptiveEngine.generatePaper(pNum);
+    const shuffleArray = (arr) => {
+      if (!Array.isArray(arr) || arr.length <= 1) return arr;
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+    const generatedQuestions = (grade4AdaptiveEngine.generatePaper(pNum) || []).map(q => ({
+      ...q,
+      options: shuffleArray(q.options)
+    }));
     setActivePaperNumber(pNum);
     setCurrentQuestions(generatedQuestions);
     setCurrentQIndex(0);
@@ -532,7 +590,7 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                             targetText={userAnswers[currentQ.id] || currentQ.target_text || currentQ.answer || 'පොත'}
                             tracingType={currentQ.tracing_type || 'word'}
                             onTraceComplete={(traceData) => handleTraceComplete(currentQ.id, traceData)}
-                            initialScore={tracingResults[currentQ.id]?.overall_score || 0}
+                            initialScore={tracingResults[currentQ.id]?.overall_score ?? (tracingResults[currentQ.id]?.percentage ?? ((tracingResults[currentQ.id]?.score || 0) * (tracingResults[currentQ.id]?.score <= 1.0 && tracingResults[currentQ.id]?.score > 0 ? 100 : 1)))}
                             isOptionSelected={true}
                             passThreshold={TRACING_PASS_THRESHOLD}
                           />
@@ -743,7 +801,7 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
             <div className="bg-white/95 backdrop-blur-md rounded-[2.5rem] p-6 md:p-8 shadow-xl border border-white/60">
               <h3 className="text-xl font-black text-slate-900 mb-2">ද්විත්ව ඇගයීම් විස්තරාත්මක වාර්‍තාව (Dual-Score Review)</h3>
               <p className="text-xs text-slate-500 mb-6">
-                ද්විත්ව නීතිය: (ප්‍රශ්නය නිවැරදියි = පිළිතුර නිවැරදියි සහ Tracing ලකුණු ≥ 90%). පිළිතුර සහ අත්අකුරු යන දෙකම නිවැරදි විය යුතුය.
+                ද්විත්ව නීතිය: (ප්‍රශ්නය නිවැරදියි = පිළිතුර නිවැරදියි සහ Tracing ලකුණු ≥ 80%). පිළිතුර සහ අත්අකුරු යන දෙකම නිවැරදි විය යුතුය.
               </p>
               
               <div className="space-y-4">
@@ -787,7 +845,7 @@ export default function SinhalaGrade4AdaptiveSystem({ onExit }) {
                             <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
                               item.tracing_correct ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-900'
                             }`}>
-                              Tracing Score: {Math.round(item.tracing_score)}% ({item.tracing_correct ? 'සමත් (≥90%)' : 'අසමත් (<90%)'})
+                              Tracing Score: {formatAccuracyDisplay(item.tracing_score)} ({item.tracing_correct ? 'සමත් (≥80%)' : 'අසමත් (<80%)'})
                             </span>
                           )}
 

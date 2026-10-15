@@ -2,6 +2,14 @@ require('dotenv').config({ override: true });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const dns = require('dns');
+
+// Resolve MongoDB Atlas cluster DNS reliably even if local ISP DNS is slow/cold on Windows
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+} catch (e) {
+  // Ignore in environments where custom DNS servers cannot be set
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -11,19 +19,49 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// ── MongoDB Connection ──
+// ── MongoDB Connection with Auto-Retry ──
 global.dbConnected = false;
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/adaptive_learning_db', {
-  serverSelectionTimeoutMS: 5000 // Timeout quickly if local DB is not running
-})
-  .then(() => {
+
+const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/adaptive_learning_db';
+const isAtlas = mongoUri.includes('mongodb.net') || mongoUri.includes('mongodb+srv');
+
+const mongooseOptions = {
+  serverSelectionTimeoutMS: isAtlas ? 30000 : 5000, // 30s for Atlas cluster replica set discovery, 5s if local
+  connectTimeoutMS: 20000,
+  socketTimeoutMS: 45000,
+  maxPoolSize: 10,
+};
+
+let retryTimer = null;
+const connectWithRetry = async (attempt = 1) => {
+  try {
+    await mongoose.connect(mongoUri, mongooseOptions);
     console.log('✅ Connected to MongoDB successfully');
     global.dbConnected = true;
-  })
-  .catch((err) => {
-    console.error('⚠️ MongoDB Connection Failed:', err.message);
+    if (retryTimer) {
+      clearTimeout(retryTimer);
+      retryTimer = null;
+    }
+  } catch (err) {
     global.dbConnected = false;
-  });
+    console.warn(`⚠️ MongoDB Connection Attempt ${attempt} Failed: ${err.message}`);
+    const nextWait = Math.min(attempt * 2000, 10000);
+    console.log(`🔄 Retrying MongoDB connection in ${nextWait / 1000}s (attempt ${attempt + 1})...`);
+    retryTimer = setTimeout(() => connectWithRetry(attempt + 1), nextWait);
+  }
+};
+
+connectWithRetry();
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB disconnected.');
+  global.dbConnected = false;
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('✅ Reconnected to MongoDB successfully');
+  global.dbConnected = true;
+});
 
 // ── Health Check Route ──
 app.get('/', (req, res) => {

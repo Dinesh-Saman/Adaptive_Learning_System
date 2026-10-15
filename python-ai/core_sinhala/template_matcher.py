@@ -22,7 +22,6 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage import distance_transform_edt
 import base64, io
-import torch
 import cv2
 import os
 
@@ -30,38 +29,47 @@ NORM_SIZE = 64     # normalise both images to this
 THRESHOLD = 0.30   # ink threshold
 MAX_DIST  = 12.0   # distance (px on 64x64) that maps to score=0
 
-# ── CNN Integration ────────────────────────────────────────────────────────
-class HandwritingCNN(torch.nn.Module):
-    def __init__(self, num_classes=28):
-        super(HandwritingCNN, self).__init__()
-        self.conv1 = torch.nn.Conv2d(1, 32, kernel_size=3, padding=1)
-        self.conv2 = torch.nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        self.pool = torch.nn.MaxPool2d(2, 2)
-        self.fc1 = torch.nn.Linear(64 * 7 * 7, 256)
-        self.fc2 = torch.nn.Linear(256, num_classes)
-        self.relu = torch.nn.ReLU()
-        self.dropout = torch.nn.Dropout(0.4)
+# ── CNN Integration (Optional - falls back to Chamfer geometry if PyTorch blocked) ──
+torch = None
+HandwritingCNN = None
+try:
+    import torch as _torch
+    torch = _torch
+    class HandwritingCNN(torch.nn.Module):
+        def __init__(self, num_classes=28):
+            super(HandwritingCNN, self).__init__()
+            self.conv1 = torch.nn.Conv2d(1, 32, kernel_size=3, padding=1)
+            self.conv2 = torch.nn.Conv2d(32, 64, kernel_size=3, padding=1)
+            self.pool = torch.nn.MaxPool2d(2, 2)
+            self.fc1 = torch.nn.Linear(64 * 7 * 7, 256)
+            self.fc2 = torch.nn.Linear(256, num_classes)
+            self.relu = torch.nn.ReLU()
+            self.dropout = torch.nn.Dropout(0.4)
 
-    def forward(self, x):
-        x = self.pool(self.relu(self.conv1(x)))
-        x = self.pool(self.relu(self.conv2(x)))
-        x = x.view(-1, 64 * 7 * 7)
-        x = self.relu(self.fc1(x))
-        x = self.dropout(x)
-        x = self.fc2(x)
-        return x
+        def forward(self, x):
+            x = self.pool(self.relu(self.conv1(x)))
+            x = self.pool(self.relu(self.conv2(x)))
+            x = x.view(-1, 64 * 7 * 7)
+            x = self.relu(self.fc1(x))
+            x = self.dropout(x)
+            x = self.fc2(x)
+            return x
+except (ImportError, OSError) as e:
+    torch = None
+    HandwritingCNN = None
 
 CNN_CLASSES = ['ක', 'ග', 'ප', 'ස', 'අ', 'ආ', 'ඇ', 'ඈ', 'ඉ', 'ඊ', 'උ', 'ඌ', 'ඍ', 'එ', 'ඒ', 'ඓ', 'ත', 'ද', 'න', 'ම', 'ර', 'ල', 'ව', 'බ', 'ට', 'හ', 'ඩ', 'ච']
 cnn_model = None
-try:
-    model_path = os.path.join(os.path.dirname(__file__), 'sinhala_custom_cnn.pt')
-    if os.path.exists(model_path):
-        cnn_model = HandwritingCNN(num_classes=28)
-        cnn_model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
-        cnn_model.eval()
-        print(f"Loaded custom CNN model from {model_path}")
-except Exception as e:
-    print(f"Warning: Could not load CNN model. Falling back to geometry only. Error: {e}")
+if torch is not None and HandwritingCNN is not None:
+    try:
+        model_path = os.path.join(os.path.dirname(__file__), 'sinhala_custom_cnn.pt')
+        if os.path.exists(model_path):
+            cnn_model = HandwritingCNN(num_classes=28)
+            cnn_model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+            cnn_model.eval()
+            print(f"Loaded custom CNN model from {model_path}")
+    except Exception as e:
+        print(f"Warning: Could not load CNN model. Falling back to geometry only. Error: {e}")
 
 def _predict_cnn(arr: np.ndarray) -> tuple[str, float]:
     """Run the array through the CNN and return (predicted_class, confidence)"""

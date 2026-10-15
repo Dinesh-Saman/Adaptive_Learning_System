@@ -108,7 +108,10 @@ const Login = () => {
             math: 0.5, english: 0.5, sinhala: 0.5, motorSkills: 0.5
           }));
         }
-        navigate('/dashboard');
+        try {
+          localStorage.setItem('student_dashboard_view', 'modules');
+        } catch (e) {}
+        navigate('/dashboard?view=modules#learning-hubs');
       }
     } catch (err) {
       setError(err.message);

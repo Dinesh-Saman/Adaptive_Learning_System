@@ -1,3 +1,4 @@
+import os
 import cv2
 import numpy as np
 import base64
@@ -28,8 +29,10 @@ class VisualLipAnalyzer:
     """
     def __init__(self):
         # Load OpenCV Haar cascades for face and mouth as lightweight robust detector
-        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-        self.mouth_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_smile.xml')
+        face_xml = os.path.join(getattr(cv2, 'data', None).haarcascades, 'haarcascade_frontalface_default.xml') if hasattr(cv2, 'data') else ''
+        mouth_xml = os.path.join(getattr(cv2, 'data', None).haarcascades, 'haarcascade_smile.xml') if hasattr(cv2, 'data') else ''
+        self.face_cascade = cv2.CascadeClassifier(face_xml) if face_xml and os.path.exists(face_xml) else None
+        self.mouth_cascade = cv2.CascadeClassifier(mouth_xml) if mouth_xml and os.path.exists(mouth_xml) else None
         
     def extract_mouth_roi(self, img: np.ndarray):
         """Detects face and isolates the lower third (mouth & lip region)."""
@@ -37,7 +40,7 @@ class VisualLipAnalyzer:
             return None, None
             
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=4, minSize=(60, 60))
+        faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=4, minSize=(60, 60)) if (self.face_cascade and not self.face_cascade.empty()) else []
         
         if len(faces) == 0:
             # Fallback: estimate mouth in lower center of frame

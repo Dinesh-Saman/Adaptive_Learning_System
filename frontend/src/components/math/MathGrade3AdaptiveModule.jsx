@@ -7,6 +7,7 @@ import questionData from '../../data/math/grade3_question_pool.json';
 import { recordStudentTestMarks, recordStudentQuestionAttempts } from '../../data/studentAnalyticsData';
 import { getItem } from '../../utils/storage';
 import { translateOption } from '../../utils/optionTranslator';
+import MathQuestionVisual from './MathQuestionVisual';
 
 // ── Web Audio Synthesizer ──
 function playSound(type) {
@@ -372,6 +373,10 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
     if (window.confirm(confirmMsg)) {
       setPaperHistory({});
       try {
+        const studentKey = getActiveStudentKey();
+        if (studentKey) {
+          localStorage.removeItem(`g3_math_paper_history_${studentKey}`);
+        }
         localStorage.removeItem('g3_math_paper_history');
       } catch (e) {}
 
@@ -398,6 +403,10 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
       delete updated[paperId];
       setPaperHistory(updated);
       try {
+        const studentKey = getActiveStudentKey();
+        if (studentKey) {
+          localStorage.setItem(`g3_math_paper_history_${studentKey}`, JSON.stringify(updated));
+        }
         localStorage.setItem('g3_math_paper_history', JSON.stringify(updated));
       } catch (e) {}
     }
@@ -458,9 +467,61 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
     }
   };
 
-  // 5-Stage Adaptive Question Selection Algorithm for 20 Questions
+  // Helper to retrieve all question IDs asked in OTHER papers to strictly prevent cross-paper repetition
+  const getOtherPapersAskedIds = (pIdToIgnore = activePaperId) => {
+    const otherIds = new Set();
+    const studentKey = getActiveStudentKey();
+    const isDefault = studentKey === 'hiruni' || studentKey === 'std_003';
+
+    const checkRecord = (otherPid, pData) => {
+      if (Number(otherPid) !== Number(pIdToIgnore)) {
+        if (pData?.history && Array.isArray(pData.history)) {
+          pData.history.forEach(h => {
+            const qId = h.questionId || h.id || h.qId;
+            if (qId) otherIds.add(qId);
+          });
+        }
+      }
+    };
+
+    // 1. React state paperHistory
+    Object.entries(paperHistory || {}).forEach(([pId, pData]) => checkRecord(pId, pData));
+
+    // 2. LocalStorage history for student
+    try {
+      const storageKey = studentKey ? `g3_math_paper_history_${studentKey}` : null;
+      const rawStudent = storageKey ? localStorage.getItem(storageKey) : null;
+      const rawDefault = isDefault ? localStorage.getItem('g3_math_paper_history') : null;
+      const stored = rawStudent || rawDefault;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        Object.entries(parsed || {}).forEach(([pId, pData]) => checkRecord(pId, pData));
+      }
+    } catch (e) {}
+
+    return otherIds;
+  };
+
+  // 5-Stage Adaptive Question Selection Algorithm with Strict Cross-Paper Deduplication
   const selectNextQuestion = (nextQNum, targetDiff, currentMasteries, existingAskedIds, pId = activePaperId) => {
-    const askedSet = new Set(existingAskedIds || []);
+    // 1. Questions already asked in the current quiz session (1..nextQNum-1)
+    const currentSessionAsked = new Set(existingAskedIds || []);
+
+    // 2. Questions asked in any OTHER paper (Paper 1, Paper 2, Paper 3)
+    const otherPapersAsked = getOtherPapersAskedIds(pId);
+
+    // Questions strictly excluded from selection so no questions repeat across papers
+    const strictlyExcluded = new Set([...currentSessionAsked, ...otherPapersAsked]);
+
+    // Questions previously asked in an older attempt of this SAME paper (if retaking)
+    const samePaperPastAsked = new Set();
+    const existingSamePaper = paperHistory[pId];
+    if (existingSamePaper?.history && Array.isArray(existingSamePaper.history)) {
+      existingSamePaper.history.forEach(h => {
+        const qId = h.questionId || h.id || h.qId;
+        if (qId) samePaperPastAsked.add(qId);
+      });
+    }
 
     let targetSkillId = null;
 
@@ -493,40 +554,71 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
       }
     }
 
-    // 1. Exact skill and target difficulty match
+    // Helper: pick candidate preferring questions never seen in past attempts of this paper
+    const pickBestCandidate = (list) => {
+      if (!list || list.length === 0) return null;
+      const completelyFresh = list.filter(q => !samePaperPastAsked.has(q.id));
+      const poolToUse = completelyFresh.length > 0 ? completelyFresh : list;
+      return poolToUse[Math.floor(Math.random() * poolToUse.length)];
+    };
+
+    // Helper: shuffle options so answer position varies across options
+    const shuffleOptions = (arr) => {
+      if (!Array.isArray(arr) || arr.length <= 1) return arr;
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+
+    const finalizeQ = (q) => {
+      if (!q) return null;
+      return {
+        ...q,
+        options: shuffleOptions(q.options)
+      };
+    };
+
+    // 1. Exact skill and target difficulty match (strictly excluding other papers & current session)
     let candidates = pool.filter(q => 
       (!targetSkillId || q.skill_id === targetSkillId) && 
       q.difficulty_tier === targetDiff && 
-      !askedSet.has(q.id)
+      !strictlyExcluded.has(q.id)
     );
 
-    if (candidates.length > 0) {
-      return candidates[Math.floor(Math.random() * candidates.length)];
-    }
+    const chosen1 = pickBestCandidate(candidates);
+    if (chosen1) return finalizeQ(chosen1);
 
-    // 2. Same skill with closest difficulty
+    // 2. Same skill with closest difficulty (strictly excluding other papers & current session)
     if (targetSkillId) {
-      let skillCandidates = pool.filter(q => q.skill_id === targetSkillId && !askedSet.has(q.id));
+      let skillCandidates = pool.filter(q => q.skill_id === targetSkillId && !strictlyExcluded.has(q.id));
       if (skillCandidates.length > 0) {
         skillCandidates.sort((a, b) => Math.abs(a.difficulty_tier - targetDiff) - Math.abs(b.difficulty_tier - targetDiff));
-        return skillCandidates[Math.floor(Math.random() * Math.min(2, skillCandidates.length))];
+        const topCandidates = skillCandidates.slice(0, Math.min(2, skillCandidates.length));
+        const chosen2 = pickBestCandidate(topCandidates);
+        if (chosen2) return finalizeQ(chosen2);
       }
     }
 
-    // 3. Same difficulty tier not yet asked
-    let diffCandidates = pool.filter(q => q.difficulty_tier === targetDiff && !askedSet.has(q.id));
-    if (diffCandidates.length > 0) {
-      return diffCandidates[Math.floor(Math.random() * diffCandidates.length)];
+    // 3. Same difficulty tier not yet asked in any paper
+    let diffCandidates = pool.filter(q => q.difficulty_tier === targetDiff && !strictlyExcluded.has(q.id));
+    const chosen3 = pickBestCandidate(diffCandidates);
+    if (chosen3) return finalizeQ(chosen3);
+
+    // 4. Any question from pool not yet asked across ANY paper
+    let unseen = pool.filter(q => !strictlyExcluded.has(q.id));
+    const chosen4 = pickBestCandidate(unseen);
+    if (chosen4) return finalizeQ(chosen4);
+
+    // 5. Ultimate fallback: if pool is fully exhausted, only pick questions not in CURRENT session
+    let unseenCurrent = pool.filter(q => !currentSessionAsked.has(q.id));
+    if (unseenCurrent.length > 0) {
+      return finalizeQ(unseenCurrent[Math.floor(Math.random() * unseenCurrent.length)]);
     }
 
-    // 4. Any question from pool not yet asked in this paper
-    let unseen = pool.filter(q => !askedSet.has(q.id));
-    if (unseen.length > 0) {
-      return unseen[Math.floor(Math.random() * unseen.length)];
-    }
-
-    // 5. Ultimate fallback: pick random question from pool
-    return pool[Math.floor(Math.random() * pool.length)];
+    return finalizeQ(pool[Math.floor(Math.random() * pool.length)]);
   };
 
   // Submit Answer Handler
@@ -592,6 +684,7 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
       timeSpentSec: timeSpent,
       questionTextSi: currentQuestion.text_si,
       questionTextEn: currentQuestion.text_en,
+      visual: currentQuestion.visual,
       emotion: currentEmotion,
       confusionScore: Math.round(avgConfusion * 100) / 100
     };
@@ -696,10 +789,10 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
 
   return (
     <div 
-      className={`min-h-[calc(100vh-5rem)] bg-cover bg-center bg-fixed font-sans select-none relative overflow-x-hidden ${viewState === 'quiz' ? 'h-[calc(100vh-5rem)] overflow-hidden flex flex-col p-2 sm:p-3' : 'pb-16 p-4 sm:p-6'}`}
+      className={`min-h-[calc(100vh-5rem)] bg-cover bg-center bg-fixed font-sans select-none relative overflow-x-hidden ${viewState === 'quiz' ? 'min-h-[calc(100vh-5rem)] overflow-y-auto flex flex-col p-2 sm:p-4 pb-16' : 'pb-16 p-4 sm:p-6'}`}
       style={{ backgroundImage: "url('/images/grade4_meadow_bg.jpg')" }}
     >
-      <div className={`max-w-4xl mx-auto relative z-10 w-full ${viewState === 'quiz' ? 'flex-grow flex flex-col justify-between h-full' : ''}`}>
+      <div className={`max-w-4xl mx-auto relative z-10 w-full ${viewState === 'quiz' ? 'flex-grow flex flex-col justify-between my-auto' : ''}`}>
         
         {/* Top Navigation */}
         <div className={`flex flex-wrap items-center justify-between gap-2 ${viewState === 'quiz' ? 'mb-2' : 'mb-6'}`}>
@@ -914,9 +1007,9 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
           </div>
         )}
 
-        {/* ── SCREEN 2: 20 ADAPTIVE QUESTIONS QUIZ (Zero Scroll Viewport Fit) ── */}
+        {/* ── SCREEN 2: 20 ADAPTIVE QUESTIONS QUIZ ── */}
         {viewState === 'quiz' && currentQuestion && (
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 border-2 border-blue-200 shadow-xl flex-grow flex flex-col justify-between animate-scale-up">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 border-2 border-blue-200 shadow-xl flex-grow flex flex-col justify-between animate-scale-up mb-6">
             
             {/* Progress Bar (20 Questions) */}
             <div>
@@ -939,10 +1032,13 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
             </div>
 
             {/* Question Box */}
-            <div className="bg-slate-50/90 border border-slate-200 rounded-2xl p-4 sm:p-5 my-auto flex flex-col justify-center text-center">
-              <h2 className="text-lg sm:text-xl md:text-2xl font-black text-slate-800 leading-snug">
+            <div className="bg-slate-50/90 border border-slate-200 rounded-2xl p-3 sm:p-4 my-auto flex flex-col justify-center text-center">
+              <h2 className="text-base sm:text-lg md:text-xl font-black text-slate-800 leading-snug">
                 {isEnglish ? (currentQuestion.text_en || currentQuestion.text_si) : currentQuestion.text_si}
               </h2>
+              {currentQuestion?.visual && (
+                <MathQuestionVisual visual={currentQuestion.visual} isEnglish={isEnglish} />
+              )}
             </div>
 
             {/* Options (Comfortable 2x2 Grid, Zero-Scroll) */}
@@ -1203,6 +1299,15 @@ export default function MathGrade3AdaptiveModule({ onExit }) {
                         ? (h.questionTextEn || pool.find(q => q.id === h.questionId)?.text_en || h.questionTextSi) 
                         : h.questionTextSi}
                     </p>
+                    {(h.visual || pool.find(q => q.id === h.questionId)?.visual) && (
+                      <div className="my-2 flex justify-start">
+                         <MathQuestionVisual 
+                           visual={h.visual || pool.find(q => q.id === h.questionId)?.visual} 
+                           isEnglish={isEnglish} 
+                           compact={true} 
+                         />
+                      </div>
+                    )}
                     <div className="flex flex-wrap gap-4 text-xs font-bold font-sans">
                       <span className="text-slate-600">
                         {isEnglish ? 'Your Answer: ' : 'ඔබේ පිළිතුර: '}

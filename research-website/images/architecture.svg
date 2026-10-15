@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 680" width="100%" height="100%">
+  <defs>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="layer1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe" />
+      <stop offset="100%" stop-color="#bae6fd" />
+    </linearGradient>
+    <linearGradient id="layer2Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ecfdf5" />
+      <stop offset="100%" stop-color="#a7f3d0" />
+    </linearGradient>
+    <linearGradient id="layer3Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdf4ff" />
+      <stop offset="100%" stop-color="#f5d0fe" />
+    </linearGradient>
+    <linearGradient id="layer4Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7ed" />
+      <stop offset="100%" stop-color="#fed7aa" />
+    </linearGradient>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1000" height="680" rx="16" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" />
+
+  <!-- Title Banner -->
+  <rect x="0" y="0" width="1000" height="70" rx="16" fill="url(#headerGrad)" />
+  <text x="500" y="42" fill="#ffffff" font-family="'Roboto', sans-serif" font-size="20" font-weight="700" text-anchor="middle" letter-spacing="1">
+    NANA PIYASA — HIGH-LEVEL SYSTEM ARCHITECTURE &amp; DATA PIPELINES
+  </text>
+
+  <!-- Layer 1: Client Interaction Layer -->
+  <g transform="translate(30, 90)">
+    <rect width="940" height="120" rx="12" fill="url(#layer1Grad)" stroke="#38bdf8" stroke-width="1.5" filter="url(#cardShadow)" />
+    <text x="24" y="28" fill="#0369a1" font-family="'Roboto', sans-serif" font-size="14" font-weight="800">1. CLIENT INTERACTION LAYER (React 18 + Vite + Tailwind CSS + Web Audio/Video API)</text>
+    
+    <!-- Subcards -->
+    <g transform="translate(20, 42)">
+      <!-- Card 1 -->
+      <rect width="170" height="64" rx="8" fill="#ffffff" stroke="#bae6fd" />
+      <text x="85" y="24" fill="#0c4a6e" font-size="11" font-weight="700" text-anchor="middle">Adaptive Math Hub</text>
+      <text x="85" y="44" fill="#64748b" font-size="9" text-anchor="middle">WebCam Affect Tracking</text>
+      <text x="85" y="56" fill="#2563eb" font-size="9" font-weight="700" text-anchor="middle">face-api.js (TinyFace)</text>
+
+      <!-- Card 2 -->
+      <rect x="180" width="170" height="64" rx="8" fill="#ffffff" stroke="#bae6fd" />
+      <text x="265" y="24" fill="#0c4a6e" font-size="11" font-weight="700" text-anchor="middle">English Speech Hub</text>
+      <text x="265" y="44" fill="#64748b" font-size="9" text-anchor="middle">Mic Audio 16kHz PCM</text>
+      <text x="265" y="56" fill="#2563eb" font-size="9" font-weight="700" text-anchor="middle">WebCam Mouth ROI</text>
+
+      <!-- Card 3 -->
+      <rect x="360" width="170" height="64" rx="8" fill="#ffffff" stroke="#bae6fd" />
+      <text x="445" y="24" fill="#0c4a6e" font-size="11" font-weight="700" text-anchor="middle">Pre-School Motor Hub</text>
+      <text x="445" y="44" fill="#64748b" font-size="9" text-anchor="middle">Canvas Pixel Tracing</text>
+      <text x="445" y="56" fill="#2563eb" font-size="9" font-weight="700" text-anchor="middle">Origami Camera Stream</text>
+
+      <!-- Card 4 -->
+      <rect x="540" width="170" height="64" rx="8" fill="#ffffff" stroke="#bae6fd" />
+      <text x="625" y="24" fill="#0c4a6e" font-size="11" font-weight="700" text-anchor="middle">Sinhala Handwriting Hub</text>
+      <text x="625" y="44" fill="#64748b" font-size="9" text-anchor="middle">HTML5 Touch/Stylus Canvas</text>
+      <text x="625" y="56" fill="#2563eb" font-size="9" font-weight="700" text-anchor="middle">64x64 Grapheme Normalizer</text>
+
+      <!-- Card 5 -->
+      <rect x="720" width="175" height="64" rx="8" fill="#ffffff" stroke="#bae6fd" />
+      <text x="807" y="24" fill="#0c4a6e" font-size="11" font-weight="700" text-anchor="middle">Analytics Dashboard</text>
+      <text x="807" y="44" fill="#64748b" font-size="9" text-anchor="middle">Teacher Progress Tracking</text>
+      <text x="807" y="56" fill="#2563eb" font-size="9" font-weight="700" text-anchor="middle">Cognitive Mastery Vectors</text>
+    </g>
+  </g>
+
+  <!-- Connectors Layer 1 -> Layer 2 -->
+  <line x1="200" y1="210" x2="200" y2="240" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="4" />
+  <line x1="500" y1="210" x2="500" y2="240" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="4" />
+  <line x1="800" y1="210" x2="800" y2="240" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="4" />
+
+  <!-- Layer 2: API Gateway & Application Server -->
+  <g transform="translate(30, 240)">
+    <rect width="940" height="95" rx="12" fill="url(#layer2Grad)" stroke="#34d399" stroke-width="1.5" filter="url(#cardShadow)" />
+    <text x="24" y="26" fill="#065f46" font-family="'Roboto', sans-serif" font-size="14" font-weight="800">2. API GATEWAY &amp; APPLICATION SERVER (Node.js + Express.js + JWT Auth)</text>
+    
+    <g transform="translate(20, 36)">
+      <rect width="170" height="46" rx="6" fill="#ffffff" stroke="#a7f3d0" />
+      <text x="85" y="20" fill="#064e3b" font-size="11" font-weight="700" text-anchor="middle">/api/math Route</text>
+      <text x="85" y="36" fill="#64748b" font-size="9" text-anchor="middle">5-Stage Paper Engine</text>
+
+      <rect x="180" width="170" height="46" rx="6" fill="#ffffff" stroke="#a7f3d0" />
+      <text x="265" y="20" fill="#064e3b" font-size="11" font-weight="700" text-anchor="middle">/api/english Route</text>
+      <text x="265" y="36" fill="#64748b" font-size="9" text-anchor="middle">Audio &amp; Lip Multipart</text>
+
+      <rect x="360" width="170" height="46" rx="6" fill="#ffffff" stroke="#a7f3d0" />
+      <text x="445" y="20" fill="#064e3b" font-size="11" font-weight="700" text-anchor="middle">/api/preschool Route</text>
+      <text x="445" y="36" fill="#64748b" font-size="9" text-anchor="middle">Gemini Flash Bridge</text>
+
+      <rect x="540" width="170" height="46" rx="6" fill="#ffffff" stroke="#a7f3d0" />
+      <text x="625" y="20" fill="#064e3b" font-size="11" font-weight="700" text-anchor="middle">/api/sinhala Route</text>
+      <text x="625" y="36" fill="#64748b" font-size="9" text-anchor="middle">FastAPI Model Proxy</text>
+
+      <rect x="720" width="175" height="46" rx="6" fill="#ffffff" stroke="#a7f3d0" />
+      <text x="807" y="20" fill="#064e3b" font-size="11" font-weight="700" text-anchor="middle">/api/analytics Route</text>
+      <text x="807" y="36" fill="#64748b" font-size="9" text-anchor="middle">Mastery Pipeline Aggregator</text>
+    </g>
+  </g>
+
+  <!-- Connectors Layer 2 -> Layer 3 -->
+  <line x1="200" y1="335" x2="200" y2="365" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="4" />
+  <line x1="500" y1="335" x2="500" y2="365" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="4" />
+  <line x1="800" y1="335" x2="800" y2="365" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="4" />
+
+  <!-- Layer 3: AI Microservices Layer -->
+  <g transform="translate(30, 365)">
+    <rect width="940" height="155" rx="12" fill="url(#layer3Grad)" stroke="#c084fc" stroke-width="1.5" filter="url(#cardShadow)" />
+    <text x="24" y="26" fill="#7e22ce" font-family="'Roboto', sans-serif" font-size="14" font-weight="800">3. AI &amp; DEEP LEARNING MICROSERVICES (Python 3.10+ + FastAPI + PyTorch + TorchVision)</text>
+    
+    <g transform="translate(20, 38)">
+      <!-- AI 1 -->
+      <rect width="215" height="100" rx="8" fill="#ffffff" stroke="#e9d5ff" />
+      <text x="107" y="20" fill="#581c87" font-size="11" font-weight="700" text-anchor="middle">Pillar 1: Math Neural Net</text>
+      <text x="107" y="38" fill="#2563eb" font-size="10" font-weight="600" text-anchor="middle">MultimodalFusionNet</text>
+      <text x="107" y="54" fill="#64748b" font-size="9" text-anchor="middle">• 5D Affect &amp; Speed Input Vector</text>
+      <text x="107" y="70" fill="#64748b" font-size="9" text-anchor="middle">• Non-Repetitive 5-Tier Paper Gen</text>
+      <text x="107" y="86" fill="#64748b" font-size="9" text-anchor="middle">• Misconception Classification</text>
+
+      <!-- AI 2 -->
+      <rect x="230" width="220" height="100" rx="8" fill="#ffffff" stroke="#e9d5ff" />
+      <text x="340" y="20" fill="#581c87" font-size="11" font-weight="700" text-anchor="middle">Pillar 2: Speech &amp; Lip Net</text>
+      <text x="340" y="38" fill="#2563eb" font-size="10" font-weight="600" text-anchor="middle">Faster-Whisper + YIN DSP</text>
+      <text x="340" y="54" fill="#64748b" font-size="9" text-anchor="middle">• 12 Sri Lankan MTI Rule Detectors</text>
+      <text x="340" y="70" fill="#64748b" font-size="9" text-anchor="middle">• OpenCV Haar + YCrCb Lip Kinematics</text>
+      <text x="340" y="86" fill="#64748b" font-size="9" text-anchor="middle">• Needleman-Wunsch DP Alignment</text>
+
+      <!-- AI 3 -->
+      <rect x="465" width="220" height="100" rx="8" fill="#ffffff" stroke="#e9d5ff" />
+      <text x="575" y="20" fill="#581c87" font-size="11" font-weight="700" text-anchor="middle">Pillar 3: Vision &amp; Creative</text>
+      <text x="575" y="38" fill="#2563eb" font-size="10" font-weight="600" text-anchor="middle">CLIP ViT-B/32 + Gemini 2.5</text>
+      <text x="575" y="54" fill="#64748b" font-size="9" text-anchor="middle">• Strict Euclidean Pixel Line Tracing</text>
+      <text x="575" y="70" fill="#64748b" font-size="9" text-anchor="middle">• Convex Hull Origami Fold Tracker</text>
+      <text x="575" y="86" fill="#64748b" font-size="9" text-anchor="middle">• Zero-Shot Story Comprehension</text>
+
+      <!-- AI 4 -->
+      <rect x="700" width="205" height="100" rx="8" fill="#ffffff" stroke="#e9d5ff" />
+      <text x="802" y="20" fill="#581c87" font-size="11" font-weight="700" text-anchor="middle">Pillar 4: Sinhala Grapheme</text>
+      <text x="802" y="38" fill="#2563eb" font-size="10" font-weight="600" text-anchor="middle">SinhalaCNN + DKT LSTM</text>
+      <text x="802" y="54" fill="#64748b" font-size="9" text-anchor="middle">• 3-Block 2D Grapheme CNN</text>
+      <text x="802" y="70" fill="#64748b" font-size="9" text-anchor="middle">• Bidirectional Chamfer Distance</text>
+      <text x="802" y="86" fill="#64748b" font-size="9" text-anchor="middle">• 2-Layer Cognitive Mastery DKT</text>
+    </g>
+  </g>
+
+  <!-- Connectors Layer 3 -> Layer 4 -->
+  <line x1="500" y1="520" x2="500" y2="550" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="4" />
+
+  <!-- Layer 4: Persistence Layer -->
+  <g transform="translate(30, 550)">
+    <rect width="940" height="95" rx="12" fill="url(#layer4Grad)" stroke="#fb923c" stroke-width="1.5" filter="url(#cardShadow)" />
+    <text x="24" y="26" fill="#c2410c" font-family="'Roboto', sans-serif" font-size="14" font-weight="800">4. PERSISTENCE &amp; STORAGE LAYER (MongoDB Atlas Cloud Cluster)</text>
+    
+    <g transform="translate(20, 36)">
+      <rect width="215" height="46" rx="6" fill="#ffffff" stroke="#fed7aa" />
+      <text x="107" y="20" fill="#9a3412" font-size="11" font-weight="700" text-anchor="middle">Users &amp; Roles</text>
+      <text x="107" y="36" fill="#64748b" font-size="9" text-anchor="middle">Students, Teachers, Credentials</text>
+
+      <rect x="230" width="220" height="46" rx="6" fill="#ffffff" stroke="#fed7aa" />
+      <text x="340" y="20" fill="#9a3412" font-size="11" font-weight="700" text-anchor="middle">QuestionAttempt Traces</text>
+      <text x="340" y="36" fill="#64748b" font-size="9" text-anchor="middle">Millisecond Response &amp; Error Data</text>
+
+      <rect x="465" width="220" height="46" rx="6" fill="#ffffff" stroke="#fed7aa" />
+      <text x="575" y="20" fill="#9a3412" font-size="11" font-weight="700" text-anchor="middle">StudentAnalytics Collection</text>
+      <text x="575" y="36" fill="#64748b" font-size="9" text-anchor="middle">Cognitive Mastery Vector Trajectories</text>
+
+      <rect x="700" width="205" height="46" rx="6" fill="#ffffff" stroke="#fed7aa" />
+      <text x="802" y="20" fill="#9a3412" font-size="11" font-weight="700" text-anchor="middle">CreativeActivityRecord</text>
+      <text x="802" y="36" fill="#64748b" font-size="9" text-anchor="middle">Worksheets, Videos &amp; Rubrics</text>
+    </g>
+  </g>
+</svg>

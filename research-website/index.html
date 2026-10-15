@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nana Piyasa (නැණ පියස) | AI-Powered Multimodal Adaptive Learning System</title>
+    
+    <!-- Google Fonts -->
+    <!-- Google Fonts: Plus Jakarta Sans & Noto Sans Sinhala -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    
+    <!-- FontAwesome 6 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Bootstrap 4.6.2 CSS CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./css/main.css?v=8.2">
+    <link rel="icon" type="image/png" href="./images/logo.png">
+</head>
+<body>
+
+    <!-- ==================== NavBar ==================== -->
+    <nav id="navmenu" class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="#home">
+            <img src="./images/logo.png" width="36" height="36" class="d-inline-block align-top" alt="Nana Piyasa Logo" loading="lazy">
+            <div class="d-inline-block ml-2 text-left brand-text-wrap">
+                <span class="font-sinhala brand-title">නැණ පියස</span>
+                <small class="d-block brand-subtitle">Nana Piyasa Research</small>
+            </div>
+        </a>
+        <input type="checkbox" id="nav-toggle-checkbox" class="nav-toggle-checkbox" aria-label="Toggle navigation">
+        <label for="nav-toggle-checkbox" id="nav-toggle" class="navbar-toggler" aria-label="Toggle navigation">
+            <span id="nav-toggle-icon" class="fas fa-bars"></span>
+        </label>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul id="navmenu-links" class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#home" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Domain
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#project-scope" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Literature Survey</a>
+                        <a class="dropdown-item" href="#research_gap" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Research Gap</a>
+                        <a class="dropdown-item" href="#research_problem" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Research Problem &amp; Solution</a>
+                        <a class="dropdown-item" href="#research_objectives" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Research Objectives</a>
+                        <a class="dropdown-item" href="#methodology" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Methodology</a>
+                        <a class="dropdown-item" href="#tech_used" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Technologies</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#milestones" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Milestones</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#downloads" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Downloads</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#presentations" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Presentations</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#about" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Contact Us</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ==================== Home (Hero Slideshow Section) ==================== -->
+    <section id="home">
+        <div id="heroCarousel" class="carousel slide carousel-fade" data-ride="carousel" data-interval="6500" data-pause="hover" data-wrap="true">
+            <!-- Carousel Slides -->
+            <div class="carousel-inner">
+                <!-- Slide 1: Platform Overview -->
+                <div class="carousel-item active">
+                    <div class="hero-slide-bg" style="background-image: url('./images/slideshow/Gemini_Generated_Image_nk0acenk0acenk0a.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>AI-Powered Multimodal <br/><span class="hero-gradient-text">Adaptive Learning System</span></h1>
+                            <p class="hero-subtitle">
+                                Empowering Sri Lankan primary students with an intelligent learning companion that personalizes every lesson to each child's pace, emotions, and unique learning style.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 2: Adaptive Mathematics (Pillar 1) -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg hero-slide-focus-teacher" style="background-image: url('./images/slideshow/546841192_1277510194389042_6456949853434350775_n.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Where Math Becomes a <br/><span class="hero-gradient-text">Joyful Adventure!</span></h1>
+                            <p class="hero-subtitle">
+                                Interactive, gamified mathematics that senses when students need help, dynamically tailoring quizzes and puzzles to build lasting confidence and problem-solving mastery.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3: Collaborative Peer Discovery -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg" style="background-image: url('./images/slideshow/487426233_1142561884550541_2160962025363776899_n.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Fostering Teamwork &amp; <br/><span class="hero-gradient-text">Shared Problem Solving</span></h1>
+                            <p class="hero-subtitle">
+                                Encouraging collaborative group challenges where children explore patterns, share ideas, and celebrate learning breakthroughs together.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 4: English Speech & Articulation (Pillar 2) -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg" style="background-image: url('./images/slideshow/488241960_1144834947656568_7302579595963852550_n.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Confident Speaking &amp; <br/><span class="hero-gradient-text">Phonetic Articulation</span></h1>
+                            <p class="hero-subtitle">
+                                A supportive AI speaking companion that listens, guides pronunciation, and offers gentle real-time speech practice to help young learners speak English with natural confidence.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 5: Interactive Classroom Exploration -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg hero-slide-focus-classroom" style="background-image: url('./images/slideshow/488188154_1144834830989913_3660416868581253263_n.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Immersive Digital <br/><span class="hero-gradient-text">Classroom Experience</span></h1>
+                            <p class="hero-subtitle">
+                                Bridging physical teaching and digital interactivity, allowing educators to engage curious minds with intuitive, child-friendly multimedia learning tools.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 6: Sinhala Handwriting (Pillar 4) -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg" style="background-image: url('./images/slideshow/547361560_1277510307722364_147332454808603652_n.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Learn &amp; Master Native <br/><span class="hero-gradient-text">Sinhala Letter Writing</span></h1>
+                            <p class="hero-subtitle">
+                                Guiding children step-by-step through native Sinhala letter formation, stroke direction, and neat handwriting with friendly visual feedback and encouraging milestones.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 7: 1-on-1 Personalized Mentorship -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg" style="background-image: url('./images/slideshow/500105788_1183042863835776_7101268450528340953_n.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Patient, Personalized <br/><span class="hero-gradient-text">Guidance for Every Child</span></h1>
+                            <p class="hero-subtitle">
+                                Understanding when a learner feels puzzled or fatigued, adapting exercise difficulty and encouraging them at every step of their personal educational journey.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 8: Pre-School Motor & Creative Vision (Pillar 3) -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg" style="background-image: url('./images/slideshow/487508055_1142561654550564_5922345913011806639_n.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Unlocking Boundless <br/><span class="hero-gradient-text">Artistic Imagination</span></h1>
+                            <p class="hero-subtitle">
+                                Encouraging vibrant color discovery, freehand drawing, and visual storytelling to build motor dexterity and self-expression in early development.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 9: Fine Motor & Tactile Skills -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg hero-slide-focus-bottom" style="background-image: url('./images/slideshow/548327446_1282780950528633_1613133174677405574_n.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Tactile Precision &amp; <br/><span class="hero-gradient-text">Motor Skill Development</span></h1>
+                            <p class="hero-subtitle">
+                                Nurturing hand-eye coordination through guided brush strokes, tracing exercises, and dexterity-building interactive challenges.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 10: 3D Paper Craft & Spatial Reasoning -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg" style="background-image: url('./images/slideshow/559953804_1306562961483765_2424754937994884100_n.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Tactile Origami &amp; <br/><span class="hero-gradient-text">3D Spatial Geometry</span></h1>
+                            <p class="hero-subtitle">
+                                Transforming abstract 3D spatial thinking into fun physical crafting, folding, and geometry puzzles designed for primary grade minds.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 11: Joy of Discovery & Curiosity -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg" style="background-image: url('./images/slideshow/Gemini_Generated_Image_5j0weq5j0weq5j0w.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Igniting Wonder &amp; <br/><span class="hero-gradient-text">Lifelong Curiosity</span></h1>
+                            <p class="hero-subtitle">
+                                Creating a warm, stress-free educational experience where discovery is celebrated and young students develop a genuine love for learning.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 12: School, Teacher & Parent Harmony -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg" style="background-image: url('./images/slideshow/Gemini_Generated_Image_6x1m4k6x1m4k6x1m.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Uniting Teachers, Parents <br/><span class="hero-gradient-text">&amp; Young Minds</span></h1>
+                            <p class="hero-subtitle">
+                                Transparent progress insights that keep educators and guardians informed, fostering a supportive community around each child’s educational growth.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 13: Active Gross Motor & Physical Play -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg" style="background-image: url('./images/slideshow/Gemini_Generated_Image_821i32821i32821i.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Energizing Minds with <br/><span class="hero-gradient-text">Active Play &amp; Movement</span></h1>
+                            <p class="hero-subtitle">
+                                Promoting healthy posture, active movement breaks, and energetic game-based exercises to keep young minds alert, happy, and refreshed.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                                <span class="hero-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 14: Inclusive Sri Lankan Classrooms -->
+                <div class="carousel-item">
+                    <div class="hero-slide-bg" style="background-image: url('./images/slideshow/494755966_1166606612146068_1242534213014466843_n.jpg');"></div>
+                    <div class="hero-overlay"></div>
+                    <div class="container hero-content-wrapper">
+                        <div class="hero-cta">
+                            <h1>Built for Sri Lankan Classrooms, <br/><span class="hero-gradient-text">Accessible to Every Child</span></h1>
+                            <p class="hero-subtitle">
+                                Culturally attuned, bilingual Sinhala-English intelligence engineered to bridge educational divides and empower every school across the island.
+                            </p>
+                            <div class="hero-carousel-dots">
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot"></span>
+                                <span class="hero-dot active"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </section>
+
+    <!-- ==================== Project Scope / Domain ==================== -->
+    <section id="project-scope" class="main-sections">
+        <div class="container">
+            <h5 class="section-headings">Domain &amp; Project Scope</h5>
+
+            <!-- 1. Literature Survey -->
+            <div id="literature" class="sub-section">
+                <h2>Literature Survey</h2>
+                <div class="row align-items-stretch">
+                    <div id="project-scope-left" class="col-lg-4 col-md-12 col-sm-12 pt-lg-2 mb-4 mb-lg-0" data-aos="fade-right" data-aos-duration="800">
+                        <div class="section-left">
+                            <div class="section-info-div modern-stat-card">
+                                <div class="stat-card-header">
+                                    <div class="stat-card-metric">
+                                        <i class="fas fa-chart-pie"></i>
+                                        <span class="stat-card-num">70%+</span>
+                                    </div>
+                                    <span class="stat-card-tag"><i class="fas fa-triangle-exclamation mr-1"></i> Critical Gap</span>
+                                </div>
+                                <p class="stat-card-desc">
+                                    Over <strong>70%</strong> of existing virtual learning systems are built for higher education, lacking real-time behavioral adaptation, creative visual analytics, or parent-inclusive insights tailored for nursery learners <span style="color: #94a3b8; font-size: 11px;">[1, 3]</span>.
+                                </p>
+                            </div>
+                            <div class="references d-none d-lg-block">
+                                <p class="references-title"><i class="fas fa-book-bookmark mr-1"></i> <strong>Key Academic References</strong></p>
+                                <ol>
+                                    <li>G. Siemens and R. S. Baker, "Learning analytics and educational data mining: towards mutual contemplation," in <em>Proc. 2nd Int. Conf. on Learning Analytics and Knowledge (LAK)</em>, pp. 252–254, 2012.</li>
+                                    <li>M. Resnick, <em>Lifelong Kindergarten: Cultivating Creativity through Projects, Passion, Peers, and Play</em>, MIT Press, 2017.</li>
+                                    <li>K. Holstein, B. M. McLaren, and V. Aleven, "Co-Designing a Real-Time Teacher Orchestration Tool to Support Teacher-AI Complementarity," in <em>Proc. 9th Int. Conf. on Learning Analytics &amp; Knowledge (LAK)</em>, pp. 255–264, 2019.</li>
+                                    <li>J. L. Epstein, <em>School, Family, and Community Partnerships: Preparing Educators and Improving Schools</em>, Routledge, 2018.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="project-scope-right" class="col-lg-8 col-md-12 col-sm-12 pt-lg-2 justify-text" data-aos="fade-left" data-aos-duration="800">
+                        <p>
+                            Recent advancements in educational technology and Artificial Intelligence (AI) have introduced adaptive learning systems and learning analytics to monitor student progress and personalize digital instruction <span class="citation-tag">[1]</span>. However, most existing platforms—such as standard Learning Management Systems (LMS) and video conferencing tools—are designed for older learners and rely heavily on lecture delivery or retrospective test scores. In early childhood and nursery education, these systems fail to meet young learners' developmental needs. Current behavioral tracking methods typically rely on basic inactivity timers that cannot differentiate between a child who is thinking deeply and one who is genuinely distracted. Furthermore, while hands-on creativity is essential for cognitive growth, current systems treat visual activities as optional hobbies, merely saving drawings without using computer vision or image analysis to interpret children's colors, shapes, and creative expressions <span class="citation-tag">[2]</span>.
+                        </p>
+                        <p class="mb-0">
+                            In addition to classroom interactions, existing technologies exhibit major limitations in how analytics are presented to teachers and families. Most analytics dashboards show complex, raw numerical statistics that offer educators little real-time decision support, while lacking explainable AI (XAI) to help teachers understand why a child is struggling or suggest timely instructional interventions <span class="citation-tag">[3]</span>. At the same time, parental involvement—a proven cornerstone of early childhood success—is severely neglected, as existing reports are often too technical or limited to basic attendance and grade summaries rather than simple, actionable guidance <span class="citation-tag">[4]</span>. Consequently, recent research underscores an urgent need for an integrated early learning environment that unites real-time behavioral monitoring, AI-assisted creative artifact analysis, explainable teacher orchestration tools, and user-friendly parent dashboards to actively support children both in the virtual classroom and at home.
+                        </p>
+                        <!-- Academic References visible on mobile directly below the description -->
+                        <div class="references d-block d-lg-none mt-4">
+                            <p class="references-title"><i class="fas fa-book-bookmark mr-1"></i> <strong>Key Academic References</strong></p>
+                            <ol>
+                                <li>G. Siemens and R. S. Baker, "Learning analytics and educational data mining: towards mutual contemplation," in <em>Proc. 2nd Int. Conf. on Learning Analytics and Knowledge (LAK)</em>, pp. 252–254, 2012.</li>
+                                <li>M. Resnick, <em>Lifelong Kindergarten: Cultivating Creativity through Projects, Passion, Peers, and Play</em>, MIT Press, 2017.</li>
+                                <li>K. Holstein, B. M. McLaren, and V. Aleven, "Co-Designing a Real-Time Teacher Orchestration Tool to Support Teacher-AI Complementarity," in <em>Proc. 9th Int. Conf. on Learning Analytics &amp; Knowledge (LAK)</em>, pp. 255–264, 2019.</li>
+                                <li>J. L. Epstein, <em>School, Family, and Community Partnerships: Preparing Educators and Improving Schools</em>, Routledge, 2018.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Research Gap -->
+            <div id="research_gap" class="sub-section mt-5">
+                <h2>Research Gap</h2>
+                <p>An exhaustive systematic literature review revealed six critical unaddressed gaps in existing educational technology platforms:</p>
+                <div class="row mt-4 research-gap">
+                    <!-- Gap 1: Multimodal Integration -->
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4" data-aos="fade-up" data-aos-delay="100">
+                        <div class="card h-100">
+                            <div class="fa-container text-center">
+                                <i class="fas fa-layer-group fa-3x" aria-hidden="true"></i>
+                            </div>
+                            <h5 class="text-center">Multimodal Integration</h5>
+                            <p class="text-center mb-0">
+                                Limited integration of speech, handwriting, performance &amp; behavior.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Gap 2: Adaptive Learning -->
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4" data-aos="fade-up" data-aos-delay="200">
+                        <div class="card h-100">
+                            <div class="fa-container text-center">
+                                <i class="fas fa-sliders-h fa-3x" aria-hidden="true"></i>
+                            </div>
+                            <h5 class="text-center">Adaptive Learning</h5>
+                            <p class="text-center mb-0">
+                                Insufficient real-time personalization for individual learners.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Gap 3: Language Localization -->
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4" data-aos="fade-up" data-aos-delay="300">
+                        <div class="card h-100">
+                            <div class="fa-container text-center">
+                                <i class="fas fa-language fa-3x" aria-hidden="true"></i>
+                            </div>
+                            <h5 class="text-center">Language Localization</h5>
+                            <p class="text-center mb-0">
+                                Limited Sinhala–English and child pronunciation support.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Gap 4: Handwriting Analysis -->
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4" data-aos="fade-up" data-aos-delay="100">
+                        <div class="card h-100">
+                            <div class="fa-container text-center">
+                                <i class="fas fa-pen-nib fa-3x" aria-hidden="true"></i>
+                            </div>
+                            <h5 class="text-center">Handwriting Analysis</h5>
+                            <p class="text-center mb-0">
+                                Limited dynamic Sinhala handwriting assessment.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Gap 5: Unified Learning -->
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4" data-aos="fade-up" data-aos-delay="200">
+                        <div class="card h-100">
+                            <div class="fa-container text-center">
+                                <i class="fas fa-shapes fa-3x" aria-hidden="true"></i>
+                            </div>
+                            <h5 class="text-center">Unified Learning</h5>
+                            <p class="text-center mb-0">
+                                Fragmented support across Mathematics, language &amp; creativity.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Gap 6: Learner Modelling -->
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4" data-aos="fade-up" data-aos-delay="300">
+                        <div class="card h-100">
+                            <div class="fa-container text-center">
+                                <i class="fas fa-chart-line fa-3x" aria-hidden="true"></i>
+                            </div>
+                            <h5 class="text-center">Learner Modelling</h5>
+                            <p class="text-center mb-0">
+                                Limited continuous tracking of progress, difficulties &amp; engagement.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Research Problem & Solution -->
+            <div id="research_problem" class="sub-section">
+                <h2>Research Problem &amp; Solution</h2>
+                <div class="row research-problem-row align-items-stretch">
+                    <div id="project-scope-left" class="col-md-6 col-sm-12 mb-4 mb-md-0 d-flex flex-column" data-aos="fade-right" data-aos-duration="800">
+                        <div class="research-problem-card">
+                            <h5 class="research-problem-title">
+                                <i class="fas fa-exclamation-circle text-primary mr-2" aria-hidden="true"></i><strong>Proposed Research Problem</strong>
+                            </h5>
+                            <h4 class="highlight mt-2 mb-3">
+                                Current learning systems are largely static and fragmented, providing limited personalization and localized support for young learners. They do not continuously integrate speech, handwriting, performance and behavioural signals to identify learning needs and adapt learning across language, mathematics and engagement.
+                            </h4>
+                            <p class="research-problem-desc mb-0" style="text-align: justify;">
+                                Conventional early childhood and primary educational systems rely heavily on uniform, non-adaptive curricula and discrete, post-assessment evaluations. They fail to capture and synthesize dynamic multimodal learner telemetry—including speech articulation nuances, handwritten stroke mechanics, real-time problem-solving latency, and behavioral engagement cues. Consequently, young learners lack timely, localized intervention tailored to their cognitive pace, while educators are deprived of actionable, holistic intelligence needed to guide individual growth across interconnected foundational domains.
+                            </p>
+                        </div>
+                    </div>
+                    <div id="project-scope-right" class="col-md-6 col-sm-12 d-flex flex-column" data-aos="fade-left" data-aos-duration="800">
+                        <div class="research-problem-figure-card">
+                            <div class="research-problem-img-wrap">
+                                <img src="./images/research_problem_study.jpg" class="research-problem-img" alt="Early childhood creative learning and multimodal observation" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h5><strong>Proposed Solution: Multimodal Intelligent Tutoring System</strong></h5>
+                    <p style="text-align: justify;" class="font-weight-semibold">
+                        A multimodal intelligent tutoring system that integrates adaptive mathematics, English speech, Sinhala handwriting, and creative learning modules through a unified learner profile and teacher decision-support dashboard.
+                    </p>
+                    <p style="text-align: justify;">
+                        The system introduces a child-centered, AI-driven educational platform engineered specifically to address early learning needs through five tightly synchronized components:
+                    </p>
+                    <ul>
+                        <li><strong>Adaptive Mathematics Module:</strong> Continuously monitors performance latency, attempt sequences, and behavioral engagement to dynamically adjust difficulty levels and deliver scaffolded mathematical problem sets.</li>
+                        <li><strong>English Speech &amp; Articulation Engine:</strong> Evaluates child speech acoustic patterns, phonetic alignment, and articulatory visual cues to provide gentle, real-time guidance for spoken English pronunciation.</li>
+                        <li><strong>Sinhala Handwriting Recognition &amp; Tracing:</strong> Employs computer vision and stroke geometry analysis to evaluate native Sinhala character formation, providing localized feedback on stroke order, shape conformity, and handwriting motor fluency.</li>
+                        <li><strong>Creative Learning &amp; Storytelling Hub:</strong> Analyzes visual artwork, color palette diversity, and story comprehension activities using computer vision to nurture open-ended creativity without rigid numerical scoring.</li>
+                        <li><strong>Unified Learner Profile &amp; Teacher Decision-Support Dashboard:</strong> Fuses continuous speech, handwriting, performance, and behavioral signals into an integrated learner profile, generating explainable insights and actionable classroom orchestration recommendations for educators.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 4. Research Objectives -->
+            <div id="research_objectives" class="sub-section">
+                <div class="container">
+                    <h2>Main Research Objectives</h2>
+                    <p class="text-center text-muted mb-5">Four interconnected research pillars engineered to achieve holistic educational empowerment</p>
+
+                    <!-- Objective 1 -->
+                    <div class="row align-items-center connecting-lines d-flex" data-aos="fade-up" data-aos-duration="800">
+                        <div class="col-2 text-center bottom d-inline-flex justify-content-center align-items-center">
+                            <div class="circle font-weight-bold"><i class="fa fa-user-clock"></i></div>
+                        </div>
+                        <div class="col-10 col-md-8">
+                            <div class="objective-box">
+                                <h4>1. Behavior-Adaptive Learning Engine</h4>
+                                <p style="text-align: justify;">
+                                    To design and implement a Behavior-Adaptive Learning Engine that analyzes real-time interaction behavior of nursery students in a web-based virtual classroom and provides adaptive learning insights to improve engagement, learning effectiveness, and teacher awareness.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Path Line 1 -->
+                    <div class="row timeline_s">
+                        <div class="col-2"><div class="corner top-right"></div></div>
+                        <div class="col-8"><hr/></div>
+                        <div class="col-2"><div class="corner left-bottom"></div></div>
+                    </div>
+
+                    <!-- Objective 2 -->
+                    <div class="row align-items-center justify-content-end connecting-lines d-flex" data-aos="fade-up" data-aos-duration="800">
+                        <div class="col-10 col-md-8 text-right">
+                            <div class="objective-box text-left">
+                                <h4>2. Creativity-Driven Digital Learning Module</h4>
+                                <p style="text-align: justify;">
+                                    The objective of this component is to develop a creativity-driven digital learning module that allows nursery students to participate in drawing, coloring, and visual storytelling activities while enabling AI-based analysis of student artwork.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-2 text-center full d-inline-flex justify-content-center align-items-center">
+                            <div class="circle font-weight-bold"><i class="fa fa-palette"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Path Line 2 -->
+                    <div class="row timeline_s">
+                        <div class="col-2"><div class="corner right-bottom"></div></div>
+                        <div class="col-8"><hr/></div>
+                        <div class="col-2"><div class="corner top-left"></div></div>
+                    </div>
+
+                    <!-- Objective 3 -->
+                    <div class="row align-items-center connecting-lines d-flex" data-aos="fade-up" data-aos-duration="800">
+                        <div class="col-2 text-center full d-inline-flex justify-content-center align-items-center">
+                            <div class="circle font-weight-bold"><i class="fa fa-chalkboard-teacher"></i></div>
+                        </div>
+                        <div class="col-10 col-md-8">
+                            <div class="objective-box">
+                                <h4>3. AI Teacher Insight &amp; Intervention Engine</h4>
+                                <p style="text-align: justify;">
+                                    Develop an AI Teacher Insight &amp; Intervention Engine that analyzes engagement indicators and learning activity data to detect learning difficulties and generate real-time teaching recommendations.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Path Line 3 -->
+                    <div class="row timeline_s">
+                        <div class="col-2"><div class="corner top-right"></div></div>
+                        <div class="col-8"><hr/></div>
+                        <div class="col-2"><div class="corner left-bottom"></div></div>
+                    </div>
+
+                    <!-- Objective 4 -->
+                    <div class="row align-items-center justify-content-end connecting-lines d-flex" data-aos="fade-up" data-aos-duration="800">
+                        <div class="col-10 col-md-8 text-right">
+                            <div class="objective-box text-left">
+                                <h4>4. Parent-Integrated Analytics Portal</h4>
+                                <p style="text-align: justify;">
+                                    The objective of this component is to develop a parent-integrated analytics portal that converts complex classroom learning data into simple visual insights, allowing parents to easily monitor their child’s engagement, participation, and learning progress in the AI-based virtual classroom.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-2 text-center top d-inline-flex justify-content-center align-items-center">
+                            <div class="circle font-weight-bold"><i class="fa fa-hands-holding-child"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Methodology -->
+            <div id="methodology" class="sub-section">
+                <h2>Methodology</h2>
+                <div class="row methodology-row align-items-stretch mt-3">
+                    <!-- Left: System Overview Diagram -->
+                    <div class="col-lg-6 col-md-12 mb-4 mb-lg-0 d-flex flex-column" data-aos="fade-right" data-aos-duration="800">
+                        <div class="methodology-card methodology-diagram-card flex-grow-1">
+                            <div class="methodology-img-container">
+                                <a href="./images/system_architecture_overview.jpg" target="_blank" rel="noopener" title="Click to view full high-resolution diagram" class="d-flex justify-content-center w-100">
+                                    <img src="./images/system_architecture_overview.jpg" alt="Nana Piyasa System Architecture and Multimodal Pipeline Overview" class="methodology-diagram-img" />
+                                </a>
+                            </div>
+                            <div class="methodology-caption-wrapper">
+                                <p class="methodology-caption">End-to-End System Architecture &amp; Multimodal Learning Pipeline</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Clear Understandable Architecture Walkthrough -->
+                    <div class="col-lg-6 col-md-12 d-flex flex-column" data-aos="fade-left" data-aos-duration="800">
+                        <div class="methodology-card methodology-info-card flex-grow-1">
+                            <div class="methodology-header mb-3">
+                                <h4 class="methodology-title mb-1">
+                                    <i class="fas fa-sitemap mr-2"></i>System Architecture &amp; Pipeline Dataflow
+                                </h4>
+                                <p class="methodology-subtitle text-muted mb-0">
+                                    Nana Piyasa orchestrates a multimodal intelligent tutoring ecosystem through an end-to-end dataflow that transforms live multi-sensory signals into tailored learning pathways:
+                                </p>
+                            </div>
+
+                            <div class="methodology-layers">
+                                <!-- 1. Users & UI -->
+                                <div class="methodology-layer-box">
+                                    <div class="layer-header">
+                                        <span class="layer-badge badge-users"><i class="fas fa-users mr-1"></i> 1. Users &amp; Interactive Web UI</span>
+                                        <span class="layer-tag text-muted">Client Tier</span>
+                                    </div>
+                                    <p class="layer-desc mb-0">
+                                        Engages <strong>Children</strong>, <strong>Teachers</strong>, and <strong>Parents</strong> via an intuitive web interface that captures multi-modal inputs—live webcam feeds, microphone speech, stylus/touch canvas strokes, and quiz responses.
+                                    </p>
+                                </div>
+
+                                <!-- 2. Backend API Layer -->
+                                <div class="methodology-layer-box">
+                                    <div class="layer-header">
+                                        <span class="layer-badge badge-api"><i class="fas fa-server mr-1"></i> 2. Backend API Layer</span>
+                                        <span class="layer-tag text-muted">Gateway &amp; Orchestration</span>
+                                    </div>
+                                    <p class="layer-desc mb-0">
+                                        Handles secure authentication, request routing, and microservice coordination to stream data synchronously and asynchronously to the dedicated AI processing engines.
+                                    </p>
+                                </div>
+
+                                <!-- 3. Four Core AI Adaptive Modules -->
+                                <div class="methodology-layer-box ai-modules-box">
+                                    <div class="layer-header mb-2">
+                                        <span class="layer-badge badge-ai"><i class="fas fa-brain mr-1"></i> 3. Four Core AI Adaptive Modules</span>
+                                        <span class="layer-tag text-danger font-weight-bold">Intelligent Engine Tier</span>
+                                    </div>
+                                    <div class="ai-modules-list">
+                                        <!-- Module 1: Math Adaptive -->
+                                        <div class="ai-module-card math-card mb-2">
+                                            <h6 class="module-name text-warning mb-1">
+                                                <i class="fas fa-calculator mr-1"></i> Math Adaptive Module
+                                            </h6>
+                                            <p class="module-flow mb-0">
+                                                <strong>Dataflow:</strong> Webcam &amp; Answer Capture &rarr; Emotion &amp; Timing Analysis &rarr; Adaptive Paper Generated &rarr; Mastery Scoring &rarr; Next Question Output.
+                                            </p>
+                                        </div>
+                                        <!-- Module 2: English Speech -->
+                                        <div class="ai-module-card speech-card mb-2">
+                                            <h6 class="module-name text-info mb-1">
+                                                <i class="fas fa-microphone-alt mr-1"></i> English Speech Module
+                                            </h6>
+                                            <p class="module-flow mb-0">
+                                                <strong>Dataflow:</strong> Audio &amp; Video Capture &rarr; Noise Cleaning &rarr; Speech-to-Text &rarr; Prosody Analysis &rarr; Phoneme Alignment &amp; Diagnostic Report.
+                                            </p>
+                                        </div>
+                                        <!-- Module 3: Pre-School & Grade 1 -->
+                                        <div class="ai-module-card preschool-card mb-2">
+                                            <h6 class="module-name text-success mb-1">
+                                                <i class="fas fa-palette mr-1"></i> Pre-School &amp; Grade 1
+                                            </h6>
+                                            <p class="module-flow mb-0">
+                                                <strong>Dataflow:</strong> Canvas Input (Trace/Color/Draw) &rarr; Activity Scoring &rarr; Pose &amp; Stability Monitoring &rarr; Skill Index Aggregation &rarr; Creative Record Output.
+                                            </p>
+                                        </div>
+                                        <!-- Module 4: Sinhala Handwriting -->
+                                        <div class="ai-module-card handwriting-card">
+                                            <h6 class="module-name text-primary mb-1">
+                                                <i class="fas fa-pen-nib mr-1"></i> Sinhala Handwriting Module
+                                            </h6>
+                                            <p class="module-flow mb-0">
+                                                <strong>Dataflow:</strong> Canvas Drawing &rarr; CNN Classification &rarr; Chamfer Distance Matching &rarr; Multi-Criteria Tracing Score &rarr; DKT Mastery Update.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 4. Decision Support & Database -->
+                                <div class="methodology-layer-box">
+                                    <div class="layer-header">
+                                        <span class="layer-badge badge-support"><i class="fas fa-chart-line mr-1"></i> 4. Decision Support &amp; Database</span>
+                                        <span class="layer-tag text-muted">Persistence &amp; Intervention</span>
+                                    </div>
+                                    <p class="layer-desc mb-0">
+                                        Delivers live Explainable AI (XAI) difficulty alerts and actionable pedagogical recommendations to teachers via the <strong>Integrated Decision Support Teacher Dashboard</strong>, while persistently recording continuous cognitive mastery curves in the <strong>Database</strong>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Technologies Used -->
+            <div id="tech_used" class="sub-section">
+                <h2>Technologies Used</h2>
+                <p class="text-muted mb-4">Enterprise-grade artificial intelligence frameworks, libraries, and full-stack web technologies utilized across the platform:</p>
+                <div class="row technology mt-4">
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="75">
+                        <div class="avatar shadow-sm"><i class="fab fa-python fa-3x text-infinity-primary"></i></div>
+                        <p>Python 3.10+</p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="150">
+                        <div class="avatar shadow-sm"><i class="fas fa-fire fa-3x text-danger"></i></div>
+                        <p>PyTorch</p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="225">
+                        <div class="avatar shadow-sm"><i class="fab fa-react fa-3x text-info"></i></div>
+                        <p>React 18 &amp; Vite</p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="avatar shadow-sm"><i class="fab fa-node-js fa-3x text-success"></i></div>
+                        <p>Node.js &amp; Express</p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="375">
+                        <div class="avatar shadow-sm"><i class="fas fa-bolt fa-3x text-warning"></i></div>
+                        <p>FastAPI Microservices</p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="450">
+                        <div class="avatar shadow-sm"><i class="fas fa-database fa-3x text-success"></i></div>
+                        <p>MongoDB Atlas</p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="75">
+                        <div class="avatar shadow-sm"><i class="fas fa-eye fa-3x text-primary"></i></div>
+                        <p>OpenCV Computer Vision</p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="150">
+                        <div class="avatar shadow-sm"><i class="fas fa-wave-square fa-3x text-secondary"></i></div>
+                        <p>Librosa DSP</p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="225">
+                        <div class="avatar shadow-sm"><i class="fas fa-comment-dots fa-3x text-infinity-primary"></i></div>
+                        <p>Faster-Whisper ASR</p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="avatar shadow-sm"><i class="fas fa-running fa-3x text-primary"></i></div>
+                        <p>MediaPipe Pose</p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="375">
+                        <div class="avatar shadow-sm"><i class="fas fa-brain fa-3x text-dark"></i></div>
+                        <p>OpenAI CLIP ViT-B/32</p>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="450">
+                        <div class="avatar shadow-sm"><i class="fas fa-smile fa-3x text-warning"></i></div>
+                        <p>face-api.js (TinyFace)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Milestones ==================== -->
+    <section id="milestones" class="main-sections">
+        <div class="container">
+            <h5 class="section-headings">Milestones &amp; Project Timeline</h5>
+            <div class="sub-section">
+                <h2>Timeline in Brief</h2>
+
+                <!-- Visual Vertical Timeline with Diamonds and Progress Bars -->
+                <div class="milestones">
+                    <ul class="timeline">
+                        <!-- 1. Proposal Presentation & Report -->
+                        <li class="timeline-event" id="event-proposal" data-aos="fade-up" data-aos-duration="700">
+                            <label class="timeline-event-icon"></label>
+                            <div class="timeline-event-copy">
+                                <p class="timeline-event-thumbnail">March 2026</p>
+                                <h3>Proposal Presentation &amp; Report</h3>
+                                <p>Comprehensive research proposal defense validating scope, feasibility, problem gap, and architecture in front of the SLIIT evaluation panel.</p>
+                                <p><strong>Marks Allocated: </strong>12 Marks (12%)</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-timeline-mark" role="progressbar" style="width: 12%" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100">12%</div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 2. Progress Presentation I -->
+                        <li class="timeline-event" id="event-pp1" data-aos="fade-up" data-aos-duration="700">
+                            <label class="timeline-event-icon"></label>
+                            <div class="timeline-event-copy">
+                                <p class="timeline-event-thumbnail">June 2026</p>
+                                <h3>Progress Presentation I</h3>
+                                <p>Evaluates initial project milestones. Reviews initial data collections, model training pipelines (Sinhala grapheme dataset, MTI audio recordings), and math question generation.</p>
+                                <p><strong>Marks Allocated: </strong>15 Marks (15%)</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-infinity-primary" role="progressbar" style="width: 12%" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-timeline-mark" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">15%</div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 3. Research Paper (Published) -->
+                        <li class="timeline-event" id="event-paper" data-aos="fade-up" data-aos-duration="700">
+                            <label class="timeline-event-icon"></label>
+                            <div class="timeline-event-copy">
+                                <p class="timeline-event-thumbnail">July 2026</p>
+                                <h3>Research Paper (Published)</h3>
+                                <p>Peer-reviewed scholarly contribution documenting the novel deep learning architectures: MultimodalFusionNet, 12-MTI phonetic rule engine, and Chamfer-DKT handwriting modeling.</p>
+                                <p><strong>Marks Allocated: </strong>10 Marks (10%)</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-infinity-primary" role="progressbar" style="width: 27%" aria-valuenow="27" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-timeline-mark" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">10%</div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 4. Progress Presentation II -->
+                        <li class="timeline-event" id="event-pp2" data-aos="fade-up" data-aos-duration="700">
+                            <label class="timeline-event-icon"></label>
+                            <div class="timeline-event-copy">
+                                <p class="timeline-event-thumbnail">September 2026</p>
+                                <h3>Progress Presentation II</h3>
+                                <p>Comprehensive demonstration of 90% completed technical implementation, including real-time camera affect tracking, audio phoneme alignment, and live research poster display.</p>
+                                <p><strong>Marks Allocated: </strong>18 Marks (18%)</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-infinity-primary" role="progressbar" style="width: 37%" aria-valuenow="37" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-timeline-mark" role="progressbar" style="width: 18%" aria-valuenow="18" aria-valuemin="0" aria-valuemax="100">18%</div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 5. Website -->
+                        <li class="timeline-event" id="event-website" data-aos="fade-up" data-aos-duration="700">
+                            <label class="timeline-event-icon"></label>
+                            <div class="timeline-event-copy">
+                                <p class="timeline-event-thumbnail">October 2026</p>
+                                <h3>Website</h3>
+                                <p>Evaluation of the official academic research web portal adhering strictly to SLIIT CDAP criteria (responsive interface, accessible documentation, and clear project scope).</p>
+                                <p><strong>Marks Allocated: </strong>2 Marks (02%)</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-infinity-primary" role="progressbar" style="width: 55%" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-timeline-mark" role="progressbar" style="width: 2%" aria-valuenow="2" aria-valuemin="0" aria-valuemax="100">2%</div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 6. Research Logbook, Status Document 1 & 2 -->
+                        <li class="timeline-event" id="event-logbook" data-aos="fade-up" data-aos-duration="700">
+                            <label class="timeline-event-icon"></label>
+                            <div class="timeline-event-copy">
+                                <p class="timeline-event-thumbnail">November 2026</p>
+                                <h3>Research Logbook, Status Document 1 &amp; 2</h3>
+                                <p>Verification of regular supervisory consultations, milestone progress logs, individual weekly contributions, and supervisor approvals throughout the year.</p>
+                                <p><strong>Marks Allocated: </strong>4 Marks (04%)</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-infinity-primary" role="progressbar" style="width: 57%" aria-valuenow="57" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-timeline-mark" role="progressbar" style="width: 4%" aria-valuenow="4" aria-valuemin="0" aria-valuemax="100">4%</div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 7. Final Report -->
+                        <li class="timeline-event" id="event-report" data-aos="fade-up" data-aos-duration="700">
+                            <label class="timeline-event-icon"></label>
+                            <div class="timeline-event-copy">
+                                <p class="timeline-event-thumbnail">November 2026</p>
+                                <h3>Final Report</h3>
+                                <p>Final evaluation of the complete research dissertation: 1 comprehensive group thesis and 4 individual dissertations detailing each distinct ML pillar.</p>
+                                <p><strong>Marks Allocated: </strong>19 Marks (19%)</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-infinity-primary" role="progressbar" style="width: 61%" aria-valuenow="61" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-timeline-mark" role="progressbar" style="width: 19%" aria-valuenow="19" aria-valuemin="0" aria-valuemax="100">19%</div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- 8. Final Presentation and VIVA -->
+                        <li class="timeline-event" id="event-viva" data-aos="fade-up" data-aos-duration="700">
+                            <label class="timeline-event-icon"></label>
+                            <div class="timeline-event-copy">
+                                <p class="timeline-event-thumbnail">November 2026</p>
+                                <h3>Final Presentation and VIVA</h3>
+                                <p>Individual viva examination evaluating each candidate's technical mastery, code architecture, algorithmic novelty, and individual project contribution.</p>
+                                <p><strong>Marks Allocated: </strong>20 Marks (20%)</p>
+                                <div class="progress">
+                                    <div class="progress-bar bg-infinity-primary" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-timeline-mark" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">20%</div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Downloads ==================== -->
+    <section id="downloads" class="main-sections">
+        <div class="container">
+            <h5 class="section-headings">Project Deliverables &amp; Downloads</h5>
+
+            <!-- Documents -->
+            <div class="sub-section">
+                <h2>Documents</h2>
+                <p class="text-muted">Access official research documents, proposals, status reports, and final publications below.</p>
+                <div class="downloads-5col mt-4">
+                    <!-- 1. Topic Assessment -->
+                    <div class="doc-col" data-aos="fade-up" data-aos-duration="600">
+                        <div class="doc-card card-pdf">
+                            <div class="doc-card-body">
+                                <div class="doc-card-header">
+                                    <div class="doc-icon-badge doc-badge-pdf">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span class="doc-type-pill pdf">PDF</span>
+                                </div>
+                                <div class="doc-title">Topic Assessment</div>
+                                <div class="doc-meta"><i class="far fa-calendar-alt text-primary"></i> Submitted: 2026/02/20</div>
+                            </div>
+                            <div class="doc-card-footer">
+                                <div class="doc-actions">
+                                    <a href="https://drive.google.com/drive/folders/1I4bePH1bCsumqLrJjJoIK8x2GNAxjG7f" target="_blank" rel="noopener" class="btn-doc btn-doc-primary">
+                                        <i class="fas fa-arrow-down"></i> Group Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Project Proposal -->
+                    <div class="doc-col" data-aos="fade-up" data-aos-duration="600" data-aos-delay="70">
+                        <div class="doc-card card-pdf">
+                            <div class="doc-card-body">
+                                <div class="doc-card-header">
+                                    <div class="doc-icon-badge doc-badge-pdf">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span class="doc-type-pill pdf">PDF</span>
+                                </div>
+                                <div class="doc-title">Project Proposal</div>
+                                <div class="doc-meta"><i class="far fa-calendar-alt text-primary"></i> Submitted: 2026/03/25</div>
+                            </div>
+                            <div class="doc-card-footer">
+                                <div class="doc-actions">
+                                    <a href="https://drive.google.com/drive/folders/1YeEEgNTo-GPEYCYpq0kp_1fOTiQbV6j0" target="_blank" rel="noopener" class="btn-doc btn-doc-primary">
+                                        <i class="fas fa-user"></i> Individual
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Research Paper -->
+                    <div class="doc-col" data-aos="fade-up" data-aos-duration="600" data-aos-delay="140">
+                        <div class="doc-card card-pdf">
+                            <div class="doc-card-body">
+                                <div class="doc-card-header">
+                                    <div class="doc-icon-badge doc-badge-pdf">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span class="doc-type-pill pdf">PDF</span>
+                                </div>
+                                <div class="doc-title">Research Paper</div>
+                                <div class="doc-meta"><i class="fas fa-certificate text-success"></i> Camera-ready Draft</div>
+                            </div>
+                            <div class="doc-card-footer">
+                                <div class="doc-actions">
+                                    <a href="https://drive.google.com/drive/folders/1u1zNAHYBbSMcncw_vsksqiaatXJzgoht" target="_blank" rel="noopener" class="btn-doc btn-doc-primary">
+                                        <i class="fas fa-arrow-down"></i> Group Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Final Thesis -->
+                    <div class="doc-col" data-aos="fade-up" data-aos-duration="600" data-aos-delay="210">
+                        <div class="doc-card card-pdf">
+                            <div class="doc-card-body">
+                                <div class="doc-card-header">
+                                    <div class="doc-icon-badge doc-badge-pdf">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span class="doc-type-pill pdf">PDF</span>
+                                </div>
+                                <div class="doc-title">Final Thesis</div>
+                                <div class="doc-meta"><i class="fas fa-layer-group text-info"></i> 4 Individual + Group</div>
+                            </div>
+                            <div class="doc-card-footer">
+                                <div class="doc-actions">
+                                    <a href="https://drive.google.com/drive/folders/1Hxz8rAxaXX0Mjjj07RykYgx6mfdzjh7X" target="_blank" rel="noopener" class="btn-doc btn-doc-primary">
+                                        <i class="fas fa-users"></i> Group
+                                    </a>
+                                    <a href="https://drive.google.com/drive/folders/1e4zGJlg9iUPyr6pgcKwZs_bYv6ZwA58V" target="_blank" rel="noopener" class="btn-doc btn-doc-secondary">
+                                        <i class="fas fa-user"></i> Individual
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Research Poster -->
+                    <div class="doc-col" data-aos="fade-up" data-aos-duration="600" data-aos-delay="280">
+                        <div class="doc-card card-img">
+                            <div class="doc-card-body">
+                                <div class="doc-card-header">
+                                    <div class="doc-icon-badge doc-badge-img">
+                                        <i class="fas fa-file-image"></i>
+                                    </div>
+                                    <span class="doc-type-pill img">Poster</span>
+                                </div>
+                                <div class="doc-title">Research Poster</div>
+                                <div class="doc-meta"><i class="fas fa-palette text-success"></i> A1 Academic Poster</div>
+                            </div>
+                            <div class="doc-card-footer">
+                                <div class="doc-actions">
+                                    <a href="https://drive.google.com/drive/folders/1f2C6uoJTG0St47oJToUO_hcubu96Epyn" target="_blank" rel="noopener" class="btn-doc btn-doc-primary">
+                                        <i class="fas fa-arrow-down"></i> Group Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Presentations -->
+            <div id="presentations" class="sub-section">
+                <h2>Presentations</h2>
+                <p class="text-muted">Slide decks delivered during past academic reviews and future presentations.</p>
+                <div class="row mt-4 downloads-container">
+                    <!-- 1. Project Proposal Presentation -->
+                    <div class="col-lg-3 col-md-6 col-sm-12 doc-col" data-aos="fade-up" data-aos-duration="600">
+                        <div class="doc-card card-ppt">
+                            <div class="doc-card-body">
+                                <div class="doc-card-header">
+                                    <div class="doc-icon-badge doc-badge-ppt">
+                                        <i class="fas fa-file-powerpoint"></i>
+                                    </div>
+                                    <span class="doc-type-pill ppt">PPTX</span>
+                                </div>
+                                <div class="doc-title">Project Proposal</div>
+                                <div class="doc-meta"><i class="far fa-calendar-alt text-warning"></i> Submitted: 2026/03/28</div>
+                            </div>
+                            <div class="doc-card-footer">
+                                <div class="doc-actions">
+                                    <a href="https://drive.google.com/drive/folders/1lTp3nlMlzkfEDtoiRDYrkmTQ8HYEU5_4" target="_blank" rel="noopener" class="btn-doc btn-doc-primary">
+                                        <i class="fas fa-arrow-down"></i> Group Slides
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Progress Presentation I -->
+                    <div class="col-lg-3 col-md-6 col-sm-12 doc-col" data-aos="fade-up" data-aos-duration="600" data-aos-delay="50">
+                        <div class="doc-card card-ppt">
+                            <div class="doc-card-body">
+                                <div class="doc-card-header">
+                                    <div class="doc-icon-badge doc-badge-ppt">
+                                        <i class="fas fa-file-powerpoint"></i>
+                                    </div>
+                                    <span class="doc-type-pill ppt">PPTX</span>
+                                </div>
+                                <div class="doc-title">Progress Presentation I</div>
+                                <div class="doc-meta"><i class="far fa-calendar-alt text-warning"></i> Submitted: 2026/06/25</div>
+                            </div>
+                            <div class="doc-card-footer">
+                                <div class="doc-actions">
+                                    <a href="https://drive.google.com/drive/folders/1douLxDVfnY8bwuJcZBLXHpK60FtlPvri" target="_blank" rel="noopener" class="btn-doc btn-doc-primary">
+                                        <i class="fas fa-arrow-down"></i> Group Slides
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Progress Presentation II -->
+                    <div class="col-lg-3 col-md-6 col-sm-12 doc-col" data-aos="fade-up" data-aos-duration="600" data-aos-delay="100">
+                        <div class="doc-card card-ppt">
+                            <div class="doc-card-body">
+                                <div class="doc-card-header">
+                                    <div class="doc-icon-badge doc-badge-ppt">
+                                        <i class="fas fa-file-powerpoint"></i>
+                                    </div>
+                                    <span class="doc-type-pill ppt">PPTX</span>
+                                </div>
+                                <div class="doc-title">Progress Presentation II</div>
+                                <div class="doc-meta"><i class="far fa-calendar-alt text-warning"></i> Submitted: 2026/09/28</div>
+                            </div>
+                            <div class="doc-card-footer">
+                                <div class="doc-actions">
+                                    <a href="https://drive.google.com/drive/folders/1WAa2O9ZULGYvpjT_j6Rmi-r6t821YVlS" target="_blank" rel="noopener" class="btn-doc btn-doc-primary">
+                                        <i class="fas fa-arrow-down"></i> Group Slides
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Final Presentation -->
+                    <div class="col-lg-3 col-md-6 col-sm-12 doc-col" data-aos="fade-up" data-aos-duration="600" data-aos-delay="150">
+                        <div class="doc-card card-ppt">
+                            <div class="doc-card-body">
+                                <div class="doc-card-header">
+                                    <div class="doc-icon-badge doc-badge-ppt">
+                                        <i class="fas fa-file-powerpoint"></i>
+                                    </div>
+                                    <span class="doc-type-pill ppt">PPTX</span>
+                                </div>
+                                <div class="doc-title">Final Presentation</div>
+                                <div class="doc-meta"><i class="far fa-calendar-alt text-warning"></i> Submitted: 2026/10/10</div>
+                            </div>
+                            <div class="doc-card-footer">
+                                <div class="doc-actions">
+                                    <a href="https://drive.google.com/drive/folders/1bmFQObIiNf-qbEzmR1mNOu2JyUmHaG_R" target="_blank" rel="noopener" class="btn-doc btn-doc-primary">
+                                        <i class="fas fa-arrow-down"></i> Group Slides
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== About Us ==================== -->
+    <section id="about" class="main-sections">
+        <div class="container">
+            <h5 class="section-headings">Research Group &amp; Supervision</h5>
+            <div class="sub-section about-us-container">
+                <h2>Meet Our Team !</h2>
+                <p class="text-muted mb-4">The research group and academic supervisors driving the Nana Piyasa multimodal ecosystem at SLIIT Faculty of Computing.</p>
+
+                <!-- Supervisors Row -->
+                <div class="row justify-content-center">
+                    <!-- Supervisor -->
+                    <div class="col-lg-4 col-md-6 col-sm-12 d-flex" data-aos="fade-up" data-aos-delay="100">
+                        <div class="card about-us-card w-100">
+                            <div class="image-wrapper">
+                                <img src="./images/thamali_dassanayake.jpg" class="about-us-image supervisor-photo" alt="Ms. Thamali Dassanayake - Research Supervisor" />
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Ms. Thamali Dassanayake</h5>
+                                <span class="badge badge-supervisor">Research Supervisor</span>
+                                <div class="text-group mt-3">
+                                    <p><strong>Faculty of Computing</strong></p>
+                                    <p>Sri Lanka Institute of Information Technology (SLIIT)</p>
+                                </div>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <a href="https://scholar.google.com/citations?user=tv9uctwAAAAJ&hl=en" target="_blank" rel="noopener"><i class="fab fa-google mr-2 text-infinity-primary"></i>G-Scholar</a>
+                                    <a href="https://linkedin.com/in/gaya-thamali-dassanayake-7b85b787/" target="_blank" rel="noopener"><i class="fab fa-linkedin-in mr-2 text-infinity-primary"></i>LinkedIn</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Co-Supervisor -->
+                    <div class="col-lg-4 col-md-6 col-sm-12 d-flex" data-aos="fade-up" data-aos-delay="200">
+                        <div class="card about-us-card w-100">
+                            <div class="image-wrapper">
+                                <img src="./images/lokesha_weerasinghe.jpg" class="about-us-image supervisor-photo" alt="Ms. Lokesha Weerasinghe - Co-Supervisor" />
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Ms. Lokesha Weerasinghe</h5>
+                                <span class="badge badge-supervisor">Co-Supervisor</span>
+                                <div class="text-group mt-3">
+                                    <p><strong>Department of Software Engineering</strong></p>
+                                    <p>Sri Lanka Institute of Information Technology (SLIIT)</p>
+                                </div>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <a href="https://www.linkedin.com/in/lokesha-weerasinghe-3a4478154/?isSelfProfile=false" target="_blank" rel="noopener"><i class="fab fa-linkedin-in mr-2 text-infinity-primary"></i>LinkedIn</a>
+                                    <a href="mailto:lokesha.w@sliit.lk"><i class="fas fa-envelope mr-2 text-infinity-primary"></i>E-Mail</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- External Supervisor -->
+                    <div class="col-lg-4 col-md-6 col-sm-12 d-flex" data-aos="fade-up" data-aos-delay="300">
+                        <div class="card about-us-card w-100">
+                            <div class="image-wrapper">
+                                <img src="./images/rivindi_nimnathara.jpg" class="about-us-image supervisor-photo" alt="Ms. Rivindi Nimnathara - External Supervisor" />
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Ms. Rivindi Nimnathara</h5>
+                                <span class="badge badge-supervisor">External Supervisor</span>
+                                <div class="text-group mt-3">
+                                    <p><strong>Pre-School Teacher &amp; Early Childhood Educator</strong></p>
+                                    <p>Vidura College Colombo</p>
+                                </div>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <a href="https://linkedin.com" target="_blank" rel="noopener"><i class="fab fa-linkedin-in mr-2 text-infinity-primary"></i>LinkedIn</a>
+                                    <a href="mailto:rivindi.n@viduracollege.com"><i class="fas fa-envelope mr-2 text-infinity-primary"></i>E-Mail</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Researchers Row -->
+                <h4 class="mt-5 mb-4 text-center font-weight-bold text-dark">Student Researchers</h4>
+                <div class="row">
+                    <!-- Researcher 1: Onel (Group Leader) -->
+                    <div class="col-lg-3 col-md-6 col-sm-12 d-flex">
+                        <div class="card about-us-card w-100">
+                            <div class="image-wrapper">
+                                <img src="./images/onel_herath.jpg" class="about-us-image supervisor-photo" alt="Onel Herath - Group Leader" />
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Onel Herath (H.M.O.P)</h5>
+                                <small class="text-muted font-weight-bold d-block mb-1">Reg No: IT22550576</small>
+                                <span class="badge badge-leader">Group Leader</span>
+                                <div class="text-group mt-3">
+                                    <p class="text-muted mb-0" style="font-size: 0.85rem;">Information Technology (IT), SLIIT</p>
+                                </div>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <a href="https://www.linkedin.com/in/onel-herath-7091b1325/?isSelfProfile=false" target="_blank" rel="noopener"><i class="fab fa-linkedin-in mr-2 text-infinity-primary"></i>LinkedIn</a>
+                                    <a href="mailto:onel.p@sliit.lk"><i class="fas fa-envelope mr-2 text-infinity-primary"></i>E-Mail</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Researcher 2: Suvinya -->
+                    <div class="col-lg-3 col-md-6 col-sm-12 d-flex">
+                        <div class="card about-us-card w-100">
+                            <div class="image-wrapper">
+                                <img src="./images/suvinya_rathnasiri.jpg" class="about-us-image supervisor-photo" alt="Suvinya Rathnasiri - Group Member" />
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Suvinya Rathnasiri (W.G.S.M)</h5>
+                                <small class="text-muted font-weight-bold d-block mb-1">Reg No: IT22551566</small>
+                                <span class="badge badge-member">Group Member</span>
+                                <div class="text-group mt-3">
+                                    <p class="text-muted mb-0" style="font-size: 0.85rem;">Information Technology (IT), SLIIT</p>
+                                </div>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <a href="https://www.linkedin.com/in/suvinya-rathnasiri-42527b317/" target="_blank" rel="noopener"><i class="fab fa-linkedin-in mr-2 text-infinity-primary"></i>LinkedIn</a>
+                                    <a href="mailto:suvinya.p@sliit.lk"><i class="fas fa-envelope mr-2 text-infinity-primary"></i>E-Mail</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Researcher 3: Vishmi -->
+                    <div class="col-lg-3 col-md-6 col-sm-12 d-flex">
+                        <div class="card about-us-card w-100">
+                            <div class="image-wrapper">
+                                <img src="./images/vishmi_sandareka.jpg" class="about-us-image supervisor-photo" alt="Vishmi Sandareka - Group Member" />
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Vishmi Sandareka (B.M.V)</h5>
+                                <small class="text-muted font-weight-bold d-block mb-1">Reg No: IT22281500</small>
+                                <span class="badge badge-member">Group Member</span>
+                                <div class="text-group mt-3">
+                                    <p class="text-muted mb-0" style="font-size: 0.85rem;">Information Technology (IT), SLIIT</p>
+                                </div>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <a href="https://www.linkedin.com/in/vishmi-sandareka-918004356/" target="_blank" rel="noopener"><i class="fab fa-linkedin-in mr-2 text-infinity-primary"></i>LinkedIn</a>
+                                    <a href="mailto:vishmi.s@sliit.lk"><i class="fas fa-envelope mr-2 text-infinity-primary"></i>E-Mail</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Researcher 4: Sanduni -->
+                    <div class="col-lg-3 col-md-6 col-sm-12 d-flex">
+                        <div class="card about-us-card w-100">
+                            <div class="image-wrapper">
+                                <img src="./images/sanduni_fernando.jpg" class="about-us-image supervisor-photo" alt="Sanduni Fernando - Group Member" />
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">Sanduni Fernando (M.S.V)</h5>
+                                <small class="text-muted font-weight-bold d-block mb-1">Reg No: IT22208576</small>
+                                <span class="badge badge-member">Group Member</span>
+                                <div class="text-group mt-3">
+                                    <p class="text-muted mb-0" style="font-size: 0.85rem;">Information Technology (IT), SLIIT</p>
+                                </div>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <a href="https://www.linkedin.com/in/sanduni-vandana-04aba629a/?isSelfProfile=false" target="_blank" rel="noopener"><i class="fab fa-linkedin-in mr-2 text-infinity-primary"></i>LinkedIn</a>
+                                    <a href="mailto:sanduni.w@sliit.lk"><i class="fas fa-envelope mr-2 text-infinity-primary"></i>E-Mail</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- ==================== Promo Banner ==================== -->
+    <section id="banner" class="main-sections">
+        <div class="container">
+            <div class="promo-banner" data-aos="zoom-in" data-aos-duration="800">
+                <div class="text-center mb-3">
+                    <img src="./images/logo.png" width="70" height="70" class="rounded-circle shadow" alt="Nana Piyasa App" />
+                </div>
+                <h2 class="promo-banner-title">Experience Nana Piyasa Live!</h2>
+                <p class="promo-banner-text">
+                    Explore our interactive multimodal learning modules for Primary Mathematics, English Speech Articulation, Origami Papercraft, and Sinhala Grapheme Tracing.
+                </p>
+                <div class="d-flex justify-content-center flex-wrap">
+                    <a href="#contact" class="btn btn-promo mr-3 mb-2">
+                        <i class="fas fa-paper-plane mr-2 text-infinity-primary"></i>Contact Research Team
+                    </a>
+                    <a href="#downloads" class="btn btn-outline-light mb-2" style="border-radius: 30px; padding: 12px 30px; font-weight: 700;">
+                        <i class="fas fa-file-pdf mr-2"></i>View Thesis &amp; Poster
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Contact Us ==================== -->
+    <section id="contact" class="main-sections">
+        <div class="container">
+            <h5 class="section-headings">Get In Touch</h5>
+            <div class="sub-section">
+                <h2>Contact Us</h2>
+                <p class="text-muted mb-4">Have questions regarding our research methodology, datasets, or educational pilot deployments? Reach out to us!</p>
+
+                <!-- Feedback Alert Container -->
+                <div id="contactAlert" class="alert alert-success d-none mb-4" role="alert">
+                    <i class="fas fa-check-circle mr-2"></i>Thank you! Your message has been received by the Nana Piyasa Research Team. We will respond within 24 hours.
+                </div>
+
+                <!-- Unified Single Contact Card -->
+                <div class="contact-master-card" data-aos="fade-up" data-aos-duration="700">
+                    <div class="row m-0">
+                        <!-- Left Side: Contact Form -->
+                        <div class="col-lg-7 col-md-12 contact-form-side">
+                            <h4 class="font-weight-bold text-dark mb-1">Send Us a Message</h4>
+                            <p class="text-muted small mb-4">Please fill in your details below and our research team will get back to you promptly.</p>
+                            <form id="contactForm" action="https://api.web3forms.com/submit" method="POST">
+                                <input type="hidden" name="access_key" value="2f8e0257-5c34-4269-84ec-6a75d71f465a">
+                                <input type="hidden" name="from_name" value="Nana Piyasa Research Contact Form">
+                                <input type="hidden" name="subject" value="New Inquiry from Nana Piyasa Website">
+                                <div class="form-group">
+                                    <label for="name">Your Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Prof. / Dr. / Mr. / Ms. John Doe" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="name@institution.lk" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inquiry_type">Inquiry Type</label>
+                                    <select class="form-control" id="inquiry_type" name="inquiry_type">
+                                        <option value="Academic Research Collaboration">Academic Research Collaboration</option>
+                                        <option value="Primary School Pilot Demonstration">Primary School Pilot Demonstration</option>
+                                        <option value="Dataset &amp; Benchmark Request">Dataset &amp; Benchmark Request</option>
+                                        <option value="General Inquiries">General Inquiries</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="message">Message or Research Query</label>
+                                    <textarea class="form-control" id="message" name="message" rows="4" placeholder="Please specify your inquiry details..." required></textarea>
+                                </div>
+                                <button type="submit" id="submitBtn" class="btn btncolorgradient">Submit Message</button>
+                                <div id="formStatus" class="mt-3 text-center font-weight-bold" style="display: none; font-size: 0.95rem; border-radius: 8px; padding: 10px 14px;"></div>
+                            </form>
+                        </div>
+
+                        <!-- Right Side: Contact Details & Location -->
+                        <div class="col-lg-5 col-md-12 p-0 d-flex">
+                            <div class="contact-details-side w-100">
+                                <div>
+                                    <h4 class="font-weight-bold text-dark mb-1">Contact Details &amp; Location</h4>
+                                    <p class="mb-4 text-muted small">
+                                        Our research laboratory is located within the Faculty of Computing at the Sri Lanka Institute of Information Technology.
+                                    </p>
+                                    <div class="contact-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>SLIIT Malabe Campus, New Kandy Road, Malabe 10115, Sri Lanka</span>
+                                    </div>
+                                    <div class="contact-item">
+                                        <i class="fas fa-envelope"></i>
+                                        <span><a href="mailto:info@sliit.lk">info@sliit.lk</a></span>
+                                    </div>
+                                    <div class="contact-item">
+                                        <i class="fas fa-phone-alt"></i>
+                                        <span>+94 (11) 754 4801 / +94 (77) 123 4567</span>
+                                    </div>
+                                    <div class="contact-item">
+                                        <i class="fas fa-university"></i>
+                                        <span>Faculty of Computing — CDAP Final Year Research</span>
+                                    </div>
+                                </div>
+                                <div class="pt-3 border-top mt-4">
+                                    <p class="text-muted small mb-0 font-italic">
+                                        "Empowering early childhood educators and parents through multimodal AI intelligence."
+                                        <br/><span class="font-weight-bold text-dark font-normal">— Team නැණ පියස (Nana Piyasa)</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Footer ==================== -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row">
+                <!-- Section 1: Brand & Project Overview -->
+                <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                    <div class="footer-brand pr-lg-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="./images/logo.png" width="46" height="46" alt="Nana Piyasa Logo" class="mr-2" loading="lazy">
+                            <div>
+                                <span class="font-sinhala footer-brand-title">නැණ පියස</span>
+                                <span class="footer-brand-en">Nana Piyasa</span>
+                            </div>
+                        </div>
+                        <p class="footer-tagline">
+                            AI-Powered Multimodal Adaptive Learning System engineered for early childhood &amp; primary education in Sri Lanka, integrating speech analysis, computer vision, and cognitive mastery.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Section 2: Navigation -->
+                <div class="col-lg-2 col-md-6 col-6 mb-4 mb-lg-0">
+                    <h5 class="footer-heading">Navigation</h5>
+                    <ul class="footer-links-list">
+                        <li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="#project-scope"><i class="fas fa-chevron-right"></i> Domain &amp; Scope</a></li>
+                        <li><a href="#methodology"><i class="fas fa-chevron-right"></i> Architecture</a></li>
+                        <li><a href="#milestones"><i class="fas fa-chevron-right"></i> Project Timeline</a></li>
+                        <li><a href="#about"><i class="fas fa-chevron-right"></i> Research Team</a></li>
+                    </ul>
+                </div>
+
+                <!-- Section 3: Deliverables & Docs -->
+                <div class="col-lg-3 col-md-6 col-6 mb-4 mb-lg-0">
+                    <h5 class="footer-heading">Deliverables &amp; Docs</h5>
+                    <ul class="footer-links-list">
+                        <li><a href="#downloads"><i class="fas fa-file-pdf text-danger"></i> Research Paper</a></li>
+                        <li><a href="#presentations"><i class="fas fa-desktop text-primary"></i> Presentation Decks</a></li>
+                        <li><a href="#downloads"><i class="fas fa-file-alt text-info"></i> Project Proposal</a></li>
+                        <li><a href="#downloads"><i class="fas fa-book text-success"></i> Final Thesis &amp; Poster</a></li>
+                        <li><a href="#contact"><i class="fas fa-paper-plane text-warning"></i> Contact Research Lab</a></li>
+                    </ul>
+                </div>
+
+                <!-- Section 4: Contact Us -->
+                <div class="col-lg-3 col-md-6 col-12">
+                    <h5 class="footer-heading">Contact Us</h5>
+                    <ul class="footer-contact-list">
+                        <li>
+                            <i class="fas fa-map-marker-alt text-danger"></i>
+                            <span>SLIIT Malabe Campus, New Kandy Rd, Malabe, Sri Lanka</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope text-info"></i>
+                            <a href="mailto:info@sliit.lk">info@sliit.lk</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone-alt text-success"></i>
+                            <a href="tel:+94117544801">+94 (11) 754 4801</a>
+                        </li>
+                    </ul>
+                    <div class="mt-3">
+                        <a href="#contact" class="footer-contact-btn">
+                            <i class="fas fa-paper-plane mr-1"></i> Send a Message
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Copyright -->
+            <div class="footer-bottom-bar text-center">
+                <p class="footer-copyright mb-1">
+                    &copy; 2026 <strong class="text-white">Team නැණ පියස (Nana Piyasa)</strong>. All Rights Reserved.
+                </p>
+                <p class="footer-institutional text-muted mb-0">
+                    Faculty of Computing &bull; Sri Lanka Institute of Information Technology, Malabe, Sri Lanka.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Back to Top Button -->
+    <a id="backToTop" href="#home" class="back-to-top" title="Back to top" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </a>
+
+
+    <!-- Auto-close mobile navigation menu & Active Link Switching & AJAX Contact Form Submission -->
+    <script>
+        // Handle navbar link clicks: close mobile drawer and switch active highlight
+        document.addEventListener('click', function(e) {
+            var dropdownToggle = e.target.closest('.dropdown-toggle');
+            if (dropdownToggle) {
+                e.preventDefault();
+                var parentDropdown = dropdownToggle.closest('.dropdown');
+                if (parentDropdown) {
+                    var dropdownMenu = parentDropdown.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        dropdownMenu.classList.toggle('show');
+                    }
+                }
+                return;
+            }
+
+            var navLink = e.target.closest('.navbar-nav .nav-link, .dropdown-menu .dropdown-item');
+            if (navLink) {
+                // If it's a regular navigation link (not dropdown toggle)
+                // Remove active from all nav-items and dropdown-items
+                document.querySelectorAll('.navbar-nav .nav-item').forEach(function(item) {
+                    item.classList.remove('active');
+                });
+                document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(function(item) {
+                    item.classList.remove('active');
+                });
+
+                // Set active on parent nav-item
+                var parentItem = navLink.closest('.nav-item');
+                if (parentItem) {
+                    parentItem.classList.add('active');
+                }
+                if (navLink.classList.contains('dropdown-item')) {
+                    navLink.classList.add('active');
+                }
+
+                // Close mobile dropdown menu & navigation drawer
+                document.querySelectorAll('.dropdown-menu').forEach(function(m) {
+                    m.classList.remove('show');
+                });
+                var toggle = document.getElementById('nav-toggle-checkbox');
+                if (toggle) toggle.checked = false;
+            } else {
+                // Close mobile menu & dropdown when tapping outside
+                var toggle = document.getElementById('nav-toggle-checkbox');
+                if (toggle && toggle.checked && !e.target.closest('#navmenu')) {
+                    toggle.checked = false;
+                    document.querySelectorAll('.dropdown-menu').forEach(function(m) {
+                        m.classList.remove('show');
+                    });
+                }
+            }
+        });
+
+        // Contact Form AJAX Submit (No page redirection & auto-clear)
+        var contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var statusBox = document.getElementById('formStatus');
+                var submitBtn = document.getElementById('submitBtn');
+                var origBtnText = submitBtn ? submitBtn.innerText : 'Submit Message';
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = 'Sending...';
+                }
+                if (statusBox) {
+                    statusBox.style.display = 'none';
+                }
+
+                var formData = new FormData(contactForm);
+
+                fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = origBtnText;
+                    }
+                    if (data.success) {
+                        contactForm.reset();
+                        if (statusBox) {
+                            statusBox.style.display = 'block';
+                            statusBox.style.backgroundColor = '#ecfdf5';
+                            statusBox.style.color = '#065f46';
+                            statusBox.style.border = '1px solid #a7f3d0';
+                            statusBox.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Submitted successfully! Our team will get back to you soon.';
+                            setTimeout(function() {
+                                statusBox.style.display = 'none';
+                            }, 6000);
+                        }
+                    } else {
+                        if (statusBox) {
+                            statusBox.style.display = 'block';
+                            statusBox.style.backgroundColor = '#fef2f2';
+                            statusBox.style.color = '#991b1b';
+                            statusBox.style.border = '1px solid #fecaca';
+                            statusBox.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> ' + (data.message || 'Something went wrong. Please try again.');
+                        }
+                    }
+                })
+                .catch(function(err) {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = origBtnText;
+                    }
+                    if (statusBox) {
+                        statusBox.style.display = 'block';
+                        statusBox.style.backgroundColor = '#fef2f2';
+                        statusBox.style.color = '#991b1b';
+                        statusBox.style.border = '1px solid #fecaca';
+                        statusBox.innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Network error. Please try again later.';
+                    }
+                });
+            });
+        }
+
+        // Show Back to Top button only when scrolled past the Hero section
+        var backToTopBtn = document.getElementById('backToTop');
+        if (backToTopBtn) {
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 400) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            }, { passive: true });
+        }
+    </script>
+</body>
+</html>

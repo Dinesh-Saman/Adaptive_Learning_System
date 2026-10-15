@@ -1,0 +1,938 @@
+[
+  {
+    "id": "REC_001",
+    "filename": "Voice 261012_093846.m4a",
+    "wav_filename": "human_voice_001_Voice_261012_093846.wav",
+    "duration": 1.56,
+    "peak_amplitude": 0.2603,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_002",
+    "filename": "Voice 261012_093904.m4a",
+    "wav_filename": "human_voice_002_Voice_261012_093904.wav",
+    "duration": 1.62,
+    "peak_amplitude": 0.9592,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_003",
+    "filename": "Voice 261012_093913.m4a",
+    "wav_filename": "human_voice_003_Voice_261012_093913.wav",
+    "duration": 1.58,
+    "peak_amplitude": 0.9399,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_004",
+    "filename": "Voice 261012_093920.m4a",
+    "wav_filename": "human_voice_004_Voice_261012_093920.wav",
+    "duration": 1.11,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_005",
+    "filename": "Voice 261012_093927.m4a",
+    "wav_filename": "human_voice_005_Voice_261012_093927.wav",
+    "duration": 1.17,
+    "peak_amplitude": 0.9744,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_006",
+    "filename": "Voice 261012_093934.m4a",
+    "wav_filename": "human_voice_006_Voice_261012_093934.wav",
+    "duration": 2.07,
+    "peak_amplitude": 0.9499,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_007",
+    "filename": "Voice 261012_093943.m4a",
+    "wav_filename": "human_voice_007_Voice_261012_093943.wav",
+    "duration": 2.35,
+    "peak_amplitude": 0.975,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_008",
+    "filename": "Voice 261012_093953.m4a",
+    "wav_filename": "human_voice_008_Voice_261012_093953.wav",
+    "duration": 2.24,
+    "peak_amplitude": 0.9633,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_009",
+    "filename": "Voice 261012_094003.m4a",
+    "wav_filename": "human_voice_009_Voice_261012_094003.wav",
+    "duration": 1.96,
+    "peak_amplitude": 0.9633,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_010",
+    "filename": "Voice 261012_094012.m4a",
+    "wav_filename": "human_voice_010_Voice_261012_094012.wav",
+    "duration": 2.39,
+    "peak_amplitude": 0.9633,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_011",
+    "filename": "Voice 261012_094024.m4a",
+    "wav_filename": "human_voice_011_Voice_261012_094024.wav",
+    "duration": 2.05,
+    "peak_amplitude": 0.9625,
+    "clarity": "Clear Audio",
+    "detected_mti": []
+  },
+  {
+    "id": "REC_012",
+    "filename": "Voice 261012_094033.m4a",
+    "wav_filename": "human_voice_012_Voice_261012_094033.wav",
+    "duration": 1.71,
+    "peak_amplitude": 0.995,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_013",
+    "filename": "Voice 261012_094041.m4a",
+    "wav_filename": "human_voice_013_Voice_261012_094041.wav",
+    "duration": 1.37,
+    "peak_amplitude": 0.9924,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_014",
+    "filename": "Voice 261012_094120.m4a",
+    "wav_filename": "human_voice_014_Voice_261012_094120.wav",
+    "duration": 1.24,
+    "peak_amplitude": 0.6635,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_015",
+    "filename": "Voice 261012_094128.m4a",
+    "wav_filename": "human_voice_015_Voice_261012_094128.wav",
+    "duration": 2.28,
+    "peak_amplitude": 0.8747,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_016",
+    "filename": "Voice 261012_094144.m4a",
+    "wav_filename": "human_voice_016_Voice_261012_094144.wav",
+    "duration": 1.28,
+    "peak_amplitude": 0.8373,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_017",
+    "filename": "Voice 261012_094152.m4a",
+    "wav_filename": "human_voice_017_Voice_261012_094152.wav",
+    "duration": 2.07,
+    "peak_amplitude": 0.9864,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_018",
+    "filename": "Voice 261012_094201.m4a",
+    "wav_filename": "human_voice_018_Voice_261012_094201.wav",
+    "duration": 1.11,
+    "peak_amplitude": 0.9773,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_019",
+    "filename": "Voice 261012_094212.m4a",
+    "wav_filename": "human_voice_019_Voice_261012_094212.wav",
+    "duration": 1.28,
+    "peak_amplitude": 0.9745,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_020",
+    "filename": "Voice 261012_094220.m4a",
+    "wav_filename": "human_voice_020_Voice_261012_094220.wav",
+    "duration": 1.17,
+    "peak_amplitude": 0.9864,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_021",
+    "filename": "Voice 261012_094228.m4a",
+    "wav_filename": "human_voice_021_Voice_261012_094228.wav",
+    "duration": 1.66,
+    "peak_amplitude": 0.9339,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_022",
+    "filename": "Voice 261012_094235.m4a",
+    "wav_filename": "human_voice_022_Voice_261012_094235.wav",
+    "duration": 1.34,
+    "peak_amplitude": 0.9735,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_023",
+    "filename": "Voice 261012_094244.m4a",
+    "wav_filename": "human_voice_023_Voice_261012_094244.wav",
+    "duration": 1.17,
+    "peak_amplitude": 0.9301,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_024",
+    "filename": "Voice 261012_094252.m4a",
+    "wav_filename": "human_voice_024_Voice_261012_094252.wav",
+    "duration": 3.24,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_025",
+    "filename": "Voice 261012_094300.m4a",
+    "wav_filename": "human_voice_025_Voice_261012_094300.wav",
+    "duration": 1.64,
+    "peak_amplitude": 0.9706,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_026",
+    "filename": "Voice 261012_094326.m4a",
+    "wav_filename": "human_voice_026_Voice_261012_094326.wav",
+    "duration": 2.54,
+    "peak_amplitude": 0.4799,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_027",
+    "filename": "Voice 261012_094413.m4a",
+    "wav_filename": "human_voice_027_Voice_261012_094413.wav",
+    "duration": 1.34,
+    "peak_amplitude": 0.4721,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_028",
+    "filename": "Voice 261012_094428.m4a",
+    "wav_filename": "human_voice_028_Voice_261012_094428.wav",
+    "duration": 1.64,
+    "peak_amplitude": 0.4104,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_029",
+    "filename": "Voice 261012_094501.m4a",
+    "wav_filename": "human_voice_029_Voice_261012_094501.wav",
+    "duration": 2.37,
+    "peak_amplitude": 0.4903,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_030",
+    "filename": "Voice 261012_094606.m4a",
+    "wav_filename": "human_voice_030_Voice_261012_094606.wav",
+    "duration": 1.22,
+    "peak_amplitude": 0.9544,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_031",
+    "filename": "Voice 261012_094622.m4a",
+    "wav_filename": "human_voice_031_Voice_261012_094622.wav",
+    "duration": 4.12,
+    "peak_amplitude": 0.9908,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_032",
+    "filename": "Voice 261012_094702.m4a",
+    "wav_filename": "human_voice_032_Voice_261012_094702.wav",
+    "duration": 1.24,
+    "peak_amplitude": 0.8328,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_033",
+    "filename": "Voice 261012_094716.m4a",
+    "wav_filename": "human_voice_033_Voice_261012_094716.wav",
+    "duration": 1.51,
+    "peak_amplitude": 0.8979,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_034",
+    "filename": "Voice 261012_094730.m4a",
+    "wav_filename": "human_voice_034_Voice_261012_094730.wav",
+    "duration": 1.34,
+    "peak_amplitude": 0.9684,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_035",
+    "filename": "Voice 261012_094744.m4a",
+    "wav_filename": "human_voice_035_Voice_261012_094744.wav",
+    "duration": 1.22,
+    "peak_amplitude": 0.704,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_036",
+    "filename": "Voice 261012_094757.m4a",
+    "wav_filename": "human_voice_036_Voice_261012_094757.wav",
+    "duration": 1.34,
+    "peak_amplitude": 0.6901,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_037",
+    "filename": "Voice 261012_094811.m4a",
+    "wav_filename": "human_voice_037_Voice_261012_094811.wav",
+    "duration": 2.15,
+    "peak_amplitude": 0.9969,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_038",
+    "filename": "Voice 261012_094846.m4a",
+    "wav_filename": "human_voice_038_Voice_261012_094846.wav",
+    "duration": 1.13,
+    "peak_amplitude": 0.997,
+    "clarity": "Clear Audio",
+    "detected_mti": []
+  },
+  {
+    "id": "REC_039",
+    "filename": "Voice 261012_094921.m4a",
+    "wav_filename": "human_voice_039_Voice_261012_094921.wav",
+    "duration": 1.71,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_040",
+    "filename": "Voice 261012_095033.m4a",
+    "wav_filename": "human_voice_040_Voice_261012_095033.wav",
+    "duration": 2.33,
+    "peak_amplitude": 0.9792,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_041",
+    "filename": "Voice 261012_095135.m4a",
+    "wav_filename": "human_voice_041_Voice_261012_095135.wav",
+    "duration": 1.28,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_042",
+    "filename": "Voice 261012_095153.m4a",
+    "wav_filename": "human_voice_042_Voice_261012_095153.wav",
+    "duration": 1.94,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_043",
+    "filename": "Voice 261012_095212.m4a",
+    "wav_filename": "human_voice_043_Voice_261012_095212.wav",
+    "duration": 1.75,
+    "peak_amplitude": 0.9998,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_044",
+    "filename": "Voice 261012_095232.m4a",
+    "wav_filename": "human_voice_044_Voice_261012_095232.wav",
+    "duration": 1.11,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_045",
+    "filename": "Voice 261012_095251.m4a",
+    "wav_filename": "human_voice_045_Voice_261012_095251.wav",
+    "duration": 1.26,
+    "peak_amplitude": 0.9875,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_046",
+    "filename": "Voice 261012_095308.m4a",
+    "wav_filename": "human_voice_046_Voice_261012_095308.wav",
+    "duration": 1.22,
+    "peak_amplitude": 0.9816,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_047",
+    "filename": "Voice 261012_095321.m4a",
+    "wav_filename": "human_voice_047_Voice_261012_095321.wav",
+    "duration": 1.41,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_048",
+    "filename": "Voice 261012_095343.m4a",
+    "wav_filename": "human_voice_048_Voice_261012_095343.wav",
+    "duration": 1.45,
+    "peak_amplitude": 0.9968,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_049",
+    "filename": "Voice 261012_095404.m4a",
+    "wav_filename": "human_voice_049_Voice_261012_095404.wav",
+    "duration": 1.22,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_050",
+    "filename": "Voice 261012_095447.m4a",
+    "wav_filename": "human_voice_050_Voice_261012_095447.wav",
+    "duration": 1.92,
+    "peak_amplitude": 0.9645,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_051",
+    "filename": "Voice 261012_095530.m4a",
+    "wav_filename": "human_voice_051_Voice_261012_095530.wav",
+    "duration": 1.39,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_052",
+    "filename": "Voice 261012_095551.m4a",
+    "wav_filename": "human_voice_052_Voice_261012_095551.wav",
+    "duration": 1.98,
+    "peak_amplitude": 0.921,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_053",
+    "filename": "Voice 261012_095659.m4a",
+    "wav_filename": "human_voice_053_Voice_261012_095659.wav",
+    "duration": 1.11,
+    "peak_amplitude": 0.9636,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_054",
+    "filename": "Voice 261012_095754.m4a",
+    "wav_filename": "human_voice_054_Voice_261012_095754.wav",
+    "duration": 1.11,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_055",
+    "filename": "Voice 261012_095904.m4a",
+    "wav_filename": "human_voice_055_Voice_261012_095904.wav",
+    "duration": 1.15,
+    "peak_amplitude": 0.9738,
+    "clarity": "Clear Audio",
+    "detected_mti": []
+  },
+  {
+    "id": "REC_056",
+    "filename": "Voice 261012_095929.m4a",
+    "wav_filename": "human_voice_056_Voice_261012_095929.wav",
+    "duration": 1.83,
+    "peak_amplitude": 0.9463,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_057",
+    "filename": "Voice 261012_095950.m4a",
+    "wav_filename": "human_voice_057_Voice_261012_095950.wav",
+    "duration": 1.43,
+    "peak_amplitude": 0.9306,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_058",
+    "filename": "Voice 261012_100047.m4a",
+    "wav_filename": "human_voice_058_Voice_261012_100047.wav",
+    "duration": 1.71,
+    "peak_amplitude": 0.9861,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_059",
+    "filename": "Voice 261012_100101.m4a",
+    "wav_filename": "human_voice_059_Voice_261012_100101.wav",
+    "duration": 1.37,
+    "peak_amplitude": 0.9491,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_060",
+    "filename": "Voice 261012_100125.m4a",
+    "wav_filename": "human_voice_060_Voice_261012_100125.wav",
+    "duration": 1.17,
+    "peak_amplitude": 0.9201,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_061",
+    "filename": "Voice 261012_100206.m4a",
+    "wav_filename": "human_voice_061_Voice_261012_100206.wav",
+    "duration": 1.13,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_062",
+    "filename": "Voice 261012_100241.m4a",
+    "wav_filename": "human_voice_062_Voice_261012_100241.wav",
+    "duration": 1.66,
+    "peak_amplitude": 0.9922,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_063",
+    "filename": "Voice 261012_100319.m4a",
+    "wav_filename": "human_voice_063_Voice_261012_100319.wav",
+    "duration": 1.83,
+    "peak_amplitude": 0.8344,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_064",
+    "filename": "Voice 261012_100341.m4a",
+    "wav_filename": "human_voice_064_Voice_261012_100341.wav",
+    "duration": 1.58,
+    "peak_amplitude": 0.9745,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_065",
+    "filename": "Voice 261012_100358.m4a",
+    "wav_filename": "human_voice_065_Voice_261012_100358.wav",
+    "duration": 2.45,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_066",
+    "filename": "Voice 261012_100412.m4a",
+    "wav_filename": "human_voice_066_Voice_261012_100412.wav",
+    "duration": 1.47,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": []
+  },
+  {
+    "id": "REC_067",
+    "filename": "Voice 261012_100431.m4a",
+    "wav_filename": "human_voice_067_Voice_261012_100431.wav",
+    "duration": 1.71,
+    "peak_amplitude": 0.9823,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_068",
+    "filename": "Voice 261012_100445.m4a",
+    "wav_filename": "human_voice_068_Voice_261012_100445.wav",
+    "duration": 1.26,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_069",
+    "filename": "Voice 261012_100458.m4a",
+    "wav_filename": "human_voice_069_Voice_261012_100458.wav",
+    "duration": 1.69,
+    "peak_amplitude": 0.9708,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_070",
+    "filename": "Voice 261012_100526.m4a",
+    "wav_filename": "human_voice_070_Voice_261012_100526.wav",
+    "duration": 1.56,
+    "peak_amplitude": 0.9537,
+    "clarity": "Clear Audio",
+    "detected_mti": []
+  },
+  {
+    "id": "REC_071",
+    "filename": "Voice 261012_100625.m4a",
+    "wav_filename": "human_voice_071_Voice_261012_100625.wav",
+    "duration": 1.22,
+    "peak_amplitude": 0.9824,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_072",
+    "filename": "Voice 261012_100643.m4a",
+    "wav_filename": "human_voice_072_Voice_261012_100643.wav",
+    "duration": 1.19,
+    "peak_amplitude": 0.653,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_073",
+    "filename": "Voice 261012_100659.m4a",
+    "wav_filename": "human_voice_073_Voice_261012_100659.wav",
+    "duration": 1.22,
+    "peak_amplitude": 0.9789,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_074",
+    "filename": "Voice 261012_100714.m4a",
+    "wav_filename": "human_voice_074_Voice_261012_100714.wav",
+    "duration": 1.6,
+    "peak_amplitude": 0.985,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_075",
+    "filename": "Voice 261012_100740.m4a",
+    "wav_filename": "human_voice_075_Voice_261012_100740.wav",
+    "duration": 1.39,
+    "peak_amplitude": 0.9501,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_076",
+    "filename": "Voice 261012_100752.m4a",
+    "wav_filename": "human_voice_076_Voice_261012_100752.wav",
+    "duration": 1.9,
+    "peak_amplitude": 0.972,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_077",
+    "filename": "Voice 261012_100808.m4a",
+    "wav_filename": "human_voice_077_Voice_261012_100808.wav",
+    "duration": 2.18,
+    "peak_amplitude": 0.9951,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_078",
+    "filename": "Voice 261012_100828.m4a",
+    "wav_filename": "human_voice_078_Voice_261012_100828.wav",
+    "duration": 1.26,
+    "peak_amplitude": 0.9904,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_079",
+    "filename": "Voice 261012_100841.m4a",
+    "wav_filename": "human_voice_079_Voice_261012_100841.wav",
+    "duration": 1.37,
+    "peak_amplitude": 0.9664,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_080",
+    "filename": "Voice 261012_100855.m4a",
+    "wav_filename": "human_voice_080_Voice_261012_100855.wav",
+    "duration": 1.28,
+    "peak_amplitude": 0.9647,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_081",
+    "filename": "Voice 261012_100921.m4a",
+    "wav_filename": "human_voice_081_Voice_261012_100921.wav",
+    "duration": 1.54,
+    "peak_amplitude": 0.9427,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_082",
+    "filename": "Voice 261012_100935.m4a",
+    "wav_filename": "human_voice_082_Voice_261012_100935.wav",
+    "duration": 1.24,
+    "peak_amplitude": 0.9869,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_083",
+    "filename": "Voice 261012_100949.m4a",
+    "wav_filename": "human_voice_083_Voice_261012_100949.wav",
+    "duration": 1.24,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_084",
+    "filename": "Voice 261012_101002.m4a",
+    "wav_filename": "human_voice_084_Voice_261012_101002.wav",
+    "duration": 1.24,
+    "peak_amplitude": 0.9564,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_085",
+    "filename": "Voice 261012_101016.m4a",
+    "wav_filename": "human_voice_085_Voice_261012_101016.wav",
+    "duration": 1.34,
+    "peak_amplitude": 0.975,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  },
+  {
+    "id": "REC_086",
+    "filename": "Voice 261012_101029.m4a",
+    "wav_filename": "human_voice_086_Voice_261012_101029.wav",
+    "duration": 1.6,
+    "peak_amplitude": 1.0,
+    "clarity": "Clear Audio",
+    "detected_mti": [
+      "S_CLUSTER_PROSTHESIS"
+    ]
+  }
+]

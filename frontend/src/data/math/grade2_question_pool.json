@@ -10,16 +10,27 @@
       "text_en": "What number comes immediately after 8?",
       "q_format": "multiple_choice",
       "options": [
+        "6",
         "7",
         "9",
-        "10",
-        "6"
+        "10"
       ],
       "answer": "9",
       "explanation_si": "8ට පසු එන ඊළඟ අංකය 9 වේ.",
       "explanation_en": "9 comes immediately after 8.",
       "error_patterns": {
         "7": "Predecessor confusion: Counted backward."
+      },
+      "visual": {
+        "type": "pattern",
+        "items": [
+          "5",
+          "6",
+          "7",
+          "8",
+          "❓"
+        ],
+        "caption": "Counting sequence"
       }
     },
     {
@@ -31,9 +42,9 @@
       "text_en": "Counting by 2s: 2, 4, 6, __, 10. What fills the blank?",
       "q_format": "multiple_choice",
       "options": [
-        "7",
         "8",
         "9",
+        "7",
         "12"
       ],
       "answer": "8",
@@ -49,10 +60,10 @@
       "text_en": "Counting forward from 15 to 19:",
       "q_format": "multiple_choice",
       "options": [
-        "15, 16, 17, 18, 19",
-        "15, 17, 18, 19",
+        "15, 16, 18, 19",
         "19, 18, 17, 16, 15",
-        "15, 16, 18, 19"
+        "15, 17, 18, 19",
+        "15, 16, 17, 18, 19"
       ],
       "answer": "15, 16, 17, 18, 19",
       "explanation_si": "15, 16, 17, 18, 19 නිවැරදි ඉදිරියට ගණන් කිරීමයි.",
@@ -68,8 +79,8 @@
       "q_format": "multiple_choice",
       "options": [
         "15",
-        "14",
         "13",
+        "14",
         "10"
       ],
       "answer": "14",
@@ -85,14 +96,25 @@
       "text_en": "Amal counts by 2s from 2 to 10 (2, 4, 6, 8, 10). How many numbers does he say?",
       "q_format": "multiple_choice",
       "options": [
-        "4",
-        "5",
         "6",
+        "5",
+        "4",
         "10"
       ],
       "answer": "5",
       "explanation_si": "2, 4, 6, 8, 10 යනුවෙන් සංඛ්‍යා 5ක් කියයි.",
-      "explanation_en": "He says 5 numbers (2, 4, 6, 8, 10)."
+      "explanation_en": "He says 5 numbers (2, 4, 6, 8, 10).",
+      "visual": {
+        "type": "pattern",
+        "items": [
+          "2",
+          "4",
+          "6",
+          "8",
+          "10"
+        ],
+        "caption": "Counting by 2s"
+      }
     },
     {
       "id": "G2_D1_S2_L1",
@@ -103,10 +125,10 @@
       "text_en": "Which digit represents 'nothing' or an empty set?",
       "q_format": "multiple_choice",
       "options": [
-        "0 (ශූන්‍යය)",
-        "1 (එක)",
         "10 (දහය)",
-        "5 (පහ)"
+        "5 (පහ)",
+        "0 (ශූන්‍යය)",
+        "1 (එක)"
       ],
       "answer": "0 (ශූන්‍යය)",
       "explanation_si": "කිසිවක් නැති බව දැක්වීමට 0 (ශූන්‍යය / බිංදුව) යොදාගනී.",
@@ -121,8 +143,8 @@
       "text_en": "How do you write 'Thirteen' in digits?",
       "q_format": "multiple_choice",
       "options": [
-        "13",
         "31",
+        "13",
         "103",
         "30"
       ],
@@ -139,10 +161,10 @@
       "text_en": "How is 45 written in words?",
       "q_format": "multiple_choice",
       "options": [
-        "හතළිස් පහ",
         "තිස් පහ",
+        "විසි පහ",
         "පනස් හතර",
-        "විසි පහ"
+        "හතළිස් පහ"
       ],
       "answer": "හතළිස් පහ",
       "explanation_si": "45 යනු හතළිස් පහයි.",
@@ -176,8 +198,8 @@
       "q_format": "multiple_choice",
       "options": [
         "හැට (60)",
-        "හය (6)",
         "හයසියය (600)",
+        "හය (6)",
         "දහසය (16)"
       ],
       "answer": "හැට (60)",
@@ -193,14 +215,30 @@
       "text_en": "How many tens are in the number 14?",
       "q_format": "multiple_choice",
       "options": [
-        "1ක්",
-        "4ක්",
         "10ක්",
-        "14ක්"
+        "14ක්",
+        "1ක්",
+        "4ක්"
       ],
       "answer": "1ක්",
       "explanation_si": "14 හි දහයේ මිටි 1ක් සහ තනි 4ක් ඇත.",
-      "explanation_en": "In 14, there is 1 ten and 4 ones."
+      "explanation_en": "In 14, there is 1 ten and 4 ones.",
+      "visual": {
+        "type": "place_value_abacus",
+        "columns": [
+          {
+            "label": "T",
+            "val": 1,
+            "color": "#10b981"
+          },
+          {
+            "label": "O",
+            "val": 4,
+            "color": "#f59e0b"
+          }
+        ],
+        "caption": "14 = 1 Ten, 4 Ones"
+      }
     },
     {
       "id": "G2_D1_S3_L2",
@@ -211,14 +249,20 @@
       "text_en": "What number is formed by 2 bundles of ten and 5 single sticks?",
       "q_format": "multiple_choice",
       "options": [
-        "25",
-        "52",
         "20",
-        "7"
+        "25",
+        "7",
+        "52"
       ],
       "answer": "25",
       "explanation_si": "දහයේ 2ක් = 20, තනි 5ක් = 5. එකතුව 25 වේ.",
-      "explanation_en": "2 tens + 5 ones = 25."
+      "explanation_en": "2 tens + 5 ones = 25.",
+      "visual": {
+        "type": "place_value_blocks",
+        "tens": 2,
+        "ones": 5,
+        "caption": "2 Bundles + 5 Sticks = 25"
+      }
     },
     {
       "id": "G2_D1_S3_L3",
@@ -229,14 +273,30 @@
       "text_en": "Separate 38 into tens and ones:",
       "q_format": "multiple_choice",
       "options": [
-        "දහයේ ඒවා 3ක් සහ එකේ ඒවා 8ක්",
         "දහයේ ඒවා 8ක් සහ එකේ ඒවා 3ක්",
+        "දහයේ 38ක්",
         "දහයේ ඒවා 30ක් සහ එකේ 8ක්",
-        "දහයේ 38ක්"
+        "දහයේ ඒවා 3ක් සහ එකේ ඒවා 8ක්"
       ],
       "answer": "දහයේ ඒවා 3ක් සහ එකේ ඒවා 8ක්",
       "explanation_si": "38 = දහයේ ඒවා 3 සහ එකේ ඒවා 8.",
-      "explanation_en": "38 = 3 tens and 8 ones."
+      "explanation_en": "38 = 3 tens and 8 ones.",
+      "visual": {
+        "type": "place_value_abacus",
+        "columns": [
+          {
+            "label": "T",
+            "val": 3,
+            "color": "#10b981"
+          },
+          {
+            "label": "O",
+            "val": 8,
+            "color": "#f59e0b"
+          }
+        ],
+        "caption": "38 = 30 + 8"
+      }
     },
     {
       "id": "G2_D1_S3_L4",
@@ -247,10 +307,10 @@
       "text_en": "What is the ones digit in 50?",
       "q_format": "multiple_choice",
       "options": [
-        "0",
-        "5",
         "50",
-        "10"
+        "10",
+        "0",
+        "5"
       ],
       "answer": "0",
       "explanation_si": "50 හි එකස්ථානයේ අගය 0 වේ.",
@@ -265,14 +325,30 @@
       "text_en": "My tens value is 40. My ones value is 7. What number am I?",
       "q_format": "multiple_choice",
       "options": [
-        "47",
-        "74",
+        "40",
         "407",
-        "40"
+        "47",
+        "74"
       ],
       "answer": "47",
       "explanation_si": "40 + 7 = 47.",
-      "explanation_en": "40 + 7 = 47."
+      "explanation_en": "40 + 7 = 47.",
+      "visual": {
+        "type": "place_value_abacus",
+        "columns": [
+          {
+            "label": "T",
+            "val": 4,
+            "color": "#10b981"
+          },
+          {
+            "label": "O",
+            "val": 7,
+            "color": "#f59e0b"
+          }
+        ],
+        "caption": "4 Tens + 7 Ones = 47"
+      }
     },
     {
       "id": "G2_D1_S4_L1",
@@ -283,9 +359,9 @@
       "text_en": "Which number is greater: 12 or 18?",
       "q_format": "multiple_choice",
       "options": [
+        "දෙකම සමානයි",
         "12",
         "18",
-        "දෙකම සමානයි",
         "කිසිවක් නොවේ"
       ],
       "answer": "18",
@@ -301,9 +377,9 @@
       "text_en": "Which is the smallest number? [ 24, 15, 31 ]",
       "q_format": "multiple_choice",
       "options": [
-        "15",
-        "24",
         "31",
+        "24",
+        "15",
         "සියල්ල සමානයි"
       ],
       "answer": "15",
@@ -319,10 +395,10 @@
       "text_en": "Which sequence is in ascending order (smallest to largest)?",
       "q_format": "multiple_choice",
       "options": [
-        "9, 16, 28",
-        "28, 16, 9",
+        "28, 9, 16",
         "16, 9, 28",
-        "28, 9, 16"
+        "9, 16, 28",
+        "28, 16, 9"
       ],
       "answer": "9, 16, 28",
       "explanation_si": "9 < 16 < 28 කුඩාම අගයේ සිට වැඩිවන පිළිවෙළයි.",
@@ -337,10 +413,10 @@
       "text_en": "Which number is greater than 45 and less than 50?",
       "q_format": "multiple_choice",
       "options": [
-        "42",
-        "48",
+        "40",
         "52",
-        "40"
+        "42",
+        "48"
       ],
       "answer": "48",
       "explanation_si": "45 < 48 < 50.",
@@ -355,9 +431,9 @@
       "text_en": "If A = 30 + 5 and B = 40 - 2, compare A and B:",
       "q_format": "multiple_choice",
       "options": [
-        "B විශාල වේ (B > A)",
         "A විශාල වේ (A > B)",
         "A සහ B සමාන වේ",
+        "B විශාල වේ (B > A)",
         "කිසිවක් නොවේ"
       ],
       "answer": "B විශාල වේ (B > A)",
@@ -373,14 +449,26 @@
       "text_en": "What comes next in the pattern? 🔴 🟦 🔴 🟦 🔴 __",
       "q_format": "multiple_choice",
       "options": [
-        "🟦 (නිල් කොටුව)",
         "🔴 (රතු රවුම)",
         "⭐ (තරුව)",
-        "🔺 (ත්‍රිකෝණය)"
+        "🔺 (ත්‍රිකෝණය)",
+        "🟦 (නිල් කොටුව)"
       ],
       "answer": "🟦 (නිල් කොටුව)",
       "explanation_si": "රතු රවුමට පසු නිල් කොටුව පැමිණේ.",
-      "explanation_en": "Blue square comes after red circle."
+      "explanation_en": "Blue square comes after red circle.",
+      "visual": {
+        "type": "pattern",
+        "items": [
+          "🔴",
+          "🟦",
+          "🔴",
+          "🟦",
+          "🔴",
+          "❓"
+        ],
+        "caption": "Shape Color Pattern"
+      }
     },
     {
       "id": "G2_D1_S5_L2",
@@ -391,14 +479,25 @@
       "text_en": "Fill the blank in the pattern: 1, 3, 5, 7, __",
       "q_format": "multiple_choice",
       "options": [
-        "8",
         "9",
-        "10",
-        "11"
+        "11",
+        "8",
+        "10"
       ],
       "answer": "9",
       "explanation_si": "2න් 2 වැඩිවේ: 7 + 2 = 9.",
-      "explanation_en": "+2 pattern: 7 + 2 = 9."
+      "explanation_en": "+2 pattern: 7 + 2 = 9.",
+      "visual": {
+        "type": "pattern",
+        "items": [
+          "1",
+          "3",
+          "5",
+          "7",
+          "❓"
+        ],
+        "caption": "Odd Numbers (+2)"
+      }
     },
     {
       "id": "G2_D1_S5_L3",
@@ -409,10 +508,10 @@
       "text_en": "What are the next two numbers in: 10, 12, 14, __, __",
       "q_format": "multiple_choice",
       "options": [
-        "16 සහ 18",
-        "15 සහ 16",
+        "18 සහ 20",
         "16 සහ 17",
-        "18 සහ 20"
+        "15 සහ 16",
+        "16 සහ 18"
       ],
       "answer": "16 සහ 18",
       "explanation_si": "14 + 2 = 16, 16 + 2 = 18.",
@@ -427,14 +526,25 @@
       "text_en": "Fill the decreasing pattern: 20, 18, 16, __, 12",
       "q_format": "multiple_choice",
       "options": [
+        "13",
         "14",
         "15",
-        "13",
         "10"
       ],
       "answer": "14",
       "explanation_si": "2 බැගින් අඩු වේ: 16 - 2 = 14.",
-      "explanation_en": "-2 pattern: 16 - 2 = 14."
+      "explanation_en": "-2 pattern: 16 - 2 = 14.",
+      "visual": {
+        "type": "pattern",
+        "items": [
+          "20",
+          "18",
+          "16",
+          "❓",
+          "12"
+        ],
+        "caption": "Decreasing (-2) Pattern"
+      }
     },
     {
       "id": "G2_D1_S5_L5",
@@ -445,10 +555,10 @@
       "text_en": "Which number does not belong in the +2 pattern? [ 2, 4, 6, 7, 10 ]",
       "q_format": "multiple_choice",
       "options": [
-        "4",
         "6",
+        "10",
         "7",
-        "10"
+        "4"
       ],
       "answer": "7",
       "explanation_si": "2න් 2 වැඩිවන විට 6ට පසු 8 ආ යුතුය. 7 වැරදිය.",
@@ -463,10 +573,10 @@
       "text_en": "3 + 2 = ?",
       "q_format": "multiple_choice",
       "options": [
-        "4",
         "5",
+        "7",
         "6",
-        "7"
+        "4"
       ],
       "answer": "5",
       "explanation_si": "3 + 2 = 5.",
@@ -481,10 +591,10 @@
       "text_en": "7 + 5 = ?",
       "q_format": "multiple_choice",
       "options": [
-        "11",
-        "12",
+        "14",
         "13",
-        "14"
+        "11",
+        "12"
       ],
       "answer": "12",
       "explanation_si": "7 + 5 = 12.",
@@ -499,10 +609,10 @@
       "text_en": "10 + 7 = ?",
       "q_format": "multiple_choice",
       "options": [
-        "16",
-        "17",
+        "70",
         "18",
-        "70"
+        "16",
+        "17"
       ],
       "answer": "17",
       "explanation_si": "10 + 7 = 17.",
@@ -535,10 +645,10 @@
       "text_en": "8 + __ = 15. What is the missing number?",
       "q_format": "multiple_choice",
       "options": [
-        "5",
         "6",
-        "7",
-        "8"
+        "5",
+        "8",
+        "7"
       ],
       "answer": "7",
       "explanation_si": "15 - 8 = 7. එබැවින් 8 + 7 = 15.",
@@ -554,8 +664,8 @@
       "q_format": "multiple_choice",
       "options": [
         "18",
-        "19",
         "20",
+        "19",
         "17"
       ],
       "answer": "19",
@@ -571,10 +681,10 @@
       "text_en": "21 + 16 = ?",
       "q_format": "multiple_choice",
       "options": [
-        "35",
-        "37",
         "38",
-        "47"
+        "35",
+        "47",
+        "37"
       ],
       "answer": "37",
       "explanation_si": "1 + 6 = 7, 2 + 1 = 3 -> 37.",
@@ -589,10 +699,10 @@
       "text_en": "33 + 25 = ?",
       "q_format": "multiple_choice",
       "options": [
-        "56",
-        "58",
         "68",
-        "57"
+        "56",
+        "57",
+        "58"
       ],
       "answer": "58",
       "explanation_si": "33 + 25 = 58.",
@@ -607,10 +717,10 @@
       "text_en": "50 + 34 = ?",
       "q_format": "multiple_choice",
       "options": [
-        "84",
+        "94",
         "85",
         "74",
-        "94"
+        "84"
       ],
       "answer": "84",
       "explanation_si": "50 + 34 = 84.",
@@ -625,10 +735,10 @@
       "text_en": "One bag has 35 mangoes and another has 40. How many mangoes in total?",
       "q_format": "multiple_choice",
       "options": [
-        "65",
-        "70",
         "75",
-        "85"
+        "65",
+        "85",
+        "70"
       ],
       "answer": "75",
       "explanation_si": "35 + 40 = 75.",
@@ -644,8 +754,8 @@
       "q_format": "multiple_choice",
       "options": [
         "3",
-        "4",
         "5",
+        "4",
         "6"
       ],
       "answer": "4",
@@ -661,10 +771,10 @@
       "text_en": "15 - 5 = ?",
       "q_format": "multiple_choice",
       "options": [
-        "5",
         "10",
+        "15",
         "12",
-        "15"
+        "5"
       ],
       "answer": "10",
       "explanation_si": "15 - 5 = 10.",
@@ -680,8 +790,8 @@
       "q_format": "multiple_choice",
       "options": [
         "11",
-        "12",
         "13",
+        "12",
         "14"
       ],
       "answer": "12",
@@ -697,10 +807,10 @@
       "text_en": "16 - 0 = ?",
       "q_format": "multiple_choice",
       "options": [
-        "0",
         "16",
-        "1",
-        "15"
+        "15",
+        "0",
+        "1"
       ],
       "answer": "16",
       "explanation_si": "16න් 0ක් අඩු කළ විට 16ම ඉතිරි වේ.",
@@ -715,10 +825,10 @@
       "text_en": "20 - __ = 14. What is the missing number?",
       "q_format": "multiple_choice",
       "options": [
-        "4",
-        "5",
         "6",
-        "7"
+        "4",
+        "7",
+        "5"
       ],
       "answer": "6",
       "explanation_si": "20 - 6 = 14.",
@@ -734,9 +844,9 @@
       "q_format": "multiple_choice",
       "options": [
         "21",
-        "22",
         "23",
-        "24"
+        "24",
+        "22"
       ],
       "answer": "22",
       "explanation_si": "28 - 6 = 22.",
@@ -751,10 +861,10 @@
       "text_en": "37 - 5 = ?",
       "q_format": "multiple_choice",
       "options": [
-        "31",
-        "32",
         "33",
-        "35"
+        "35",
+        "32",
+        "31"
       ],
       "answer": "32",
       "explanation_si": "37 - 5 = 32.",
@@ -769,10 +879,10 @@
       "text_en": "55 - 14 = ?",
       "q_format": "multiple_choice",
       "options": [
-        "40",
         "41",
         "42",
-        "45"
+        "45",
+        "40"
       ],
       "answer": "41",
       "explanation_si": "5 - 4 = 1, 5 - 1 = 4 -> 41.",
@@ -787,10 +897,10 @@
       "text_en": "68 - 35 = ?",
       "q_format": "multiple_choice",
       "options": [
-        "31",
+        "35",
         "32",
-        "33",
-        "35"
+        "31",
+        "33"
       ],
       "answer": "33",
       "explanation_si": "8 - 5 = 3, 6 - 3 = 3 -> 33.",
@@ -805,10 +915,10 @@
       "text_en": "48 birds on a tree. 16 fly away. How many birds remain?",
       "q_format": "multiple_choice",
       "options": [
-        "30",
         "32",
         "34",
-        "36"
+        "36",
+        "30"
       ],
       "answer": "32",
       "explanation_si": "48 - 16 = 32.",
@@ -825,8 +935,8 @@
       "options": [
         "3",
         "4",
-        "5",
-        "6"
+        "6",
+        "5"
       ],
       "answer": "4",
       "explanation_si": "6 + 4 = 10.",
@@ -841,8 +951,8 @@
       "text_en": "Amal had 5 toffees. Nimal gave him 4 more. How many toffees does Amal have now?",
       "q_format": "multiple_choice",
       "options": [
-        "8",
         "9",
+        "8",
         "10",
         "11"
       ],
@@ -859,10 +969,10 @@
       "text_en": "A basket had 15 apples. After eating 6, how many apples remain?",
       "q_format": "multiple_choice",
       "options": [
-        "8",
         "9",
-        "10",
-        "11"
+        "11",
+        "8",
+        "10"
       ],
       "answer": "9",
       "explanation_si": "15 - 6 = 9.",
@@ -878,9 +988,9 @@
       "q_format": "multiple_choice",
       "options": [
         "14",
-        "15",
         "16",
-        "18"
+        "18",
+        "15"
       ],
       "answer": "15",
       "explanation_si": "12 + 6 = 18. 18 - 3 = 15.",
@@ -895,10 +1005,10 @@
       "text_en": "A child had some money. Mother gave him Rs. 8, making it Rs. 20. How much did he have at first?",
       "q_format": "multiple_choice",
       "options": [
-        "Rs. 10",
+        "Rs. 16",
         "Rs. 12",
         "Rs. 14",
-        "Rs. 16"
+        "Rs. 10"
       ],
       "answer": "Rs. 12",
       "explanation_si": "20 - 8 = රු. 12.",
@@ -914,9 +1024,9 @@
       "q_format": "multiple_choice",
       "options": [
         "වියත (Handspan)",
+        "කිලෝග්‍රෑම්",
         "පියවර (Step)",
-        "රියන (Cubite)",
-        "කිලෝග්‍රෑම්"
+        "රියන (Cubite)"
       ],
       "answer": "වියත (Handspan)",
       "explanation_si": "අතේ දිගහැර මනින දිග ඒකකය 'වියත' වේ.",
@@ -931,14 +1041,21 @@
       "text_en": "Table length = 6 sticks. Chair length = 4 sticks. Which is longer?",
       "q_format": "multiple_choice",
       "options": [
-        "මේසය (Table)",
-        "පුටුව (Chair)",
         "දෙකම සමානයි",
-        "කිසිවක් නොවේ"
+        "කිසිවක් නොවේ",
+        "මේසය (Table)",
+        "පුටුව (Chair)"
       ],
       "answer": "මේසය (Table)",
       "explanation_si": "කූරු 6ක් මනින මේසය දිගින් වැඩිය.",
-      "explanation_en": "Table (6 sticks) is longer than chair (4 sticks)."
+      "explanation_en": "Table (6 sticks) is longer than chair (4 sticks).",
+      "visual": {
+        "type": "ruler_measurement",
+        "length_cm": 6,
+        "total_cm": 10,
+        "object": "stick",
+        "caption": "Table: 6 Sticks / Chair: 4 Sticks"
+      }
     },
     {
       "id": "G2_D3_S1_L3",
@@ -949,10 +1066,10 @@
       "text_en": "Which arbitrary unit is best to measure a book's length?",
       "q_format": "multiple_choice",
       "options": [
-        "ගිනිකූරක් හෝ කුඩා පැන්සලක්",
+        "ලීටරයක්",
         "පියවරක් (Footsteps)",
-        "මීටර් 10 කෝදුවක්",
-        "ලීටරයක්"
+        "ගිනිකූරක් හෝ කුඩා පැන්සලක්",
+        "මීටර් 10 කෝදුවක්"
       ],
       "answer": "ගිනිකූරක් හෝ කුඩා පැන්සලක්",
       "explanation_si": "පොතක් කුඩා බැවින් ගිනිකූරක් හෝ කුඩා පැන්සලක් සුදුසුය.",
@@ -967,10 +1084,10 @@
       "text_en": "Blackboard = 8 straws. Window = 5 straws. How many straws longer is the blackboard?",
       "q_format": "multiple_choice",
       "options": [
-        "2ක්",
-        "3ක්",
         "4ක්",
-        "5ක්"
+        "2ක්",
+        "5ක්",
+        "3ක්"
       ],
       "answer": "3ක්",
       "explanation_si": "8 - 5 = 3 බීම බටක් දිගය.",
@@ -985,10 +1102,10 @@
       "text_en": "Three sticks: A = 4 handspans, B = 7 handspans, C = 5 handspans. Order from shortest to longest:",
       "q_format": "multiple_choice",
       "options": [
-        "A, C, B",
-        "B, C, A",
+        "A, B, C",
         "C, A, B",
-        "A, B, C"
+        "A, C, B",
+        "B, C, A"
       ],
       "answer": "A, C, B",
       "explanation_si": "A (4) < C (5) < B (7).",
@@ -1003,10 +1120,10 @@
       "text_en": "Holding in hands, which is heavier: a rock or a feather?",
       "q_format": "multiple_choice",
       "options": [
-        "ගල (Rock)",
-        "පිහාටුව (Feather)",
         "දෙකම සමානයි",
-        "කිසිවක් නොවේ"
+        "ගල (Rock)",
+        "කිසිවක් නොවේ",
+        "පිහාටුව (Feather)"
       ],
       "answer": "ගල (Rock)",
       "explanation_si": "ගල බරින් වැඩිය.",
@@ -1021,14 +1138,25 @@
       "text_en": "On a balance scale, the pan holding the book goes down. This means:",
       "q_format": "multiple_choice",
       "options": [
-        "පොත බරින් වැඩිය",
         "පොත බරින් අඩුය",
+        "තරාදිය කැඩී ඇත",
         "පොත සැහැල්ලුය",
-        "තරාදිය කැඩී ඇත"
+        "පොත බරින් වැඩිය"
       ],
       "answer": "පොත බරින් වැඩිය",
       "explanation_si": "තරාදියේ පහත් වන පැත්ත බරින් වැඩිය.",
-      "explanation_en": "The heavier side goes down."
+      "explanation_en": "The heavier side goes down.",
+      "visual": {
+        "type": "balance_scale",
+        "left": {
+          "label": "Book 📖"
+        },
+        "right": {
+          "label": "Pencil ✏️"
+        },
+        "tilt": "left",
+        "caption": "Heavier object goes down"
+      }
     },
     {
       "id": "G2_D3_S2_L3",
@@ -1058,13 +1186,24 @@
       "q_format": "multiple_choice",
       "options": [
         "පියන් 5කට",
+        "පියන් 20කට",
         "පියන් 10කට",
-        "පියන් 15කට",
-        "පියන් 20කට"
+        "පියන් 15කට"
       ],
       "answer": "පියන් 10කට",
       "explanation_si": "සමබර වූ බැවින් සබන් කැටයේ බර පියන් 10කි.",
-      "explanation_en": "Balanced weight = 10 bottle caps."
+      "explanation_en": "Balanced weight = 10 bottle caps.",
+      "visual": {
+        "type": "balance_scale",
+        "left": {
+          "label": "1 Soap"
+        },
+        "right": {
+          "label": "10 Caps"
+        },
+        "tilt": "balanced",
+        "caption": "Balanced: 1 Soap = 10 Caps"
+      }
     },
     {
       "id": "G2_D3_S2_L5",
@@ -1075,10 +1214,10 @@
       "text_en": "Weights: Wood block = 9 caps, Rock = 11 caps, Soap = 15 caps. Which is lightest?",
       "q_format": "multiple_choice",
       "options": [
-        "ලී කුට්ටිය (Wood block)",
         "ගල (Rock)",
-        "සබන් කැටය (Soap)",
-        "සියල්ල සමානයි"
+        "ලී කුට්ටිය (Wood block)",
+        "සියල්ල සමානයි",
+        "සබන් කැටය (Soap)"
       ],
       "answer": "ලී කුට්ටිය (Wood block)",
       "explanation_si": "පියන් 9ක් වන ලී කුට්ටිය බරින් අඩුමය.",
@@ -1093,10 +1232,10 @@
       "text_en": "Which holds more water than a teacup?",
       "q_format": "multiple_choice",
       "options": [
-        "බාල්දිය (Bucket)",
         "තේ හැන්ද (Teaspoon)",
+        "බිංදු විදුරුව",
         "බෙහෙත් මූඩිය",
-        "බිංදු විදුරුව"
+        "බාල්දිය (Bucket)"
       ],
       "answer": "බාල්දිය (Bucket)",
       "explanation_si": "බාල්දියට කෝප්පයට වඩා වැඩිපුර වතුර අල්ලයි.",
@@ -1111,14 +1250,20 @@
       "text_en": "5 yogurt cups of water fill a bottle. What is the bottle's capacity?",
       "q_format": "multiple_choice",
       "options": [
-        "කෝප්ප 5ක්",
         "කෝප්ප 2ක්",
+        "කෝප්ප 1ක්",
         "කෝප්ප 10ක්",
-        "කෝප්ප 1ක්"
+        "කෝප්ප 5ක්"
       ],
       "answer": "කෝප්ප 5ක්",
       "explanation_si": "බෝතලයේ ධාරිතාව යෝගට් කෝප්ප 5කි.",
-      "explanation_en": "Capacity is 5 yogurt cups."
+      "explanation_en": "Capacity is 5 yogurt cups.",
+      "visual": {
+        "type": "measuring_beaker",
+        "capacity_ml": 500,
+        "level_ml": 500,
+        "caption": "Bottle Capacity = 5 Cups"
+      }
     },
     {
       "id": "G2_D3_S3_L3",
@@ -1129,10 +1274,10 @@
       "text_en": "Vessel A takes 6 cups to fill. Vessel B takes 8 cups. Which holds more?",
       "q_format": "multiple_choice",
       "options": [
-        "දෙවන භාජනය (Vessel B)",
-        "පළමු භාජනය (Vessel A)",
+        "නොදනී",
         "දෙකම සමානයි",
-        "නොදනී"
+        "දෙවන භාජනය (Vessel B)",
+        "පළමු භාජනය (Vessel A)"
       ],
       "answer": "දෙවන භාජනය (Vessel B)",
       "explanation_si": "කෝප්ප 8ක් අල්ලන භාජනයට වැඩිපුර වතුර අල්ලයි.",
@@ -1147,14 +1292,20 @@
       "text_en": "A jug needs 10 cups to fill. 6 cups are poured in. How many more cups needed?",
       "q_format": "multiple_choice",
       "options": [
-        "3ක්",
-        "4ක්",
         "5ක්",
-        "6ක්"
+        "6ක්",
+        "3ක්",
+        "4ක්"
       ],
       "answer": "4ක්",
       "explanation_si": "10 - 6 = 4 කෝප්පයක් අවශ්‍ය වේ.",
-      "explanation_en": "10 - 6 = 4 cups."
+      "explanation_en": "10 - 6 = 4 cups.",
+      "visual": {
+        "type": "measuring_beaker",
+        "capacity_ml": 1000,
+        "level_ml": 600,
+        "caption": "6 of 10 Cups Filled"
+      }
     },
     {
       "id": "G2_D3_S3_L5",
@@ -1166,9 +1317,9 @@
       "q_format": "multiple_choice",
       "options": [
         "බඳුන, බෝතලය, ජෝගුව",
+        "බඳුන, ජෝගුව, බෝතලය",
         "ජෝගුව, බෝතලය, බඳුන",
-        "බෝතලය, බඳුන, ජෝගුව",
-        "බඳුන, ජෝගුව, බෝතලය"
+        "බෝතලය, බඳුන, ජෝගුව"
       ],
       "answer": "බඳුන, බෝතලය, ජෝගුව",
       "explanation_si": "බඳුන (4) < බෝතලය (6) < ජෝගුව (8).",
@@ -1183,10 +1334,10 @@
       "text_en": "How many days are in a week?",
       "q_format": "multiple_choice",
       "options": [
+        "දින 10ක්",
         "දින 5ක්",
-        "දින 6ක්",
         "දින 7ක්",
-        "දින 10ක්"
+        "දින 6ක්"
       ],
       "answer": "දින 7ක්",
       "explanation_si": "සතියකට දින 7කි.",
@@ -1219,9 +1370,9 @@
       "text_en": "If today is Friday, what day is tomorrow?",
       "q_format": "multiple_choice",
       "options": [
-        "සෙනසුරාදා (Saturday)",
-        "ඉරිදා (Sunday)",
         "බ්‍රහස්පතින්දා (Thursday)",
+        "ඉරිදා (Sunday)",
+        "සෙනසුරාදා (Saturday)",
         "සඳුදා (Monday)"
       ],
       "answer": "සෙනසුරාදා (Saturday)",
@@ -1239,8 +1390,8 @@
       "options": [
         "මීටර් 50ක් දිවීමට",
         "මීටර් 10ක් දිවීමට",
-        "දෙකටම එකම කාලය",
-        "නොදනී"
+        "නොදනී",
+        "දෙකටම එකම කාලය"
       ],
       "answer": "මීටර් 50ක් දිවීමට",
       "explanation_si": "වැඩි දුරක් දිවීමට වැඩි කාලයක් ගතවේ.",
@@ -1256,9 +1407,9 @@
       "q_format": "multiple_choice",
       "options": [
         "බදාදා, බ්‍රහස්පතින්දා, සිකුරාදා",
+        "සඳුදා, බදාදා, අඟහරුවාදා",
         "සිකුරාදා, බදාදා, බ්‍රහස්පතින්දා",
-        "ඉරිදා, සිකුරාදා, සෙනසුරාදා",
-        "සඳුදා, බදාදා, අඟහරුවාදා"
+        "ඉරිදා, සිකුරාදා, සෙනසුරාදා"
       ],
       "answer": "බදාදා, බ්‍රහස්පතින්දා, සිකුරාදා",
       "explanation_si": "බදාදාට පසු බ්‍රහස්පතින්දා සහ සිකුරාදා පැමිණේ.",
@@ -1275,8 +1426,8 @@
       "options": [
         "රුපියල් 3 කාසිය",
         "රුපියල් 2 කාසිය",
-        "රුපියල් 5 කාසිය",
-        "රුපියල් 10 කාසිය"
+        "රුපියල් 10 කාසිය",
+        "රුපියල් 5 කාසිය"
       ],
       "answer": "රුපියල් 3 කාසිය",
       "explanation_si": "රුපියල් 3 කාසියක් නොමැත.",
@@ -1291,14 +1442,30 @@
       "text_en": "Two Rs. 2 coins and one Rs. 1 coin equal:",
       "q_format": "multiple_choice",
       "options": [
-        "රු. 4",
-        "රු. 5",
         "රු. 6",
+        "රු. 5",
+        "රු. 4",
         "රු. 10"
       ],
       "answer": "රු. 5",
       "explanation_si": "2 + 2 + 1 = රු. 5.",
-      "explanation_en": "2 + 2 + 1 = Rs. 5."
+      "explanation_en": "2 + 2 + 1 = Rs. 5.",
+      "visual": {
+        "type": "money",
+        "items": [
+          {
+            "type": "coin",
+            "value": 2,
+            "count": 2
+          },
+          {
+            "type": "coin",
+            "value": 1,
+            "count": 1
+          }
+        ],
+        "caption": "Rs. 2 + Rs. 2 + Rs. 1 = Rs. 5"
+      }
     },
     {
       "id": "G2_D3_S5_L3",
@@ -1309,14 +1476,25 @@
       "text_en": "How many Rs. 5 coins make Rs. 10?",
       "q_format": "multiple_choice",
       "options": [
-        "1ක්",
-        "2ක්",
         "3ක්",
-        "5ක්"
+        "2ක්",
+        "5ක්",
+        "1ක්"
       ],
       "answer": "2ක්",
       "explanation_si": "5 x 2 = රු. 10.",
-      "explanation_en": "5 + 5 = Rs. 10."
+      "explanation_en": "5 + 5 = Rs. 10.",
+      "visual": {
+        "type": "money",
+        "items": [
+          {
+            "type": "coin",
+            "value": 5,
+            "count": 2
+          }
+        ],
+        "caption": "Two Rs. 5 Coins = Rs. 10"
+      }
     },
     {
       "id": "G2_D3_S5_L4",
@@ -1327,8 +1505,8 @@
       "text_en": "Buying a pencil for Rs. 8 with a Rs. 10 coin. What is the change?",
       "q_format": "multiple_choice",
       "options": [
-        "රු. 1",
         "රු. 2",
+        "රු. 1",
         "රු. 3",
         "රු. 5"
       ],
@@ -1347,8 +1525,8 @@
       "options": [
         "රු. 7",
         "රු. 8",
-        "රු. 9",
-        "රු. 10"
+        "රු. 10",
+        "රු. 9"
       ],
       "answer": "රු. 9",
       "explanation_si": "4 + 5 = රු. 9.",
@@ -1363,14 +1541,20 @@
       "text_en": "Which shape has 3 sides?",
       "q_format": "multiple_choice",
       "options": [
-        "ත්‍රිකෝණය (Triangle)",
+        "සෘජුකෝණාස්‍රය",
         "වෘත්තය (Circle)",
-        "සමචතුරස්‍රය (Square)",
-        "සෘජුකෝණාස්‍රය"
+        "ත්‍රිකෝණය (Triangle)",
+        "සමචතුරස්‍රය (Square)"
       ],
       "answer": "ත්‍රිකෝණය (Triangle)",
       "explanation_si": "ත්‍රිකෝණයට පාද 3ක් ඇත.",
-      "explanation_en": "A triangle has 3 sides."
+      "explanation_en": "A triangle has 3 sides.",
+      "visual": {
+        "type": "shape_2d",
+        "shape": "triangle",
+        "sideLabel": "3 Sides · 3 Vertices",
+        "caption": "Triangle / ත්‍රිකෝණය"
+      }
     },
     {
       "id": "G2_D4_S1_L2",
@@ -1383,12 +1567,18 @@
       "options": [
         "වෘත්තය (Circle)",
         "සමචතුරස්‍රය (Square)",
-        "ත්‍රිකෝණය (Triangle)",
-        "සෘජුකෝණාස්‍රය"
+        "සෘජුකෝණාස්‍රය",
+        "ත්‍රිකෝණය (Triangle)"
       ],
       "answer": "වෘත්තය (Circle)",
       "explanation_si": "වෘත්තය රවුම් හැඩැතිය.",
-      "explanation_en": "A circle has no straight sides."
+      "explanation_en": "A circle has no straight sides.",
+      "visual": {
+        "type": "shape_2d",
+        "shape": "circle",
+        "sideLabel": "Round Boundary",
+        "caption": "Circle / වෘත්තය"
+      }
     },
     {
       "id": "G2_D4_S1_L3",
@@ -1401,12 +1591,18 @@
       "options": [
         "පාද 4ම දිගින් සමාන වේ",
         "පාද 2ක් පමණක් සමාන වේ",
-        "සියලු පාද අසමාන වේ",
-        "පාද වක්‍ර වේ"
+        "පාද වක්‍ර වේ",
+        "සියලු පාද අසමාන වේ"
       ],
       "answer": "පාද 4ම දිගින් සමාන වේ",
       "explanation_si": "සමචතුරස්‍රයේ පාද 4ම සමාන වේ.",
-      "explanation_en": "All 4 sides of a square are equal."
+      "explanation_en": "All 4 sides of a square are equal.",
+      "visual": {
+        "type": "shape_2d",
+        "shape": "square",
+        "sideLabel": "4 Equal Sides",
+        "caption": "Square / සමචතුරස්‍රය"
+      }
     },
     {
       "id": "G2_D4_S1_L4",
@@ -1417,14 +1613,21 @@
       "text_en": "What is a common property between a square and a rectangle?",
       "q_format": "multiple_choice",
       "options": [
-        "දෙකටම පාද 4 බැගින් ඇත",
         "දෙකටම පාද 3 බැගින් ඇත",
-        "දෙකම රවුම්ය",
-        "දෙකටම පාද නොමැත"
+        "දෙකටම පාද නොමැත",
+        "දෙකටම පාද 4 බැගින් ඇත",
+        "දෙකම රවුම්ය"
       ],
       "answer": "දෙකටම පාද 4 බැගින් ඇත",
       "explanation_si": "දෙකටම පාද 4ක් සහ මුදුන් 4ක් ඇත.",
-      "explanation_en": "Both have 4 sides."
+      "explanation_en": "Both have 4 sides.",
+      "visual": {
+        "type": "shape_2d",
+        "shape": "rectangle",
+        "lengthLabel": "Length",
+        "widthLabel": "Width",
+        "caption": "Rectangle / සෘජුකෝණාස්‍රය"
+      }
     },
     {
       "id": "G2_D4_S1_L5",
@@ -1437,12 +1640,18 @@
       "options": [
         "7",
         "8",
-        "10",
-        "12"
+        "12",
+        "10"
       ],
       "answer": "10",
       "explanation_si": "(2 x 3) + 4 = 6 + 4 = 10.",
-      "explanation_en": "(2 x 3) + 4 = 10."
+      "explanation_en": "(2 x 3) + 4 = 10.",
+      "visual": {
+        "type": "shape_2d",
+        "shape": "triangle",
+        "sideLabel": "3 sides each",
+        "caption": "2 Triangles + 1 Square"
+      }
     },
     {
       "id": "G2_D4_S2_L1",
@@ -1455,12 +1664,17 @@
       "options": [
         "ගෝලය (Sphere)",
         "ඝනකය (Cube)",
-        "සිලින්ඩරය (Cylinder)",
-        "සමචතුරස්‍රය"
+        "සමචතුරස්‍රය",
+        "සිලින්ඩරය (Cylinder)"
       ],
       "answer": "ගෝලය (Sphere)",
       "explanation_si": "බෝලය ගෝල හැඩයකි.",
-      "explanation_en": "A ball is a sphere."
+      "explanation_en": "A ball is a sphere.",
+      "visual": {
+        "type": "shape_3d",
+        "shape": "sphere",
+        "caption": "Sphere / ගෝලය"
+      }
     },
     {
       "id": "G2_D4_S2_L2",
@@ -1478,7 +1692,12 @@
       ],
       "answer": "සිලින්ඩරය (Cylinder)",
       "explanation_si": "කිරි ටින් එක සිලින්ඩරාකාර හැඩයකි.",
-      "explanation_en": "A milk tin is a cylinder."
+      "explanation_en": "A milk tin is a cylinder.",
+      "visual": {
+        "type": "shape_3d",
+        "shape": "cylinder",
+        "caption": "Cylinder / සිලින්ඩරය"
+      }
     },
     {
       "id": "G2_D4_S2_L3",
@@ -1489,14 +1708,19 @@
       "text_en": "What 2D shape is on each face of a playing dice?",
       "q_format": "multiple_choice",
       "options": [
-        "සමචතුරස්‍රය (Square)",
         "වෘත්තය (Circle)",
+        "සෘජුකෝණාස්‍රය",
         "ත්‍රිකෝණය (Triangle)",
-        "සෘජුකෝණාස්‍රය"
+        "සමචතුරස්‍රය (Square)"
       ],
       "answer": "සමචතුරස්‍රය (Square)",
       "explanation_si": "ඝනකයක මුහුණත සමචතුරස්‍රාකාරය.",
-      "explanation_en": "Faces of a cube are square."
+      "explanation_en": "Faces of a cube are square.",
+      "visual": {
+        "type": "shape_3d",
+        "shape": "cube",
+        "caption": "Cube / ඝනකය"
+      }
     },
     {
       "id": "G2_D4_S2_L4",
@@ -1507,10 +1731,10 @@
       "text_en": "Which shape can both roll and slide?",
       "q_format": "multiple_choice",
       "options": [
-        "සිලින්ඩරය (Cylinder)",
+        "පිරමිඩය",
         "ඝනකය (Cube)",
         "ගෝලය (Sphere)",
-        "පිරමිඩය"
+        "සිලින්ඩරය (Cylinder)"
       ],
       "answer": "සිලින්ඩරය (Cylinder)",
       "explanation_si": "සිලින්ඩරයට වක්‍ර මතුපිටක් සහ පැතලි මතුපිටක් ඇත.",
@@ -1525,14 +1749,19 @@
       "text_en": "A box with 6 flat faces is:",
       "q_format": "multiple_choice",
       "options": [
-        "ඝනකය හෝ ඝනකාභය (Cube/Cuboid)",
-        "ගෝලය",
         "සිලින්ඩරය",
+        "ගෝලය",
+        "ඝනකය හෝ ඝනකාභය (Cube/Cuboid)",
         "කේතුව"
       ],
       "answer": "ඝනකය හෝ ඝනකාභය (Cube/Cuboid)",
       "explanation_si": "ඝනකයට/ඝනකාභයට මුහුණත් 6ක් ඇත.",
-      "explanation_en": "Cube/cuboid has 6 flat faces."
+      "explanation_en": "Cube/cuboid has 6 flat faces.",
+      "visual": {
+        "type": "shape_3d",
+        "shape": "cuboid",
+        "caption": "Cuboid (6 Faces) / ඝනකාභය"
+      }
     },
     {
       "id": "G2_D4_S3_L1",
@@ -1543,10 +1772,10 @@
       "text_en": "Book is on the table, ball is on the floor. Where is the ball relative to the table?",
       "q_format": "multiple_choice",
       "options": [
+        "පිටත (Outside)",
         "යට (Under/Below)",
         "උඩ (On top)",
-        "ඇතුළේ (Inside)",
-        "පිටත (Outside)"
+        "ඇතුළේ (Inside)"
       ],
       "answer": "යට (Under/Below)",
       "explanation_si": "පන්දුව ඇත්තේ මේසය යටය.",
@@ -1562,8 +1791,8 @@
       "q_format": "multiple_choice",
       "options": [
         "පිටත (Outside)",
-        "ඇතුළේ (Inside)",
         "යට (Under)",
+        "ඇතුළේ (Inside)",
         "නොදනී"
       ],
       "answer": "පිටත (Outside)",
@@ -1579,10 +1808,10 @@
       "text_en": "Amal is in front, Nimal is behind Amal. Where is Amal?",
       "q_format": "multiple_choice",
       "options": [
-        "ඉදිරියෙන් (In front)",
         "පිටුපසින් (Behind)",
         "මැද (Middle)",
-        "යට (Under)"
+        "යට (Under)",
+        "ඉදිරියෙන් (In front)"
       ],
       "answer": "ඉදිරියෙන් (In front)",
       "explanation_si": "අමල් සිටින්නේ ඉදිරියෙනි.",
@@ -1598,9 +1827,9 @@
       "q_format": "multiple_choice",
       "options": [
         "දකුණු අත (Right hand)",
+        "උඩ අත",
         "වම් අත (Left hand)",
-        "යට අත",
-        "උඩ අත"
+        "යට අත"
       ],
       "answer": "දකුණු අත (Right hand)",
       "explanation_si": "දකුණු අත / වම් අත හඳුනාගැනීම.",
@@ -1615,10 +1844,10 @@
       "text_en": "In a row: Kamal, Nimal, Sunil. Who is in the middle?",
       "q_format": "multiple_choice",
       "options": [
-        "නිමල් (Nimal)",
         "කමල් (Kamal)",
+        "කිසිවෙක් නැත",
         "සුනිල් (Sunil)",
-        "කිසිවෙක් නැත"
+        "නිමල් (Nimal)"
       ],
       "answer": "නිමල් (Nimal)",
       "explanation_si": "මැද සිටින්නේ නිමල්ය.",
@@ -1633,14 +1862,30 @@
       "text_en": "How many hats are needed to give one to each of 4 children?",
       "q_format": "multiple_choice",
       "options": [
-        "2ක්",
-        "3ක්",
+        "5ක්",
         "4ක්",
-        "5ක්"
+        "2ක්",
+        "3ක්"
       ],
       "answer": "4ක්",
       "explanation_si": "එකට එක ගැළපීම: ළමුන් 4ට තොප්පි 4ක් අවශ්‍යයි.",
-      "explanation_en": "1-to-1 matching: 4 hats for 4 children."
+      "explanation_en": "1-to-1 matching: 4 hats for 4 children.",
+      "visual": {
+        "type": "matching_sets",
+        "caption": "ළමුන් සහ තොප්පි එකිනෙක ගැලපීම",
+        "captionEn": "Matching Children & Hats (1-to-1)",
+        "forceCaption": true,
+        "topItem": "child",
+        "topCount": 4,
+        "topLabelSi": "ළමුන් 4",
+        "topLabelEn": "4 Children",
+        "bottomItem": "hat",
+        "bottomCount": 4,
+        "bottomLabelSi": "තොප්පි 4",
+        "bottomLabelEn": "4 Hats",
+        "pairedCount": 4,
+        "remainderCount": 0
+      }
     },
     {
       "id": "G2_D4_S4_L2",
@@ -1651,14 +1896,33 @@
       "text_en": "5 flowers and 3 vases. If 1 flower in each vase, how many flowers remain?",
       "q_format": "multiple_choice",
       "options": [
-        "1ක්",
-        "2ක්",
         "3ක්",
-        "0ක්"
+        "2ක්",
+        "0ක්",
+        "1ක්"
       ],
       "answer": "2ක්",
       "explanation_si": "5 - 3 = 2ක් ඉතිරි වේ.",
-      "explanation_en": "5 - 3 = 2 flowers left."
+      "explanation_en": "5 - 3 = 2 flowers left.",
+      "visual": {
+        "type": "matching_sets",
+        "caption": "මල් සහ බඳුන් එකිනෙක ගැලපීම",
+        "captionEn": "Matching Flowers & Vases (1-to-1 Correspondence)",
+        "forceCaption": true,
+        "topItem": "flower",
+        "topCount": 5,
+        "topLabelSi": "මල් 5ක්",
+        "topLabelEn": "5 Flowers",
+        "bottomItem": "vase",
+        "bottomCount": 3,
+        "bottomLabelSi": "බඳුන් 3ක්",
+        "bottomLabelEn": "3 Vases",
+        "pairedCount": 3,
+        "remainderItem": "flower",
+        "remainderCount": 2,
+        "remainderLabelSi": "ඉතිරි මල්: 2",
+        "remainderLabelEn": "Remaining Flowers: 2"
+      }
     },
     {
       "id": "G2_D4_S4_L3",
@@ -1671,12 +1935,28 @@
       "options": [
         "ළමුන් ගණන සහ කෙසෙල් ගණන සමානයි",
         "කෙසෙල් වැඩියි",
-        "ළමුන් වැඩියි",
-        "නොදනී"
+        "නොදනී",
+        "ළමුන් වැඩියි"
       ],
       "answer": "ළමුන් ගණන සහ කෙසෙල් ගණන සමානයි",
       "explanation_si": "6 = 6 සමාන වේ.",
-      "explanation_en": "Equal count (6 = 6)."
+      "explanation_en": "Equal count (6 = 6).",
+      "visual": {
+        "type": "matching_sets",
+        "caption": "ළමුන් සහ කෙසෙල් එකිනෙක ගැලපීම",
+        "captionEn": "Matching Children & Bananas (1-to-1)",
+        "forceCaption": true,
+        "topItem": "child",
+        "topCount": 6,
+        "topLabelSi": "ළමුන් 6",
+        "topLabelEn": "6 Children",
+        "bottomItem": "banana",
+        "bottomCount": 6,
+        "bottomLabelSi": "කෙසෙල් 6",
+        "bottomLabelEn": "6 Bananas",
+        "pairedCount": 6,
+        "remainderCount": 0
+      }
     },
     {
       "id": "G2_D4_S4_L4",
@@ -1688,13 +1968,32 @@
       "q_format": "multiple_choice",
       "options": [
         "2ක්",
-        "3ක්",
         "4ක්",
-        "5ක්"
+        "5ක්",
+        "3ක්"
       ],
       "answer": "3ක්",
       "explanation_si": "7 - 4 = 3.",
-      "explanation_en": "7 - 4 = 3."
+      "explanation_en": "7 - 4 = 3.",
+      "visual": {
+        "type": "matching_sets",
+        "caption": "පැන්සල් සහ ළමුන් එකිනෙක ගැලපීම",
+        "captionEn": "Matching Pencils & Children (1-to-1)",
+        "forceCaption": true,
+        "topItem": "pencil",
+        "topCount": 7,
+        "topLabelSi": "පැන්සල් 7ක්",
+        "topLabelEn": "7 Pencils",
+        "bottomItem": "child",
+        "bottomCount": 4,
+        "bottomLabelSi": "ළමුන් 4ක්",
+        "bottomLabelEn": "4 Children",
+        "pairedCount": 4,
+        "remainderItem": "pencil",
+        "remainderCount": 3,
+        "remainderLabelSi": "ඉතිරි පැන්සල්: 3",
+        "remainderLabelEn": "Remaining Pencils: 3"
+      }
     },
     {
       "id": "G2_D4_S4_L5",
@@ -1705,14 +2004,33 @@
       "text_en": "5 like mangoes, 3 like guavas. How many more like mangoes?",
       "q_format": "multiple_choice",
       "options": [
-        "1ක්",
-        "2ක්",
         "3ක්",
+        "2ක්",
+        "1ක්",
         "4ක්"
       ],
       "answer": "2ක්",
       "explanation_si": "5 - 3 = 2.",
-      "explanation_en": "5 - 3 = 2."
+      "explanation_en": "5 - 3 = 2.",
+      "visual": {
+        "type": "matching_sets",
+        "caption": "අඹ සහ පේර එකිනෙක සංසන්දනය",
+        "captionEn": "Comparing Mangoes & Guavas (1-to-1)",
+        "forceCaption": true,
+        "topItem": "mango",
+        "topCount": 5,
+        "topLabelSi": "අඹ 5ක්",
+        "topLabelEn": "5 Mangoes",
+        "bottomItem": "guava",
+        "bottomCount": 3,
+        "bottomLabelSi": "පේර 3ක්",
+        "bottomLabelEn": "3 Guavas",
+        "pairedCount": 3,
+        "remainderItem": "mango",
+        "remainderCount": 2,
+        "remainderLabelSi": "වැඩිපුර අඹ: 2",
+        "remainderLabelEn": "Extra Mangoes: 2"
+      }
     },
     {
       "id": "G2_D4_S5_L1",
@@ -1723,14 +2041,34 @@
       "text_en": "Sorting red flowers and yellow flowers is sorting by:",
       "q_format": "multiple_choice",
       "options": [
+        "දිග (Length)",
         "වර්ණය (Color)",
         "හැඩය (Shape)",
-        "බර (Weight)",
-        "දිග (Length)"
+        "බර (Weight)"
       ],
       "answer": "වර්ණය (Color)",
       "explanation_si": "රතු සහ කහ යනු වර්ණයන්ය.",
-      "explanation_en": "Sorted by color."
+      "explanation_en": "Sorted by color.",
+      "visual": {
+        "type": "sorting_groups",
+        "caption": "මල් පාට අනුව වර්ග කිරීම",
+        "captionEn": "Sorting Flowers by Color",
+        "forceCaption": true,
+        "group1": {
+          "item": "flower",
+          "variant": "red",
+          "count": 3,
+          "labelSi": "රතු මල් (3ක්)",
+          "labelEn": "Red Flowers (3)"
+        },
+        "group2": {
+          "item": "flower",
+          "variant": "yellow",
+          "count": 3,
+          "labelSi": "කහ මල් (3ක්)",
+          "labelEn": "Yellow Flowers (3)"
+        }
+      }
     },
     {
       "id": "G2_D4_S5_L2",
@@ -1741,10 +2079,10 @@
       "text_en": "Sorting big balls and small balls is sorting by:",
       "q_format": "multiple_choice",
       "options": [
-        "තරම / ප්‍රමාණය (Size)",
+        "නම",
         "වර්ණය (Color)",
-        "සුවඳ",
-        "නම"
+        "තරම / ප්‍රමාණය (Size)",
+        "සුවඳ"
       ],
       "answer": "තරම / ප්‍රමාණය (Size)",
       "explanation_si": "ලොකු / කුඩා යනු තරමයි.",
@@ -1777,10 +2115,10 @@
       "text_en": "Table shows 3 red cars and 5 blue cars. What is the total count?",
       "q_format": "multiple_choice",
       "options": [
-        "6",
+        "9",
         "7",
         "8",
-        "9"
+        "6"
       ],
       "answer": "8",
       "explanation_si": "3 + 5 = 8.",
@@ -1795,9 +2133,9 @@
       "text_en": "8 like cats, 5 like dogs. What is the difference?",
       "q_format": "multiple_choice",
       "options": [
+        "4",
         "2",
         "3",
-        "4",
         "5"
       ],
       "answer": "3",

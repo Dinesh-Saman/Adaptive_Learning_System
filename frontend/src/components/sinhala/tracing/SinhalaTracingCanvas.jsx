@@ -11,8 +11,29 @@ import { RotateCcw, Check, Sparkles, AlertCircle, Pencil, Info, Award, Edit3, Er
  * 3. After Confirm: Submission is permanently LOCKED and evaluated. No further editing allowed.
  */
 
-export const TRACING_PASS_THRESHOLD = 85;
+export const TRACING_PASS_THRESHOLD = 80;
 export const MIN_COMPONENT_THRESHOLD = 70;
+
+/**
+ * Normalizes any score or accuracy value:
+ * 1. If 0 < val <= 1.0, scales to 0-100% scale (e.g. 0.827 -> 82.7%)
+ * 2. Clamps between 0 and 100
+ * 3. Rounds to up to 2 decimal places (e.g. 82.7, 85.25, 100), eliminating floating point drift
+ */
+export const normalizeAccuracy = (val) => {
+  if (val === null || val === undefined || isNaN(val)) return 0;
+  let num = Number(val);
+  if (num > 0 && num <= 1.0) {
+    num = num * 100;
+  }
+  num = Math.max(0, Math.min(100, num));
+  return Number(num.toFixed(2));
+};
+
+export const formatAccuracyDisplay = (val) => {
+  const norm = normalizeAccuracy(val);
+  return `${norm}%`;
+};
 
 export default function SinhalaTracingCanvas({
   targetText = 'ක',
@@ -29,11 +50,13 @@ export default function SinhalaTracingCanvas({
   const canvasRef = useRef(null);
   const guideCanvasRef = useRef(null);
   
+  const parsedInitialScore = normalizeAccuracy(initialScore);
+
   // Tool Mode: 'pen' | 'eraser'
   const [toolMode, setToolMode] = useState('pen');
   
   // Confirmation state (permanently locked once confirmed)
-  const [isConfirmed, setIsConfirmed] = useState(initialScore > 0);
+  const [isConfirmed, setIsConfirmed] = useState(parsedInitialScore > 0);
   const [isDrawing, setIsDrawing] = useState(false);
   const [strokes, setStrokes] = useState([]);
   const [currentStroke, setCurrentStroke] = useState([]);
@@ -42,10 +65,10 @@ export default function SinhalaTracingCanvas({
 
   // Final Evaluation State
   const [evaluation, setEvaluation] = useState({
-    overall_score: initialScore,
-    passed: initialScore >= passThreshold,
-    hasDrawn: initialScore > 0,
-    isWholeWordAttempted: initialScore > 0,
+    overall_score: parsedInitialScore,
+    passed: parsedInitialScore >= passThreshold,
+    hasDrawn: parsedInitialScore > 0,
+    isWholeWordAttempted: parsedInitialScore > 0,
     path_adherence: 0,
     shape_similarity: 0,
     completeness: 0,
@@ -159,8 +182,9 @@ export default function SinhalaTracingCanvas({
 
   // Reset internal state whenever target text or initialScore resets
   useEffect(() => {
-    setIsConfirmed(initialScore > 0);
-    if (!initialScore) {
+    const scoreVal = normalizeAccuracy(initialScore);
+    setIsConfirmed(scoreVal > 0);
+    if (!scoreVal) {
       setStrokes([]);
       setCurrentStroke([]);
       setEvaluation({
@@ -176,8 +200,16 @@ export default function SinhalaTracingCanvas({
         weak_component: null,
         components: []
       });
+    } else {
+      setEvaluation(prev => ({
+        ...prev,
+        overall_score: scoreVal,
+        passed: scoreVal >= passThreshold,
+        hasDrawn: true,
+        isWholeWordAttempted: true
+      }));
     }
-  }, [initialScore, displayText]);
+  }, [initialScore, displayText, passThreshold]);
 
   // ── Redraw Student Freehand Strokes ──
   const redrawStrokes = useCallback(() => {
@@ -419,7 +451,7 @@ export default function SinhalaTracingCanvas({
     const B = Math.min(100.0, Math.max(0.0, (P * 0.5 + S * 0.5)));
 
     // Weighted Composite Score: T = 0.35P + 0.25S + 0.20C + 0.10L + 0.10B
-    const T = Number((0.35 * P + 0.25 * S + 0.20 * C + 0.10 * L + 0.10 * B).toFixed(1));
+    const T = normalizeAccuracy(0.35 * P + 0.25 * S + 0.20 * C + 0.10 * L + 0.10 * B);
 
     const weakestComponentPass = C >= MIN_COMPONENT_THRESHOLD && allCharsAttempted;
     const isPassed = (T >= passThreshold) && weakestComponentPass;
@@ -428,7 +460,7 @@ export default function SinhalaTracingCanvas({
     if (!isPassed) {
       if (!allCharsAttempted) weakComp = 'සම්පූර්ණ වචනය ලියා නොමැත (Incomplete word)';
       else if (!weakestComponentPass) weakComp = 'අසම්පූර්ණයි (Completeness < 70%)';
-      else if (P < 85) weakComp = 'ඉරෙන් පිටත යාම (Path deviation)';
+      else if (P < 80) weakComp = 'ඉරෙන් පිටත යාම (Path deviation)';
       else if (L < 80) weakComp = 'රූල් මගහැරීම (Line alignment)';
       else weakComp = 'හැඩය (Shape similarity)';
     }
@@ -438,14 +470,14 @@ export default function SinhalaTracingCanvas({
       passed: isPassed,
       hasDrawn: true,
       isWholeWordAttempted: allCharsAttempted,
-      path_adherence: Math.round(P),
-      shape_similarity: Math.round(S),
-      completeness: Math.round(C),
-      line_alignment: Math.round(L),
-      boundary_accuracy: Math.round(B),
+      path_adherence: normalizeAccuracy(P),
+      shape_similarity: normalizeAccuracy(S),
+      completeness: normalizeAccuracy(C),
+      line_alignment: normalizeAccuracy(L),
+      boundary_accuracy: normalizeAccuracy(B),
       weak_component: weakComp,
       components: [
-        { text: displayText, completeness: Math.round(C), passed: weakestComponentPass }
+        { text: displayText, completeness: normalizeAccuracy(C), passed: weakestComponentPass }
       ],
       strokes: strokes
     };
@@ -462,8 +494,9 @@ export default function SinhalaTracingCanvas({
 
     if (onTraceComplete) {
       onTraceComplete({
-        score: evalResult.overall_score / 100.0,
+        score: Number((evalResult.overall_score / 100.0).toFixed(4)),
         percentage: evalResult.overall_score,
+        overall_score: evalResult.overall_score,
         isPassed: evalResult.passed,
         ...evalResult
       });
@@ -508,51 +541,70 @@ export default function SinhalaTracingCanvas({
   const hasStrokes = strokes.length > 0 || currentStroke.length > 0;
 
   return (
-    <div className="bg-slate-50/70 backdrop-blur-xs rounded-2xl p-3.5 sm:p-4 border border-indigo-100 flex flex-col items-center w-full max-w-[440px] mx-auto shadow-xs">
-      {/* Header: Title, Target & Live/Final Status */}
-      <div className="w-full flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className="p-1.5 bg-indigo-100 text-indigo-700 rounded-xl">
-            <Pencil className="w-4 h-4" />
+    <div className="bg-slate-50/70 backdrop-blur-xs rounded-2xl p-3 sm:p-3.5 border border-indigo-100 flex flex-col items-center w-full max-w-full sm:max-w-[450px] mx-auto shadow-xs overflow-hidden">
+      {/* Row 1: Instruction in One Line (Above විස්තර & Percentage) */}
+      <div className="w-full flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-indigo-100/80">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="p-1 bg-indigo-100 text-indigo-700 rounded-lg shrink-0">
+            <Pencil className="w-3.5 h-3.5" />
           </span>
-          <div>
-            <h4 className="text-xs sm:text-sm font-black text-slate-800 whitespace-nowrap">
-              තුන් රූල් අකුර ලියන්න
-            </h4>
-            <p className="text-[11px] text-slate-500">
-              ඉලක්කය: <span className="font-black text-indigo-700 text-sm">“{displayText}”</span>
-            </p>
-          </div>
+          <span className="text-xs sm:text-[13px] font-black text-slate-800 whitespace-nowrap">
+            {tracingType === 'word' ? 'හතර රූල් වචනය ලියන්න' : 'තුන් රූල් අකුර ලියන්න'}
+          </span>
+          <span className="text-[11px] font-bold text-slate-500 whitespace-nowrap">
+            · ඉලක්කය: <strong className="font-black text-indigo-700 text-xs">“{displayText}”</strong>
+          </span>
         </div>
+      </div>
+
+      {/* Row 2: Status, විස්තර (Details) & Percentage Badge */}
+      <div className="w-full flex items-center justify-between gap-1.5 mb-1.5">
+        <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
+          {isConfirmed ? (
+            <span className="text-indigo-800 font-extrabold flex items-center gap-1">
+              <Lock className="w-3 h-3 text-indigo-500" />
+              <span>ඇගයීම අවසන්</span>
+            </span>
+          ) : !isOptionSelected ? (
+            <span className="text-amber-700 font-bold">පළමුව පිළිතුරක් තෝරන්න</span>
+          ) : (
+            <span className="text-emerald-700 font-bold">හතර රූල් රේඛා මත ලියන්න</span>
+          )}
+        </span>
 
         {/* Right Status Badge: Evaluated after confirm */}
         {isConfirmed ? (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
             <button
+              type="button"
               onClick={() => setShowMetrics(prev => !prev)}
-              className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-0.5 bg-indigo-50 px-2 py-0.5 rounded-lg cursor-pointer"
+              className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-0.5 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2 py-0.5 rounded-lg cursor-pointer shrink-0 transition-colors shadow-2xs"
             >
-              <Info className="w-3 h-3" />
-              විස්තර
+              <Info className="w-3 h-3 shrink-0" />
+              <span>විස්තර</span>
             </button>
-            <span className={`px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1 shadow-2xs ${
+            <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-black flex items-center gap-1 shrink-0 whitespace-nowrap shadow-2xs ${
               evaluation.passed
-                ? 'bg-green-100 text-green-800 border border-green-300'
+                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                 : 'bg-rose-100 text-rose-800 border border-rose-300'
             }`}>
-              {evaluation.passed ? <Check className="w-3.5 h-3.5 text-green-600" /> : <AlertCircle className="w-3.5 h-3.5 text-rose-600" />}
-              {evaluation.overall_score}% ({evaluation.passed ? 'සමත්' : 'අසමත්'})
+              {evaluation.passed ? (
+                <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+              ) : (
+                <AlertCircle className="w-3 h-3 text-rose-600 shrink-0" />
+              )}
+              <span>{formatAccuracyDisplay(evaluation.overall_score)} ({evaluation.passed ? 'සමත්' : 'අසමත්'})</span>
             </span>
           </div>
         ) : !isOptionSelected ? (
-          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
-            <MousePointerClick className="w-3.5 h-3.5 text-amber-600 animate-bounce" />
-            පිළිතුර තෝරන්න
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 shrink-0 whitespace-nowrap ml-auto">
+            <MousePointerClick className="w-3 h-3 text-amber-600 animate-bounce" />
+            <span>පිළිතුර තෝරන්න</span>
           </span>
         ) : (
-          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
-            <Edit3 className="w-3.5 h-3.5 text-emerald-600" />
-            ලියන්න...
+          <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shrink-0 whitespace-nowrap ml-auto">
+            <Edit3 className="w-3 h-3 text-emerald-600" />
+            <span>ලියන්න...</span>
           </span>
         )}
       </div>
@@ -602,15 +654,15 @@ export default function SinhalaTracingCanvas({
         <div className="w-full mt-2 p-2.5 bg-white rounded-xl border border-slate-200 text-xs space-y-1 animate-fade-in shadow-2xs">
           <div className="flex justify-between font-bold text-slate-700">
             <span>• Path Adherence (35%):</span>
-            <span className="font-mono text-indigo-700">{evaluation.path_adherence}%</span>
+            <span className="font-mono text-indigo-700">{formatAccuracyDisplay(evaluation.path_adherence)}</span>
           </div>
           <div className="flex justify-between font-bold text-slate-700">
             <span>• Shape Similarity (25%):</span>
-            <span className="font-mono text-indigo-700">{evaluation.shape_similarity}%</span>
+            <span className="font-mono text-indigo-700">{formatAccuracyDisplay(evaluation.shape_similarity)}</span>
           </div>
           <div className="flex justify-between font-bold text-slate-700">
             <span>• Completeness (20%):</span>
-            <span className="font-mono text-indigo-700">{evaluation.completeness}%</span>
+            <span className="font-mono text-indigo-700">{formatAccuracyDisplay(evaluation.completeness)}</span>
           </div>
           {evaluation.weak_component && (
             <div className="text-[11px] text-amber-700 font-black pt-1 border-t border-slate-200">
@@ -626,7 +678,7 @@ export default function SinhalaTracingCanvas({
           <div className="flex justify-between text-xs font-bold mb-1">
             <span className="text-slate-600">Tracing Accuracy (T):</span>
             <span className={evaluation.passed ? 'text-green-600 font-black' : 'text-rose-600 font-black'}>
-              {evaluation.overall_score}% ({evaluation.passed ? 'සමත් (≥85%) ⭐' : 'අසමත් (<85%) ⚠️'})
+              {formatAccuracyDisplay(evaluation.overall_score)} ({evaluation.passed ? 'සමත් (≥80%) ⭐' : 'අසමත් (<80%) ⚠️'})
             </span>
           </div>
           <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
@@ -634,7 +686,7 @@ export default function SinhalaTracingCanvas({
               className={`h-full rounded-full transition-all duration-500 ${
                 evaluation.passed ? 'bg-green-500' : 'bg-rose-500'
               }`}
-              style={{ width: `${Math.min(100, evaluation.overall_score)}%` }}
+              style={{ width: `${Math.min(100, normalizeAccuracy(evaluation.overall_score))}%` }}
             />
           </div>
         </div>
@@ -684,21 +736,21 @@ export default function SinhalaTracingCanvas({
         </div>
 
         {/* Confirmation State Controls */}
-        <div>
+        <div className="shrink-0">
           {!isConfirmed ? (
             <button
               type="button"
               disabled={!hasStrokes || !isOptionSelected}
               onClick={handleConfirm}
-              className="px-4 py-1.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-slate-300 disabled:to-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-black text-xs shadow-xs hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-slate-300 disabled:to-slate-300 disabled:cursor-not-allowed text-white rounded-xl font-black text-xs shadow-xs hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
             >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              ස්ථිර කරන්න
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+              <span className="whitespace-nowrap">ස්ථිර කරන්න</span>
             </button>
           ) : (
-            <div className="px-3 py-1 bg-white text-slate-600 border border-slate-200 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-2xs">
-              <Lock className="w-3.5 h-3.5 text-indigo-600" />
-              <span>ස්ථිරයි</span>
+            <div className="px-3 py-1 bg-white text-slate-600 border border-slate-200 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-2xs whitespace-nowrap shrink-0">
+              <Lock className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+              <span className="whitespace-nowrap">ස්ථිරයි</span>
             </div>
           )}
         </div>

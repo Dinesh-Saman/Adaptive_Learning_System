@@ -22,12 +22,13 @@ class AudioDataset(Dataset):
         return self.features[idx], self.labels[idx]
 
 def train_audio_model():
-    dataset_dir = "dataset"
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    dataset_dir = os.path.join(base_dir, "dataset")
     features_path = os.path.join(dataset_dir, "english_features.npy")
     labels_path = os.path.join(dataset_dir, "english_labels.npy")
     
     if not os.path.exists(features_path):
-        print(f"Error: {features_path} not found. Run generate_audio_data.py first.")
+        print(f"Error: {features_path} not found. Run generate_audio_data.py first.", flush=True)
         return
         
     dataset = AudioDataset(features_path, labels_path)
@@ -37,15 +38,15 @@ def train_audio_model():
     test_size = len(dataset) - train_size
     train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
     
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
     
     model = PronunciationNet()
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.002)
+    optimizer = optim.Adam(model.parameters(), lr=0.003)
     
-    epochs = 15
-    print("Starting audio model training...")
+    epochs = 10
+    print(f"Starting audio model training on {len(dataset)} samples...", flush=True)
     
     for epoch in range(epochs):
         model.train()
@@ -70,12 +71,14 @@ def train_audio_model():
                 correct += (predicted == labels).sum().item()
                 
         accuracy = 100 * correct / total
-        print(f"Epoch {epoch+1}/{epochs} - Loss: {total_loss/len(train_loader):.4f} - Val Accuracy: {accuracy:.2f}%")
+        print(f"Epoch {epoch+1}/{epochs} - Loss: {total_loss/len(train_loader):.4f} - Val Accuracy: {accuracy:.2f}%", flush=True)
         
     # Save the model
-    os.makedirs('weights', exist_ok=True)
-    torch.save(model.state_dict(), 'weights/english_model.pt')
-    print("Model saved to weights/english_model.pt")
+    weights_dir = os.path.join(base_dir, 'weights')
+    os.makedirs(weights_dir, exist_ok=True)
+    model_save_path = os.path.join(weights_dir, 'english_model.pt')
+    torch.save(model.state_dict(), model_save_path)
+    print(f"Model saved to {model_save_path}", flush=True)
 
 if __name__ == "__main__":
     train_audio_model()
