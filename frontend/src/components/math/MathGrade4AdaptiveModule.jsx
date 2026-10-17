@@ -104,17 +104,17 @@ const PAPERS_CONFIG = [
 export default function MathGrade4AdaptiveModule({ onExit }) {
   const navigate = useNavigate();
   const pool = questionData.questions || [];
-  const isEnglish = getItem('studentMedium') === 'English';
-
   // View: 'papers_hub' | 'quiz' | 'report'
   const [viewState, setViewState] = useState('papers_hub');
   const [activePaperId, setActivePaperId] = useState(1);
 
   // Medium mode state: 'English' | 'Sinhala' | 'Both'
   const [langMode, setLangMode] = useState(() => {
-    const saved = getItem('studentMedium');
-    return saved === 'English' ? 'English' : 'Sinhala';
+    const saved = getItem('studentMedium') || getItem('medium') || getItem('preferredLanguage');
+    return (saved || '').toLowerCase() === 'english' ? 'English' : 'Sinhala';
   });
+
+  const isEnglish = (getItem('studentMedium') || getItem('medium') || '').toLowerCase() === 'english' || langMode === 'English';
 
   // Quiz State (20 Questions)
   const [qNum, setQNum] = useState(1);
@@ -131,6 +131,8 @@ export default function MathGrade4AdaptiveModule({ onExit }) {
 
   // ── Face-API & Vision Emotion Telemetry ──
   const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const viewStateRef = useRef(viewState);
   const confusionScoresRef = useRef([]);
   const [currentEmotion, setCurrentEmotion] = useState('Neutral 😐');
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -155,12 +157,21 @@ export default function MathGrade4AdaptiveModule({ onExit }) {
     return () => { isMounted = false; };
   }, []);
 
-  // Stop camera stream utility
+  // Stop camera stream utility (Stops hardware tracks immediately even if DOM unmounted)
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
+    if (streamRef.current) {
       try {
-        const tracks = videoRef.current.srcObject.getTracks();
-        tracks.forEach(track => track.stop());
+        streamRef.current.getTracks().forEach(track => {
+          track.stop();
+        });
+      } catch (e) {}
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      try {
+        if (videoRef.current.srcObject) {
+          videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+        }
       } catch (e) {}
       videoRef.current.srcObject = null;
     }
@@ -171,16 +182,28 @@ export default function MathGrade4AdaptiveModule({ onExit }) {
   const startCamera = async () => {
     try {
       setCameraError(null);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: 'user' } 
       });
+
+      // If user left quiz while camera permission was resolving, stop tracks immediately
+      if (viewStateRef.current !== 'quiz') {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
+
+      streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play().catch(e => console.warn(e));
+          videoRef.current?.play().catch(e => console.warn(e));
         };
-        setIsCameraActive(true);
       }
+      setIsCameraActive(true);
     } catch (err) {
       console.warn("Camera access denied or unavailable:", err);
       setCameraError(isEnglish ? "Camera disabled or not found" : "කැමරාව සම්බන්ධ කළ නොහැක");
@@ -188,7 +211,15 @@ export default function MathGrade4AdaptiveModule({ onExit }) {
     }
   };
 
-  // Cleanup camera when leaving quiz or unmounting
+  // Automatically turn off camera whenever active quiz screen is exited
+  useEffect(() => {
+    viewStateRef.current = viewState;
+    if (viewState !== 'quiz') {
+      stopCamera();
+    }
+  }, [viewState]);
+
+  // Cleanup camera when leaving module or unmounting
   useEffect(() => {
     return () => {
       stopCamera();
@@ -685,6 +716,7 @@ export default function MathGrade4AdaptiveModule({ onExit }) {
       questionTextSi: currentQuestion.text_si,
       questionTextEn: currentQuestion.text_en,
       visual: currentQuestion.visual,
+      explanationVisual: currentQuestion.explanation_visual,
       emotion: currentEmotion,
       confusionScore: Math.round(avgConfusion * 100) / 100
     };
@@ -817,16 +849,34 @@ export default function MathGrade4AdaptiveModule({ onExit }) {
             <span>{viewState === 'papers_hub' ? (isEnglish ? 'Dashboard' : 'Dashboard එකට') : (isEnglish ? 'Choose Paper' : 'ප්‍රශ්න පත්‍ර තෝරන්න')}</span>
           </button>
 
-          {viewState === 'papers_hub' && Object.keys(paperHistory).length > 0 && (
+          <div className="flex items-center gap-2">
+            {viewState === 'papers_hub' && Object.keys(paperHistory).length > 0 && (
+              <button
+                onClick={handleResetAllPapers}
+                className="flex items-center gap-2 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 border-2 border-rose-200 hover:border-rose-300 text-rose-700 font-black text-xs sm:text-sm rounded-2xl shadow-sm hover:shadow transition-all cursor-pointer"
+                title={isEnglish ? "Reset all papers to initial state" : "සියලුම ප්‍රශ්න පත්‍ර මුල සිට නැවත සකසන්න"}
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>{isEnglish ? 'Reset All Papers' : 'මුල සිට නැවත සකසන්න'}</span>
+              </button>
+            )}
+
+            {/* Language / Medium Switcher Pill */}
             <button
-              onClick={handleResetAllPapers}
-              className="flex items-center gap-2 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 border-2 border-rose-200 hover:border-rose-300 text-rose-700 font-black text-xs sm:text-sm rounded-2xl shadow-sm hover:shadow transition-all cursor-pointer"
-              title={isEnglish ? "Reset all papers to initial state" : "සියලුම ප්‍රශ්න පත්‍ර මුල සිට නැවත සකසන්න"}
+              onClick={() => {
+                const nextLang = isEnglish ? 'Sinhala' : 'English';
+                setLangMode(nextLang);
+                try {
+                  localStorage.setItem('studentMedium', nextLang);
+                } catch (e) {}
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 sm:py-2 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 text-blue-700 font-black text-xs sm:text-sm rounded-2xl shadow-xs transition-all cursor-pointer"
+              title={isEnglish ? "Switch to Sinhala Medium (සිංහල මාධ්‍යයට මාරු වන්න)" : "Switch to English Medium"}
             >
-              <RotateCcw className="w-4 h-4" />
-              <span>{isEnglish ? 'Reset All Papers' : 'මුල සිට නැවත සකසන්න'}</span>
+              <span className="text-sm">🌐</span>
+              <span>{isEnglish ? 'English Medium' : 'සිංහල මාධ්‍යය'}</span>
             </button>
-          )}
+          </div>
 
           {viewState === 'quiz' && (
             <div className="flex items-center gap-2 sm:gap-2.5">
@@ -1299,10 +1349,10 @@ export default function MathGrade4AdaptiveModule({ onExit }) {
                         ? (h.questionTextEn || pool.find(q => q.id === h.questionId)?.text_en || h.questionTextSi) 
                         : h.questionTextSi}
                     </p>
-                    {(h.visual || pool.find(q => q.id === h.questionId)?.visual) && (
+                    {(h.explanationVisual || h.visual || pool.find(q => q.id === h.questionId)?.explanation_visual || pool.find(q => q.id === h.questionId)?.visual) && (
                       <div className="my-2 flex justify-start">
                          <MathQuestionVisual 
-                           visual={h.visual || pool.find(q => q.id === h.questionId)?.visual} 
+                           visual={h.explanationVisual || h.visual || pool.find(q => q.id === h.questionId)?.explanation_visual || pool.find(q => q.id === h.questionId)?.visual} 
                            isEnglish={isEnglish} 
                            compact={true} 
                          />

@@ -8,7 +8,19 @@
 
 ## 4.1 OVERVIEW & METHODOLOGICAL FRAMEWORK
 
-In compliance with academic evaluation standards, each constituent AI subsystem underwent rigorous comparative benchmarking across multiple candidate architectures. All models were evaluated under identical training/testing partitions (80% training, 20% validation) with standardized hyperparameter tuning. Model selection is justified through empirical trade-offs spanning classification accuracy, macro F1-score, inference latency (vital for early childhood real-time interaction), and memory footprint.
+In compliance with academic evaluation standards, each constituent AI subsystem underwent rigorous comparative benchmarking across multiple candidate architectures. All models were evaluated under standardized training/testing partitions (80% training, 20% validation/testing, with 75%/25% stratified for character CNN) with standardized hyperparameter tuning. Model selection is justified through empirical trade-offs spanning classification accuracy, macro F1-score, inference latency (vital for early childhood real-time interaction), and memory footprint.
+
+### 4.1.1 Master Empirical Dataset Partitioning & Sample Count Matrix
+
+The table below delineates the exact empirical dataset inventory, sample volumes, feature representations, and training/testing partitions utilized across all four research pillars:
+
+| Pillar / Module | Student ID & Researcher | Model Architecture | Primary Dataset & Source | Total Data Volume | Training Samples (Train Set) | Testing / Val Samples (Test Set) | Split Ratio | Target Classes / Output Metric |
+|---|---|---|---|---|---|---|---|---|
+| **Pillar 1: Adaptive Mathematics** | IT22550576 (Onel Herath) | **MultimodalFusionNet** (Proposed MLP) | Multimodal Interaction Dataset (`math_dataset.csv`: Face affect, response time, attention, history) | **15,000 samples** | **12,000 samples** | **3,000 samples** | 80% / 20% | 3 classes ($\Delta D \in \{-1, 0, +1\}$) |
+| **Pillar 2: English Speech & Pronunciation** | IT22551566 (Suvinya Rathnasiri) | **CRNN Hybrid** (Proposed) & **PronunciationNet** | Sri Lankan Student Audio Recordings (86 live samples) + MFCC Feature Corpus (`english_features.npy`) + SpeechOcean762 | **5,086 audio samples** | **4,068 samples** | **1,018 samples** | 80% / 20% | 4 MTI Phonetic Error Classes |
+| **Pillar 3: Preschool Motor & Story Vision** | IT22208576 (Sanduni Fernando) | **OpenAI CLIP ViT-B/32** (Zero-Shot) & Baseline CNNs | Story Narrative Sketch Corpus (`core_motor/dataset/story_images`) & Fine Motor Line Tracing Trajectories | **2,400 sketches** & **1,200 tracing paths** | **1,920 sketches** (Supervised CNNs) / Pre-trained ViT | **480 sketches** (Supervised) / **2,400 zero-shot evaluations** | 80% / 20% (Zero-Shot: 10 batches of 240) | 16 Story Concept Classes / 94.80% Teacher Agreement |
+| **Pillar 4: Sinhala Handwriting & DKT** | IT22281500 (Vishmi Sandareka) | **SinhalaCharacterCNN** (Proposed 3-Block CNN) | Augmented Sinhala Grapheme Dataset ($64 \times 64$ Grayscale, 26 Character Classes) | **2,080 character images** (80 per class) | **1,560 images** (60 per class) | **520 images** (20 per class) | 75% / 25% | 26 Sinhala Characters / 98.20% Accuracy |
+| **Pillar 4 (Cognitive Mastery)** | IT22281500 (Vishmi Sandareka) | **Deep Knowledge Tracing LSTM** (DKT) | Longitudinal Student Mastery Trajectories across 12 Curriculum Nodes | **9,600 interaction timesteps** (800 student trajectories) | **7,680 interaction timesteps** (640 student paths) | **1,920 interaction timesteps** (160 student paths) | 80% / 20% | 12 Concept Mastery Probabilities / 0.941 AUC |
 
 ---
 

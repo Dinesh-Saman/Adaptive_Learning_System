@@ -3507,3 +3507,140 @@ footer.site-footer::before {
     font-size: 0.95rem;
   }
 }
+
+/* ==========================================================================
+   Experimental Results & Analysis Section Styles
+   ========================================================================== */
+#results .sub-section {
+  padding-bottom: 30px;
+}
+
+.results-table-container {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+  padding: 24px;
+  margin-bottom: 40px;
+  overflow-x: auto;
+}
+
+.table-results {
+  width: 100%;
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-results thead th {
+  background: #f8f9fa;
+  color: #2b3e50;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 14px 16px;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.table-results tbody td {
+  padding: 14px 16px;
+  vertical-align: middle;
+  font-size: 0.92rem;
+  border-bottom: 1px solid #f1f3f5;
+  color: #495057;
+}
+
+.table-results tbody tr:hover {
+  background-color: #f8faff;
+}
+
+.badge-split-train {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #c8e6c9;
+  font-size: 0.84rem;
+}
+
+.badge-split-test {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #bbdefb;
+  font-size: 0.84rem;
+}
+
+.badge-result-highlight {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #e1bee7;
+  font-size: 0.84rem;
+}
+
+.results-pillar-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  padding: 24px;
+  margin-bottom: 30px;
+  height: 100%;
+}
+
+.results-pillar-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.results-pillar-title {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.results-pillar-title i {
+  margin-right: 10px;
+}
+
+.eval-figure-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 15px;
+  text-align: center;
+}
+
+.eval-figure-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease;
+}
+
+.eval-figure-img:hover {
+  transform: scale(1.02);
+}
+
+.eval-figure-caption {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 8px;
+  margin-bottom: 0;
+  font-weight: 500;
+}
+

@@ -14,21 +14,41 @@ const MathModule = ({ onExit }) => {
   const [activeTerm, setActiveTerm] = useState(1);
   
   const videoRef = useRef(null);
+  const streamRef = useRef(null);
   
   // Telemetry state
   const startTimeRef = useRef(Date.now());
   const confusionScoresRef = useRef([]);
   const [currentEmotion, setCurrentEmotion] = useState('Neutral');
 
+  const stopCamera = () => {
+    if (streamRef.current) {
+      try {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      } catch (e) {}
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      try {
+        if (videoRef.current.srcObject) {
+          videoRef.current.srcObject.getTracks().forEach(t => t.stop());
+        }
+      } catch (e) {}
+      videoRef.current.srcObject = null;
+    }
+  };
+
   const startExercise = async (exercise_id) => {
     setSelectedExercise(exercise_id);
     try {
+      stopCamera();
       setSessionState('loading_models');
       await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
       await faceapi.nets.faceExpressionNet.loadFromUri('/models');
       
       setSessionState('requesting_camera');
       const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+      streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
@@ -44,9 +64,7 @@ const MathModule = ({ onExit }) => {
 
   useEffect(() => {
     return () => {
-       if (videoRef.current && videoRef.current.srcObject) {
-         videoRef.current.srcObject.getTracks().forEach(t => t.stop());
-       }
+      stopCamera();
     };
   }, []);
 

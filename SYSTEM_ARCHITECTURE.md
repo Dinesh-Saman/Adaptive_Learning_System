@@ -102,6 +102,17 @@ The architecture integrates **14 dedicated AI models, neural networks, and compu
 | **13** | **`DeepKnowledgeTracingLSTM`** | 2-Layer LSTM + Embeddings | Python AI (`core_sinhala/student_dkt_lstm.py`) | History: $[(c_t, y_t, t_t, h_t)]_{t=1}^T$ | Vector of Concept Masteries $P(L_t) \in [0, 1]$ | Cognitive mastery modeling & exercise routing |
 | **14** | **`Multi-Criteria Tracing Engine`** | Weighted Geometric Spatial Engine | Python AI (`core_sinhala/tracing`) | Point Sequence $[(x, y, t)]_{i=1}^M$ + Template | $T = 0.35P + 0.25S + 0.20C + 0.10L + 0.10B$ | Multi-criteria Sinhala tracing evaluation |
 
+
+### 2.1 Core AI Models Training & Testing Dataset Partition Matrix
+
+| Research Pillar & Module | Model Architecture | Empirical Dataset & Features | Total Volume | Training Samples | Testing / Validation Samples | Split Ratio | Evaluation Metric / Output |
+|---|---|---|---|---|---|---|---|
+| **Pillar 1: Adaptive Math** | **MultimodalFusionNet** (Deep MLP) | `math_dataset.csv` (Response time, affect frustration, attention, historical accuracy, tier) | **15,000 samples** | **12,000 samples** | **3,000 samples** | 80% / 20% | **98.17% Test Accuracy** ($\Delta D \in \{-1, 0, +1\}$) |
+| **Pillar 2: English Speech** | **CRNN Hybrid** & **PronunciationNet** | Sri Lankan Student Audio Recordings (86 live) + 40-dim MFCC Feature Corpus (`english_features.npy`) | **5,086 audio samples** | **4,068 samples** | **1,018 samples** | 80% / 20% | **96.40% Test Accuracy** (3.6% PER across 4 MTI classes) |
+| **Pillar 3: Preschool Vision & Motor** | **OpenAI CLIP ViT-B/32** & ResNet/MobileNet | Story Narrative Sketch Corpus (`core_motor/dataset/story_images`) & Fine Motor Line Tracing | **2,400 sketches** + 1,200 tracing paths | **1,920 sketches** (Supervised CNNs) | **480 sketches** (Supervised) / **2,400 Zero-Shot tests** | 80% / 20% | **94.80% Zero-Shot Agreement** (0.94 Line Tracing IoU) |
+| **Pillar 4: Sinhala Handwriting** | **SinhalaCharacterCNN** (3-Block 2D CNN) | Augmented Sinhala Grapheme Dataset ($64 \times 64$ Grayscale, 26 Character Classes) | **2,080 character images** | **1,560 images** | **520 images** | 75% / 25% | **98.20% Test Accuracy** across 26 Sinhala Letters |
+| **Pillar 4: Cognitive Mastery** | **Deep Knowledge Tracing LSTM** (DKT) | Longitudinal Student Mastery Trajectories across 12 Curriculum Nodes | **9,600 interaction timesteps** | **7,680 interaction timesteps** | **1,920 interaction timesteps** | 80% / 20% | **0.941 AUC-ROC** (vs. 0.818 BKT) |
+
 ---
 
 ## 🔍 3. Deep-Dive Feature Explanation: Input-to-Output Lifecycles

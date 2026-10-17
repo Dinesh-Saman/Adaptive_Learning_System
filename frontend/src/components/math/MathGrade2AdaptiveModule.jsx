@@ -131,6 +131,8 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
 
   // ── Face-API & Vision Emotion Telemetry ──
   const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const viewStateRef = useRef(viewState);
   const confusionScoresRef = useRef([]);
   const [currentEmotion, setCurrentEmotion] = useState('Neutral 😐');
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -155,12 +157,21 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
     return () => { isMounted = false; };
   }, []);
 
-  // Stop camera stream utility
+  // Stop camera stream utility (Stops hardware tracks immediately even if DOM unmounted)
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
+    if (streamRef.current) {
       try {
-        const tracks = videoRef.current.srcObject.getTracks();
-        tracks.forEach(track => track.stop());
+        streamRef.current.getTracks().forEach(track => {
+          track.stop();
+        });
+      } catch (e) {}
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      try {
+        if (videoRef.current.srcObject) {
+          videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+        }
       } catch (e) {}
       videoRef.current.srcObject = null;
     }
@@ -171,16 +182,28 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
   const startCamera = async () => {
     try {
       setCameraError(null);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: 'user' } 
       });
+
+      // If user left quiz while camera permission was resolving, stop tracks immediately
+      if (viewStateRef.current !== 'quiz') {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
+
+      streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play().catch(e => console.warn(e));
+          videoRef.current?.play().catch(e => console.warn(e));
         };
-        setIsCameraActive(true);
       }
+      setIsCameraActive(true);
     } catch (err) {
       console.warn("Camera access denied or unavailable:", err);
       setCameraError(isEnglish ? "Camera disabled or not found" : "කැමරාව සම්බන්ධ කළ නොහැක");
@@ -188,7 +211,15 @@ export default function MathGrade2AdaptiveModule({ onExit }) {
     }
   };
 
-  // Cleanup camera when leaving quiz or unmounting
+  // Automatically turn off camera whenever active quiz screen is exited
+  useEffect(() => {
+    viewStateRef.current = viewState;
+    if (viewState !== 'quiz') {
+      stopCamera();
+    }
+  }, [viewState]);
+
+  // Cleanup camera when leaving module or unmounting
   useEffect(() => {
     return () => {
       stopCamera();

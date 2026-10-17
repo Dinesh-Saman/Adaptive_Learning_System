@@ -55,6 +55,9 @@
                     </div>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="#results" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Results &amp; Analysis</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="#milestones" onclick="var t=document.getElementById('nav-toggle-checkbox');if(t)t.checked=false;">Milestones</a>
                 </li>
                 <li class="nav-item">
@@ -937,6 +940,219 @@
                     <div class="col-lg-2 col-md-3 col-sm-4 col-6 tech-card" data-aos="fade-up" data-aos-delay="450">
                         <div class="avatar shadow-sm"><i class="fas fa-smile fa-3x text-warning"></i></div>
                         <p>face-api.js (TinyFace)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Experimental Results & Analysis ==================== -->
+    <section id="results" class="main-sections">
+        <div class="container">
+            <h5 class="section-headings">Empirical Benchmarks &amp; Model Selection</h5>
+            <div class="sub-section">
+                <h2>Experimental Results &amp; Analysis</h2>
+                <p class="text-muted mb-4">
+                    Rigorous comparative benchmarking across standardized training and testing partitions (80%/20% and 75%/25%) evaluating classification accuracy, inference latency, parameter footprint, and early-childhood pedagogical effectiveness across all four AI pillars.
+                </p>
+
+                <!-- Master Dataset Partitioning Table -->
+                <div class="results-table-container" data-aos="fade-up" data-aos-duration="800">
+                    <h4 class="font-weight-bold text-dark mb-3">
+                        <i class="fas fa-database text-infinity-primary mr-2"></i>Master Dataset Partitioning &amp; Training/Testing Sample Count Matrix
+                    </h4>
+                    <p class="text-muted small mb-3">
+                        Summary of empirical training samples, testing/validation sets, input representations, and target outcomes utilized for model optimization:
+                    </p>
+                    <div class="table-responsive">
+                        <table class="table table-results">
+                            <thead>
+                                <tr>
+                                    <th>Research Pillar &amp; Module</th>
+                                    <th>Lead Researcher</th>
+                                    <th>Core Model Architecture</th>
+                                    <th>Dataset &amp; Modality</th>
+                                    <th>Total Data Volume</th>
+                                    <th>Training Count (Train Set)</th>
+                                    <th>Testing Count (Test Set)</th>
+                                    <th>Split Ratio</th>
+                                    <th>Final Metric / Accuracy</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Pillar 1: Adaptive Mathematics</strong></td>
+                                    <td>Onel Herath<br/><small class="text-muted">IT22550576</small></td>
+                                    <td><strong>MultimodalFusionNet</strong><br/><small class="text-muted">Deep MLP + BatchNorm + Dropout</small></td>
+                                    <td>Multimodal Interaction Features<br/><small class="text-muted">Affect Frustration, Time, Accuracy, Tier</small></td>
+                                    <td><strong>15,000</strong> samples</td>
+                                    <td><span class="badge-split-train">12,000 samples</span></td>
+                                    <td><span class="badge-split-test">3,000 samples</span></td>
+                                    <td>80% / 20%</td>
+                                    <td><span class="badge-result-highlight">98.17% Accuracy</span><br/><small class="text-muted">1.8 ms Latency</small></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pillar 2: English Speech &amp; MTI</strong></td>
+                                    <td>Suvinya Rathnasiri<br/><small class="text-muted">IT22551566</small></td>
+                                    <td><strong>CRNN Hybrid</strong> &amp;<br/><strong>PronunciationNet</strong></td>
+                                    <td>Sri Lankan Student Voice Audio (86 live) + 40-dim MFCC Vectors + SpeechOcean762</td>
+                                    <td><strong>5,086</strong> audio samples</td>
+                                    <td><span class="badge-split-train">4,068 samples</span></td>
+                                    <td><span class="badge-split-test">1,018 samples</span></td>
+                                    <td>80% / 20%</td>
+                                    <td><span class="badge-result-highlight">96.40% Accuracy</span><br/><small class="text-muted">3.6% PER</small></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pillar 3: Preschool Motor &amp; Vision</strong></td>
+                                    <td>Sanduni Fernando<br/><small class="text-muted">IT22208576</small></td>
+                                    <td><strong>OpenAI CLIP ViT-B/32</strong> &amp;<br/>ResNet-50 / MobileNetV3</td>
+                                    <td>Preschool Story Narrative Sketches &amp; Fine Motor Line Tracing Trajectories</td>
+                                    <td><strong>2,400</strong> sketches +<br/>1,200 tracing paths</td>
+                                    <td><span class="badge-split-train">1,920 sketches</span><br/><small class="text-muted">(Supervised CNNs)</small></td>
+                                    <td><span class="badge-split-test">480 sketches</span><br/><small class="text-muted">(Zero-Shot: 2,400 tests)</small></td>
+                                    <td>80% / 20%<br/><small class="text-muted">(Zero-Shot)</small></td>
+                                    <td><span class="badge-result-highlight">94.80% Agreement</span><br/><small class="text-muted">0.94 Tracing IoU</small></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pillar 4: Sinhala Handwriting &amp; DKT</strong></td>
+                                    <td>Vishmi Sandareka<br/><small class="text-muted">IT22281500</small></td>
+                                    <td><strong>SinhalaCharacterCNN</strong> &amp;<br/><strong>DKT-LSTM</strong> Cognitive</td>
+                                    <td>Augmented Sinhala Grapheme Images ($64 \times 64$) &amp; Longitudinal Mastery Sequences</td>
+                                    <td><strong>2,080</strong> char images +<br/>9,600 DKT timesteps</td>
+                                    <td><span class="badge-split-train">1,560 char images</span><br/><small class="text-muted">7,680 DKT steps</small></td>
+                                    <td><span class="badge-split-test">520 char images</span><br/><small class="text-muted">1,920 DKT steps</small></td>
+                                    <td>75% / 25%<br/><small class="text-muted">(DKT: 80/20)</small></td>
+                                    <td><span class="badge-result-highlight">98.20% Accuracy</span><br/><small class="text-muted">0.941 AUC-ROC</small></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4 Pillar Detailed Evaluation Cards -->
+                <div class="row">
+                    <!-- Pillar 1 Card -->
+                    <div class="col-lg-6 col-md-12 mb-4" data-aos="fade-up" data-aos-delay="100">
+                        <div class="results-pillar-card">
+                            <h5 class="results-pillar-title">
+                                <i class="fas fa-calculator text-warning"></i>Pillar 1: Multimodal Adaptive Mathematics
+                            </h5>
+                            <p class="text-muted small mb-2"><strong>Researcher:</strong> Onel Herath (IT22550576) | <strong>Model:</strong> MultimodalFusionNet</p>
+                            <p style="text-align: justify; font-size: 0.9rem;">
+                                Evaluated on <strong>15,000 samples</strong> (12,000 Training / 3,000 Testing). MultimodalFusionNet achieved <strong>98.17% validation accuracy</strong> with an ultra-low inference latency of <strong>1.8 ms</strong> and only 2,755 parameters, outperforming SVM (18.4 ms) and Random Forest (102,400 parameters).
+                            </p>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="eval-figure-box">
+                                        <a href="./images/evaluation/Figure_4_10_Math_Models_Accuracy_Comparison.png" target="_blank" rel="noopener">
+                                            <img src="./images/evaluation/Figure_4_10_Math_Models_Accuracy_Comparison.png" alt="Math Models Accuracy Comparison" class="eval-figure-img" />
+                                        </a>
+                                        <p class="eval-figure-caption">Accuracy Comparison (%)</p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="eval-figure-box">
+                                        <a href="./images/evaluation/Figure_4_11_Math_Models_Latency_F1_Comparison.png" target="_blank" rel="noopener">
+                                            <img src="./images/evaluation/Figure_4_11_Math_Models_Latency_F1_Comparison.png" alt="Math Latency Comparison" class="eval-figure-img" />
+                                        </a>
+                                        <p class="eval-figure-caption">Inference Latency (ms)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 2 Card -->
+                    <div class="col-lg-6 col-md-12 mb-4" data-aos="fade-up" data-aos-delay="200">
+                        <div class="results-pillar-card">
+                            <h5 class="results-pillar-title">
+                                <i class="fas fa-microphone-alt text-info"></i>Pillar 2: English Speech &amp; MTI Pronunciation
+                            </h5>
+                            <p class="text-muted small mb-2"><strong>Researcher:</strong> Suvinya Rathnasiri (IT22551566) | <strong>Model:</strong> CRNN Hybrid &amp; PronunciationNet</p>
+                            <p style="text-align: justify; font-size: 0.9rem;">
+                                Trained on <strong>5,086 audio samples</strong> (4,068 Training / 1,018 Testing) including 86 real human student recordings. The proposed CRNN architecture achieved <strong>96.40% accuracy</strong> with a low Phoneme Error Rate (PER) of <strong>3.6%</strong>, superior to 1D-CNN baseline (84.10%) and 2D-CNN (93.40%).
+                            </p>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="eval-figure-box">
+                                        <a href="./images/evaluation/Figure_4_21_English_Speech_Accuracy_Comparison.png" target="_blank" rel="noopener">
+                                            <img src="./images/evaluation/Figure_4_21_English_Speech_Accuracy_Comparison.png" alt="English Speech Accuracy Comparison" class="eval-figure-img" />
+                                        </a>
+                                        <p class="eval-figure-caption">Accuracy Comparison (%)</p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="eval-figure-box">
+                                        <a href="./images/evaluation/Figure_4_22_MTI_Phoneme_F1_Score_Comparison.png" target="_blank" rel="noopener">
+                                            <img src="./images/evaluation/Figure_4_22_MTI_Phoneme_F1_Score_Comparison.png" alt="MTI F1 Scores" class="eval-figure-img" />
+                                        </a>
+                                        <p class="eval-figure-caption">MTI Phoneme F1-Scores</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 3 Card -->
+                    <div class="col-lg-6 col-md-12 mb-4" data-aos="fade-up" data-aos-delay="300">
+                        <div class="results-pillar-card">
+                            <h5 class="results-pillar-title">
+                                <i class="fas fa-palette text-success"></i>Pillar 3: Preschool Motor &amp; Story Vision
+                            </h5>
+                            <p class="text-muted small mb-2"><strong>Researcher:</strong> Sanduni Fernando (IT22208576) | <strong>Model:</strong> OpenAI CLIP ViT-B/32 &amp; Tracing Engine</p>
+                            <p style="text-align: justify; font-size: 0.9rem;">
+                                Evaluated on <strong>2,400 story sketch samples</strong> across 16 concepts and 1,200 tracing stroke paths (Supervised: 1,920 Train / 480 Test). OpenAI CLIP ViT-B/32 demonstrated <strong>94.80% zero-shot agreement</strong> with nursery educators without needing labeled child doodles, alongside <strong>0.94 line tracing IoU</strong>.
+                            </p>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="eval-figure-box">
+                                        <a href="./images/evaluation/Figure_4_32_Preschool_Vision_Comparison.png" target="_blank" rel="noopener">
+                                            <img src="./images/evaluation/Figure_4_32_Preschool_Vision_Comparison.png" alt="Preschool Vision Accuracy Comparison" class="eval-figure-img" />
+                                        </a>
+                                        <p class="eval-figure-caption">Story Sketch Accuracy (%)</p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="eval-figure-box">
+                                        <a href="./images/evaluation/Figure_4_33_Line_Tracing_Motor_IoU_Comparison.png" target="_blank" rel="noopener">
+                                            <img src="./images/evaluation/Figure_4_33_Line_Tracing_Motor_IoU_Comparison.png" alt="Line Tracing Motor IoU" class="eval-figure-img" />
+                                        </a>
+                                        <p class="eval-figure-caption">Line Tracing Boundary IoU</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 4 Card -->
+                    <div class="col-lg-6 col-md-12 mb-4" data-aos="fade-up" data-aos-delay="400">
+                        <div class="results-pillar-card">
+                            <h5 class="results-pillar-title">
+                                <i class="fas fa-pen-nib text-primary"></i>Pillar 4: Sinhala Handwriting &amp; DKT Cognitive
+                            </h5>
+                            <p class="text-muted small mb-2"><strong>Researcher:</strong> Vishmi Sandareka (IT22281500) | <strong>Model:</strong> SinhalaCharacterCNN &amp; DKT-LSTM</p>
+                            <p style="text-align: justify; font-size: 0.9rem;">
+                                Evaluated on <strong>2,080 Sinhala character images</strong> (1,560 Training / 520 Testing across 26 classes) and <strong>9,600 DKT interaction timesteps</strong> (7,680 Train / 1,920 Test). SinhalaCharacterCNN reached <strong>98.20% classification accuracy</strong>, while DKT-LSTM achieved <strong>0.941 AUC-ROC</strong> for cognitive progression tracking.
+                            </p>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="eval-figure-box">
+                                        <a href="./images/evaluation/Figure_4_43_Sinhala_Character_Accuracy_Comparison.png" target="_blank" rel="noopener">
+                                            <img src="./images/evaluation/Figure_4_43_Sinhala_Character_Accuracy_Comparison.png" alt="Sinhala Character Accuracy Comparison" class="eval-figure-img" />
+                                        </a>
+                                        <p class="eval-figure-caption">Character Accuracy (%)</p>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="eval-figure-box">
+                                        <a href="./images/evaluation/Figure_4_45_DKT_LSTM_AUC_ROC.png" target="_blank" rel="noopener">
+                                            <img src="./images/evaluation/Figure_4_45_DKT_LSTM_AUC_ROC.png" alt="DKT AUC ROC Curve" class="eval-figure-img" />
+                                        </a>
+                                        <p class="eval-figure-caption">DKT Mastery ROC Curve (0.941 AUC)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
