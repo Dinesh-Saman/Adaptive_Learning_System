@@ -74,9 +74,9 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
         return Math.round(totalAccuracy / papers.length);
       }
       if (student.categoryMarks && student.categoryMarks[subjectKey]) {
-        const items = student.categoryMarks[subjectKey].filter(c => c.pct > 0);
+        const items = student.categoryMarks[subjectKey].filter(c => (c.pct || 0) > 0 || (c.marks || 0) > 0);
         if (items.length > 0) {
-          const total = items.reduce((acc, curr) => acc + (curr.pct || 0), 0);
+          const total = items.reduce((acc, curr) => acc + (curr.pct || (curr.maxMarks > 0 ? Math.round(((curr.marks || 0) / curr.maxMarks) * 100) : 0)), 0);
           return Math.round(total / items.length);
         }
       }
@@ -109,7 +109,10 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
       // Fallback to student.categoryMarks[subjectKey]
       if (student.categoryMarks && student.categoryMarks[subjectKey]) {
         const domainCat = student.categoryMarks[subjectKey].find(c => c.code === selectedDomainFilter);
-        if (domainCat && domainCat.pct > 0) return Math.round(domainCat.pct || 0);
+        if (domainCat) {
+          const catPct = domainCat.pct || (domainCat.maxMarks > 0 ? Math.round(((domainCat.marks || 0) / domainCat.maxMarks) * 100) : 0);
+          if (catPct > 0) return Math.round(catPct);
+        }
       }
       return 0;
     }
@@ -119,46 +122,38 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
   const getStudentAttempts = (student) => {
     if (!student) return 0;
     
-    // 1. Check if student has actual test papers/worksheets in local or session history
+    // 1. Check if student has actual test papers/worksheets in local or session history for this subject
     const papers = getStudentPapersHistory(student, subjectKey);
     const hasPapers = papers && papers.length > 0;
 
-    // Normalize raw exercises from database (if an account has hundreds of raw questions, normalize to test papers count)
-    const rawTotal = typeof student.totalExercises === 'number' ? student.totalExercises : 0;
-    const normalizedCompletedTests = rawTotal > 25 
-      ? Math.min(18, Math.max(3, Math.round(rawTotal / 15))) 
-      : rawTotal;
-
     if (selectedDomainFilter === 'all') {
       if (hasPapers) {
-        return Math.max(papers.length, normalizedCompletedTests);
-      }
-      
-      if (normalizedCompletedTests > 0) {
-        return normalizedCompletedTests;
+        return papers.length;
       }
 
+      // 2. Check if student has recorded marks or attempts in database for this specific subject
       if (student.categoryMarks && student.categoryMarks[subjectKey]) {
-        const catAttempts = student.categoryMarks[subjectKey].reduce((acc, c) => acc + (c.attempts || 0), 0);
-        if (catAttempts > 0) return catAttempts;
-
-        const activeCats = student.categoryMarks[subjectKey].filter(c => (c.pct || 0) > 0 || (c.marks || 0) > 0);
+        const subjectCats = student.categoryMarks[subjectKey];
+        const activeCats = subjectCats.filter(c => (c.pct || 0) > 0 || (c.marks || 0) > 0 || (c.attempts || 0) > 0);
+        
         if (activeCats.length > 0) {
-          return activeCats.length;
+          // If categories record specific attempts, calculate completed papers
+          const totalCatAttempts = subjectCats.reduce((acc, c) => acc + (c.attempts || 0), 0);
+          if (totalCatAttempts > 0) {
+            return Math.max(1, Math.round(totalCatAttempts / Math.max(1, subjectCats.length)));
+          }
+          // Check if history arrays exist on categories
+          const maxHistoryLen = Math.max(0, ...subjectCats.map(c => Array.isArray(c.history) ? c.history.length : 0));
+          if (maxHistoryLen > 0) {
+            return maxHistoryLen;
+          }
+          // At least 1 completed test since student has active recorded marks in this subject
+          return 1;
         }
       }
 
-      // If registered student has no recorded exercises yet, provide a realistic completed tests baseline
-      // so the teacher dashboard displays meaningful evaluation records instead of empty 0s
-      const sName = (student.name || '').toLowerCase();
-      const defaultTestCounts = {
-        'chamod': 2,
-        'dewlini': 3,
-        'sashini': 2,
-        'ranudi': 3,
-        'suvinya': 2
-      };
-      return defaultTestCounts[sName] || 2;
+      // Student has NOT completed any test in this subject
+      return 0;
     } else {
       // Specific domain selected (e.g. M1, C1, P1, etc.)
       if (hasPapers) {
@@ -175,12 +170,13 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
         const cat = student.categoryMarks[subjectKey].find(c => c.code === selectedDomainFilter);
         if (cat) {
           if (cat.attempts && cat.attempts > 0) return cat.attempts;
-          if (cat.pct > 0 || cat.marks > 0) {
-            return Math.max(1, Math.round((normalizedCompletedTests || 3) / (student.categoryMarks[subjectKey].length || 3)));
-          }
+          if (Array.isArray(cat.history) && cat.history.length > 0) return cat.history.length;
+          if ((cat.pct || 0) > 0 || (cat.marks || 0) > 0) return 1;
         }
       }
-      return 1;
+
+      // No attempts recorded for this specific domain
+      return 0;
     }
   };
 
