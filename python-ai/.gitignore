@@ -50,6 +50,7 @@ MANIFEST
 *.tflite
 *.onnx
 *.safetensors
+core_motor/weights/motor_model.pt
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
