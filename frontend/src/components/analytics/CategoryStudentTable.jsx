@@ -120,6 +120,19 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
     if (!student) return 0;
     const papers = getStudentPapersHistory(student, subjectKey);
     if (papers && papers.length > 0) {
+      if (subjectKey === 'preschool') {
+        if (selectedDomainFilter === 'all') {
+          return papers.length;
+        } else {
+          return papers.filter(p => {
+            if (p.categoryScores && p.categoryScores[selectedDomainFilter]) return true;
+            if (p.history && Array.isArray(p.history)) {
+              return p.history.some(h => h.category === selectedDomainFilter || (h.skillId && h.skillId.includes(selectedDomainFilter)));
+            }
+            return false;
+          }).length;
+        }
+      }
       if (selectedDomainFilter === 'all') {
         return papers.reduce((acc, p) => acc + (p.totalQuestions || p.history?.length || 20), 0);
       } else {
@@ -133,6 +146,14 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
           }
           return acc;
         }, 0);
+      }
+    }
+    if (student.categoryMarks && student.categoryMarks[subjectKey]) {
+      if (selectedDomainFilter === 'all') {
+        return student.categoryMarks[subjectKey].reduce((acc, c) => acc + (c.attempts || 0), 0);
+      } else {
+        const cat = student.categoryMarks[subjectKey].find(c => c.code === selectedDomainFilter);
+        return cat ? (cat.attempts || 0) : 0;
       }
     }
     return 0;
@@ -176,7 +197,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
     // Aggregate category stats across all completed papers
     const catStats = {};
     baseCategories.forEach(c => {
-      catStats[c.code] = { correct: 0, total: 0 };
+      catStats[c.code] = { correct: 0, total: 0, attemptsCount: 0 };
     });
 
     if (papers && papers.length > 0) {
@@ -186,6 +207,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
             if (catStats[code]) {
               catStats[code].correct += (stat.correct || 0);
               catStats[code].total += (stat.total || 0);
+              catStats[code].attemptsCount = (catStats[code].attemptsCount || 0) + (subKey === 'preschool' ? 1 : (stat.total || 1));
             }
           });
         } else if (p.history && Array.isArray(p.history) && p.history.length > 0) {
@@ -202,6 +224,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
             }
             if (code && catStats[code]) {
               catStats[code].total += 1;
+              catStats[code].attemptsCount = (catStats[code].attemptsCount || 0) + 1;
               const isHCorrect = h.isCorrect === true || h.isPassed === true || h.passed === true ||
                                 (h.result && (h.result.pronunciationCorrect || h.result.wordsCorrect || h.result.overallScore >= 70)) ||
                                 (typeof h.score === 'number' && (h.score >= 70 || h.score >= 0.7));
@@ -218,6 +241,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
           baseCategories.forEach((c, idx) => {
             const share = Math.max(1, Math.floor(qCount / baseCategories.length) + (idx < (qCount % baseCategories.length) ? 1 : 0));
             catStats[c.code].total += share;
+            catStats[c.code].attemptsCount = (catStats[code].attemptsCount || 0) + share;
             catStats[c.code].correct += Math.round((pAcc / 100) * share);
           });
         }
@@ -225,7 +249,7 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
     }
 
     return baseCategories.map(cat => {
-      const stat = catStats[cat.code] || { correct: 0, total: 0 };
+      const stat = catStats[cat.code] || { correct: 0, total: 0, attemptsCount: 0 };
       const domainName = (subKey === 'sinhala' && sGrade === 2 && grade2SinhalaNames[cat.code])
         ? grade2SinhalaNames[cat.code]
         : cat.name;
@@ -237,12 +261,12 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
         return {
           ...cat,
           name: domainName,
-          correct: stat.correct,
-          total: stat.total,
+          correct: subKey === 'preschool' ? Math.round((pct / 100) * (stat.attemptsCount || 1)) : stat.correct,
+          total: subKey === 'preschool' ? (stat.attemptsCount || 1) : stat.total,
           marks,
           pct,
           status,
-          attempts: stat.total
+          attempts: subKey === 'preschool' ? (stat.attemptsCount || 1) : stat.total
         };
       }
 
@@ -1043,7 +1067,13 @@ const CategoryStudentTable = ({ subjectKey = 'math', students = [], loading = fa
                           <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                             <span className="text-xs font-bold text-slate-500">Score Achieved:</span>
                             <span className="text-sm font-black text-slate-900">
-                              {p.totalCorrect} / {p.totalQuestions} <span className="text-indigo-600">({p.accuracy}%)</span>
+                              {subjectKey === 'preschool' ? (
+                                <span className="text-indigo-600 font-bold">{p.accuracy}%</span>
+                              ) : (
+                                <>
+                                  {p.totalCorrect} / {p.totalQuestions} <span className="text-indigo-600">({p.accuracy}%)</span>
+                                </>
+                              )}
                             </span>
                           </div>
 

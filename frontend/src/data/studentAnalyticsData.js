@@ -328,8 +328,8 @@ export const getStudentPapersHistory = (student, subjectKey = 'math') => {
                   gradeLabel: 'Pre-School',
                   paperId: tId,
                   paperTitle: `Line Tracing • ${item.title || 'Worksheet'}`,
-                  totalCorrect: score,
-                  totalQuestions: 100,
+                  totalCorrect: score >= 50 ? 1 : 0,
+                  totalQuestions: 1,
                   accuracy: score,
                   completedAt: item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'Recently',
                   categoryScores: {
@@ -371,8 +371,8 @@ export const getStudentPapersHistory = (student, subjectKey = 'math') => {
                   gradeLabel: 'Pre-School',
                   paperId: cId,
                   paperTitle: `Digital Coloring • ${item.title || 'Coloring Sheet'}`,
-                  totalCorrect: score,
-                  totalQuestions: 100,
+                  totalCorrect: score >= 50 ? 1 : 0,
+                  totalQuestions: 1,
                   accuracy: score,
                   completedAt: item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'Recently',
                   categoryScores: {
@@ -414,8 +414,8 @@ export const getStudentPapersHistory = (student, subjectKey = 'math') => {
                   gradeLabel: 'Grade 1',
                   paperId: sId,
                   paperTitle: `Story Drawing • ${item.title || 'Story Task'}`,
-                  totalCorrect: score,
-                  totalQuestions: 100,
+                  totalCorrect: score >= 50 ? 1 : 0,
+                  totalQuestions: 1,
                   accuracy: score,
                   completedAt: item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'Recently',
                   categoryScores: {
@@ -1125,12 +1125,12 @@ export const getStudentLiveSubjectData = (st) => {
       const calcCat = (scores, code, name) => {
         if (scores.length === 0) {
           const existing = updated.categoryMarks?.preschool?.find(c => c.code === code);
-          return existing || { code, name, marks: 0, maxMarks: 30, pct: 0, status: 'Not Started' };
+          return existing || { code, name, marks: 0, maxMarks: 30, pct: 0, status: 'Not Started', attempts: 0 };
         }
         const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
         const marks = Math.round((avg / 100) * 30);
         const status = avg >= 85 ? 'Mastered' : avg >= 70 ? 'Proficient' : avg >= 50 ? 'Developing' : 'Needs Practice';
-        return { code, name, marks, maxMarks: 30, pct: avg, status };
+        return { code, name, marks, maxMarks: 30, pct: avg, status, attempts: scores.length };
       };
 
       updated.categoryMarks.preschool = [
