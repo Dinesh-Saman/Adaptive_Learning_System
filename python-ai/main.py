@@ -926,12 +926,18 @@ def get_clip_model():
                 except ImportError:
                     from transformers.models.clip import CLIPProcessor, CLIPModel
             print("Loading CLIP model for story drawing evaluation...")
-            try:
-                _clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32", local_files_only=True)
-                _clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32", local_files_only=True)
-            except Exception:
-                _clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-                _clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+            local_weights_dir = os.path.join(os.path.dirname(__file__), "core_motor", "weights")
+            if os.path.exists(local_weights_dir) and (os.path.exists(os.path.join(local_weights_dir, "model.safetensors")) or os.path.exists(os.path.join(local_weights_dir, "pytorch_model.bin"))):
+                print(f"Loading local CLIP weights from: {local_weights_dir}")
+                _clip_processor = CLIPProcessor.from_pretrained(local_weights_dir)
+                _clip_model = CLIPModel.from_pretrained(local_weights_dir)
+            else:
+                try:
+                    _clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32", local_files_only=True)
+                    _clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32", local_files_only=True)
+                except Exception:
+                    _clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+                    _clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
             _clip_model.eval()
             print("CLIP model loaded successfully!")
         except Exception as e:

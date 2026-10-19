@@ -49,6 +49,7 @@ MANIFEST
 *.h5
 *.tflite
 *.onnx
+*.safetensors
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
